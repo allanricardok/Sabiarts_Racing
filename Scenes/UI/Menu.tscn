@@ -1,0 +1,308 @@
+[gd_scene load_steps=7 format=3 uid="uid://ce2gdvomfunn8"]
+
+[ext_resource type="Script" uid="uid://cm71ge4o8mfys" path="res://new folder/lobby.gd" id="1_qyifk"]
+[ext_resource type="FontFile" uid="uid://ce1upkacyj5ch" path="res://burrito.TTF" id="2_jrgwx"]
+[ext_resource type="AudioStream" uid="uid://cgaofq7bvposv" path="res://sound/Menu music.wav" id="3_jrgwx"]
+[ext_resource type="Texture2D" uid="uid://5nb636qn8jyl" path="res://mascar_logo.png" id="4_vpru6"]
+[ext_resource type="Texture2D" uid="uid://b5lqgq70s7nr7" path="res://control.png" id="5_oibld"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jrgwx"]
+content_margin_left = 25.0
+content_margin_top = 25.0
+content_margin_right = 25.0
+content_margin_bottom = 25.0
+bg_color = Color(3.013768, 3.013768, 3.013768, 0.31764707)
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0, 0, 0, 0.17254902)
+shadow_size = 50
+
+[node name="Lobby" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 9.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_qyifk")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.011764706, 0.105882354, 0.2509804, 1)
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_jrgwx")
+volume_db = -18.683
+autoplay = true
+
+[node name="JoinPanel" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="JoinPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -540.5
+offset_top = -66.0
+offset_right = 531.5
+offset_bottom = 294.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="PanelContainer" type="PanelContainer" parent="JoinPanel/HBoxContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_jrgwx")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="JoinPanel/HBoxContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="Player" type="Label" parent="JoinPanel/HBoxContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_jrgwx")
+theme_override_font_sizes/font_size = 48
+text = "Player 1"
+
+[node name="press" type="Label" parent="JoinPanel/HBoxContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 24
+text = "Press any button"
+horizontal_alignment = 1
+
+[node name="ControllerIcon" type="TextureRect" parent="JoinPanel/HBoxContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+expand_mode = 4
+
+[node name="Controller" type="Label" parent="JoinPanel/HBoxContainer/PanelContainer/VBoxContainer"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 24
+text = "Keyboard 1"
+horizontal_alignment = 1
+
+[node name="PanelContainer2" type="PanelContainer" parent="JoinPanel/HBoxContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_jrgwx")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="JoinPanel/HBoxContainer/PanelContainer2"]
+layout_mode = 2
+
+[node name="Player" type="Label" parent="JoinPanel/HBoxContainer/PanelContainer2/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_jrgwx")
+theme_override_font_sizes/font_size = 48
+text = "Player 2"
+
+[node name="press" type="Label" parent="JoinPanel/HBoxContainer/PanelContainer2/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 24
+text = "Press any button"
+horizontal_alignment = 1
+
+[node name="ControllerIcon" type="TextureRect" parent="JoinPanel/HBoxContainer/PanelContainer2/VBoxContainer"]
+layout_mode = 2
+expand_mode = 4
+
+[node name="Controller" type="Label" parent="JoinPanel/HBoxContainer/PanelContainer2/VBoxContainer"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 24
+text = "Keyboard 1"
+horizontal_alignment = 1
+
+[node name="PanelContainer3" type="PanelContainer" parent="JoinPanel/HBoxContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_jrgwx")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="JoinPanel/HBoxContainer/PanelContainer3"]
+layout_mode = 2
+
+[node name="Player" type="Label" parent="JoinPanel/HBoxContainer/PanelContainer3/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_jrgwx")
+theme_override_font_sizes/font_size = 48
+text = "Player 3"
+
+[node name="press" type="Label" parent="JoinPanel/HBoxContainer/PanelContainer3/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 24
+text = "Press any button"
+horizontal_alignment = 1
+
+[node name="ControllerIcon" type="TextureRect" parent="JoinPanel/HBoxContainer/PanelContainer3/VBoxContainer"]
+layout_mode = 2
+expand_mode = 4
+
+[node name="Controller" type="Label" parent="JoinPanel/HBoxContainer/PanelContainer3/VBoxContainer"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 24
+text = "Keyboard 1"
+horizontal_alignment = 1
+
+[node name="PanelContainer4" type="PanelContainer" parent="JoinPanel/HBoxContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_jrgwx")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="JoinPanel/HBoxContainer/PanelContainer4"]
+layout_mode = 2
+
+[node name="Player" type="Label" parent="JoinPanel/HBoxContainer/PanelContainer4/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_jrgwx")
+theme_override_font_sizes/font_size = 48
+text = "Player 4"
+
+[node name="press" type="Label" parent="JoinPanel/HBoxContainer/PanelContainer4/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 24
+text = "Press any button"
+horizontal_alignment = 1
+
+[node name="ControllerIcon" type="TextureRect" parent="JoinPanel/HBoxContainer/PanelContainer4/VBoxContainer"]
+layout_mode = 2
+expand_mode = 4
+
+[node name="Controller" type="Label" parent="JoinPanel/HBoxContainer/PanelContainer4/VBoxContainer"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 24
+text = "Keyboard 1"
+horizontal_alignment = 1
+
+[node name="Instrucoes" type="Label" parent="JoinPanel"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -113.5
+offset_top = 29.0
+offset_right = 109.5
+offset_bottom = 142.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 18
+text = "T1 = WASD Q Shift Space
+T2 = Arrows CTRL 0 1
+
+Press Jump(Pular) to start"
+horizontal_alignment = 1
+
+[node name="Logo" type="TextureRect" parent="JoinPanel"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 10.0
+offset_right = 480.0
+offset_bottom = 244.0
+texture = ExtResource("4_vpru6")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="Control" type="TextureRect" parent="JoinPanel"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -447.0
+offset_top = 18.0
+offset_right = -32.0
+offset_bottom = 246.0
+grow_horizontal = 0
+texture = ExtResource("5_oibld")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="MapPanel" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect2" type="ColorRect" parent="MapPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.012617188, 0.012617188, 0.012617188, 0.5254902)
+
+[node name="ColorRect" type="ColorRect" parent="MapPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -100.0
+offset_right = 200.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.012617188, 0.012617188, 0.012617188, 0.79607844)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MapPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -42.0
+offset_top = -25.0
+offset_right = 42.0
+offset_bottom = 25.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LabelMapa1" type="Label" parent="MapPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_jrgwx")
+theme_override_font_sizes/font_size = 32
+text = "Race Track"
+
+[node name="LabelMapa2" type="Label" parent="MapPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_jrgwx")
+theme_override_font_sizes/font_size = 32
+text = "Chaos City"

@@ -1,0 +1,30 @@
+[gd_scene load_steps=5 format=3 uid="uid://dmamqhcv4h4k7"]
+
+[ext_resource type="Script" uid="uid://b882o617a54cg" path="res://Core/ArlequimMask.gd" id="1_ea82r"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qf4t7"]
+albedo_color = Color(1, 0.48235294, 0.77254903, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_oyycu"]
+material = SubResource("StandardMaterial3D_qf4t7")
+radius = 1.799
+height = 1.5
+radial_segments = 12
+rings = 12
+is_hemisphere = true
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_uwty4"]
+margin = 1.988
+data = PackedVector3Array(-0.25, 1.5, 1.5, 0.25, 1.5, 1.5, -0.25, -1.5, 1.5, 0.25, 1.5, 1.5, 0.25, -1.5, 1.5, -0.25, -1.5, 1.5, 0.25, 1.5, -1.5, -0.25, 1.5, -1.5, 0.25, -1.5, -1.5, -0.25, 1.5, -1.5, -0.25, -1.5, -1.5, 0.25, -1.5, -1.5, 0.25, 1.5, 1.5, 0.25, 1.5, -1.5, 0.25, -1.5, 1.5, 0.25, 1.5, -1.5, 0.25, -1.5, -1.5, 0.25, -1.5, 1.5, -0.25, 1.5, -1.5, -0.25, 1.5, 1.5, -0.25, -1.5, -1.5, -0.25, 1.5, 1.5, -0.25, -1.5, 1.5, -0.25, -1.5, -1.5, 0.25, 1.5, 1.5, -0.25, 1.5, 1.5, 0.25, 1.5, -1.5, -0.25, 1.5, 1.5, -0.25, 1.5, -1.5, 0.25, 1.5, -1.5, -0.25, -1.5, 1.5, 0.25, -1.5, 1.5, -0.25, -1.5, -1.5, 0.25, -1.5, 1.5, 0.25, -1.5, -1.5, -0.25, -1.5, -1.5)
+
+[node name="ArlequimMask" type="Area3D"]
+script = ExtResource("1_ea82r")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.052238226, 0)
+mesh = SubResource("SphereMesh_oyycu")
+skeleton = NodePath("../..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0.052238226, 0)
+shape = SubResource("ConcavePolygonShape3D_uwty4")

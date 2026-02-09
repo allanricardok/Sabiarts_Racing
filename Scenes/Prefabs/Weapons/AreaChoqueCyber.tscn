@@ -1,0 +1,99 @@
+[gd_scene load_steps=18 format=3 uid="uid://3bxyr7s14eww"]
+
+[ext_resource type="Texture2D" uid="uid://dv7niop71x0do" path="res://Assets/2D/cyberpunk_mask.png" id="1_2o0sw"]
+[ext_resource type="Script" uid="uid://cv12k4ap6jpni" path="res://Core/area_choque_cyber.gd" id="1_uhrf3"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_uhrf3"]
+radius = 15.0
+
+[sub_resource type="Curve" id="Curve_uhrf3"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Curve" id="Curve_rx4p5"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Curve" id="Curve_q0md1"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveXYZTexture" id="CurveXYZTexture_shqt2"]
+curve_x = SubResource("Curve_uhrf3")
+curve_y = SubResource("Curve_rx4p5")
+curve_z = SubResource("Curve_q0md1")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_dj7xh"]
+gravity = Vector3(0, 0, 0)
+scale_curve = SubResource("CurveXYZTexture_shqt2")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_eywmy"]
+transparency = 1
+albedo_color = Color(0, 1, 1, 0.42745098)
+
+[sub_resource type="SphereMesh" id="SphereMesh_bkanw"]
+material = SubResource("StandardMaterial3D_eywmy")
+radius = 15.0
+height = 30.0
+radial_segments = 12
+rings = 12
+
+[sub_resource type="Curve" id="Curve_h3k2k"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Curve" id="Curve_6dxw0"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Curve" id="Curve_0s7pq"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveXYZTexture" id="CurveXYZTexture_rx4p5"]
+curve_x = SubResource("Curve_h3k2k")
+curve_y = SubResource("Curve_6dxw0")
+curve_z = SubResource("Curve_0s7pq")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_q0md1"]
+gravity = Vector3(0, 0, 0)
+scale_curve = SubResource("CurveXYZTexture_rx4p5")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_shqt2"]
+transparency = 1
+albedo_color = Color(0, 1.6968869, 1.6968869, 0.18431373)
+albedo_texture = ExtResource("1_2o0sw")
+grow_amount = 4.174
+use_point_size = true
+point_size = 90.0
+
+[sub_resource type="SphereMesh" id="SphereMesh_dj7xh"]
+material = SubResource("StandardMaterial3D_shqt2")
+radius = 15.0
+height = 30.0
+radial_segments = 8
+rings = 8
+
+[node name="AreaChoqueCyber" type="Area3D"]
+script = ExtResource("1_uhrf3")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_uhrf3")
+
+[node name="GPUParticles3D2" type="GPUParticles3D" parent="."]
+emitting = false
+amount = 1
+one_shot = true
+speed_scale = 1.9
+local_coords = true
+process_material = SubResource("ParticleProcessMaterial_dj7xh")
+draw_pass_1 = SubResource("SphereMesh_bkanw")
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="."]
+emitting = false
+amount = 1
+one_shot = true
+speed_scale = 2.0
+local_coords = true
+process_material = SubResource("ParticleProcessMaterial_q0md1")
+draw_pass_1 = SubResource("SphereMesh_dj7xh")

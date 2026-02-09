@@ -1,0 +1,28 @@
+[gd_scene load_steps=5 format=3 uid="uid://c0elnjaamrxis"]
+
+[ext_resource type="Script" uid="uid://crcg36l7b217u" path="res://Core/explosao.gd" id="1_8oww6"]
+[ext_resource type="Material" path="res://Resources/mat_explosao.tres" id="1_v8lyq"]
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_lqi51"]
+emission_shape = 1
+emission_sphere_radius = 1.0
+direction = Vector3(1, 1, 1)
+initial_velocity_max = 10.0
+gravity = Vector3(0, -10.185, 0)
+
+[sub_resource type="QuadMesh" id="QuadMesh_yesm2"]
+material = ExtResource("1_v8lyq")
+size = Vector2(10, 10)
+
+[node name="GPUParticles3D" type="GPUParticles3D"]
+emitting = false
+amount = 20
+lifetime = 5.68
+one_shot = true
+speed_scale = 1.42
+explosiveness = 1.0
+process_material = SubResource("ParticleProcessMaterial_lqi51")
+draw_pass_1 = SubResource("QuadMesh_yesm2")
+script = ExtResource("1_8oww6")
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]

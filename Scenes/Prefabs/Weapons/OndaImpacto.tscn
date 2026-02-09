@@ -1,0 +1,55 @@
+[gd_scene load_steps=10 format=3 uid="uid://df6gv775rvmui"]
+
+[ext_resource type="Script" uid="uid://dwm3hdg8fgco3" path="res://Core/onda_impacto.gd" id="1_4kpie"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_ylmay"]
+radius = 12.0
+
+[sub_resource type="Curve" id="Curve_4kpie"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Curve" id="Curve_fxm8q"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Curve" id="Curve_332i7"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveXYZTexture" id="CurveXYZTexture_ns8lh"]
+curve_x = SubResource("Curve_4kpie")
+curve_y = SubResource("Curve_fxm8q")
+curve_z = SubResource("Curve_332i7")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_v4tru"]
+gravity = Vector3(0, 0.08, 0)
+scale_curve = SubResource("CurveXYZTexture_ns8lh")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fwqru"]
+transparency = 1
+albedo_color = Color(0, 0.22305687, 0.36985463, 0.52156866)
+
+[sub_resource type="TorusMesh" id="TorusMesh_kmus7"]
+material = SubResource("StandardMaterial3D_fwqru")
+inner_radius = 10.5
+outer_radius = 14.0
+rings = 12
+ring_segments = 12
+
+[node name="OndaImpacto" type="Area3D"]
+script = ExtResource("1_4kpie")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CylinderShape3D_ylmay")
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="."]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
+emitting = false
+amount = 1
+lifetime = 2.0
+one_shot = true
+speed_scale = 5.0
+local_coords = true
+process_material = SubResource("ParticleProcessMaterial_v4tru")
+draw_pass_1 = SubResource("TorusMesh_kmus7")
