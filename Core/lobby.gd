@@ -43,7 +43,7 @@ func _input(_event):
 	if current_state == State.JOINING:
 		for esquema in esquemas_disponiveis:
 			if esquema in jogadores_ativos: continue
-			if Input.is_action_just_pressed("Fire_" + esquema) or Input.is_action_just_pressed("Jump_" + esquema):
+			if Input.is_action_just_pressed("Fire_" + esquema) or Input.is_action_just_pressed("Action_" + esquema):
 				_adicionar_jogador(esquema)
 
 func _processar_navegacao_mapa():
@@ -65,7 +65,7 @@ func _processar_navegacao_mapa():
 	# Aqui sim usamos o loop, pois cada jogador tem seu próprio botão de pulo mapeado
 	for esquema in jogadores_ativos:
 		if esquema == null: continue
-		if Input.is_action_just_pressed("Jump_" + esquema):
+		if Input.is_action_just_pressed("Action_" + esquema):
 			_iniciar_corrida()
 			break # Sai do loop assim que o primeiro confirmar
 	
