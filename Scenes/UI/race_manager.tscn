@@ -1,0 +1,43 @@
+[gd_scene load_steps=3 format=3 uid="uid://cr2vgv1qfxty1"]
+
+[ext_resource type="Script" uid="uid://b4jhafh005ox" path="res://Core/race_manager.gd" id="1_y5n2j"]
+[ext_resource type="PackedScene" uid="uid://otkba37h2pp0" path="res://Scenes/UI/TelaFinal.tscn" id="2_qifse"]
+
+[node name="RaceManager" type="Node"]
+script = ExtResource("1_y5n2j")
+voltas_para_vencer = 3
+tela_final_scene = ExtResource("2_qifse")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="CenterContainer" type="CenterContainer" parent="CanvasLayer"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -124.0
+offset_top = -183.0
+offset_right = 124.0
+offset_bottom = 25.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/CenterContainer"]
+layout_mode = 2
+theme_override_constants/separation = 49
+
+[node name="Bola1" type="ColorRect" parent="CanvasLayer/CenterContainer/HBoxContainer"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+color = Color(1, 0.10980392, 0, 1)
+
+[node name="Bola2" type="ColorRect" parent="CanvasLayer/CenterContainer/HBoxContainer"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+color = Color(1, 0.10980392, 0, 1)
+
+[node name="Bola3" type="ColorRect" parent="CanvasLayer/CenterContainer/HBoxContainer"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+color = Color(1, 0.10980392, 0, 1)

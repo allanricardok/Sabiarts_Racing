@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Sabiarts_Racing"
-run/main_scene="uid://d2rblk8h626kc"
+run/main_scene="uid://ce2gdvomfunn8"
 config/features=PackedStringArray("4.5", "GL Compatibility")
 boot_splash/bg_color=Color(0.14117648, 0.14117648, 0.23921569, 1)
 boot_splash/image="uid://5nb636qn8jyl"

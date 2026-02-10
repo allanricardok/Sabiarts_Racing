@@ -1,8 +1,6 @@
-[gd_scene load_steps=5 format=3 uid="uid://otkba37h2pp0"]
+[gd_scene load_steps=3 format=3 uid="uid://otkba37h2pp0"]
 
-[ext_resource type="Script" uid="uid://dibu8m28lnd1u" path="res://new folder/tela_final.gd" id="1_ixqf7"]
-[ext_resource type="FontFile" uid="uid://ce1upkacyj5ch" path="res://burrito.TTF" id="2_ixqf7"]
-[ext_resource type="Texture2D" uid="uid://5nb636qn8jyl" path="res://mascar_logo.png" id="2_p40x0"]
+[ext_resource type="Script" uid="uid://crlgmbgxb8fpi" path="res://Core/tela_final.gd" id="1_ixqf7"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nqav1"]
 content_margin_left = 4.0
@@ -36,7 +34,6 @@ offset_left = 58.0
 offset_top = 43.0
 offset_right = 552.0
 offset_bottom = 301.0
-texture = ExtResource("2_p40x0")
 expand_mode = 1
 stretch_mode = 4
 
@@ -49,14 +46,12 @@ grow_vertical = 2
 
 [node name="CorridaFinalizada" type="Label" parent="VBoxContainer"]
 layout_mode = 2
-theme_override_fonts/font = ExtResource("2_ixqf7")
 theme_override_font_sizes/font_size = 32
 text = "    "
 horizontal_alignment = 2
 
 [node name="CorridaFinalizada2" type="Label" parent="VBoxContainer"]
 layout_mode = 2
-theme_override_fonts/font = ExtResource("2_ixqf7")
 theme_override_font_sizes/font_size = 64
 text = "Fim da corrida!     "
 horizontal_alignment = 2
@@ -155,7 +150,6 @@ theme_override_constants/separation = 15
 
 [node name="TemposTitle" type="Label" parent="VBoxContainer2"]
 layout_mode = 2
-theme_override_fonts/font = ExtResource("2_ixqf7")
 theme_override_font_sizes/font_size = 42
 text = "Tempos:"
 
@@ -188,7 +182,6 @@ offset_right = -47.0
 offset_bottom = -51.0
 grow_horizontal = 0
 grow_vertical = 0
-theme_override_fonts/font = ExtResource("2_ixqf7")
 theme_override_font_sizes/font_size = 48
 theme_override_styles/normal = SubResource("StyleBoxFlat_nqav1")
 text = "Back to Menu"

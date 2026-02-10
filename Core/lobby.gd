@@ -4,10 +4,9 @@ enum State { JOINING, SELECTING_MAP }
 var current_state = State.JOINING
 
 # --- CONFIGURAÇÃO ---
-const MAPAS = [
-	{"nome": "Race Track", "path": "res://new folder/New_Race_Track/New_Low_Poly_Track.tscn"},
-	{"nome": "Chaos City", "path": "res://new folder/downloaded_map_test.tscn"}
-]
+# No topo do lobby.gd, substitua a const MAPAS por isso:
+@export var nomes_dos_mapas: Array[String] = ["Official_Test_Map"]
+@export var cenas_dos_mapas: Array[PackedScene]
 
 var selected_map_index = 0
 
@@ -22,8 +21,8 @@ var esquemas_disponiveis = ["K1", "K2", "J1", "J2", "J3", "J4"]
 var nomes_controles = {"K1": "Keyboard 1", "K2": "Keyboard 2", "J1": "Joystick 1", "J2": "Joystick 2", "J3": "Joystick 3", "J4": "Joystick 4"}
 var jogadores_ativos = [null, null, null, null]
 
-const ICON_KEYBOARD = preload("res://new folder/keyboard.png")
-const ICON_JOYSTICK = preload("res://new folder/joystick.png")
+const ICON_KEYBOARD = preload("res://Assets/2D/cyberpunk_mask.png")
+const ICON_JOYSTICK = preload("res://Assets/2D/explosion.png")
 @onready var slots_ui = $JoinPanel/HBoxContainer.get_children()
 
 func _ready():
@@ -71,9 +70,11 @@ func _processar_navegacao_mapa():
 			break # Sai do loop assim que o primeiro confirmar
 	
 func _atualizar_visual_mapa():
-	# Efeito visual simples: o selecionado fica branco, o outro fica cinza
+	# Atualiza os textos se você quiser que eles mudem conforme a lista do Inspetor
+	label_mapa_1.text = nomes_dos_mapas[0]
+	
+	# Efeito de cor (Sua lógica original)
 	label_mapa_1.modulate = Color(1, 1, 1) if selected_map_index == 0 else Color(0.3, 0.3, 0.3)
-	label_mapa_2.modulate = Color(1, 1, 1) if selected_map_index == 1 else Color(0.3, 0.3, 0.3)
 
 func _mudar_para_selecao_mapa():
 	current_state = State.SELECTING_MAP
@@ -82,9 +83,18 @@ func _mudar_para_selecao_mapa():
 	print("Entrando na seleção de mapa...")
 
 func _iniciar_corrida():
+	# 1. Envia os dados para o Global (Sua lógica original)
 	Global.dados_jogadores = jogadores_ativos
-	var mapa_final = MAPAS[selected_map_index]["path"]
-	get_tree().change_scene_to_file(mapa_final)
+	
+	# 2. Pega a cena que você arrastou no slot correspondente
+	var mapa_para_carregar = cenas_dos_mapas[selected_map_index]
+	
+	if mapa_para_carregar:
+		print("Iniciando mapa: ", nomes_dos_mapas[selected_map_index])
+		# Como é uma PackedScene (arrastada), usamos change_scene_to_packed
+		get_tree().change_scene_to_packed(mapa_para_carregar)
+	else:
+		push_error("ERRO: Você esqueceu de arrastar a cena para o slot no Inspetor!")
 
 # --- AUXILIARES ---
 func _get_contagem_jogadores():

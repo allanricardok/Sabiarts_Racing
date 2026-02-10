@@ -171,7 +171,13 @@ func _ready():
 
 func configurar_carro_pelo_id(id):
 	var data = Global.dados_jogadores[id]
-	print("Carro configurado: ", data.nome_carro)
+	
+	if data != null:
+		# Se você está usando a lógica do Lobby de enviar "K1", "J1":
+		input_source = data # Atribui a String "K1" direto para a sua variável de controle
+		print("Carro configurado para o controle: ", input_source)
+	else:
+		print("Aviso: Slot de jogador vazio.")
 
 func _physics_process(delta):
 	# 1. ATUALIZAÇÃO DE UI (Sempre roda)
@@ -398,7 +404,6 @@ func iniciar_intro_jogador():
 	intro_overlay.hide()
 	print("Fim da Intro para ", input_source)
 
-# --- SISTEMA DE MÁSCARAS ---
 
 func equip_arlequim_mask():
 	sound.stream = fxMaskOn

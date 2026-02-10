@@ -23,11 +23,6 @@ func _ready():
 	
 	# Inicia a sequência completa
 	_sequencia_master_inicio()
-	
-	var jogadores_reais = 0
-	for data in Global.dados_jogadores:
-		if data != null:
-			jogadores_reais += 1
 
 func _sequencia_master_inicio():
 	print("--- DEBUG MANAGER ---")
@@ -110,8 +105,3 @@ func _finalizar_corrida_total():
 	get_tree().root.add_child(tela) 
 	tela.configurar_resultados(lista_resultados)
 	get_tree().call_group("menu_pausa", "desativar_pausa")
-
-func _input(event):
-	if OS.is_debug_build() and event.is_action_pressed("ui_accept"): # Tecla Enter/Espaço
-		print("DEBUG: Pulando contagem de largada")
-		_iniciar_sequencia_largada() # Pula direto para a liberação

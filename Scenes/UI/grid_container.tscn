@@ -1,0 +1,56 @@
+[gd_scene load_steps=0 format=3 uid="uid://2nhys60mmssa"]
+
+[node name="GridContainer" type="GridContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+columns = 2
+
+[node name="Cont_P1" type="SubViewportContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+stretch = true
+
+[node name="View_P1" type="SubViewport" parent="Cont_P1"]
+handle_input_locally = false
+size = Vector2i(2, 2)
+render_target_update_mode = 4
+
+[node name="Cont_P2" type="SubViewportContainer" parent="."]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+stretch = true
+
+[node name="View_P2" type="SubViewport" parent="Cont_P2"]
+handle_input_locally = false
+size = Vector2i(2, 2)
+render_target_update_mode = 0
+
+[node name="Cont_P3" type="SubViewportContainer" parent="."]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+stretch = true
+
+[node name="View_P3" type="SubViewport" parent="Cont_P3"]
+handle_input_locally = false
+size = Vector2i(2, 2)
+render_target_update_mode = 0
+
+[node name="Cont_P4" type="SubViewportContainer" parent="."]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+stretch = true
+
+[node name="View_P4" type="SubViewport" parent="Cont_P4"]
+handle_input_locally = false
+size = Vector2i(2, 2)
+render_target_update_mode = 0

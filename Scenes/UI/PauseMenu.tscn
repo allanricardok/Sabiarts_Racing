@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://do7x7c5gyyp8g"]
 
-[ext_resource type="Script" uid="uid://b7fmhv608lrg0" path="res://pause_menu.gd" id="1_nov15"]
-[ext_resource type="FontFile" uid="uid://ce1upkacyj5ch" path="res://burrito.TTF" id="2_etnfi"]
+[ext_resource type="Script" uid="uid://w3cry4lirhyi" path="res://Core/pause_menu.gd" id="1_nov15"]
+[ext_resource type="FontFile" path="res://burrito.TTF" id="2_etnfi"]
 
 [node name="PauseMenu" type="CanvasLayer"]
 process_mode = 3
