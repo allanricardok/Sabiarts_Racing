@@ -7,38 +7,49 @@ var suffix : String = ""
 # Eixos de direção e motor
 var throttle : float = 0.0
 var steering : float = 0.0
+var pitch : float = 0.0 
 
-# O novo botão unificado (Antigo Jump)
-var is_action_pressed : bool = false
-var is_action_just_pressed : bool = false
+# Botões de Disparo
+var is_action_pressed : bool = false       # X (Metralhadora)
+var is_fire_pressed : bool = false         # Quadrado (Especial)
+var is_attribute_pressed : bool = false    # Círculo (Modificador de Habilidades)
 
-# Botões digitais do D-pad para combos
+# Intenções de Habilidade (Referenciando o Project Settings)
 var ability_up : bool = false
 var ability_down : bool = false
 var ability_left : bool = false
 var ability_right : bool = false
 
-var pitch : float = 0.0 
-
-
 func setup(input_source: String):
 	suffix = "_" + input_source
+	print("InputComponent pronto para: ", suffix)
 
 func _process(_delta):
 	if suffix == "": return
 	
+	# 1. Movimentação e Pitch (Analógicos)
 	throttle = Input.get_axis("Backward" + suffix, "Forward" + suffix)
 	steering = Input.get_axis("Right" + suffix, "Left" + suffix)
-	
-	# RE ADICIONE ESTA LINHA:
 	pitch = Input.get_axis("Pitch_Down" + suffix, "Pitch_Up" + suffix)
 	
+	# 2. Botões Principais
 	is_action_pressed = Input.is_action_pressed("Action" + suffix)
-	# Adicione esta para o MovementComponent não dar erro no pulo:
-	is_action_just_pressed = Input.is_action_just_pressed("Action" + suffix)
+	is_fire_pressed = Input.is_action_pressed("Fire" + suffix)
+	is_attribute_pressed = Input.is_action_pressed("Attribute" + suffix)
 	
-	# Captura os botões direcionais (D-pad)
-	ability_up = Input.is_action_pressed("AbilityUp")
-	ability_down = Input.is_action_pressed("AbilityDown")
-	ability_left = Input.is_action_pressed("AbilityLeft")
-	ability_right = Input.is_action_pressed("AbilityRight")
+	# 3. Lógica de Habilidades (Referenciando as ações do Project Settings)
+	# IMPORTANTE: No seu Input Map, as ações "AbilityUp_K1", etc, 
+	# devem estar mapeadas para o analógico desejado.
+	
+	# Só validamos a direção da habilidade se o botão modificador (Círculo) estiver ativo
+	if is_attribute_pressed:
+		ability_up = Input.is_action_pressed("AbilityUp" + suffix)
+		ability_down = Input.is_action_pressed("AbilityDown" + suffix)
+		ability_left = Input.is_action_pressed("AbilityLeft" + suffix)
+		ability_right = Input.is_action_pressed("AbilityRight" + suffix)
+	else:
+		# Se não está segurando o Círculo, as habilidades são resetadas para falso
+		ability_up = false
+		ability_down = false
+		ability_left = false
+		ability_right = false

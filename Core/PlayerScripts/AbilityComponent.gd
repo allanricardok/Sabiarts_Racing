@@ -6,90 +6,151 @@ class_name AbilityComponent
 @onready var input = %InputComponent
 @onready var stats = %StatsComponent
 
+# --- SISTEMA DE ENERGIA ---
+@export_group("Energy System")
+@export var MAX_ENERGY : float = 100.0
+@export var REGEN_RATE : float = 5.0 # Editável como você pediu
+var current_energy : float = 100.0
+
+@export_group("Ability Costs")
+@export var COST_TELEPORT : float = 60.0
+@export var COST_JUMP : float = 20.0
+@export var COST_SHIELD : float = 40.0
+@export var COST_BOOST : float = 20.0
+
+@export_group("Cooldown")
 @export var SHARED_COOLDOWN_TIME : float = 1.0
 var current_cooldown : float = 0.0
 
+@export_group("UI")
+@export var energy_bar : ProgressBar
+@export var cooldown_bar : ProgressBar
+var shield_material : StandardMaterial3D
+
 # --- CONFIGURAÇÃO DE HABILIDADES ---
-@export_group("Configs")
+@export_group("Physics Configs")
 @export var JUMP_FORCE : float = 12.0
 @export var BOOST_IMPULSE : float = 65.0
-@export var TELEPORT_DIST : float = 15.0
 @export var SHIELD_TIME : float = 2.5
 
-# AbilityComponent.gd
+var spawn_transform : Transform3D
+
+func _ready():
+	# Salva a posição e rotação inicial para o Teleport Spawn
+	spawn_transform = car.global_transform
+	current_energy = MAX_ENERGY
+	
+	# Inicializa o material de prata metálica para o Shield
+	shield_material = StandardMaterial3D.new()
+	shield_material.albedo_color = Color(0.42, 0.45, 0.45) 
+	shield_material.metallic = 0.8 # Ficou 1.0 para ser 100% metálico como pedido
+	shield_material.roughness = 0.1 # Menos rugosidade = mais espelhado
+	
+	if energy_bar:
+		energy_bar.max_value = MAX_ENERGY
+	if cooldown_bar:
+		cooldown_bar.max_value = SHARED_COOLDOWN_TIME
+
 func _process(delta):
+	# 1. Recuperação de Energia
+	if current_energy < MAX_ENERGY:
+		current_energy = move_toward(current_energy, MAX_ENERGY, REGEN_RATE * delta)
+	
+	# 2. Gestão de Cooldown Global
 	if current_cooldown > 0:
 		current_cooldown -= delta
 	
+	# --- ATUALIZAÇÃO DAS BARRAS HUD ---
+	if energy_bar:
+		energy_bar.value = current_energy
+	
+	if cooldown_bar:
+		cooldown_bar.value = current_cooldown
+	
 	if not car.pode_mover: return
 
-	# Só entra na lógica se o botão ACTION estiver pressionado
-	if input.is_action_pressed and current_cooldown <= 0:
-		_checar_combos_digitais()
+	# 3. Lógica de Ativação (Baseada no novo botão Modificador: Attribute/Círculo)
+	if input.is_attribute_pressed and current_cooldown <= 0:
+		_checar_combos_habilidade()
 
-func _checar_combos_digitais():
-	# Cima -> PULO
+func _checar_combos_habilidade():
+	# Verificamos os analógicos (mapeados no Project Settings) via InputComponent
+	
+	# Cima (Analógico) -> PULO (20 pts)
 	if input.ability_up:
-		_execute_jump()
+		if current_energy >= COST_JUMP: _execute_jump()
+		else: _erro_falta_energia()
 	
-	# Baixo -> BOOST
+	# Baixo (Analógico) -> BOOST (20 pts)
 	elif input.ability_down:
-		_execute_boost()
+		if current_energy >= COST_BOOST: _execute_boost()
+		else: _erro_falta_energia()
 	
-	# Esquerda -> TELEPORT
+	# Esquerda (Analógico) -> TELEPORT SPAWN (60 pts)
 	elif input.ability_left:
-		_execute_teleport()
+		if current_energy >= COST_TELEPORT: _execute_teleport()
+		else: _erro_falta_energia()
 	
-	# Direita -> SHIELD
+	# Direita (Analógico) -> SHIELD (40 pts)
 	elif input.ability_right:
-		_execute_shield()
+		if current_energy >= COST_SHIELD: _execute_shield()
+		else: _erro_falta_energia()
 
-func _checar_combos_direcionais():
-	# Cima (Throttle > 0) -> PULO
-	if input.throttle > 0.5:
-		_execute_jump()
-	
-	# Baixo (Throttle < 0) -> BOOST
-	elif input.throttle < -0.5:
-		_execute_boost()
-	
-	# Esquerda (Steering > 0 no seu InputComponent) -> TELEPORT
-	elif input.steering > 0.5:
-		_execute_teleport()
-	
-	# Direita (Steering < 0) -> SHIELD
-	elif input.steering < -0.5:
-		_execute_shield()
+# --- FUNÇÃO DE FEEDBACK VISUAL ---
 
-# --- EXECUÇÃO DAS FUNÇÕES ---
+func _erro_falta_energia():
+	if energy_bar:
+		energy_bar.modulate = Color.RED
+		# Volta ao normal em 0.5 segundos como você pediu
+		get_tree().create_timer(0.5).timeout.connect(func():
+			energy_bar.modulate = Color.WHITE
+		)
+
+# --- EXECUÇÃO DAS HABILIDADES ---
 
 func _execute_jump():
-	print("HABILIDADE: Pulo Vertical")
+	current_energy -= COST_JUMP
 	var mult = stats.jump_multiplier if stats else 1.0
 	car.apply_central_impulse(Vector3.UP * JUMP_FORCE * mult * car.mass)
 	_start_cooldown()
 
 func _execute_boost():
-	print("HABILIDADE: Turbo")
+	current_energy -= COST_BOOST
 	var mult = stats.speed_multiplier if stats else 1.0
 	car.apply_central_impulse(car.global_transform.basis.z * BOOST_IMPULSE * mult * car.mass)
 	_start_cooldown()
 
 func _execute_teleport():
-	print("HABILIDADE: Teleport")
-	car.global_position += car.global_transform.basis.z * TELEPORT_DIST
-	car.global_position.y += 0.5 # Segurança para não prender no chão
+	# Teleporta para a posição salva no _ready
+	current_energy -= COST_TELEPORT
+	car.global_transform = spawn_transform
+	# Limpa as forças para não aparecer no spawn "voando"
+	car.linear_velocity = Vector3.ZERO
+	car.angular_velocity = Vector3.ZERO
 	_start_cooldown()
 
 func _execute_shield():
-	print("HABILIDADE: Shield")
+	current_energy -= COST_SHIELD
 	if stats: stats.is_invulnerable = true
-	# Se tiver um visual de escudo: %ShieldVisual.show()
+	
+	# Efeito visual 100% Prata Metálico
+	_set_car_silver_effect(true)
+	
 	_start_cooldown()
+	
 	get_tree().create_timer(SHIELD_TIME).timeout.connect(func():
 		if stats: stats.is_invulnerable = false
-		# %ShieldVisual.hide()
+		_set_car_silver_effect(false)
 	)
+
+func _set_car_silver_effect(active: bool):
+	# Procura todas as meshes do carro para aplicar o cromo
+	var all_meshes = car.find_children("*", "MeshInstance3D", true)
+	for mesh in all_meshes:
+		if active:
+			mesh.material_override = shield_material
+		else:
+			mesh.material_override = null
 
 func _start_cooldown():
 	current_cooldown = SHARED_COOLDOWN_TIME

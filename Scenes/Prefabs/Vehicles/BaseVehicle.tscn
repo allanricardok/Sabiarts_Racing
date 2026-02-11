@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=4 uid="uid://cw8ofahu5mqhn"]
+[gd_scene load_steps=25 format=4 uid="uid://cw8ofahu5mqhn"]
 
 [ext_resource type="Script" uid="uid://b0i2wvnkcrknc" path="res://Core/PlayerScripts/BaseVehicle.gd" id="1_m0ew1"]
 [ext_resource type="Script" uid="uid://cjnmai87rc2f8" path="res://Core/camera_test_3.gd" id="2_8gjg4"]
@@ -145,7 +145,19 @@ content_margin_left = 2.0
 content_margin_top = 2.0
 content_margin_right = 2.0
 content_margin_bottom = 2.0
-bg_color = Color(1, 1, 1, 1)
+bg_color = Color(0.23921569, 0.50980395, 1, 0.89411765)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+corner_detail = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m0ew1"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.23921569, 0.50980395, 1, 0.89411765)
 corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_right = 6
@@ -303,76 +315,6 @@ transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0.01
 [node name="HUD" type="CanvasLayer" parent="."]
 script = SubResource("GDScript_rk80m")
 
-[node name="BoostUI" type="HBoxContainer" parent="HUD"]
-unique_name_in_owner = true
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_left = 21.0
-offset_top = -54.0
-offset_right = 570.0
-offset_bottom = -14.0
-grow_vertical = 0
-
-[node name="ColorRect10" type="ColorRect" parent="HUD/BoostUI"]
-visible = false
-custom_minimum_size = Vector2(25, 40)
-layout_mode = 2
-color = Color(0.9116014, 0.3439106, 0.20378439, 1)
-
-[node name="ColorRect9" type="ColorRect" parent="HUD/BoostUI"]
-visible = false
-custom_minimum_size = Vector2(25, 40)
-layout_mode = 2
-color = Color(0.9116014, 0.3439106, 0.20378439, 1)
-
-[node name="ColorRect8" type="ColorRect" parent="HUD/BoostUI"]
-visible = false
-custom_minimum_size = Vector2(25, 40)
-layout_mode = 2
-color = Color(0.9116014, 0.3439106, 0.20378439, 1)
-
-[node name="ColorRect7" type="ColorRect" parent="HUD/BoostUI"]
-visible = false
-custom_minimum_size = Vector2(25, 40)
-layout_mode = 2
-color = Color(0.9116014, 0.3439106, 0.20378439, 1)
-
-[node name="ColorRect6" type="ColorRect" parent="HUD/BoostUI"]
-visible = false
-custom_minimum_size = Vector2(25, 40)
-layout_mode = 2
-color = Color(0.9116014, 0.3439106, 0.20378439, 1)
-
-[node name="ColorRect5" type="ColorRect" parent="HUD/BoostUI"]
-visible = false
-custom_minimum_size = Vector2(25, 40)
-layout_mode = 2
-color = Color(0.9116014, 0.3439106, 0.20378439, 1)
-
-[node name="ColorRect4" type="ColorRect" parent="HUD/BoostUI"]
-visible = false
-custom_minimum_size = Vector2(25, 40)
-layout_mode = 2
-color = Color(0.9116014, 0.3439106, 0.20378439, 1)
-
-[node name="ColorRect3" type="ColorRect" parent="HUD/BoostUI"]
-visible = false
-custom_minimum_size = Vector2(25, 40)
-layout_mode = 2
-color = Color(0.9116014, 0.3439106, 0.20378439, 1)
-
-[node name="ColorRect2" type="ColorRect" parent="HUD/BoostUI"]
-visible = false
-custom_minimum_size = Vector2(25, 40)
-layout_mode = 2
-color = Color(0.9116014, 0.3439106, 0.20378439, 1)
-
-[node name="ColorRect" type="ColorRect" parent="HUD/BoostUI"]
-custom_minimum_size = Vector2(25, 40)
-layout_mode = 2
-color = Color(0.9116014, 0.3439106, 0.20378439, 1)
-
 [node name="UI_Base" type="Control" parent="HUD"]
 clip_contents = true
 layout_mode = 3
@@ -442,19 +384,15 @@ theme_override_font_sizes/font_size = 36
 text = "11:00:24"
 
 [node name="WeaponCooldown" type="ProgressBar" parent="HUD/UI_Base"]
-visible = false
 layout_mode = 1
-anchors_preset = 3
+anchors_preset = 1
 anchor_left = 1.0
-anchor_top = 1.0
 anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -197.0
-offset_top = -81.0
-offset_right = -19.0
-offset_bottom = -60.0
+offset_left = -193.0
+offset_top = 52.0
+offset_right = -15.0
+offset_bottom = 73.0
 grow_horizontal = 0
-grow_vertical = 0
 theme_override_font_sizes/font_size = 26
 theme_override_styles/fill = SubResource("StyleBoxFlat_og6km")
 show_percentage = false
@@ -516,7 +454,6 @@ text = "Bonus"
 
 [node name="MaskDurabilityBar" type="ProgressBar" parent="HUD"]
 unique_name_in_owner = true
-visible = false
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
@@ -526,7 +463,7 @@ offset_right = -14.0
 offset_bottom = 44.0
 grow_horizontal = 0
 theme_override_font_sizes/font_size = 18
-theme_override_styles/fill = SubResource("StyleBoxFlat_og6km")
+theme_override_styles/fill = SubResource("StyleBoxFlat_m0ew1")
 
 [node name="MaskNameLabel" type="Label" parent="HUD"]
 unique_name_in_owner = true
@@ -573,18 +510,43 @@ script = ExtResource("3_wlsau")
 [node name="MovementComponent" type="Node" parent="Scripts" node_paths=PackedStringArray("wheel_rear_left", "wheel_rear_right", "wheel_front_left", "wheel_front_right")]
 unique_name_in_owner = true
 script = ExtResource("4_nd1mt")
+ENGINE_POWER = 3500.0
+MAX_STEER = 0.35
+BRAKE_POWER = 20.0
+BRAKE_ASSIST_FORCE = 45.0
+START_BOOST = 3.5
+BOOST_LIMIT_SPEED = 22.0
+AIR_RESISTANCE = 0.11
+FALL_FORCE_BUFFER_DISTANCE = 2.0
+speed_max_friction = 200.0
+friction_rear_min = 2.2
+friction_front_min = 3.5
+friction_front_max = 4.0
+AIR_CONTROL_FORCE = 9.0
+AIR_TORQUE_FORCE = 15.0
 wheel_rear_left = NodePath("../../TrasEsq")
 wheel_rear_right = NodePath("../../TrasDir")
 wheel_front_left = NodePath("../../FreEsq")
 wheel_front_right = NodePath("../../FreDir")
+STEER_TORQUE_FORCE = 4.5
+STATIONARY_TURN_SPEED = 42.0
 
 [node name="StatsComponent" type="Node" parent="Scripts"]
 unique_name_in_owner = true
 script = ExtResource("5_gotx0")
 
-[node name="AbilityComponent" type="Node" parent="Scripts"]
+[node name="AbilityComponent" type="Node" parent="Scripts" node_paths=PackedStringArray("energy_bar", "cooldown_bar")]
 unique_name_in_owner = true
 script = ExtResource("6_362yw")
+REGEN_RATE = 2.5
+COST_TELEPORT = 65.0
+COST_JUMP = 25.0
+SHARED_COOLDOWN_TIME = 0.5
+energy_bar = NodePath("../../HUD/MaskDurabilityBar")
+cooldown_bar = NodePath("../../HUD/UI_Base/WeaponCooldown")
+JUMP_FORCE = 18.0
+BOOST_IMPULSE = 11.0
+SHIELD_TIME = 5.0
 
 [node name="WeaponManager" type="Node3D" parent="Scripts"]
 unique_name_in_owner = true

@@ -1,5 +1,11 @@
-[gd_resource type="StandardMaterial3D" format=3 uid="uid://dp6d1xqyv31yr"]
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3 uid="uid://dp6d1xqyv31yr"]
+
+[ext_resource type="Texture2D" uid="uid://bihhh4f73gjkt" path="res://Assets/2D/images.jpg" id="1_5f4v6"]
 
 [resource]
 transparency = 1
-albedo_color = Color(0.11890963, 0.11890963, 0.11890963, 1)
+albedo_color = Color(0.7366753, 0.7366753, 0.7366753, 1)
+albedo_texture = ExtResource("1_5f4v6")
+uv1_scale = Vector3(0.08, 0.08, 0.08)
+uv1_triplanar = true
+texture_filter = 0

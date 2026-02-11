@@ -15,6 +15,8 @@ class_name MovementComponent
 @export var START_BOOST = 2.5        # Multiplicador de arrancada
 @export var BOOST_LIMIT_SPEED = 15.0 # Até que velocidade o boost atua
 @export var AIR_RESISTANCE = 0.12
+@export var EXTRA_FALL_FORCE = 20.0 # Ajuste este valor para controlar a velocidade da queda
+@export var FALL_FORCE_BUFFER_DISTANCE = 2.5 # Distância em metros para parar a força
 
 @export_group("Fricção Dinâmica")
 @export var speed_max_friction := 150.0
@@ -33,6 +35,10 @@ class_name MovementComponent
 @export var wheel_front_left: VehicleWheel3D
 @export var wheel_front_right: VehicleWheel3D
 
+@export_group("Giro e Esterçamento")
+@export var STEER_TORQUE_FORCE = 5.0 # Força extra de rotação em movimento
+@export var STATIONARY_TURN_SPEED = 8.0 # Velocidade do giro parado (estilo tanque)
+
 var jump_count = 0
 var flipped_timer = 0.0
 var pode_resetar_pulo: bool = true
@@ -49,15 +55,65 @@ func _physics_process(delta):
 	
 	if not is_on_ground:
 		_handle_air_control(delta)
+		_apply_fast_fall(delta) # <--- Nova função aqui
 	
-	#_handle_jump(is_on_ground)
 	_handle_auto_flip(delta, speed_kmh)
 	_apply_drag(delta)
 
+func _apply_fast_fall(delta):
+	# Só aplicamos a força se NÃO estivermos perto do chão
+	if not _is_near_ground():
+		var fall_force = Vector3.DOWN * EXTRA_FALL_FORCE * car.mass
+		car.apply_central_force(fall_force)
+		
+		# Força extra se já estiver caindo (velocidade Y negativa)
+		if car.linear_velocity.y < 0:
+			car.apply_central_force(fall_force * 0.5)
+#	if _is_near_ground():
+#		var fall_force = Vector3.DOWN * EXTRA_FALL_FORCE * car.mass
+#		car.apply_central_force(fall_force * -1)
+
+
+func _is_near_ground() -> bool:
+	# Criamos um Raycast virtual que aponta para baixo
+	var space_state = car.get_world_3d().direct_space_state
+	var query = PhysicsRayQueryParameters3D.create(
+		car.global_position, 
+		car.global_position + Vector3.DOWN * FALL_FORCE_BUFFER_DISTANCE,
+		1 # Layer de colisão do chão (ajuste se necessário)
+	)
+	
+	# Ignora o próprio carro na detecção
+	query.exclude = [car.get_rid()]
+	
+	var result = space_state.intersect_ray(query)
+	
+	# Se o resultado tiver algo, significa que o chão está perto
+	return result.size() > 0
+
 func _handle_engine_and_steering(delta, is_on_ground, speed_mps):
-	# 1. Direção
+	# 1. Esterçamento Visual/Físico das rodas
 	car.steering = move_toward(car.steering, input.steering * MAX_STEER, delta * 10)
 	
+	var speed_kmh = speed_mps * 2.6
+	var turn_dir = input.steering
+	
+	# 2. GIRO NO PRÓPRIO EIXO (Parado)
+	if is_on_ground and speed_kmh < 30.0 and abs(input.steering) > 0.1:
+	# 1. Calculamos a velocidade relativa ao bico do carro
+	# Positivo = Indo para frente | Negativo = Indo para trás
+		var forward_speed = car.linear_velocity.dot(car.global_transform.basis.z)
+		turn_dir = input.steering
+	# 2. SE o vetor de movimento for negativo (está se movendo para trás)
+	# Invertemos o torque para o bico girar conforme a direção da tela
+		if forward_speed < -0.1:
+			turn_dir = -input.steering
+		car.apply_torque(car.global_transform.basis.y * turn_dir * STATIONARY_TURN_SPEED * car.mass)	
+	# 3. AUXÍLIO DE CURVA (Em Movimento)
+	if is_on_ground and speed_kmh >= 20.0 and abs(input.steering) > 0.7:
+		# Aplica um torque extra para o bico do carro virar mais rápido
+		var assist_force = input.steering * STEER_TORQUE_FORCE * (speed_mps / 10.0)
+		car.apply_torque(car.global_transform.basis.y * assist_force * car.mass)
 	# 2. Lógica de Motor e Freio
 	var forward_velocity = car.linear_velocity.dot(car.global_transform.basis.z)
 	car.brake = 0.0
@@ -105,10 +161,9 @@ func _handle_air_control(delta):
 	
 	# 2. TORQUE (PITCH E GIRO)
 	# Pitch (Bicada)
-	car.apply_torque(-car.global_transform.basis.x * input.pitch * AIR_TORQUE_FORCE * car.mass)
+	car.apply_torque(car.global_transform.basis.x * input.pitch * AIR_TORQUE_FORCE * car.mass)
 	# Yaw (Giro lateral)
 	car.apply_torque(car.global_transform.basis.y * input.steering * AIR_TORQUE_FORCE * car.mass)
-
 
 func _check_grounded() -> bool:
 	for child in car.get_children():
@@ -117,19 +172,37 @@ func _check_grounded() -> bool:
 	return false
 
 func _handle_auto_flip(delta, speed_kmh):
+	# Pegamos o vetor "Cima" do carro e comparamos com o "Cima" do mundo
 	var up_dot = car.global_transform.basis.y.dot(Vector3.UP)
-	if up_dot < 0.2 and speed_kmh < 15.0:
+	
+	# Se o carro estiver inclinado mais de 60 graus (up_dot < 0.5) 
+	# e quase parado (menos de 10 km/h)
+	if up_dot < 0.5 and speed_kmh < 15.0:
 		flipped_timer += delta
-		if flipped_timer > 2.0:
-			var new_trans = car.global_transform
-			new_trans.basis = Basis.IDENTITY
-			new_trans.origin.y += 2.0
-			car.global_transform = new_trans
-			car.linear_velocity = Vector3.ZERO
-			car.angular_velocity = Vector3.ZERO
+		
+		# Se ficar 2 segundos "capotado" ou de lado
+		if flipped_timer > 0.5:
+			_reset_car_orientation()
 			flipped_timer = 0.0
 	else:
+		# Se o carro voltar ao normal sozinho ou acelerar, reseta o tempo
 		flipped_timer = 0.0
+
+func _reset_car_orientation():
+	# Força a rotação a ficar reta (Identity) sem perder a posição X e Z
+	var current_pos = car.global_position
+	
+	# Resetamos a base da matriz (rotação e escala) para o padrão
+	car.global_transform.basis = Basis.IDENTITY
+	
+	# Levantamos o carro um pouco para não nascer dentro do chão
+	car.global_position = current_pos + Vector3(0, 2.5, 0)
+	
+	# Zera as velocidades para evitar que o carro "quique" ao resetar
+	car.linear_velocity = Vector3.ZERO
+	car.angular_velocity = Vector3.ZERO
+	
+	print("Auto-flip executado: Brasília desvirada!")
 
 func _apply_drag(delta):
 	if car.linear_velocity.length() < 0.1: return

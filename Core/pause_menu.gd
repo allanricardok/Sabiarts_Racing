@@ -40,7 +40,7 @@ func _on_resume_btn_pressed():
 
 func _on_menu_btn_pressed():
 	get_tree().paused = false # IMPORTANTE: Despausar antes de mudar de cena
-	get_tree().change_scene_to_file("res://new folder/Menu.tscn")
+	get_tree().change_scene_to_file("res://Scenes/UI/Menu.tscn")
 
 # Lógica para aceitar o botão de Pulo (X) como "Confirmar" na UI de pausa
 func _process(_delta):
@@ -48,7 +48,7 @@ func _process(_delta):
 		# Checa se algum dos 4 jogadores apertou o botão de pulo (X)
 		# Usando os mesmos prefixos que você configurou no Lobby
 		for esquema in ["K1", "K2", "J1", "J2", "J3", "J4"]:
-			if Input.is_action_just_pressed("Jump_" + esquema):
+			if Input.is_action_just_pressed("Action_" + esquema):
 				var focused_node = get_viewport().gui_get_focus_owner()
 				if focused_node is Button:
 					focused_node.pressed.emit()

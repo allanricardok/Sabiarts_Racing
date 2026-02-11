@@ -40,7 +40,7 @@ func _physics_process(delta):
 	# --- ATUALIZAÇÃO DO VELOCÍMETRO ---
 	if speed_label:
 		# linear_velocity.length() dá metros por segundo. * 3.6 = KM/H
-		var kmh = linear_velocity.length() * 3.6
+		var kmh = linear_velocity.length() * 2.6
 		speed_label.text = str(int(kmh))
 	
 	# Aqui virá a lógica de movimento refatorada ou a sua antiga
