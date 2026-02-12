@@ -1,4 +1,4 @@
-[gd_scene load_steps=92 format=3 uid="uid://d2rblk8h626kc"]
+[gd_scene load_steps=93 format=3 uid="uid://d2rblk8h626kc"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_mm1ty"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="1_rakfq"]
@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://bkmid1n6i7ij6" path="res://Assets/2D/Test_Texture.jpg" id="4_hvv5t"]
 [ext_resource type="PackedScene" uid="uid://do7x7c5gyyp8g" path="res://Scenes/UI/PauseMenu.tscn" id="4_umdbu"]
 [ext_resource type="Texture2D" uid="uid://wlhx07iu8h7s" path="res://Assets/2D/Screenshot 2026-02-11 at 00-24-39 Maps Layout - Google Planilhas - V8map.pdf.png" id="5_mm1ty"]
+[ext_resource type="PackedScene" uid="uid://culevpqmdi0u8" path="res://Scenes/Prefabs/Items/Teleporter.tscn" id="6_bnpdo"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_a70xh"]
 material = ExtResource("1_rakfq")
@@ -695,7 +696,7 @@ mesh = SubResource("BoxMesh_kh04g")
 surface_material_override/0 = SubResource("StandardMaterial3D_0eu0l")
 
 [node name="CollisionShape3D29" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Buildings"]
-transform = Transform3D(-4.3711385e-08, 0, 0.99999994, 0, 1, 0, -0.99999994, 0, -4.3711385e-08, -216.99594, 27.008972, -201.40428)
+transform = Transform3D(-4.3711385e-08, 0, 0.99999994, 0, 1, 0, -0.99999994, 0, -4.3711385e-08, -216.99594, 27.829437, -201.40428)
 shape = SubResource("ConvexPolygonShape3D_juuav")
 
 [node name="Tower2" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Buildings"]
@@ -814,6 +815,41 @@ surface_material_override/0 = SubResource("StandardMaterial3D_0eu0l")
 [node name="CollisionShape3D43" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Buildings"]
 transform = Transform3D(-0.0035256504, -1.6359003e-11, -0.9999937, 0.22069603, 0.9753422, -0.00077810197, 0.97533613, -0.22069743, -0.0034387163, -150.56992, 14.323582, 152.95293)
 shape = SubResource("ConvexPolygonShape3D_dm20i")
+
+[node name="Teleporter1" parent="GridContainer/Cont_P1/View_P1/Map/V8Map" node_paths=PackedStringArray("destination_marker") instance=ExtResource("6_bnpdo")]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -356.4023, 0, -59.67155)
+destination_marker = NodePath("../Marker1")
+
+[node name="Marker1" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
+transform = Transform3D(-0.015532747, 0, -0.99987936, 0, 1, 0, 0.99987936, 0, -0.015532747, 312.58475, 6.4773045, 93.99169)
+
+[node name="Teleporter2" parent="GridContainer/Cont_P1/View_P1/Map/V8Map" node_paths=PackedStringArray("destination_marker") instance=ExtResource("6_bnpdo")]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -275.57175, 8.379992, -194.56427)
+destination_marker = NodePath("../Marker2")
+
+[node name="Marker2" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -298.4899, 0, -332.61548)
+
+[node name="Teleporter3" parent="GridContainer/Cont_P1/View_P1/Map/V8Map" node_paths=PackedStringArray("destination_marker") instance=ExtResource("6_bnpdo")]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -308.82852, -0.5225086, -269.5739)
+destination_marker = NodePath("../Marker3")
+
+[node name="Marker3" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -214.58334, 0, -151.41351)
+
+[node name="Teleporter4" parent="GridContainer/Cont_P1/View_P1/Map/V8Map" node_paths=PackedStringArray("destination_marker") instance=ExtResource("6_bnpdo")]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -226.13998, 8.379992, -180.04195)
+destination_marker = NodePath("../Marker4")
+
+[node name="Marker4" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -214.58334, 53.04703, -201.0752)
+
+[node name="Teleporter5" parent="GridContainer/Cont_P1/View_P1/Map/V8Map" node_paths=PackedStringArray("destination_marker") instance=ExtResource("6_bnpdo")]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 337.97903, 0, 97.23125)
+destination_marker = NodePath("../Marker5")
+
+[node name="Marker5" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
+transform = Transform3D(-4.371138e-08, 0, 0.9999998, 0, 1, 0, -0.9999998, 0, -4.371138e-08, -338.8968, 6.4773045, -62.186897)
 
 [node name="Items_Vehicles" type="Node3D" parent="GridContainer/Cont_P1/View_P1"]
 

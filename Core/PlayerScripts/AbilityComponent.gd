@@ -74,28 +74,25 @@ func _process(delta):
 		_checar_combos_habilidade()
 
 func _checar_combos_habilidade():
-	# Verificamos os analógicos (mapeados no Project Settings) via InputComponent
-	
-	# Cima (Analógico) -> PULO (20 pts)
+	# Cima (Analógico) -> Agora executa o BOOST (Turbo)
 	if input.ability_up:
-		if current_energy >= COST_JUMP: _execute_jump()
-		else: _erro_falta_energia()
-	
-	# Baixo (Analógico) -> BOOST (20 pts)
-	elif input.ability_down:
 		if current_energy >= COST_BOOST: _execute_boost()
 		else: _erro_falta_energia()
 	
-	# Esquerda (Analógico) -> TELEPORT SPAWN (60 pts)
+	# Baixo (Analógico) -> Agora executa o PULO
+	elif input.ability_down:
+		if current_energy >= COST_JUMP: _execute_jump()
+		else: _erro_falta_energia()
+	
+	# Esquerda (Analógico) -> TELEPORT
 	elif input.ability_left:
 		if current_energy >= COST_TELEPORT: _execute_teleport()
 		else: _erro_falta_energia()
 	
-	# Direita (Analógico) -> SHIELD (40 pts)
+	# Direita (Analógico) -> SHIELD
 	elif input.ability_right:
 		if current_energy >= COST_SHIELD: _execute_shield()
 		else: _erro_falta_energia()
-
 # --- FUNÇÃO DE FEEDBACK VISUAL ---
 
 func _erro_falta_energia():

@@ -2,17 +2,20 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dmmrigbpr3mie"
-path.s3tc="res://.godot/imported/cyberpunk_mask.png-36b646b130774cb54ac3e85c9188cdec.s3tc.ctex"
+uid="uid://cnj0rqy3gl78x"
+path.s3tc="res://.godot/imported/vigilante_v8_2nd_offence_obakes_tsunami_6.png-e8e2885d9bb341a6e9e190c722069a38.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
 }
+generator_parameters={
+"md5": "b0209bb1189d145f0bc146b91ad119fc"
+}
 
 [deps]
 
-source_file="res://Assets/2D/cyberpunk_mask.png"
-dest_files=["res://.godot/imported/cyberpunk_mask.png-36b646b130774cb54ac3e85c9188cdec.s3tc.ctex"]
+source_file="res://Assets/3D/vigilante_v8_2nd_offence_obakes_tsunami_6.png"
+dest_files=["res://.godot/imported/vigilante_v8_2nd_offence_obakes_tsunami_6.png-e8e2885d9bb341a6e9e190c722069a38.s3tc.ctex"]
 
 [params]
 

@@ -8,6 +8,8 @@ var suffix : String = ""
 var throttle : float = 0.0
 var steering : float = 0.0
 var pitch : float = 0.0 
+var is_look_behind_pressed : bool = false
+var look_vector : Vector2 = Vector2.ZERO
 
 # Botões de Disparo
 var is_action_pressed : bool = false       # X (Metralhadora)
@@ -36,11 +38,14 @@ func _process(_delta):
 	is_action_pressed = Input.is_action_pressed("Action" + suffix)
 	is_fire_pressed = Input.is_action_pressed("Fire" + suffix)
 	is_attribute_pressed = Input.is_action_pressed("Attribute" + suffix)
+	is_look_behind_pressed = Input.is_action_pressed("LookBehind" + suffix)
+	# Captura o analógico direito (ajuste os nomes conforme seu Input Map)
+	look_vector.x = Input.get_axis("LookLeft" + suffix, "LookRight" + suffix)
+	look_vector.y = Input.get_axis("LookUp" + suffix, "LookDown" + suffix)
 	
 	# 3. Lógica de Habilidades (Referenciando as ações do Project Settings)
 	# IMPORTANTE: No seu Input Map, as ações "AbilityUp_K1", etc, 
 	# devem estar mapeadas para o analógico desejado.
-	
 	# Só validamos a direção da habilidade se o botão modificador (Círculo) estiver ativo
 	if is_attribute_pressed:
 		ability_up = Input.is_action_pressed("AbilityUp" + suffix)
