@@ -1,0 +1,28 @@
+[gd_scene load_steps=5 format=3 uid="uid://3jy2jv3yflr2"]
+
+[ext_resource type="Script" uid="uid://dxwtvbecpphjn" path="res://Core/Weapons/DestructibleProp.gd" id="1_0e0mj"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_or50q"]
+albedo_color = Color(0.95686275, 0.33333334, 0.28627452, 1)
+metallic = 0.53
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_0e0mj"]
+material = SubResource("StandardMaterial3D_or50q")
+top_radius = 1.0
+bottom_radius = 1.0
+radial_segments = 8
+rings = 2
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_wqnwe"]
+points = PackedVector3Array(1, 1, 0, 0.7069303, 1, 0.7069303, 1, -1, 0, 0.7069303, 1, -0.7071261, 0, 1, 1, 0.7069303, -1, 0.7069303, 0.7069303, -1, -0.7071261, 0, 1, -1, -0.7071261, 1, 0.7069303, 0, -1, 1, 0, -1, -1, -0.7071261, 1, -0.7071261, -1, 1, 0, -0.7071261, -1, 0.7069303, -0.7071261, -1, -0.7071261, -1, -1, 0)
+
+[node name="ObjectBase" type="RigidBody3D"]
+mass = 79.301
+gravity_scale = 1.806
+script = ExtResource("1_0e0mj")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CylinderMesh_0e0mj")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("ConvexPolygonShape3D_wqnwe")

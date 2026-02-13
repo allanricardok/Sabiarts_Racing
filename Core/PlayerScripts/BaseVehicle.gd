@@ -6,6 +6,12 @@ var id : int = 0
 var pode_mover : bool = true
 @export var input_source : String = "K1"
 
+@export_group("Combate: Atropelamento")
+@export var divisor_de_massa : float = 1000.0
+@export var multiplicador_dano : float = 1.0
+@export var dano_maximo_por_batida : float = 50.0
+@export var velocidade_minima_dano : float = 3.0
+
 @onready var stats = %StatsComponent
 @onready var input = %InputComponent
 @onready var movement = %MovementComponent
@@ -30,6 +36,9 @@ func _ready():
 	input.setup(input_source)
 	# Sincroniza a cor inicial
 	update_visual_damage(100.0)
+	
+	# Conecta o sinal de colisão se não fez pelo editor
+	body_entered.connect(_on_impacto_corpo)
 	
 	# Criamos o material de "Sombra/Vazio"
 	teleport_material = StandardMaterial3D.new()
@@ -110,3 +119,32 @@ func teleport_to(target_transform : Transform3D):
 		for mesh in all_meshes:
 			mesh.material_override = null
 	)
+
+func _on_impacto_corpo(body):
+	# 1. Pegamos a velocidade do alvo (se ele for físico)
+	var vel_alvo = Vector3.ZERO
+	if body is RigidBody3D:
+		vel_alvo = body.linear_velocity
+	
+	# 2. CALCULO DA VELOCIDADE RELATIVA
+	# Isso subtrai os vetores: se ambos vão para a mesma direção, o resultado é pequeno.
+	# Se vierem de frente (opostos), o resultado é a soma das velocidades!
+	var velocidade_relativa = (linear_velocity - vel_alvo).length()
+	
+	# 3. Filtro de segurança usando a velocidade de impacto real
+	if velocidade_relativa < velocidade_minima_dano:
+		return
+
+	# 4. Cálculo do dano baseado na massa da Brasília e na força do choque
+	var massa_normalizada = mass / divisor_de_massa
+	var dano_calculado = (massa_normalizada * velocidade_relativa) * multiplicador_dano
+	
+	dano_calculado = clamp(dano_calculado, 0.0, dano_maximo_por_batida)
+	
+	if body.has_method("take_damage"):
+		body.take_damage(dano_calculado)
+		print("COLISÃO REAL: Dano ", int(dano_calculado), " | Vel Relativa: ", int(velocidade_relativa))
+		
+func _aplicar_impacto_visual(intensity):
+	# Aqui você pode chamar um tremor de câmera proporcional à porrada
+	pass

@@ -1,0 +1,28 @@
+[gd_scene load_steps=5 format=3 uid="uid://db4qipccvwuyh"]
+
+[ext_resource type="Script" uid="uid://dd5g2ubiqejdr" path="res://Scenes/Prefabs/Weapons/BigTracer.gd" id="1_mkbs4"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x78nd"]
+shading_mode = 0
+albedo_color = Color(1.2953943, 0.75997, 0.68237233, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_18icp"]
+material = SubResource("StandardMaterial3D_x78nd")
+size = Vector3(0.5, 0.5, 1.3)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_mkbs4"]
+points = PackedVector3Array(0.25, 0.25, 0.65, 0.25, -0.25, 0.65, 0.25, 0.25, -0.65, -0.25, 0.25, 0.65, -0.25, -0.25, 0.65, 0.25, -0.25, -0.65, -0.25, 0.25, -0.65, -0.25, -0.25, -0.65)
+
+[node name="BigTracer" type="RigidBody3D"]
+mass = 30.0
+gravity_scale = 0.0
+continuous_cd = true
+contact_monitor = true
+max_contacts_reported = 1
+script = ExtResource("1_mkbs4")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_18icp")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("ConvexPolygonShape3D_mkbs4")

@@ -1,4 +1,4 @@
-[gd_scene load_steps=99 format=4 uid="uid://cw8ofahu5mqhn"]
+[gd_scene load_steps=102 format=4 uid="uid://cw8ofahu5mqhn"]
 
 [ext_resource type="Script" uid="uid://b0i2wvnkcrknc" path="res://Core/PlayerScripts/BaseVehicle.gd" id="1_m0ew1"]
 [ext_resource type="Script" uid="uid://cjnmai87rc2f8" path="res://Core/camera_test_3.gd" id="2_8gjg4"]
@@ -14,7 +14,6 @@
 [ext_resource type="Script" uid="uid://c6kscgps8kwls" path="res://Core/PlayerScripts/WeaponManager.gd" id="7_frue0"]
 [ext_resource type="Texture2D" uid="uid://w6lpr8cyqcac" path="res://Assets/3D/vigilante_v8_2nd_offence_obakes_tsunami_5.png" id="7_x2n00"]
 [ext_resource type="Texture2D" uid="uid://cnj0rqy3gl78x" path="res://Assets/3D/vigilante_v8_2nd_offence_obakes_tsunami_6.png" id="8_1js6p"]
-[ext_resource type="Resource" uid="uid://b0ga2hs7kxptc" path="res://Resources/Weapons/MaskTest.tres" id="8_fxgi7"]
 [ext_resource type="Texture2D" uid="uid://dukmmkxgtyp4j" path="res://Assets/3D/vigilante_v8_2nd_offence_obakes_tsunami_7.png" id="9_w2sg6"]
 [ext_resource type="Texture2D" uid="uid://tumxeupghlgl" path="res://Assets/3D/vigilante_v8_2nd_offence_obakes_tsunami_8.png" id="10_3a0p2"]
 [ext_resource type="Texture2D" uid="uid://dqkuvr416l2f4" path="res://Assets/3D/vigilante_v8_2nd_offence_obakes_tsunami_9.png" id="11_cj7ej"]
@@ -23,6 +22,12 @@
 [ext_resource type="Texture2D" uid="uid://ij8dh5smb7iv" path="res://Assets/3D/vigilante_v8_2nd_offence_obakes_tsunami_12.png" id="14_hxqm3"]
 [ext_resource type="Texture2D" uid="uid://ij3bki2m3mq0" path="res://Assets/3D/vigilante_v8_2nd_offence_obakes_tsunami_13.png" id="15_a2eke"]
 [ext_resource type="Texture2D" uid="uid://dn4gu5ika00yt" path="res://Assets/3D/vigilante_v8_2nd_offence_obakes_tsunami_14.png" id="16_apvhh"]
+[ext_resource type="Script" uid="uid://ca80dhy7dchio" path="res://Scenes/Prefabs/Vehicles/hud.gd" id="18_krxcx"]
+[ext_resource type="Resource" uid="uid://cl6d44tjh6xry" path="res://Resources/Weapons/MachineGun.tres" id="23_625mm"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_625mm"]
+friction = 0.01
+bounce = 0.21
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1kr5n"]
 resource_name = "MATERIAL_029"
@@ -969,9 +974,7 @@ albedo_color = Color(0.012617188, 0.012617188, 0.012617188, 1)
 [sub_resource type="CylinderMesh" id="CylinderMesh_j2rfa"]
 material = SubResource("StandardMaterial3D_tk6n2")
 
-[sub_resource type="GDScript" id="GDScript_rk80m"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_og6km"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m0ew1"]
 content_margin_left = 2.0
 content_margin_top = 2.0
 content_margin_right = 2.0
@@ -983,7 +986,7 @@ corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 corner_detail = 6
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m0ew1"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_og6km"]
 content_margin_left = 2.0
 content_margin_top = 2.0
 content_margin_right = 2.0
@@ -998,17 +1001,27 @@ corner_detail = 6
 [sub_resource type="BoxShape3D" id="BoxShape3D_bjxsa"]
 size = Vector3(3, 5, 5)
 
+[sub_resource type="BoxMesh" id="BoxMesh_625mm"]
+size = Vector3(0.1, 0.1, 0.5)
+
+[sub_resource type="BoxMesh" id="BoxMesh_krxcx"]
+size = Vector3(0.2, 0.2, 0.6)
+
 [node name="BaseVehicle" type="VehicleBody3D" node_paths=PackedStringArray("mesh_new", "mesh_damaged", "mesh_skeleton", "speed_label") groups=["Jogadores", "jogadores"]]
 collision_layer = 3
 mass = 500.0
+physics_material_override = SubResource("PhysicsMaterial_625mm")
 gravity_scale = 1.4
 center_of_mass_mode = 1
 center_of_mass = Vector3(0, -0.3, 0.1)
 continuous_cd = true
+contact_monitor = true
+max_contacts_reported = 10
 angular_damp = 20.0
 engine_force = 1.0
 brake = 1.0
 script = ExtResource("1_m0ew1")
+velocidade_minima_dano = 10.0
 mesh_new = NodePath("Visual/New")
 mesh_damaged = NodePath("Visual/New")
 mesh_skeleton = NodePath("Visual/New")
@@ -1229,7 +1242,7 @@ layers = 2
 mesh = SubResource("CylinderMesh_j2rfa")
 
 [node name="FreEsq" type="VehicleWheel3D" parent="."]
-transform = Transform3D(0.84108293, 0, 0, 0, 1.2840811, 0, 0, 0, 0.82557976, 1.1, 0.2186681, 1.531)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.1, 0.2186681, 1.531)
 engine_force = 5.0
 brake = 1.0
 use_as_steering = true
@@ -1252,11 +1265,8 @@ transform = Transform3D(0.15, 0, 1.7462301e-10, 0, 0.15, 0, -1.7462301e-10, 0, 0
 modulate = Color(1, 1, 1, 0.5764706)
 billboard = 1
 
-[node name="Muzzle" type="Marker3D" parent="."]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0.0152721405, 1.4703312, 4.8843384)
-
 [node name="HUD" type="CanvasLayer" parent="."]
-script = SubResource("GDScript_rk80m")
+script = ExtResource("18_krxcx")
 
 [node name="UI_Base" type="Control" parent="HUD"]
 clip_contents = true
@@ -1270,6 +1280,50 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+
+[node name="AbilityBar" type="ProgressBar" parent="HUD/UI_Base"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -336.0
+offset_top = 15.0
+offset_right = -13.0
+offset_bottom = 45.0
+grow_horizontal = 0
+theme_override_font_sizes/font_size = 18
+theme_override_styles/fill = SubResource("StyleBoxFlat_m0ew1")
+
+[node name="WeaponCooldown" type="ProgressBar" parent="HUD/UI_Base"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -193.0
+offset_top = 52.0
+offset_right = -15.0
+offset_bottom = 73.0
+grow_horizontal = 0
+theme_override_font_sizes/font_size = 26
+theme_override_styles/fill = SubResource("StyleBoxFlat_og6km")
+show_percentage = false
+
+[node name="CooldownText" type="Label" parent="HUD/UI_Base"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -144.0
+offset_top = 72.0
+offset_right = -18.0
+offset_bottom = 100.0
+grow_horizontal = 0
+theme_override_font_sizes/font_size = 18
+text = "Cooldown"
+horizontal_alignment = 2
+vertical_alignment = 1
+clip_text = true
 
 [node name="KM_H" type="Label" parent="HUD/UI_Base"]
 layout_mode = 1
@@ -1307,59 +1361,6 @@ text = "000"
 vertical_alignment = 1
 clip_text = true
 
-[node name="LapLabel" type="Label" parent="HUD/UI_Base"]
-layout_mode = 0
-offset_left = 22.0
-offset_top = 46.0
-offset_right = 165.0
-offset_bottom = 90.0
-theme_override_font_sizes/font_size = 32
-text = "1/5"
-
-[node name="TimeLabel" type="Label" parent="HUD/UI_Base"]
-unique_name_in_owner = true
-layout_mode = 0
-offset_left = 18.0
-offset_top = -1.0
-offset_right = 229.0
-offset_bottom = 65.0
-theme_override_font_sizes/font_size = 36
-text = "11:00:24"
-
-[node name="WeaponCooldown" type="ProgressBar" parent="HUD/UI_Base"]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -193.0
-offset_top = 52.0
-offset_right = -15.0
-offset_bottom = 73.0
-grow_horizontal = 0
-theme_override_font_sizes/font_size = 26
-theme_override_styles/fill = SubResource("StyleBoxFlat_og6km")
-show_percentage = false
-
-[node name="CooldownText" type="Label" parent="HUD/UI_Base"]
-visible = false
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -146.0
-offset_top = -109.0
-offset_right = -20.0
-offset_bottom = -81.0
-grow_horizontal = 0
-grow_vertical = 0
-theme_override_font_sizes/font_size = 18
-text = "Cooldown"
-horizontal_alignment = 2
-vertical_alignment = 1
-clip_text = true
-
 [node name="IntroOverlay" type="ColorRect" parent="HUD/UI_Base"]
 visible = false
 layout_mode = 1
@@ -1375,53 +1376,25 @@ layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_left = 20.0
-offset_top = -132.0
-offset_right = 246.0
-offset_bottom = -56.0
+offset_left = 17.0
+offset_top = -95.0
+offset_right = 243.0
+offset_bottom = -19.0
 grow_vertical = 0
 theme_override_font_sizes/font_size = 32
 text = "Player 1"
 vertical_alignment = 2
 clip_text = true
 
-[node name="Bonus" type="Label" parent="HUD/UI_Base"]
-unique_name_in_owner = true
-visible = false
+[node name="WeaponLabel" type="Label" parent="HUD/UI_Base"]
 layout_mode = 0
-offset_left = 488.0
-offset_top = 132.0
-offset_right = 537.0
-offset_bottom = 155.0
-text = "Bonus"
-
-[node name="MaskDurabilityBar" type="ProgressBar" parent="HUD"]
-unique_name_in_owner = true
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -337.0
-offset_top = 15.0
-offset_right = -14.0
-offset_bottom = 44.0
-grow_horizontal = 0
-theme_override_font_sizes/font_size = 18
-theme_override_styles/fill = SubResource("StyleBoxFlat_m0ew1")
-
-[node name="MaskNameLabel" type="Label" parent="HUD"]
-unique_name_in_owner = true
-visible = false
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -433.0
-offset_top = 74.0
-offset_right = -19.0
-offset_bottom = 114.0
-grow_horizontal = 0
-theme_override_font_sizes/font_size = 32
-text = "Test Long Text hahaha"
-horizontal_alignment = 2
+offset_left = 18.0
+offset_top = 16.0
+offset_right = 210.0
+offset_bottom = 135.0
+theme_override_font_sizes/font_size = 42
+text = "Carlinhos
+24"
 
 [node name="Hitbox" type="Area3D" parent="."]
 collision_layer = 6
@@ -1429,16 +1402,6 @@ collision_layer = 6
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Hitbox"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, -4.656613e-10, 0, 1, 0, 1.577, 0)
 shape = SubResource("BoxShape3D_bjxsa")
-
-[node name="NeonUnderglow" type="OmniLight3D" parent="."]
-transform = Transform3D(0.83578146, 0, 4.656613e-10, 0, 1.0177832, 0, 0, 0, 0.98440176, 0, -0.1922588, 0)
-visible = false
-light_color = Color(0.019607844, 0.7411765, 0.78039217, 1)
-light_energy = 16.0
-light_indirect_energy = 16.0
-light_volumetric_fog_energy = 16.0
-light_size = 1.0
-light_specular = 5.026
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 volume_db = -8.62
@@ -1488,7 +1451,7 @@ REGEN_RATE = 10.0
 COST_TELEPORT = 65.0
 COST_JUMP = 25.0
 SHARED_COOLDOWN_TIME = 0.5
-energy_bar = NodePath("../../HUD/MaskDurabilityBar")
+energy_bar = NodePath("../../HUD/UI_Base/AbilityBar")
 cooldown_bar = NodePath("../../HUD/UI_Base/WeaponCooldown")
 JUMP_FORCE = 20.0
 BOOST_IMPULSE = 12.0
@@ -1497,20 +1460,64 @@ SHIELD_TIME = 5.0
 [node name="WeaponManager" type="Node3D" parent="Scripts"]
 unique_name_in_owner = true
 script = ExtResource("7_frue0")
-basic_weapon_resource = ExtResource("8_fxgi7")
+basic_weapon_resource = ExtResource("23_625mm")
+fire_rate_basic = 0.2
 
 [node name="MountTop" type="Marker3D" parent="Scripts/WeaponManager"]
 unique_name_in_owner = true
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.84168196, 1.7536461)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4326559, -0.05450809)
 
 [node name="MountLeft" type="Marker3D" parent="Scripts/WeaponManager"]
 unique_name_in_owner = true
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.84168196, 1.7536461)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7810192, 0.84168196, 1.0017068)
 
 [node name="MountRight" type="Marker3D" parent="Scripts/WeaponManager"]
 unique_name_in_owner = true
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.84168196, 1.7536461)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.890175, 0.84168196, 1.0439867)
 
-[node name="MachineGunRayCast" type="RayCast3D" parent="Scripts/WeaponManager"]
+[node name="MountFront" type="Marker3D" parent="Scripts/WeaponManager"]
 unique_name_in_owner = true
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85891515, 1.8594234)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0027265549, 0.4895861, 2.2293072)
+
+[node name="MountBack" type="Marker3D" parent="Scripts/WeaponManager"]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0027265549, 0.4895861, -2.2372706)
+
+[node name="Guns" type="Node3D" parent="."]
+
+[node name="MachineGun" type="Node3D" parent="Guns"]
+unique_name_in_owner = true
+
+[node name="Gun" type="MeshInstance3D" parent="Guns/MachineGun"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0003567934, 0.7456618, 1.971557)
+mesh = SubResource("BoxMesh_625mm")
+
+[node name="Muzzle" type="Node3D" parent="Guns/MachineGun"]
+transform = Transform3D(-1, 1.5257378e-09, 8.740946e-08, 0, 0.9998477, -0.017452406, -8.742278e-08, -0.017452406, -0.9998477, 0, 0.75172055, 2.2299254)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Guns/MachineGun/Muzzle"]
+transform = Transform3D(-1, 0, 1.509958e-07, 0, 1, 0, -1.509958e-07, 0, -1, 0, 0.04267323, 0.17339492)
+visible = false
+light_color = Color(3.3529627, 2.9095888, 1.6301379, 1)
+
+[node name="BigSlow" type="Node3D" parent="Guns"]
+unique_name_in_owner = true
+
+[node name="Gun" type="MeshInstance3D" parent="Guns/BigSlow"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.88322675, 0.83795565, 1.293292)
+mesh = SubResource("BoxMesh_krxcx")
+
+[node name="Muzzle" type="Node3D" parent="Guns/BigSlow"]
+transform = Transform3D(-1, 1.5257378e-09, 8.740946e-08, 0, 0.9998477, -0.017452406, -8.742278e-08, -0.017452406, -0.9998477, 0.89359033, 0.9219358, 1.6704452)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Guns/BigSlow/Muzzle"]
+transform = Transform3D(-1, 0, 8.742277e-08, 0, 1, 0, -8.742278e-08, 0, -1, -2.3841858e-07, 0.05218804, -0.2682413)
+visible = false
+light_color = Color(1.8247963, 1.1120775, 0.8745043, 1)
+light_energy = 7.803
+light_indirect_energy = 7.803
+light_volumetric_fog_energy = 1.252
+light_size = 0.52
+light_specular = 3.398
+
+[connection signal="body_entered" from="." to="Scripts/MovementComponent" method="_on_base_vehicle_body_entered"]

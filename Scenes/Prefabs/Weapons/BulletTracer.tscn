@@ -1,0 +1,28 @@
+[gd_scene load_steps=5 format=3 uid="uid://dhpscp7wsptl0"]
+
+[ext_resource type="Script" uid="uid://b243qbjuvt5hf" path="res://Core/Weapons/bullet_tracer.gd" id="1_jtk88"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x78nd"]
+shading_mode = 0
+albedo_color = Color(1.0184411, 0.8628265, 0.53962713, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_18icp"]
+material = SubResource("StandardMaterial3D_x78nd")
+size = Vector3(0.07, 0.05, 0.4)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_jtk88"]
+points = PackedVector3Array(0.2, 0.05, 0.05, 0.2, 0.05, -0.05, -0.2, 0.05, 0.05, 0.2, -0.05, 0.05, 0.2, -0.05, -0.05, -0.2, 0.05, -0.05, -0.2, -0.05, 0.05, -0.2, -0.05, -0.05)
+
+[node name="BulletTracer" type="RigidBody3D"]
+mass = 30.0
+gravity_scale = 0.0
+continuous_cd = true
+contact_monitor = true
+max_contacts_reported = 1
+script = ExtResource("1_jtk88")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_18icp")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("ConvexPolygonShape3D_jtk88")

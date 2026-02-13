@@ -44,6 +44,9 @@ class_name MovementComponent
 
 var flipped_timer = 0.0
 
+@export var REVERSE_DELAY := 0.2 # O tempo de espera que você pediu
+var _reverse_timer := 0.0        # O contador interno
+
 func _physics_process(delta):
 	if not car.pode_mover: return
 	
@@ -179,3 +182,7 @@ func _apply_drag(delta):
 	if car.linear_velocity.length() < 0.1: return
 	var drag = -car.linear_velocity.normalized() * car.linear_velocity.length_squared() * AIR_RESISTANCE
 	car.apply_central_force(drag * car.mass * delta)
+
+
+func _on_base_vehicle_body_entered(body: Node) -> void:
+	pass # Replace with function body.

@@ -3,17 +3,17 @@ extends Resource
 class_name WeaponResource
 
 @export_group("Identidade")
-@export var nome: String = ""
-@export var icone: Texture2D
-@export var cor_tema: Color = Color.WHITE
+## O nome deve ser EXATAMENTE igual ao nome do nó (%) no WeaponManager (ex: MachineGun ou BigSlow)
+@export var nome: String = "" 
 
-@export_group("Combate")
+@export_group("Visual e Combate")
+## A cena do projétil que esta arma dispara
+@export var projectile_scene: PackedScene 
+## Dano causado por cada projétil
 @export var dano: float = 10.0
-@export var ammo_max: int = 20
-@export var projectile_scene: PackedScene # Ex: Míssil da Guerrilha
+## Tempo entre disparos
+@export var fire_rate: float = 0.2
 
-@export_group("Buffs de Máscara")
-@export var speed_mult: float = 1.0 # Kitsune: 1.4
-@export var jump_mult: float = 1.0  # Arlequim: 1.4
-@export var air_con_mult: float = 1.0
-@export var stamina_cost_mult: float = 1.0
+@export_group("Munição")
+## Quantidade de balas. Use -1 para munição infinita (Metralhadora)
+@export var ammo: int = 6
