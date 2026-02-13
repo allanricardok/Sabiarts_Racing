@@ -1168,7 +1168,6 @@ script = ExtResource("2_8gjg4")
 follow_speed_lateral = 6.0
 follow_speed_depth = 35.0
 follow_speed_vertical = 35.0
-look_offset = 1.44
 
 [node name="CameraTarget" type="Node3D" parent="."]
 transform = Transform3D(-1, 2.4330802e-08, -1.3690442e-07, -3.6662744e-08, 0.9078141, 0.4193729, 1.3364479e-07, 0.4193729, -0.9078141, 0.008372307, 2.5322375, -3.9419403)
@@ -1508,7 +1507,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.88322675, 0.83795565, 1.293
 mesh = SubResource("BoxMesh_krxcx")
 
 [node name="Muzzle" type="Node3D" parent="Guns/BigSlow"]
-transform = Transform3D(-1, 1.5257378e-09, 8.740946e-08, 0, 0.9998477, -0.017452406, -8.742278e-08, -0.017452406, -0.9998477, 0.89359033, 0.9219358, 1.6704452)
+transform = Transform3D(-0.99978435, 0.00036245174, 0.020764848, 0, 0.9998477, -0.017452406, -0.020768011, -0.017448641, -0.9996321, 0.89359033, 0.9219358, 1.6704452)
 
 [node name="OmniLight3D" type="OmniLight3D" parent="Guns/BigSlow/Muzzle"]
 transform = Transform3D(-1, 0, 8.742277e-08, 0, 1, 0, -8.742278e-08, 0, -1, -2.3841858e-07, 0.05218804, -0.2682413)
