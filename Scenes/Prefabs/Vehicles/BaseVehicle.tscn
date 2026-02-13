@@ -1395,6 +1395,49 @@ theme_override_font_sizes/font_size = 42
 text = "Carlinhos
 24"
 
+[node name="Messages" type="Control" parent="HUD"]
+clip_contents = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="AirTimeLabel" type="Label" parent="HUD/Messages"]
+visible = false
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -41.0
+offset_top = 120.0
+offset_right = 41.0
+offset_bottom = 165.0
+grow_horizontal = 2
+theme_override_colors/font_outline_color = Color(0.8980392, 0.19607843, 0, 0.36078432)
+theme_override_constants/outline_size = 30
+theme_override_font_sizes/font_size = 32
+text = "1.999"
+
+[node name="AirMessageLabel" type="Label" parent="HUD/Messages"]
+visible = false
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -77.5
+offset_top = 161.0
+offset_right = 77.5
+offset_bottom = 219.0
+grow_horizontal = 2
+theme_override_colors/font_outline_color = Color(0.8666667, 0.39215687, 0.09803922, 0.654902)
+theme_override_constants/outline_size = 35
+theme_override_font_sizes/font_size = 42
+text = "Cool air"
+
 [node name="Hitbox" type="Area3D" parent="."]
 collision_layer = 6
 
@@ -1423,7 +1466,6 @@ START_BOOST = 4.5
 BOOST_LIMIT_SPEED = 35.0
 AIR_RESISTANCE = 0.1
 EXTRA_FALL_FORCE = 25.0
-FALL_FORCE_BUFFER_DISTANCE = 1.5
 speed_max_friction = 160.0
 friction_rear_min = 2.0
 friction_front_min = 3.3

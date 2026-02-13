@@ -10,7 +10,7 @@ class_name AbilityComponent
 @export_group("Energy System")
 @export var MAX_ENERGY : float = 100.0
 @export var REGEN_RATE : float = 5.0 # Editável como você pediu
-var current_energy : float = 100.0
+@export var current_energy : float = 100.0
 
 @export_group("Ability Costs")
 @export var COST_TELEPORT : float = 60.0
