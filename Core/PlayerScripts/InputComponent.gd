@@ -15,6 +15,7 @@ var look_vector : Vector2 = Vector2.ZERO
 var is_action_pressed : bool = false       # X (Metralhadora)
 var is_fire_pressed : bool = false         # Quadrado (Especial)
 var is_attribute_pressed : bool = false    # Círculo (Modificador de Habilidades)
+var is_stunt_pressed: bool = false
 
 # Intenções de Habilidade (Referenciando o Project Settings)
 var ability_up : bool = false
@@ -38,6 +39,7 @@ func _process(_delta):
 	is_action_pressed = Input.is_action_pressed("Action" + suffix)
 	is_fire_pressed = Input.is_action_pressed("Fire" + suffix)
 	is_attribute_pressed = Input.is_action_pressed("Attribute" + suffix)
+	is_stunt_pressed = Input.is_action_pressed("Stunt" + suffix)
 	is_look_behind_pressed = Input.is_action_pressed("LookBehind" + suffix)
 	# Captura o analógico direito (ajuste os nomes conforme seu Input Map)
 	look_vector.x = Input.get_axis("LookLeft" + suffix, "LookRight" + suffix)

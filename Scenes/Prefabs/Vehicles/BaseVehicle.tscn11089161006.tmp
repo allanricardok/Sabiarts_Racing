@@ -1,4 +1,4 @@
-[gd_scene load_steps=103 format=4 uid="uid://cw8ofahu5mqhn"]
+[gd_scene load_steps=102 format=4 uid="uid://cw8ofahu5mqhn"]
 
 [ext_resource type="Script" uid="uid://b0i2wvnkcrknc" path="res://Core/PlayerScripts/BaseVehicle.gd" id="1_m0ew1"]
 [ext_resource type="Script" uid="uid://cjnmai87rc2f8" path="res://Core/camera_test_3.gd" id="2_8gjg4"]
@@ -25,7 +25,6 @@
 [ext_resource type="Script" uid="uid://ca80dhy7dchio" path="res://Scenes/Prefabs/Vehicles/hud.gd" id="18_krxcx"]
 [ext_resource type="Resource" uid="uid://cl6d44tjh6xry" path="res://Resources/Weapons/MachineGun.tres" id="23_625mm"]
 [ext_resource type="Script" uid="uid://burl25dksofc1" path="res://Scenes/Prefabs/Vehicles/AirMovementComponent.gd" id="23_hmxgi"]
-[ext_resource type="Script" uid="uid://dicgxfjk23y35" path="res://Scenes/Prefabs/Vehicles/TrickManager.gd" id="24_u7amk"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_625mm"]
 friction = 0.01
@@ -1366,12 +1365,12 @@ layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_left = 16.0
-offset_top = -130.0
-offset_right = 242.0
-offset_bottom = -54.0
+offset_left = 17.0
+offset_top = -95.0
+offset_right = 243.0
+offset_bottom = -19.0
 grow_vertical = 0
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 32
 text = "Player 1"
 vertical_alignment = 2
 clip_text = true
@@ -1385,19 +1384,6 @@ offset_bottom = 135.0
 theme_override_font_sizes/font_size = 42
 text = "Carlinhos
 24"
-
-[node name="ScoreLabel" type="Label" parent="HUD/UI_Base"]
-layout_mode = 1
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_left = 13.0
-offset_top = -58.0
-offset_right = 320.0
-offset_bottom = -13.0
-grow_vertical = 0
-theme_override_font_sizes/font_size = 32
-text = "Match Score: 25.200"
 
 [node name="Messages" type="Control" parent="HUD"]
 clip_contents = true
@@ -1487,10 +1473,6 @@ SHIELD_TIME = 5.0
 [node name="AirMovementComponent" type="Node" parent="Scripts"]
 unique_name_in_owner = true
 script = ExtResource("23_hmxgi")
-
-[node name="TrickManager" type="Node" parent="Scripts"]
-unique_name_in_owner = true
-script = ExtResource("24_u7amk")
 
 [node name="WeaponManager" type="Node3D" parent="Scripts"]
 unique_name_in_owner = true
