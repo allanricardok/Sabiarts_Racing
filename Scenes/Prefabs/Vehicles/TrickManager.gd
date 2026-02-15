@@ -1,112 +1,146 @@
-# TrickManager.gd
 extends Node
 class_name TrickManager
 
 @onready var car = owner as VehicleBody3D
-@onready var ability_comp = %AbilityComponent
 
-# --- ESTRUTURA DE PONTOS ---
 const TRICK_DATA = {
-	"ROLL_L": {"name": "Roll Esq", "points": 50},
-	"ROLL_R": {"name": "Roll Dir", "points": 50},
-	"BACKFLIP": {"name": "Backflip", "points": 80},
-	"FRONTFLIP": {"name": "Frontflip", "points": 80},
-	"YAW_SPIN": {"name": "Spin", "points": 40}
+	"ROLL_L": {"name": "Roll 360", "points": 50}, "ROLL_R": {"name": "Roll 360", "points": 50},
+	"BACKFLIP": {"name": "Backflip", "points": 80}, "FRONTFLIP": {"name": "Frontflip", "points": 80},
+	"SPIN": {"name": "Spin 360", "points": 40}
 }
 
-# --- ESTADO ATUAL DO COMBO ---
-var air_time : float = 0.0
-var tracking_jump : bool = false
-var tricks_in_current_jump : Array = [] # Armazena os nomes das manobras feitas
-
-# Rastreamento de ângulos independentes
-var angle_x : float = 0.0
-var angle_y : float = 0.0
-var angle_z : float = 0.0
+var global_stunt_uses = {}
+var air_time := 0.0
+var tracking_jump := false
+var tricks_done : Array = []
+var points_per_trick : Array = []
+var current_jump_uses = {}
+var angle_accumulator_y := 0.0 # Agora só rastreamos o Y (Spin)
 var last_basis : Basis
 
-func process_air_time(delta: float, is_near_ground: bool):
-	if not tracking_jump:
-		tracking_jump = true
-		tricks_in_current_jump.clear()
-		angle_x = 0; angle_y = 0; angle_z = 0
-		last_basis = car.global_transform.basis
-	
-	air_time += delta
-	_track_rotations()
-	
-	# Atualiza o HUD em tempo real com a lista de manobras
-	var hud = get_tree().get_first_node_in_group("HUD")
-	if hud: 
-		hud.atualizar_combo_live(tricks_in_current_jump, air_time)
+# --- FUNÇÃO PARA MANOBRAS DE BOTÃO ---
+func add_trick_manually(id: String):
+	if not tracking_jump: _start_new_jump()
+	_register_trick_logic(id)
 
-func _track_rotations():
+# --- LOGICA DE ROTAÇÃO APENAS PARA SPIN ---
+func _track_rotation():
 	var current_basis = car.global_transform.basis
-	var relative_rot = (last_basis.inverse() * current_basis).get_rotation_quaternion()
+	var euler = (last_basis.inverse() * current_basis).get_rotation_quaternion().get_euler()
 	last_basis = current_basis
 	
-	# Decompõe a rotação em eixos locais
-	var Euler = relative_rot.get_euler()
-	angle_x += Euler.x
-	angle_y += Euler.y
-	angle_z += Euler.z
+	angle_accumulator_y += euler.y
 	
-	# Verifica se algum eixo completou 360 graus (aprox 6.28 radianos)
-	_check_trick_completion()
+	if abs(angle_accumulator_y) >= (PI * 1.85):
+		_register_trick_logic("SPIN")
+		angle_accumulator_y = 0.0
 
-func _check_trick_completion():
-	var threshold = PI * 1.9 # Quase 360 para ser mais responsivo
+# --- NÚCLEO DE CÁLCULO DE PONTOS (UNIFICADO) ---
+func _register_trick_logic(id: String):
+	var base_pts = TRICK_DATA[id].points
+	var g_count = global_stunt_uses.get(id, 0)
+	var g_mult = max(0.1, 1.0 - (g_count * 0.05))
+	var j_count = current_jump_uses.get(id, 0)
+	var j_mult = max(0.1, pow(0.5, j_count))
 	
-	if abs(angle_z) >= threshold:
-		_register_trick("ROLL_L" if angle_z > 0 else "ROLL_R")
-		angle_z = 0
-	if abs(angle_x) >= threshold:
-		_register_trick("FRONTFLIP" if angle_x > 0 else "BACKFLIP")
-		angle_x = 0
-	if abs(angle_y) >= threshold:
-		_register_trick("YAW_SPIN")
-		angle_y = 0
+	var final_pts = int(base_pts * g_mult * j_mult)
+	
+	tricks_done.append(TRICK_DATA[id].name)
+	points_per_trick.append(final_pts)
+	current_jump_uses[id] = j_count + 1
+	_update_live_display() # Força atualização do HUD na hora
 
-func _register_trick(trick_id: String):
-	tricks_in_current_jump.append(TRICK_DATA[trick_id])
-	print("Manobra detectada: ", TRICK_DATA[trick_id].name)
+func process_air_time(delta: float, _is_near_ground: bool):
+	if not tracking_jump: _start_new_jump()
+	air_time += delta
+	_track_rotation()
+	if air_time >= 1.1 or tricks_done.size() > 0:
+		_update_live_display()
 
-func check_landing(is_doing_stunt: bool):
-	if tracking_jump:
-		if air_time > 0.5: # Só pontua se o pulo foi relevante
-			_finalize_combo()
-		tracking_jump = false
+func _start_new_jump():
+	tracking_jump = true
 	air_time = 0.0
-	tricks_in_current_jump.clear()
+	tricks_done.clear()
+	points_per_trick.clear()
+	current_jump_uses.clear()
+	angle_accumulator_y = 0.0
+	last_basis = car.global_transform.basis
 
-func _finalize_combo():
-	var base_points = 0
-	var trick_names = []
+func _update_live_display():
+	var hud = get_tree().get_first_node_in_group("HUD")
+	if not hud: return
 	
-	# Soma pontos das manobras
-	for trick in tricks_in_current_jump:
-		base_points += trick.points
-		trick_names.append(trick.name)
+	var names_text = ""
+	var pts_text = ""
+	for i in range(tricks_done.size()):
+		names_text += tricks_done[i] + " + "
+		pts_text += str(points_per_trick[i]) + " + "
 	
-	# Soma pontos de tempo de ar (10 pontos por segundo)
-	var air_points = int(air_time * 10)
-	base_points += air_points
+	hud.air_time_label.text = names_text + str(int(air_time * 1000)) + " airtime"
+	hud.air_time_label.text += "\n" + str(tricks_done.size() + 1) + "x " + pts_text + str(int(air_time * 10))
+	hud.air_time_label.visible = true
+	hud.air_message_label.visible = false
+
+func _add_trick(id: String):
+	var base_pts = TRICK_DATA[id].points
 	
-	# Multiplicador baseado na quantidade de manobras (Combo)
-	var multiplier = max(1, tricks_in_current_jump.size())
-	var final_score = base_points * multiplier
+	# 1. CÁLCULO DO DECAIMENTO GLOBAL (5% por uso anterior)
+	var g_count = global_stunt_uses.get(id, 0)
+	var g_mult = max(0.1, 1.0 - (g_count * 0.05))
 	
-	# Envia para o placar geral
+	# 2. CÁLCULO DO DECAIMENTO INTERNO (50% por repetição no mesmo pulo)
+	var j_count = current_jump_uses.get(id, 0)
+	var j_mult = max(0.1, pow(0.5, j_count))
+	
+	# Pontuação final da manobra
+	var final_pts = int(base_pts * g_mult * j_mult)
+	
+	tricks_done.append(TRICK_DATA[id].name)
+	points_per_trick.append(final_pts)
+	
+	# Incrementa contador de repetição interna
+	current_jump_uses[id] = j_count + 1
+
+func check_landing(_is_doing_stunt: bool):
+	if tracking_jump and (air_time >= 1.1 or tricks_done.size() > 0):
+		_finalize_score()
+	tracking_jump = false
+
+func _finalize_score():
+	var hud = get_tree().get_first_node_in_group("HUD")
+	if not hud: return
+	
+	# 1. CÁLCULO DE PONTOS
+	var total_base = int(air_time * 10)
+	for p in points_per_trick: total_base += p
+	
+	var mult = tricks_done.size() + 1
+	var final_score = total_base * mult
 	ScoreManager.add_points(final_score)
 	
-	# Avisa o HUD para mostrar o banner de vitória
-	var hud = get_tree().get_first_node_in_group("HUD")
-	if hud:
-		hud.mostrar_finalizacao_combo(final_score, multiplier)
+	# 2. SALVA O USO GLOBAL (Decaimento para o próximo pulo)
+	for id in current_jump_uses.keys():
+		global_stunt_uses[id] = global_stunt_uses.get(id, 0) + 1
+	
+	# 3. EXIBIÇÃO FINAL
+	var msg = "Awesome trick!" if mult > 1 else "Nice air!"
+	hud.air_message_label.text = msg + "\n" + str(final_score) + " points"
+	hud.air_message_label.visible = true
+	hud.air_time_label.visible = true
+	
+	# --- O TIMER DE 3 SEGUNDOS ---
+	# Esperamos 3 segundos após o pouso
+	await get_tree().create_timer(3.0).timeout
+	
+	# 4. CHECAGEM DE SEGURANÇA
+	# Só escondemos se o jogador NÃO começou um novo pulo "sério" nesse intervalo
+	if not tracking_jump or (air_time < 1.1 and tricks_done.size() == 0):
+		hud.air_time_label.visible = false
+		hud.air_message_label.visible = false
 
 func reset_trick():
-	air_time = 0.0
 	tracking_jump = false
-	tricks_in_current_jump.clear()
 	var hud = get_tree().get_first_node_in_group("HUD")
-	if hud: hud.ocultar_cronometro_ar()
+	if hud:
+		hud.air_time_label.visible = false
+		hud.air_message_label.visible = false

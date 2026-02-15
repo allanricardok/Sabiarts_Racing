@@ -1157,7 +1157,7 @@ tree_root = SubResource("AnimationNodeAnimation_vsc3g")
 anim_player = NodePath("../AnimationPlayer")
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(-1, 2.526796e-08, -8.369153e-08, 0, 0.9573195, 0.28903177, 8.742278e-08, 0.28903177, -0.9573195, 0.020254374, 2.598437, -3.6664786)
+transform = Transform3D(-1, 2.526796e-08, -8.369153e-08, -5.432975e-09, 0.9375069, 0.34796667, 8.7253795e-08, 0.34796667, -0.9375069, 0.020254374, 2.8137403, -3.6664786)
 top_level = true
 current = true
 fov = 92.0
@@ -1399,48 +1399,40 @@ grow_vertical = 0
 theme_override_font_sizes/font_size = 32
 text = "Match Score: 25.200"
 
-[node name="Messages" type="Control" parent="HUD"]
+[node name="Messages" type="VBoxContainer" parent="HUD"]
 clip_contents = true
-layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 122.0
+offset_top = 87.0
+offset_right = -122.0
+offset_bottom = -219.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="AirTimeLabel" type="Label" parent="HUD/Messages"]
-visible = false
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -41.0
-offset_top = 120.0
-offset_right = 41.0
-offset_bottom = 165.0
-grow_horizontal = 2
+layout_mode = 2
 theme_override_colors/font_outline_color = Color(0.8980392, 0.19607843, 0, 0.36078432)
-theme_override_constants/outline_size = 30
-theme_override_font_sizes/font_size = 32
-text = "1.999"
+theme_override_constants/outline_size = 15
+theme_override_font_sizes/font_size = 24
+text = "blablabla + oloco + air + pica torta + oloco
+4x 50+50+60+22
+"
+horizontal_alignment = 1
+autowrap_mode = 2
 
 [node name="AirMessageLabel" type="Label" parent="HUD/Messages"]
-visible = false
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -77.5
-offset_top = 161.0
-offset_right = 77.5
-offset_bottom = 219.0
-grow_horizontal = 2
+layout_mode = 2
 theme_override_colors/font_outline_color = Color(0.8666667, 0.39215687, 0.09803922, 0.654902)
-theme_override_constants/outline_size = 35
-theme_override_font_sizes/font_size = 42
-text = "Cool air"
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/font_size = 32
+text = "Cool air
+250.000 points"
+horizontal_alignment = 1
+autowrap_mode = 2
 
 [node name="Hitbox" type="Area3D" parent="."]
 collision_layer = 6

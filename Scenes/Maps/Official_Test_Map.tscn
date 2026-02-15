@@ -1,4 +1,4 @@
-[gd_scene load_steps=95 format=3 uid="uid://d2rblk8h626kc"]
+[gd_scene load_steps=96 format=3 uid="uid://d2rblk8h626kc"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_mm1ty"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="1_rakfq"]
@@ -10,6 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://wlhx07iu8h7s" path="res://Assets/2D/Screenshot 2026-02-11 at 00-24-39 Maps Layout - Google Planilhas - V8map.pdf.png" id="5_mm1ty"]
 [ext_resource type="PackedScene" uid="uid://3jy2jv3yflr2" path="res://Scenes/Prefabs/Items/ObjectBase.tscn" id="6_0eu0l"]
 [ext_resource type="PackedScene" uid="uid://culevpqmdi0u8" path="res://Scenes/Prefabs/Items/Teleporter.tscn" id="6_bnpdo"]
+[ext_resource type="PackedScene" uid="uid://csft7rrtnlb57" path="res://Scenes/Prefabs/Items/ObjectBaseBig.tscn" id="7_jykq4"]
 [ext_resource type="PackedScene" uid="uid://c2vj1t0kkmxex" path="res://Scenes/Prefabs/Items/BigSlowPickup.tscn" id="8_ka3dh"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_a70xh"]
@@ -831,6 +832,18 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -159.68216, 0, -50.73577)
 
 [node name="ObjectBase4" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("6_0eu0l")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -209.78766, 0, -45.710495)
+
+[node name="ObjectBase5" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("7_jykq4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 142.22891, 0.9365082, -5.5297813)
+
+[node name="ObjectBase6" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("7_jykq4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 128.39499, 0.9365082, -5.5297813)
+
+[node name="ObjectBase7" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("7_jykq4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114.86784, 0.9365082, -5.5297813)
+
+[node name="ObjectBase8" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("7_jykq4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 102.87477, 0.9365082, -5.5297813)
 
 [node name="Teleporters" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
 

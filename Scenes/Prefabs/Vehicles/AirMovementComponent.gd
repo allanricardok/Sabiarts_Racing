@@ -22,6 +22,7 @@ var accumulated_angle := 0.0
 var last_basis : Basis
 var stunt_timeout := 0.0 
 var original_angular_damp : float = 0.0
+var is_slow_mo_active := false
 
 func _ready():
 	original_angular_damp = car.angular_damp
@@ -29,6 +30,18 @@ func _ready():
 func _physics_process(delta):
 	if not car.pode_mover: return
 	var is_on_ground = check_grounded()
+	
+	# --- LÓGICA DO SLOW MOTION ---
+	# Se o carro pousar, o tempo volta ao normal imediatamente
+	if is_on_ground and is_slow_mo_active:
+		_set_slow_motion(false)
+	
+	if not is_on_ground:
+		 # JUST_PRESSED só dispara UMA VEZ por clique
+		if Input.is_action_just_pressed("slow_mo"): 
+			_set_slow_motion(!is_slow_mo_active)
+			# Pequena pausa para não registrar múltiplos cliques no mesmo frame
+			get_viewport().set_input_as_handled()
 	
 	if not is_on_ground:
 		# 1. Checamos se estamos perto do chão
@@ -46,6 +59,7 @@ func _physics_process(delta):
 			# Caso contrário, continua contando os pontos normalmente
 			trick_manager.process_air_time(delta, near_ground)
 		
+		trick_manager.process_air_time(delta, is_near_ground())
 		_apply_fast_fall(delta)
 		
 		if input.is_stunt_pressed and not is_doing_stunt:
@@ -76,22 +90,55 @@ func _start_angle_stunt(axis: Vector3, anim_name: String):
 	last_basis = car.global_transform.basis
 	car.angular_damp = 2
 	
-	var impulse = axis * STUNT_IMPULSE_POWER * car.mass
-	car.apply_torque_impulse(car.global_transform.basis * impulse)
+	# --- 1. LIMPEZA DA VELOCIDADE (O RESET) ---
+	var local_ang_vel = car.global_transform.basis.inverse() * car.angular_velocity
+	
+	# Se for um ROLL, limpamos X (pitch) e Y (yaw) ANTES de aplicar o novo valor
+	if abs(axis.z) > 0.5:
+		local_ang_vel.x = 0 
+		local_ang_vel.y = 0
+	
+	# Aplicamos a velocidade "limpa" ao carro PRIMEIRO
+	car.angular_velocity = car.global_transform.basis * local_ang_vel
+
+	# --- 2. AGORA SIM, APLICAMOS OS IMPULSOS (Sem serem sobrescritos) ---
+	if abs(axis.z) > 0.5:
+		# Se global_transform.basis.z.y for NEGATIVO, o bico está para CIMA.
+		# Precisamos de um torque POSITIVO em X para baixar o bico.
+		var nose_tilt = car.global_transform.basis.z.y 
+		var correction_strength = 15.0 # Comece com 20 e ajuste se necessário
+		
+		# Aplicamos a contra-força para nivelar o horizonte
+		var correction_impulse = car.global_transform.basis.x * (nose_tilt * car.mass * correction_strength)
+		car.apply_torque_impulse(correction_impulse)
+		
+	# --- 3. REGISTRO E IMPULSO DA MANOBRA ---
+	trick_manager.add_trick_manually(
+		"ROLL_L" if axis.z > 0.5 else "ROLL_R" if axis.z < -0.5 else 
+		"FRONTFLIP" if axis.x > 0.5 else "BACKFLIP"
+	)
+	
+	var stunt_impulse = axis * STUNT_IMPULSE_POWER * car.mass
+	car.apply_torque_impulse(car.global_transform.basis * stunt_impulse)
 
 func _monitor_stunt_angle(delta):
+	# Se houver qualquer contato com o chão, forçamos o freio da manobra
+	# Isso evita que o carro pouse "torto" e saia capotando por inércia
 	if car.get_contact_count() > 0:
-		_cancel_stunt()
+		_apply_stunt_brake()
 		return
 
 	var current_basis = car.global_transform.basis
 	var relative_basis = last_basis.inverse() * current_basis
+	
+	# Cálculo do ângulo percorrido desde o último frame
 	var frame_angle = relative_basis.get_rotation_quaternion().get_angle()
 	accumulated_angle += abs(frame_angle)
 	last_basis = current_basis
 	stunt_timeout -= delta
 
-	if accumulated_angle >= (PI * 2.0) or stunt_timeout <= 0:
+	# Se completou os 360 graus ou o tempo acabou, freia
+	if accumulated_angle >= (PI * 2.2) or stunt_timeout <= 0:
 		_apply_stunt_brake()
 
 func _apply_stunt_brake():
@@ -129,3 +176,10 @@ func check_grounded() -> bool:
 	for child in car.get_children():
 		if child is VehicleWheel3D and child.is_in_contact(): return true
 	return false
+
+func _set_slow_motion(active: bool):
+	is_slow_mo_active = active
+	if active:
+		Engine.time_scale = 0.2
+	else:
+		Engine.time_scale = 1.0
