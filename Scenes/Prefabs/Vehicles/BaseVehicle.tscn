@@ -1,4 +1,4 @@
-[gd_scene load_steps=103 format=4 uid="uid://cw8ofahu5mqhn"]
+[gd_scene load_steps=105 format=4 uid="uid://cw8ofahu5mqhn"]
 
 [ext_resource type="Script" uid="uid://b0i2wvnkcrknc" path="res://Core/PlayerScripts/BaseVehicle.gd" id="1_m0ew1"]
 [ext_resource type="Script" uid="uid://cjnmai87rc2f8" path="res://Core/camera_test_3.gd" id="2_8gjg4"]
@@ -22,10 +22,12 @@
 [ext_resource type="Texture2D" uid="uid://ij8dh5smb7iv" path="res://Assets/3D/vigilante_v8_2nd_offence_obakes_tsunami_12.png" id="14_hxqm3"]
 [ext_resource type="Texture2D" uid="uid://ij3bki2m3mq0" path="res://Assets/3D/vigilante_v8_2nd_offence_obakes_tsunami_13.png" id="15_a2eke"]
 [ext_resource type="Texture2D" uid="uid://dn4gu5ika00yt" path="res://Assets/3D/vigilante_v8_2nd_offence_obakes_tsunami_14.png" id="16_apvhh"]
-[ext_resource type="Script" uid="uid://ca80dhy7dchio" path="res://Scenes/Prefabs/Vehicles/hud.gd" id="18_krxcx"]
+[ext_resource type="Script" uid="uid://ca80dhy7dchio" path="res://Core/PlayerScripts/hud.gd" id="18_krxcx"]
+[ext_resource type="Script" uid="uid://y3uxucxf1qqt" path="res://Core/PlayerScripts/recticle.gd" id="19_u5777"]
 [ext_resource type="Resource" uid="uid://cl6d44tjh6xry" path="res://Resources/Weapons/MachineGun.tres" id="23_625mm"]
-[ext_resource type="Script" uid="uid://burl25dksofc1" path="res://Scenes/Prefabs/Vehicles/AirMovementComponent.gd" id="23_hmxgi"]
-[ext_resource type="Script" uid="uid://dicgxfjk23y35" path="res://Scenes/Prefabs/Vehicles/TrickManager.gd" id="24_u7amk"]
+[ext_resource type="Script" uid="uid://burl25dksofc1" path="res://Core/PlayerScripts/AirMovementComponent.gd" id="23_hmxgi"]
+[ext_resource type="Script" uid="uid://dicgxfjk23y35" path="res://Core/PlayerScripts/TrickManager.gd" id="24_u7amk"]
+[ext_resource type="Script" uid="uid://di8qqp2x2hico" path="res://Core/PlayerScripts/GroundTrickManager.gd" id="26_x2n00"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_625mm"]
 friction = 0.01
@@ -1007,6 +1009,7 @@ size = Vector3(0.2, 0.2, 0.6)
 
 [node name="BaseVehicle" type="VehicleBody3D" node_paths=PackedStringArray("mesh_new", "mesh_damaged", "mesh_skeleton", "speed_label") groups=["Jogadores", "jogadores"]]
 collision_layer = 3
+collision_mask = 3
 mass = 500.0
 physics_material_override = SubResource("PhysicsMaterial_625mm")
 gravity_scale = 1.4
@@ -1434,6 +1437,30 @@ text = "Cool air
 horizontal_alignment = 1
 autowrap_mode = 2
 
+[node name="Recticle" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("19_u5777")
+
+[node name="LockOnRect" type="Panel" parent="HUD/Recticle"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
 [node name="Hitbox" type="Area3D" parent="."]
 collision_layer = 6
 
@@ -1483,6 +1510,10 @@ script = ExtResource("23_hmxgi")
 [node name="TrickManager" type="Node" parent="Scripts"]
 unique_name_in_owner = true
 script = ExtResource("24_u7amk")
+
+[node name="GroundTrickManager" type="Node" parent="Scripts"]
+unique_name_in_owner = true
+script = ExtResource("26_x2n00")
 
 [node name="WeaponManager" type="Node3D" parent="Scripts"]
 unique_name_in_owner = true
@@ -1541,6 +1572,26 @@ transform = Transform3D(-0.99978435, 0.00036245174, 0.020764848, 0, 0.9998477, -
 transform = Transform3D(-1, 0, 8.742277e-08, 0, 1, 0, -8.742278e-08, 0, -1, -2.3841858e-07, 0.05218804, -0.2682413)
 visible = false
 light_color = Color(1.8247963, 1.1120775, 0.8745043, 1)
+light_energy = 7.803
+light_indirect_energy = 7.803
+light_volumetric_fog_energy = 1.252
+light_size = 0.52
+light_specular = 3.398
+
+[node name="HomingMissile" type="Node3D" parent="Guns"]
+unique_name_in_owner = true
+
+[node name="Gun" type="MeshInstance3D" parent="Guns/HomingMissile"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.024612546, 1.4624507, 0.1738528)
+mesh = SubResource("BoxMesh_krxcx")
+
+[node name="Muzzle" type="Node3D" parent="Guns/HomingMissile"]
+transform = Transform3D(-0.99978435, 0.00036245174, 0.020764848, 0, 0.9998477, -0.017452406, -0.020768011, -0.017448641, -0.9996321, -0.014248967, 1.5464308, 0.55100596)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Guns/HomingMissile/Muzzle"]
+transform = Transform3D(-1, 0, 8.742277e-08, 0, 1, 0, -8.742278e-08, 0, -1, -2.3841858e-07, 0.05218804, -0.2682413)
+visible = false
+light_color = Color(0.47593856, 0.78725755, 0.883048, 1)
 light_energy = 7.803
 light_indirect_energy = 7.803
 light_volumetric_fog_energy = 1.252

@@ -17,7 +17,7 @@ rings = 2
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_8vci2"]
 points = PackedVector3Array(0, -2.5, -3, -2.1213782, -2.5, -2.1213782, 0, 2.5, -3, 2.120791, -2.5, -2.1213782, -3, -2.5, 0, -2.1213782, 2.5, -2.1213782, 2.120791, 2.5, -2.1213782, 3, -2.5, 0, -3, 2.5, 0, -2.1213782, -2.5, 2.120791, 3, 2.5, 0, 2.120791, -2.5, 2.120791, -2.1213782, 2.5, 2.120791, 0, -2.5, 3, 2.120791, 2.5, 2.120791, 0, 2.5, 3)
 
-[node name="ObjectBase" type="RigidBody3D"]
+[node name="ObjectBase" type="RigidBody3D" groups=["Enemies"]]
 mass = 79.301
 gravity_scale = 1.806
 script = ExtResource("1_8vci2")
@@ -27,3 +27,5 @@ mesh = SubResource("CylinderMesh_0e0mj")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("ConvexPolygonShape3D_8vci2")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

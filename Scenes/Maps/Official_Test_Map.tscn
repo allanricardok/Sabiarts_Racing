@@ -1,4 +1,4 @@
-[gd_scene load_steps=96 format=3 uid="uid://d2rblk8h626kc"]
+[gd_scene load_steps=98 format=3 uid="uid://d2rblk8h626kc"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_mm1ty"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="1_rakfq"]
@@ -11,7 +11,9 @@
 [ext_resource type="PackedScene" uid="uid://3jy2jv3yflr2" path="res://Scenes/Prefabs/Items/ObjectBase.tscn" id="6_0eu0l"]
 [ext_resource type="PackedScene" uid="uid://culevpqmdi0u8" path="res://Scenes/Prefabs/Items/Teleporter.tscn" id="6_bnpdo"]
 [ext_resource type="PackedScene" uid="uid://csft7rrtnlb57" path="res://Scenes/Prefabs/Items/ObjectBaseBig.tscn" id="7_jykq4"]
-[ext_resource type="PackedScene" uid="uid://c2vj1t0kkmxex" path="res://Scenes/Prefabs/Items/BigSlowPickup.tscn" id="8_ka3dh"]
+[ext_resource type="PackedScene" uid="uid://c2vj1t0kkmxex" path="res://Scenes/Prefabs/Items/WeaponPickup.tscn" id="8_ka3dh"]
+[ext_resource type="Resource" uid="uid://daftw5fiqy8a5" path="res://Resources/Weapons/BigSlow.tres" id="10_p07jo"]
+[ext_resource type="Resource" uid="uid://b4n2n37tjg3ed" path="res://Resources/Weapons/HomingMissile.tres" id="11_1cqfe"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_a70xh"]
 material = ExtResource("1_rakfq")
@@ -823,27 +825,43 @@ shape = SubResource("ConvexPolygonShape3D_dm20i")
 
 [node name="ObjectBase" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("6_0eu0l")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -159.68216, 0, -41.56138)
+collision_layer = 3
+collision_mask = 3
 
 [node name="ObjectBase2" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("6_0eu0l")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -170.70956, 0, -41.56138)
+collision_layer = 3
+collision_mask = 3
 
 [node name="ObjectBase3" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("6_0eu0l")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -159.68216, 0, -50.73577)
+collision_layer = 3
+collision_mask = 3
 
 [node name="ObjectBase4" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("6_0eu0l")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -209.78766, 0, -45.710495)
+collision_layer = 3
+collision_mask = 3
 
 [node name="ObjectBase5" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("7_jykq4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 142.22891, 0.9365082, -5.5297813)
+collision_layer = 3
+collision_mask = 3
 
 [node name="ObjectBase6" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("7_jykq4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 128.39499, 0.9365082, -5.5297813)
+collision_layer = 3
+collision_mask = 3
 
 [node name="ObjectBase7" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("7_jykq4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114.86784, 0.9365082, -5.5297813)
+collision_layer = 3
+collision_mask = 3
 
 [node name="ObjectBase8" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("7_jykq4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 102.87477, 0.9365082, -5.5297813)
+collision_layer = 3
+collision_mask = 3
 
 [node name="Teleporters" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
 
@@ -885,16 +903,24 @@ transform = Transform3D(-4.371138e-08, 0, 0.9999998, 0, 1, 0, -0.9999998, 0, -4.
 [node name="Pickups" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
 
 [node name="BigSlowPickup" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.402618, 0, 37.00815)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.072515, 0, 37.00815)
+weapon_to_give = ExtResource("10_p07jo")
 
 [node name="BigSlowPickup2" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.107269, 0, 37.00815)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.07041, 0, 37.00815)
+weapon_to_give = ExtResource("10_p07jo")
 
-[node name="BigSlowPickup3" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
+[node name="MissilePickup" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22.813967, 0, 37.00815)
+weapon_to_give = ExtResource("11_1cqfe")
+float_speed = 8.0
+float_amplitude = 0.5
 
-[node name="BigSlowPickup4" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
+[node name="MissilePickup2" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28.434292, 0, 37.00815)
+weapon_to_give = ExtResource("11_1cqfe")
+float_speed = 8.0
+float_amplitude = 0.5
 
 [node name="Items_Vehicles" type="Node3D" parent="GridContainer/Cont_P1/View_P1"]
 

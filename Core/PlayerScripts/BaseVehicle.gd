@@ -39,6 +39,7 @@ func _ready():
 	
 	# Conecta o sinal de colisão se não fez pelo editor
 	body_entered.connect(_on_impacto_corpo)
+	body_entered.connect(_on_vehicle_collision)
 	
 	# Criamos o material de "Sombra/Vazio"
 	teleport_material = StandardMaterial3D.new()
@@ -90,27 +91,29 @@ func take_damage(amount: float):
 		stats.take_damage(amount)
 
 func teleport_to(target_transform : Transform3D):
-	# Em vez de travar o movimento, vamos apenas desativar a colisão 
-	# temporariamente para não bater em nada durante o snap
-	
+	# Criamos o tween para gerenciar o tempo do efeito visual
 	var tween = create_tween()
 	var all_meshes = find_children("*", "MeshInstance3D", true)
 	
-	# 1. FLASH NEGRO (0.1s) - O carro vira uma sombra
+	# 1. FLASH NEGRO (0.1s) - Feedback visual de "sumiço"
 	for mesh in all_meshes:
 		mesh.material_override = teleport_material
 	
-	# Aguarda os 0.1s
+	# Aguarda o tempo do flash
 	tween.tween_interval(0.1)
 	
-	# 2. O SALTO
+	# 2. O SALTO E O RESET FÍSICO
 	tween.tween_callback(func():
+		# Define posição e rotação idênticas ao Marker
 		global_transform = target_transform
-		# Mantemos a velocidade, mas limpamos a rotação para bater com o Marker
-		var current_speed = linear_velocity.length()
-		var new_forward = -global_transform.basis.z # Direção do marker
-		linear_velocity = new_forward * current_speed
+		
+		# RESET TOTAL: O carro aparece parado (sem inércia do movimento anterior)
+		linear_velocity = Vector3.ZERO
 		angular_velocity = Vector3.ZERO
+		
+		# Dica: Se o carro "tremer" ao aparecer, você pode forçar 
+		# o repouso da física por um frame:
+		# sleeping = true 
 	)
 	
 	# 3. VOLTA AO NORMAL (0.1s)
@@ -118,6 +121,8 @@ func teleport_to(target_transform : Transform3D):
 	tween.tween_callback(func():
 		for mesh in all_meshes:
 			mesh.material_override = null
+		# Se usou o 'sleeping = true' acima, lembre de acordar o carro:
+		# sleeping = false
 	)
 
 func _on_impacto_corpo(body):
@@ -148,3 +153,12 @@ func _on_impacto_corpo(body):
 func _aplicar_impacto_visual(intensity):
 	# Aqui você pode chamar um tremor de câmera proporcional à porrada
 	pass
+	
+func _on_vehicle_collision(body: Node):
+	# Se o que eu bati tem a função de tomar dano
+	if body.has_method("take_damage"):
+		# Calculamos o dano com base na velocidade do carro para dar "feeling" de peso
+		var impact_damage = linear_velocity.length() * 0.5 
+		
+		if impact_damage > 2.0: # Evita dar dano encostando parado
+			body.take_damage(impact_damage, self) # 'self' passa o carro como attacker

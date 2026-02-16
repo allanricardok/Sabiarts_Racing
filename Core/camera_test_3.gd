@@ -43,42 +43,51 @@ func _ready():
 func _physics_process(delta):
 	if not car or not target_node or not air_move: return
 
-	# --- 1. LÓGICA DE OVERRIDE DE MANOBRA ---
+	# --- 1. LÓGICA DE ESTADO ---
 	var is_actually_in_air = not air_move.check_grounded()
 	var current_air_time = trick_manager.air_time
-	var is_stunting = air_move.is_doing_stunt # Puxamos o estado da manobra
+	var is_stunting = air_move.is_doing_stunt 
+	var is_looking_back = Input.is_action_pressed("LookBehind_J1")
 
 	var target_weight = 0.0
 	var current_transition = transition_speed
 
-	# Se estiver fazendo manobra, target_weight é 1.0 IMEDIATAMENTE
-	if is_actually_in_air:
-		if is_stunting or current_air_time > air_delay_threshold:
-			target_weight = 1.0
-			# Se for manobra, aceleramos a velocidade de transição para 10x mais rápido
-			if is_stunting: current_transition = 15.0 
-	
-	air_mode_weight = lerp(air_mode_weight, target_weight, delta * current_transition)
+	# INSTANTÂNEO: Se olhar para trás, o peso vira 1.0 na hora
+	if is_looking_back:
+		air_mode_weight = 1.0
+	else:
+		# Se não estiver olhando para trás, mantém a suavização normal (ar/chão)
+		if is_actually_in_air:
+			if is_stunting or current_air_time > air_delay_threshold:
+				target_weight = 1.0
+				if is_stunting: current_transition = 15.0 
+		air_mode_weight = lerp(air_mode_weight, target_weight, delta * current_transition)
 
 	# --- 2. BASES E DIREÇÕES ---
 	var ground_fwd = -car.global_transform.basis.z
 	ground_fwd.y = clamp(ground_fwd.y, -0.5, 0.5)
 	
-	# No ar ou manobra, a base de referência é a velocidade (estabilizada)
 	var air_fwd = -car.linear_velocity
 	if air_fwd.length() < 1.0: air_fwd = ground_fwd
 	air_fwd.y = 0
 	
 	var blended_fwd = ground_fwd.lerp(air_fwd.normalized(), air_mode_weight)
+	
+	if is_looking_back:
+		blended_fwd = -blended_fwd
+
 	var current_basis = Basis.looking_at(blended_fwd.normalized(), Vector3.UP)
 
-	var real_target = target_node.global_position
-	var ghost_target = car.global_position + (current_basis * default_target_offset)
-	var final_target_pos = real_target.lerp(ghost_target, air_mode_weight)
-
 	# --- 3. CÁLCULO DE POSIÇÃO LOCAL ---
+	var ghost_target = car.global_position + (current_basis * default_target_offset)
+	var final_target_pos = target_node.global_position.lerp(ghost_target, air_mode_weight)
+
 	var current_local_pos = current_basis.inverse() * (global_position - car.global_position)
 	var target_local_pos = current_basis.inverse() * (final_target_pos - car.global_position)
+
+	if is_looking_back:
+		target_local_pos.z *= look_back_distance_multiplier
+		target_local_pos.y += look_back_height_offset
 
 	var r_stick = Vector2(Input.get_joy_axis(0, JOY_AXIS_RIGHT_X), Input.get_joy_axis(0, JOY_AXIS_RIGHT_Y))
 	if r_stick.length() < 0.15: r_stick = Vector2.ZERO
@@ -89,13 +98,18 @@ func _physics_process(delta):
 	target_local_pos.z -= offset_y * 0.5 
 	
 	var final_local_pos : Vector3
-	final_local_pos.x = lerp(current_local_pos.x, target_local_pos.x, delta * follow_speed_lateral)
-	final_local_pos.z = lerp(current_local_pos.z, target_local_pos.z, delta * follow_speed_depth)
-	final_local_pos.y = lerp(current_local_pos.y, target_local_pos.y, delta * follow_speed_vertical)
+	
+	# INSTANTÂNEO: Se olhar para trás, a posição local não faz lerp, ela "snapa"
+	if is_looking_back:
+		final_local_pos = target_local_pos
+	else:
+		final_local_pos.x = lerp(current_local_pos.x, target_local_pos.x, delta * follow_speed_lateral)
+		final_local_pos.z = lerp(current_local_pos.z, target_local_pos.z, delta * follow_speed_depth)
+		final_local_pos.y = lerp(current_local_pos.y, target_local_pos.y, delta * follow_speed_vertical)
 
 	var ideal_global_pos = current_basis * final_local_pos + car.global_position
 
-	# --- 4. LÓGICA ANTI-CLIPPING ---
+	# --- 4. ANTI-CLIPPING ---
 	var space_state = get_world_3d().direct_space_state
 	var ray_origin = car.global_position + Vector3.UP * 0.5
 	var ray_query = PhysicsRayQueryParameters3D.create(ray_origin, ideal_global_pos, collision_mask)
@@ -108,9 +122,7 @@ func _physics_process(delta):
 	else:
 		global_position = ideal_global_pos
 
-	# ROTAÇÃO FINAL
 	look_at(car.global_position + Vector3.UP * look_offset, Vector3.UP)
 	
-	# 5. FOV (Mantido conforme solicitado)
 	var speed = car.linear_velocity.length()
 	fov = lerpf(fov, remap(clamp(speed, 0, 60), 0, 100, 100, 100), 0.1)

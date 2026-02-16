@@ -9,11 +9,14 @@ extends Node3D
 @onready var car = owner
 @onready var input = %InputComponent
 
-# Dicionário de Meshes (Certifique-se que o nome no Resource é igual ao nome do Nó %)
 @onready var weapon_nodes = {
 	"MachineGun": %MachineGun,
-	"BigSlow": %BigSlow
+	"BigSlow": %BigSlow,
+	"HomingMissile": %HomingMissile # Adicionado conforme sua nova árvore de nós
 }
+
+# 2. Variável para o alvo atual
+var current_target: Node3D = null
 
 # --- ESTADO INTERNO ---
 var special_weapon: WeaponResource = null
@@ -50,6 +53,9 @@ func _process(delta):
 	var action_name = "Fire" + input.suffix
 	if Input.is_action_just_pressed(action_name):
 		fire_special_weapon()
+	
+	if special_weapon and special_weapon.nome == "HomingMissile":
+		_find_lockon_target()
 
 # --- LÓGICA DE EQUIPAMENTO ---
 
@@ -115,20 +121,24 @@ func fire_special_weapon():
 	_atualizar_interface()
 
 func _spawn_projectile(res: WeaponResource, node_name: String):
-	if not res.projectile_scene: return
-	
 	var proj = res.projectile_scene.instantiate()
 	var muzzle = weapon_nodes[node_name].find_child("Muzzle", true, false)
 	
+	# 1. Primeiro definimos a posição
 	if muzzle:
 		proj.global_transform = muzzle.global_transform
 	
+	# 2. Adicionamos à cena (apenas uma vez!)
 	get_tree().current_scene.add_child(proj)
 	
-	# Passamos o dano E a velocidade atual do carro para o projétil
+	# 3. Chamamos o setup com os argumentos corretos
 	if proj.has_method("setup"):
-		# Passamos o dano e a velocidade linear do VehicleBody3D
-		proj.setup(res.dano, car.linear_velocity)
+		if node_name == "HomingMissile":
+			# Míssil: Dano, Velocidade, Brasília, Alvo
+			proj.setup(res.dano, car.linear_velocity, car, current_target)
+		else:
+			# Balas/BigSlow: Dano, Velocidade, Brasília
+			proj.setup(res.dano, car.linear_velocity, car)
 
 func _muzzle_flash_effect(node_name: String):
 	var light = weapon_nodes[node_name].find_child("OmniLight3D", true, false)
@@ -153,3 +163,26 @@ func _atualizar_interface():
 		else:
 			# Se não tiver especial, mostra a metralhadora
 			hud.atualizar_arma("None", 0)
+			
+func _find_lockon_target():
+	var targets = get_tree().get_nodes_in_group("Enemies")
+	var best_target = null
+	var min_angle = 35.0 
+	var max_dist = 120.0 
+	
+	# MUDANÇA: Tiramos o "-" de frente do car.global_transform.basis.z
+	# Agora o "frente" para o script será o "trás" do motor (que é a frente do seu modelo)
+	var car_forward = car.global_transform.basis.z 
+
+	for t in targets:
+		if not is_instance_valid(t): continue
+		var dir = (t.global_position - car.global_position).normalized()
+		
+		var angle = rad_to_deg(car_forward.angle_to(dir))
+		var dist = car.global_position.distance_to(t.global_position)
+		
+		if angle < min_angle and dist < max_dist:
+			best_target = t
+			min_angle = angle 
+			
+	current_target = best_target

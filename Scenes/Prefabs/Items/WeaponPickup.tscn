@@ -1,7 +1,6 @@
-[gd_scene load_steps=6 format=3 uid="uid://c2vj1t0kkmxex"]
+[gd_scene load_steps=5 format=3 uid="uid://c2vj1t0kkmxex"]
 
-[ext_resource type="Script" uid="uid://bh0mepywia6m7" path="res://Core/Weapons/BigSlowPickup.gd" id="1_tbrs8"]
-[ext_resource type="Resource" uid="uid://daftw5fiqy8a5" path="res://Resources/Weapons/BigSlow.tres" id="2_6yskg"]
+[ext_resource type="Script" uid="uid://bh0mepywia6m7" path="res://Core/Weapons/BigSlowPickup.gd" id="1_vr2th"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6yskg"]
 albedo_color = Color(0.019607844, 0.38431373, 1, 1)
@@ -16,9 +15,8 @@ rings = 4
 [sub_resource type="BoxShape3D" id="BoxShape3D_aowhd"]
 size = Vector3(3, 3, 3)
 
-[node name="BigSlowPickup" type="Area3D"]
-script = ExtResource("1_tbrs8")
-weapon_to_give = ExtResource("2_6yskg")
+[node name="WeaponPickup" type="Area3D"]
+script = ExtResource("1_vr2th")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("CapsuleMesh_qkbw5")
