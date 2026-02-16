@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://3jy2jv3yflr2"]
 
-[ext_resource type="Script" uid="uid://dxwtvbecpphjn" path="res://Core/Weapons/DestructibleProp.gd" id="1_0e0mj"]
+[ext_resource type="Script" uid="uid://dxwtvbecpphjn" path="res://Core/Destructibles/DestructibleProp.gd" id="1_0e0mj"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_or50q"]
 albedo_color = Color(0.95686275, 0.33333334, 0.28627452, 1)

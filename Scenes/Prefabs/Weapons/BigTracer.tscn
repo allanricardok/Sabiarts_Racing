@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://db4qipccvwuyh"]
 
-[ext_resource type="Script" uid="uid://dd5g2ubiqejdr" path="res://Core/Weapons/BigTracer.gd" id="1_mkbs4"]
+[ext_resource type="Script" uid="uid://dd5g2ubiqejdr" path="res://Core/Weapons/Projectiles/BigTracer.gd" id="1_mkbs4"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x78nd"]
 shading_mode = 0

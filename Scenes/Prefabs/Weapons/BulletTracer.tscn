@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://dhpscp7wsptl0"]
 
-[ext_resource type="Script" uid="uid://b243qbjuvt5hf" path="res://Core/Weapons/bullet_tracer.gd" id="1_jtk88"]
+[ext_resource type="Script" uid="uid://b243qbjuvt5hf" path="res://Core/Weapons/Projectiles/bullet_tracer.gd" id="1_jtk88"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x78nd"]
 shading_mode = 0

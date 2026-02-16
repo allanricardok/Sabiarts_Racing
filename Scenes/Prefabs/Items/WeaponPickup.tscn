@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://c2vj1t0kkmxex"]
 
-[ext_resource type="Script" uid="uid://bh0mepywia6m7" path="res://Core/Weapons/BigSlowPickup.gd" id="1_vr2th"]
+[ext_resource type="Script" uid="uid://bh0mepywia6m7" path="res://Core/Weapons/WeaponItems/BigSlowPickup.gd" id="1_vr2th"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6yskg"]
 albedo_color = Color(0.019607844, 0.38431373, 1, 1)

@@ -21,7 +21,7 @@ var esquemas_disponiveis = ["K1", "K2", "J1", "J2", "J3", "J4"]
 var nomes_controles = {"K1": "Keyboard 1", "K2": "Keyboard 2", "J1": "Joystick 1", "J2": "Joystick 2", "J3": "Joystick 3", "J4": "Joystick 4"}
 var jogadores_ativos = [null, null, null, null]
 
-const ICON_KEYBOARD = preload("res://Assets/2D/cyberpunk_mask.png")
+const ICON_KEYBOARD = preload("res://Assets/2D/images.jpg")
 const ICON_JOYSTICK = preload("res://Assets/2D/explosion.png")
 @onready var slots_ui = $JoinPanel/HBoxContainer.get_children()
 

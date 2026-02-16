@@ -19,7 +19,7 @@ config/icon="uid://5nb636qn8jyl"
 
 [autoload]
 
-Global="*res://Core/Global.gd"
+Global="*res://Core/Menus/Global.gd"
 GameManager="*res://Core/game_manager.gd"
 ScoreManager="*res://Autoload/ScoreManager.gd"
 

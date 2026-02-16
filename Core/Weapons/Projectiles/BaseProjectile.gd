@@ -13,6 +13,7 @@ func setup(dmg_value: float, car_velocity: Vector3, source_car: Node3D, propulsi
 	
 	var propulsion = -global_transform.basis.z * propulsion_speed
 	linear_velocity = car_velocity + propulsion
+	print("Projectile: Disparado por ", shooter.name, " com dano ", damage)
 
 func _ready():
 	contact_monitor = true
@@ -24,13 +25,22 @@ func _on_impact(body):
 	if hit_done or body == shooter: return
 	hit_done = true
 	
+	# 1. Aplica dano no alvo
 	if body.has_method("take_damage"):
-		body.take_damage(damage, shooter) # Passa o shooter para o GroundTrickManager
+		body.take_damage(damage)
+	
+	# 2. Registra pontos no atirador (Combo System)
+	if shooter and is_instance_valid(shooter):
+		var ground_tricks = shooter.get_node_or_null("%GroundTrickManager")
+		if ground_tricks:
+			ground_tricks.add_ground_action("HIT_OBJECT")
+			print("Projectile: Pontos de impacto enviados para ", shooter.name)
 	
 	_play_impact_vfx()
 
 func _play_impact_vfx():
 	freeze = true
 	visible = false
+	# Pequeno delay para garantir que sinais de física terminem
 	await get_tree().create_timer(0.1).timeout
 	queue_free()
