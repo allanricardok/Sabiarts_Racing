@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://cd7vj18kiokji"]
+
+[ext_resource type="Script" uid="uid://tnp7jcnh8ldp" path="res://Scenes/Prefabs/Triggers/SpeedTrap.gd" id="1_xpeqm"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qcgmd"]
+size = Vector3(4, 4, 1)
+
+[node name="Speedtrap" type="Area3D"]
+script = ExtResource("1_xpeqm")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_qcgmd")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

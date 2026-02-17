@@ -10,6 +10,12 @@ signal score_changed(new_score)
 func add_points(amount: int):
 	total_score += amount
 	score_changed.emit(total_score)
+	
+	# --- INTEGRAÇÃO COM MISSÕES ---
+	# Avisa o MissionManager para checar se batemos as metas de score (20k, 35k, 50k)
+	if is_instance_valid(MissionManager):
+		MissionManager.notify_progress(MissionItem.Type.SCORE, total_score)
+	
 	print("Pontos Adicionados: ", amount, " | Total: ", total_score)
 
 func reset_score():
