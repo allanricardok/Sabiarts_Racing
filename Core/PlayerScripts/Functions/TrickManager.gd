@@ -32,6 +32,8 @@ var last_basis : Basis
 # Controle de Tempo Real e HUD
 var jump_start_timestamp : int = 0
 var display_version : int = 0
+# NOVA VARIÁVEL: Bloqueia o HUD para garantir os 3 segundos
+var is_showing_final_score := false
 
 func add_external_action(action_name: String, points: int):
 	if not tracking_jump: _start_new_jump()
@@ -65,26 +67,24 @@ func _register_trick_logic(id: String):
 	_update_live_display()
 
 func process_air_time(_delta: float, _is_near_ground: bool):
-	# CORREÇÃO: Só inicia um pulo se não estiver no chão
 	if not tracking_jump:
 		if not _is_near_ground:
 			_start_new_jump()
 		else:
-			return # Ignora se estiver no chão e não estiver rastreando pulo
+			return
 	
-	# Cálculo de tempo absoluto via OS
 	air_time = (Time.get_ticks_msec() - jump_start_timestamp) / 1000.0
 	
 	_track_rotation()
+	
 	if air_time >= AIR_TIME_THRESHOLD or tricks_done.size() > 0:
+		is_showing_final_score = false 
 		_update_live_display()
 
 func _start_new_jump():
 	tracking_jump = true
 	jump_start_timestamp = Time.get_ticks_msec()
 	air_time = 0.0
-	
-	# Incrementamos a versão apenas quando um NOVO pulo começa
 	display_version += 1 
 	
 	var ground_manager = car.get_node_or_null("%GroundTrickManager")
@@ -102,7 +102,23 @@ func _start_new_jump():
 	angle_accumulator_y = 0.0
 	last_basis = car.global_transform.basis
 
+# --- NOVA FUNÇÃO PARA CALCULAR O MULTIPLICADOR DINÂMICO ---
+func _get_dynamic_multiplier() -> float:
+	var mult = 1.0 # Base referente ao airtime
+	var seen_in_this_jump = {}
+	
+	for t_name in tricks_done:
+		if seen_in_this_jump.has(t_name):
+			mult += 0.5 # Repetida: soma apenas 0.5
+		else:
+			mult += 1.0 # Nova: soma 1.0
+			seen_in_this_jump[t_name] = true
+	
+	return mult
+
 func _update_live_display():
+	if is_showing_final_score: return
+
 	var hud = get_tree().get_first_node_in_group("HUD")
 	if not hud: return
 	
@@ -131,13 +147,13 @@ func _update_live_display():
 				names_text += t_name + " + "
 				pts_text += str(int(data.points / data.count)) + " + "
 	
+	var current_mult = _get_dynamic_multiplier()
+	
 	hud.air_time_label.text = names_text + ("%.2fs" % air_time) + " airtime"
-	hud.air_time_label.text += "\n" + str(tricks_done.size() + 1) + "x " + pts_text + str(int(air_time * AIR_TIME_POINTS_MULT))
+	# Exibe o multiplicador formatado (ex: 2.5x)
+	hud.air_time_label.text += "\n" + str(current_mult) + "x " + pts_text + str(int(air_time * AIR_TIME_POINTS_MULT))
 	hud.air_time_label.visible = true
 	hud.air_message_label.visible = false
-
-func _add_trick(id: String): 
-	_register_trick_logic(id)
 
 func check_landing(_is_doing_stunt: bool):
 	if tracking_jump:
@@ -151,32 +167,37 @@ func _finalize_score():
 	var hud = get_tree().get_first_node_in_group("HUD")
 	if not hud: return
 	
+	is_showing_final_score = true 
 	var version_at_finish = display_version
 	
 	var total_base = int(air_time * AIR_TIME_POINTS_MULT)
 	for p in points_per_trick: total_base += p
-	var mult = tricks_done.size() + 1
-	var final_score = total_base * mult
+	
+	# Usa o novo multiplicador dinâmico
+	var mult = _get_dynamic_multiplier()
+	var final_score = int(total_base * mult)
 	
 	ScoreManager.add_points(final_score)
 	
 	for id in current_jump_uses.keys():
 		global_stunt_uses[id] = global_stunt_uses.get(id, 0) + 1
 		
-	var msg = "Awesome trick!" if mult > 1 else "Nice air!"
+	var msg = "Awesome trick!" if tricks_done.size() > 0 else "Nice air!"
 	hud.air_message_label.text = msg + "\n" + str(final_score) + " points"
 	hud.air_message_label.visible = true
 	hud.air_time_label.visible = true
 	
 	await get_tree().create_timer(DISPLAY_STAY_TIME).timeout
 	
-	# Só esconde se o display_version ainda for o mesmo
 	if display_version == version_at_finish:
 		hud.air_time_label.visible = false
 		hud.air_message_label.visible = false
+		is_showing_final_score = false
 
 func reset_trick():
 	tracking_jump = false
+	if is_showing_final_score: return
+	
 	display_version += 1
 	var hud = get_tree().get_first_node_in_group("HUD")
 	if hud:

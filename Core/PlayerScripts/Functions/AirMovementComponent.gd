@@ -32,34 +32,24 @@ func _physics_process(delta):
 	var is_on_ground = check_grounded()
 	
 	# --- LÓGICA DO SLOW MOTION ---
-	# Se o carro pousar, o tempo volta ao normal imediatamente
 	if is_on_ground and is_slow_mo_active:
 		_set_slow_motion(false)
 	
 	if not is_on_ground:
-		 # JUST_PRESSED só dispara UMA VEZ por clique
 		if Input.is_action_just_pressed("slow_mo"): 
 			_set_slow_motion(!is_slow_mo_active)
-			# Pequena pausa para não registrar múltiplos cliques no mesmo frame
 			get_viewport().set_input_as_handled()
 	
 	if not is_on_ground:
-		# 1. Checamos se estamos perto do chão
 		var near_ground = is_near_ground()
-		
-		# 2. Checamos a orientação (1.0 = em pé, -1.0 = de ponta cabeça)
 		var orientation_factor = car.global_transform.basis.y.dot(Vector3.UP)
 		var is_upside_down = orientation_factor < 0.0
 		
-		# --- NOVA LÓGICA DE CANCELAMENTO ---
-		# SÓ cancelamos se (estiver de ponta cabeça) E (perto do chão) E (NÃO estiver em manobra)
 		if is_upside_down and near_ground and not is_doing_stunt:
 			trick_manager.reset_trick()
 		else:
-			# Caso contrário, continua contando os pontos normalmente
 			trick_manager.process_air_time(delta, near_ground)
 		
-		trick_manager.process_air_time(delta, is_near_ground())
 		_apply_fast_fall(delta)
 		
 		if input.is_stunt_pressed and not is_doing_stunt:
@@ -70,60 +60,56 @@ func _physics_process(delta):
 		
 		_handle_air_control(delta)
 	else:
+		# --- CORREÇÃO DO BUG DE DAMP ---
+		# Se o carro pousar enquanto ainda está em manobra, forçamos o encerramento
+		if is_doing_stunt:
+			_apply_stunt_brake()
+			
 		trick_manager.check_landing(is_doing_stunt)
 
 func _check_stunt_inputs():
 	if input.steering < -0.8:
-		_start_angle_stunt(Vector3(0, 0, 1), "Barrel Roll Esq")
+		_start_angle_stunt(Vector3(0, 0, 1), "ROLL_L")
 	elif input.steering > 0.8:
-		_start_angle_stunt(Vector3(0, 0, -1), "Barrel Roll Dir")
+		_start_angle_stunt(Vector3(0, 0, -1), "ROLL_R")
 	elif input.pitch < -0.8:
-		_start_angle_stunt(Vector3(1, 0, 0), "Front Flip")
+		_start_angle_stunt(Vector3(1, 0, 0), "FRONTFLIP")
 	elif input.pitch > 0.8:
-		_start_angle_stunt(Vector3(-1, 0, 0), "Back Flip")
+		_start_angle_stunt(Vector3(-1, 0, 0), "BACKFLIP")
 
-func _start_angle_stunt(axis: Vector3, anim_name: String):
+func _start_angle_stunt(axis: Vector3, trick_id: String):
 	is_doing_stunt = true
 	accumulated_angle = 0.0
 	stunt_timeout = 2.0
 	current_stunt_axis = axis
 	last_basis = car.global_transform.basis
-	car.angular_damp = 2
 	
-	# --- 1. LIMPEZA DA VELOCIDADE (O RESET) ---
+	# Aumentamos o damp para a manobra ser controlada
+	car.angular_damp = 2.0
+	
+	# Limpeza de inércia lateral/vertical para não "derivar" no ar
 	var local_ang_vel = car.global_transform.basis.inverse() * car.angular_velocity
-	
-	# Se for um ROLL, limpamos X (pitch) e Y (yaw) ANTES de aplicar o novo valor
-	if abs(axis.z) > 0.5:
+	if abs(axis.z) > 0.5: # Se for Roll
 		local_ang_vel.x = 0 
 		local_ang_vel.y = 0
-	
-	# Aplicamos a velocidade "limpa" ao carro PRIMEIRO
 	car.angular_velocity = car.global_transform.basis * local_ang_vel
 
-	# --- 2. AGORA SIM, APLICAMOS OS IMPULSOS (Sem serem sobrescritos) ---
+	# Correção de bico (Nivelamento)
 	if abs(axis.z) > 0.5:
-		# Se global_transform.basis.z.y for NEGATIVO, o bico está para CIMA.
-		# Precisamos de um torque POSITIVO em X para baixar o bico.
 		var nose_tilt = car.global_transform.basis.z.y 
-		var correction_strength = 15.0 # Comece com 20 e ajuste se necessário
-		
-		# Aplicamos a contra-força para nivelar o horizonte
+		var correction_strength = 15.0
 		var correction_impulse = car.global_transform.basis.x * (nose_tilt * car.mass * correction_strength)
 		car.apply_torque_impulse(correction_impulse)
 		
-	# --- 3. REGISTRO E IMPULSO DA MANOBRA ---
-	trick_manager.add_trick_manually(
-		"ROLL_L" if axis.z > 0.5 else "ROLL_R" if axis.z < -0.5 else 
-		"FRONTFLIP" if axis.x > 0.5 else "BACKFLIP"
-	)
+	# Registro no sistema de pontos
+	trick_manager.add_trick_manually(trick_id)
 	
+	# Impulso da manobra
 	var stunt_impulse = axis * STUNT_IMPULSE_POWER * car.mass
 	car.apply_torque_impulse(car.global_transform.basis * stunt_impulse)
 
 func _monitor_stunt_angle(delta):
-	# Se houver qualquer contato com o chão, forçamos o freio da manobra
-	# Isso evita que o carro pouse "torto" e saia capotando por inércia
+	# Se houver contato físico do corpo do carro com o chão (não apenas rodas)
 	if car.get_contact_count() > 0:
 		_apply_stunt_brake()
 		return
@@ -131,24 +117,25 @@ func _monitor_stunt_angle(delta):
 	var current_basis = car.global_transform.basis
 	var relative_basis = last_basis.inverse() * current_basis
 	
-	# Cálculo do ângulo percorrido desde o último frame
 	var frame_angle = relative_basis.get_rotation_quaternion().get_angle()
 	accumulated_angle += abs(frame_angle)
 	last_basis = current_basis
 	stunt_timeout -= delta
 
-	# Se completou os 360 graus ou o tempo acabou, freia
 	if accumulated_angle >= (PI * 2.2) or stunt_timeout <= 0:
 		_apply_stunt_brake()
 
 func _apply_stunt_brake():
+	# Aplicamos um contra-impulso para parar a rotação da manobra
 	var local_angular_vel = car.global_transform.basis.inverse() * car.angular_velocity
 	var velocity_on_axis = local_angular_vel.dot(current_stunt_axis)
 	var counter_impulse = -current_stunt_axis * velocity_on_axis * car.mass
 	car.apply_torque_impulse(car.global_transform.basis * counter_impulse)
 	
+	# RESTORE: Volta o damp original e libera a flag
 	car.angular_damp = original_angular_damp
 	is_doing_stunt = false
+	accumulated_angle = 0.0
 
 func _handle_air_control(delta):
 	var forward_in_air = max(input.throttle, 0.0)
@@ -157,10 +144,6 @@ func _handle_air_control(delta):
 	
 	car.apply_torque(-car.global_transform.basis.x * input.pitch * AIR_TORQUE_FORCE * car.mass)
 	car.apply_torque(car.global_transform.basis.y * input.steering * AIR_TORQUE_FORCE * car.mass)
-
-func _cancel_stunt():
-	car.angular_damp = original_angular_damp
-	is_doing_stunt = false
 
 func _apply_fast_fall(delta):
 	if not is_near_ground():
@@ -179,7 +162,4 @@ func check_grounded() -> bool:
 
 func _set_slow_motion(active: bool):
 	is_slow_mo_active = active
-	if active:
-		Engine.time_scale = 0.2
-	else:
-		Engine.time_scale = 1.0
+	Engine.time_scale = 0.2 if active else 1.0

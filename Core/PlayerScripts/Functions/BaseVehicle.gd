@@ -28,6 +28,9 @@ var pode_mover : bool = true
 
 var teleport_material : StandardMaterial3D
 
+# --- VARIÁVEL DE CONTROLE DE HIT ---
+var _hit_cooldowns: Dictionary = {}
+
 func _ready():
 	add_to_group("jogadores")
 	# Se o Global estiver vazio (Teste F6), garantimos um valor inicial
@@ -85,10 +88,10 @@ func set_pode_mover(valor: bool):
 	pode_mover = valor
 	print("Carro ", input_source, " liberado: ", valor)
 
-func take_damage(amount: float):
-	# Delega o dano para o componente de Stats
+func take_damage(amount: float, attacker: Node = null):
+	# Delega o dano para o componente de Stats, agora aceitando o atacante
 	if stats:
-		stats.take_damage(amount)
+		stats.take_damage(amount, attacker)
 
 func teleport_to(target_transform : Transform3D):
 	# Criamos o tween para gerenciar o tempo do efeito visual
@@ -110,10 +113,6 @@ func teleport_to(target_transform : Transform3D):
 		# RESET TOTAL: O carro aparece parado (sem inércia do movimento anterior)
 		linear_velocity = Vector3.ZERO
 		angular_velocity = Vector3.ZERO
-		
-		# Dica: Se o carro "tremer" ao aparecer, você pode forçar 
-		# o repouso da física por um frame:
-		# sleeping = true 
 	)
 	
 	# 3. VOLTA AO NORMAL (0.1s)
@@ -121,19 +120,23 @@ func teleport_to(target_transform : Transform3D):
 	tween.tween_callback(func():
 		for mesh in all_meshes:
 			mesh.material_override = null
-		# Se usou o 'sleeping = true' acima, lembre de acordar o carro:
-		# sleeping = false
 	)
 
 func _on_impacto_corpo(body):
+	# --- TRAVA DE 1 SEGUNDO ---
+	var now = Time.get_ticks_msec()
+	var body_id = body.get_instance_id()
+	if _hit_cooldowns.has(body_id):
+		if now - _hit_cooldowns[body_id] < 1000:
+			return
+	_hit_cooldowns[body_id] = now
+
 	# 1. Pegamos a velocidade do alvo (se ele for físico)
 	var vel_alvo = Vector3.ZERO
 	if body is RigidBody3D:
 		vel_alvo = body.linear_velocity
 	
 	# 2. CALCULO DA VELOCIDADE RELATIVA
-	# Isso subtrai os vetores: se ambos vão para a mesma direção, o resultado é pequeno.
-	# Se vierem de frente (opostos), o resultado é a soma das velocidades!
 	var velocidade_relativa = (linear_velocity - vel_alvo).length()
 	
 	# 3. Filtro de segurança usando a velocidade de impacto real
@@ -147,14 +150,22 @@ func _on_impacto_corpo(body):
 	dano_calculado = clamp(dano_calculado, 0.0, dano_maximo_por_batida)
 	
 	if body.has_method("take_damage"):
-		body.take_damage(dano_calculado)
-		print("COLISÃO REAL: Dano ", int(dano_calculado), " | Vel Relativa: ", int(velocidade_relativa))
+		# Atualizado para passar 'self' para o sistema de pontuação
+		body.take_damage(dano_calculado, self)
+		print("COLISÃO REAL: Dano ", int(dano_calculado), " | Alvo: ", body.name)
 		
 func _aplicar_impacto_visual(intensity):
-	# Aqui você pode chamar um tremor de câmera proporcional à porrada
 	pass
 	
 func _on_vehicle_collision(body: Node):
+	# --- TRAVA DE 1 SEGUNDO ---
+	var now = Time.get_ticks_msec()
+	var body_id = body.get_instance_id()
+	if _hit_cooldowns.has(body_id):
+		if now - _hit_cooldowns[body_id] < 1000:
+			return
+	_hit_cooldowns[body_id] = now
+
 	# Se o que eu bati tem a função de tomar dano
 	if body.has_method("take_damage"):
 		# Calculamos o dano com base na velocidade do carro para dar "feeling" de peso
