@@ -118,13 +118,11 @@ func _get_dynamic_multiplier() -> float:
 
 func _update_live_display():
 	if is_showing_final_score: return
-
 	var hud = get_tree().get_first_node_in_group("HUD")
 	if not hud: return
 	
 	var grouped_tricks = {} 
 	var order = []
-	
 	for i in range(tricks_done.size()):
 		var t_name = tricks_done[i]
 		var t_pts = points_per_trick[i]
@@ -136,7 +134,6 @@ func _update_live_display():
 
 	var names_text = ""
 	var pts_text = ""
-	
 	for t_name in order:
 		var data = grouped_tricks[t_name]
 		if data.count >= 3:
@@ -149,11 +146,64 @@ func _update_live_display():
 	
 	var current_mult = _get_dynamic_multiplier()
 	
-	hud.air_time_label.text = names_text + ("%.2fs" % air_time) + " airtime"
-	# Exibe o multiplicador formatado (ex: 2.5x)
-	hud.air_time_label.text += "\n" + str(current_mult) + "x " + pts_text + str(int(air_time * AIR_TIME_POINTS_MULT))
-	hud.air_time_label.visible = true
-	hud.air_message_label.visible = false
+	# Monta o bloco de texto de duas linhas para a air_time_label
+	var info = names_text + ("%.2fs" % air_time) + " airtime"
+	info += "\n" + str(current_mult) + "x " + pts_text + str(int(air_time * AIR_TIME_POINTS_MULT))
+	
+	hud.update_combo_live(info)
+
+func _finalize_score():
+	var hud = get_tree().get_first_node_in_group("HUD")
+	if not hud: return
+	is_showing_final_score = true 
+	
+	var total_base = int(air_time * AIR_TIME_POINTS_MULT)
+	for p in points_per_trick: total_base += p
+	var mult = _get_dynamic_multiplier()
+	var final_score = int(total_base * mult)
+	
+	ScoreManager.add_points(final_score)
+	
+	# --- RECONSTRUÇÃO DA STRING DETALHADA (IGUAL AO LIVE) ---
+	var grouped_tricks = {} 
+	var order = []
+	for i in range(tricks_done.size()):
+		var t_name = tricks_done[i]
+		var t_pts = points_per_trick[i]
+		if not grouped_tricks.has(t_name):
+			grouped_tricks[t_name] = {"count": 0, "points": 0}
+			order.append(t_name)
+		grouped_tricks[t_name].count += 1
+		grouped_tricks[t_name].points += t_pts
+
+	var names_text = ""
+	var pts_text = ""
+	for t_name in order:
+		var data = grouped_tricks[t_name]
+		if data.count >= 3:
+			names_text += "(x" + str(data.count) + " " + t_name + ") + "
+			pts_text += str(data.points) + " + "
+		else:
+			for k in range(data.count):
+				names_text += t_name + " + "
+				pts_text += str(int(data.points / data.count)) + " + "
+	
+	if names_text.ends_with(" + "): names_text = names_text.left(-3)
+	if pts_text.ends_with(" + "): pts_text = pts_text.left(-3)
+
+	# Info (Cima): Lista detalhada + Math
+	var info = names_text + " " + ("%.2fs" % air_time) + " airtime"
+	info += "\n" + str(mult) + "x " + pts_text + " + " + str(int(air_time * AIR_TIME_POINTS_MULT))
+	
+	# Result (Baixo): Mensagem + Score Final
+	var msg = "Awesome trick!" if tricks_done.size() > 0 else "Nice air!"
+	var result = msg + "\n" + ScoreManager.format_score_with_dots(final_score) + " points"
+	
+	hud.show_combo_final(info, result)
+	
+	# Mantém a flag por 3s para evitar que quiques limpem o HUD
+	await get_tree().create_timer(3.0).timeout
+	is_showing_final_score = false
 
 func check_landing(_is_doing_stunt: bool):
 	if tracking_jump:
@@ -162,37 +212,6 @@ func check_landing(_is_doing_stunt: bool):
 		else:
 			reset_trick()
 	tracking_jump = false
-
-func _finalize_score():
-	var hud = get_tree().get_first_node_in_group("HUD")
-	if not hud: return
-	
-	is_showing_final_score = true 
-	var version_at_finish = display_version
-	
-	var total_base = int(air_time * AIR_TIME_POINTS_MULT)
-	for p in points_per_trick: total_base += p
-	
-	# Usa o novo multiplicador dinâmico
-	var mult = _get_dynamic_multiplier()
-	var final_score = int(total_base * mult)
-	
-	ScoreManager.add_points(final_score)
-	
-	for id in current_jump_uses.keys():
-		global_stunt_uses[id] = global_stunt_uses.get(id, 0) + 1
-		
-	var msg = "Awesome trick!" if tricks_done.size() > 0 else "Nice air!"
-	hud.air_message_label.text = msg + "\n" + str(final_score) + " points"
-	hud.air_message_label.visible = true
-	hud.air_time_label.visible = true
-	
-	await get_tree().create_timer(DISPLAY_STAY_TIME).timeout
-	
-	if display_version == version_at_finish:
-		hud.air_time_label.visible = false
-		hud.air_message_label.visible = false
-		is_showing_final_score = false
 
 func reset_trick():
 	tracking_jump = false

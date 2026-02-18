@@ -1,4 +1,4 @@
-[gd_scene load_steps=98 format=3 uid="uid://d2rblk8h626kc"]
+[gd_scene load_steps=107 format=3 uid="uid://d2rblk8h626kc"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_mm1ty"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="1_rakfq"]
@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://cy74dg4og5fwv" path="res://Assets/2D/skybox_test1.png" id="3_ab5bq"]
 [ext_resource type="Texture2D" uid="uid://bkmid1n6i7ij6" path="res://Assets/2D/Test_Texture.jpg" id="4_hvv5t"]
 [ext_resource type="PackedScene" uid="uid://do7x7c5gyyp8g" path="res://Scenes/UI/PauseMenu.tscn" id="4_umdbu"]
+[ext_resource type="PackedScene" uid="uid://cd7vj18kiokji" path="res://Scenes/Prefabs/Triggers/Speedtrap.tscn" id="5_1cqfe"]
 [ext_resource type="Texture2D" uid="uid://wlhx07iu8h7s" path="res://Assets/2D/Screenshot 2026-02-11 at 00-24-39 Maps Layout - Google Planilhas - V8map.pdf.png" id="5_mm1ty"]
 [ext_resource type="PackedScene" uid="uid://3jy2jv3yflr2" path="res://Scenes/Prefabs/Items/ObjectBase.tscn" id="6_0eu0l"]
 [ext_resource type="PackedScene" uid="uid://culevpqmdi0u8" path="res://Scenes/Prefabs/Items/Teleporter.tscn" id="6_bnpdo"]
@@ -14,6 +15,11 @@
 [ext_resource type="PackedScene" uid="uid://c2vj1t0kkmxex" path="res://Scenes/Prefabs/Items/WeaponPickup.tscn" id="8_ka3dh"]
 [ext_resource type="Resource" uid="uid://daftw5fiqy8a5" path="res://Resources/Weapons/BigSlow.tres" id="10_p07jo"]
 [ext_resource type="Resource" uid="uid://b4n2n37tjg3ed" path="res://Resources/Weapons/HomingMissile.tres" id="11_1cqfe"]
+[ext_resource type="Script" uid="uid://s5ljh6h40llv" path="res://Core/Objectives/CollectibleItem.gd" id="13_7c4m2"]
+[ext_resource type="PackedScene" uid="uid://8xllk2f6a63v" path="res://Assets/3D/vigilante_v8_2nd_offence_obakes_tsunami.glb" id="14_el8m7"]
+[ext_resource type="PackedScene" uid="uid://dkv7513qwyimy" path="res://Scenes/Prefabs/Triggers/GapArea.tscn" id="15_el8m7"]
+[ext_resource type="Script" uid="uid://1qg3wklklqlt" path="res://Core/Objectives/LevelController.gd" id="16_li3u3"]
+[ext_resource type="Resource" uid="uid://7d4ald45sgah" path="res://Resources/TestMapMissions.tres" id="17_x31xc"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_a70xh"]
 material = ExtResource("1_rakfq")
@@ -64,6 +70,14 @@ points = PackedVector3Array(-5.6424136, -1.1426806, -7.619048, 6.0238094, 1.7142
 
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_li3u3"]
 points = PackedVector3Array(-5.6424136, -1.1426806, -7.619048, 6.0238094, 1.7142158, 7.619048, 5.7848983, 1.7142158, 7.619048, 5.5901275, -1.5, 7.07482, -6.119047, -1.3808641, 7.619048, 6.0238094, 1.7142158, -7.619048, 5.5901275, -1.5, -7.07482, -5.685365, -1.5, -7.07482, -5.6424136, -1.1426806, 7.619048, -5.685365, -1.5, 7.07482, 5.7848983, 1.7142158, -7.619048, -6.119047, -1.3808641, -7.619048, -1.8329135, -0.18994679, 7.619048, -1.8329135, -0.18994679, -7.619048)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_li3u3"]
+transparency = 1
+albedo_color = Color(0.25490198, 0.7607843, 1, 0.56078434)
+
+[sub_resource type="BoxMesh" id="BoxMesh_x31xc"]
+material = SubResource("StandardMaterial3D_li3u3")
+size = Vector3(9.43, 6.615, 1.06)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bnpdo"]
 albedo_color = Color(0.47801313, 0.47801313, 0.47801313, 1)
@@ -268,6 +282,9 @@ size = Vector3(11.99, 5, 28.545)
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_dm20i"]
 points = PackedVector3Array(-5.7676992, -1.819825, -14.499047, 6.012024, 2.7100635, 14.499047, 5.5033894, -2.5, 13.293395, -6.221548, -2.2726543, 14.499047, 5.5033894, -2.5, -13.293395, 5.105523, 2.7100635, -14.499047, -5.7129135, -2.5, -13.293395, 2.8398693, 1.803873, 14.499047, 6.012024, 2.7100635, -14.499047, -5.7129135, -2.5, 13.293395, -5.7676992, -1.819825, 14.499047, 5.105523, 2.7100635, 14.499047, -6.221548, -2.2726543, -14.499047, -2.5955443, -0.46080527, -14.499047, 2.8398693, 1.803873, -14.499047, -2.5955443, -0.46080527, 14.499047)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_3i0df"]
+size = Vector3(4.53, 3.93, 6.345)
+
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_3o871"]
 panorama = ExtResource("3_ab5bq")
 
@@ -435,6 +452,13 @@ transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0
 shape = SubResource("ConvexPolygonShape3D_li3u3")
 
 [node name="V8Map" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
+
+[node name="Speedtrap" parent="GridContainer/Cont_P1/View_P1/Map/V8Map" instance=ExtResource("5_1cqfe")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -254.9852, 0.7665043, -58.401398)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Speedtrap"]
+transform = Transform3D(0.017696725, 0, -0.9998434, 0, 1, 0, 0.9998434, 0, 0.017696725, 0, 1.2111902, 0)
+mesh = SubResource("BoxMesh_x31xc")
 
 [node name="layout_Mapa" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
 transform = Transform3D(-0.0008203227, -0.99999964, -4.3711374e-08, 0, -4.371139e-08, 1, -0.99999964, 0.0008203227, 3.5857445e-11, 0, -1.4593506, 0)
@@ -624,7 +648,7 @@ transform = Transform3D(0.7051169, 0, 0.7090909, 0, 1, 0, -0.7090909, 0, 0.70511
 shape = SubResource("ConvexPolygonShape3D_opahr")
 
 [node name="Cerca5" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Buildings"]
-transform = Transform3D(0.7051169, 0, 0.7090909, 0, 1, 0, -0.7090909, 0, 0.7051169, -99.338165, 20.074348, 6.635517)
+transform = Transform3D(0.7051169, 0, 0.7090909, 0, 1, 0, -0.7090909, 0, 0.7051169, -99.338165, 27.869152, 6.635517)
 mesh = SubResource("BoxMesh_lgb87")
 surface_material_override/0 = SubResource("StandardMaterial3D_0eu0l")
 
@@ -834,7 +858,7 @@ collision_layer = 3
 collision_mask = 3
 
 [node name="ObjectBase3" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("6_0eu0l")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -159.68216, 0, -50.73577)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -159.68216, 0, -34.59708)
 collision_layer = 3
 collision_mask = 3
 
@@ -922,6 +946,66 @@ weapon_to_give = ExtResource("11_1cqfe")
 float_speed = 8.0
 float_amplitude = 0.5
 
+[node name="Mission_Items" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
+
+[node name="Obake" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -42.36265, 0, -82.405556)
+script = ExtResource("13_7c4m2")
+
+[node name="Sketchfab_Scene" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items/Obake" instance=ExtResource("14_el8m7")]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items/Obake"]
+shape = SubResource("BoxShape3D_3i0df")
+
+[node name="Obake2" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -42.36265, 0, -144.66644)
+script = ExtResource("13_7c4m2")
+
+[node name="Sketchfab_Scene" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items/Obake2" instance=ExtResource("14_el8m7")]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items/Obake2"]
+shape = SubResource("BoxShape3D_3i0df")
+
+[node name="Obake3" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.350197, 0, -82.405556)
+script = ExtResource("13_7c4m2")
+
+[node name="Sketchfab_Scene" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items/Obake3" instance=ExtResource("14_el8m7")]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items/Obake3"]
+shape = SubResource("BoxShape3D_3i0df")
+
+[node name="Obake4" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -108.91367, 0, -110.70889)
+script = ExtResource("13_7c4m2")
+
+[node name="Sketchfab_Scene" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items/Obake4" instance=ExtResource("14_el8m7")]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items/Obake4"]
+shape = SubResource("BoxShape3D_3i0df")
+
+[node name="Obake5" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -153.08948, 6.615074, -200.20557)
+script = ExtResource("13_7c4m2")
+
+[node name="Sketchfab_Scene" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items/Obake5" instance=ExtResource("14_el8m7")]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items/Obake5"]
+shape = SubResource("BoxShape3D_3i0df")
+
+[node name="GapArea" parent="GridContainer/Cont_P1/View_P1/Map/V8Map" instance=ExtResource("15_el8m7")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -157.68019, 11.596628, -104.33406)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/GapArea"]
+transform = Transform3D(0.017696725, 0, -0.9998434, 0, 1, 0, 0.9998434, 0, 0.017696725, 0, 1.4785786, 0)
+mesh = SubResource("BoxMesh_x31xc")
+skeleton = NodePath("")
+
 [node name="Items_Vehicles" type="Node3D" parent="GridContainer/Cont_P1/View_P1"]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="GridContainer/Cont_P1/View_P1"]
@@ -977,3 +1061,7 @@ render_target_update_mode = 0
 voltas_para_vencer = 1
 
 [node name="PauseMenu" parent="." instance=ExtResource("4_umdbu")]
+
+[node name="LevelLogic" type="Node" parent="."]
+script = ExtResource("16_li3u3")
+map_missions = ExtResource("17_x31xc")

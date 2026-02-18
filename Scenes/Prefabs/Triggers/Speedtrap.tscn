@@ -1,9 +1,9 @@
 [gd_scene load_steps=3 format=3 uid="uid://cd7vj18kiokji"]
 
-[ext_resource type="Script" uid="uid://tnp7jcnh8ldp" path="res://Scenes/Prefabs/Triggers/SpeedTrap.gd" id="1_xpeqm"]
+[ext_resource type="Script" uid="uid://tnp7jcnh8ldp" path="res://Core/Objectives/SpeedTrap.gd" id="1_xpeqm"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_qcgmd"]
-size = Vector3(4, 4, 1)
+size = Vector3(7.444336, 5.592041, 1)
 
 [node name="Speedtrap" type="Area3D"]
 script = ExtResource("1_xpeqm")

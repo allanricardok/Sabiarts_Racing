@@ -5,8 +5,8 @@
 
 [sub_resource type="Resource" id="Resource_d3yxn"]
 script = ExtResource("1_vtej8")
-description = "Cool Score 20.000"
-target_value = 20000.0
+description = "Cool Score 1.000"
+target_value = 1000.0
 id = "01"
 metadata/_custom_type_script = "uid://2oic07orss4"
 
@@ -20,10 +20,10 @@ metadata/_custom_type_script = "uid://2oic07orss4"
 
 [sub_resource type="Resource" id="Resource_qo7tj"]
 script = ExtResource("1_vtej8")
-description = "Destroy 3 Radars"
-type = 1
-target_value = 3.0
-id = "04"
+description = "Gap"
+type = 4
+target_value = 1.0
+id = "gap_balcony"
 metadata/_custom_type_script = "uid://2oic07orss4"
 
 [sub_resource type="Resource" id="Resource_7nuau"]
@@ -31,7 +31,7 @@ script = ExtResource("1_vtej8")
 description = "Collect 5 briefcases"
 type = 3
 target_value = 5.0
-id = "05"
+id = "briefcase"
 metadata/_custom_type_script = "uid://2oic07orss4"
 
 [resource]
