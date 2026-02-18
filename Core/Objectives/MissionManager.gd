@@ -12,10 +12,9 @@ var batch_2_unlocked: bool = false
 func setup_map(data: MapMissionData):
 	current_map_data = data
 	completed_count = 0
-	collection_progress.clear() # Limpa as maletas do mapa anterior
+	collection_progress.clear()
 	batch_2_unlocked = false
 	
-	# Reseta o status das missões no Resource para começar do zero
 	for m in current_map_data.missions:
 		m.is_completed = false
 		
@@ -24,14 +23,11 @@ func setup_map(data: MapMissionData):
 
 func _check_visibility():
 	if not current_map_data: return
-	
 	var first_batch_completed = 0
-	# Conta quantos dos primeiros 6 objetivos (0 a 5) foram feitos
 	for i in range(min(6, current_map_data.missions.size())):
 		if current_map_data.missions[i].is_completed:
 			first_batch_completed += 1
 	
-	# Regra: Se completou 5 das 6 primeiras, libera o resto
 	if first_batch_completed >= 5 and not batch_2_unlocked:
 		batch_2_unlocked = true
 		batch_unlocked.emit()
@@ -44,24 +40,21 @@ func notify_progress(type: MissionItem.Type, value: float, id: String = ""):
 		var mission = current_map_data.missions[i]
 		
 		if mission.is_completed: continue
-		
-		# Bloqueio de Batch: Missões do índice 6 em diante só contam se Batch 2 estiver liberado
 		if i >= 6 and not batch_2_unlocked: continue
-		
 		if mission.type != type: continue
 		
 		var success = false
 		match type:
 			MissionItem.Type.SCORE:
-				if value >= mission.target_value: 
-					success = true
+				if value >= mission.target_value: success = true
+			
 			MissionItem.Type.SPEED:
-				if id == mission.id and value >= mission.target_value: 
-					success = true
-			MissionItem.Type.GAP:
-				if id == mission.id: 
-					success = true
-			MissionItem.Type.COLLECT:
+				if id == mission.id and value >= mission.target_value: success = true
+			
+			MissionItem.Type.GAP, MissionItem.Type.EXPLORE, MissionItem.Type.MISSION:
+				if id == mission.id: success = true
+			
+			MissionItem.Type.COLLECT, MissionItem.Type.DESTROY:
 				if id == mission.id:
 					var current_val = collection_progress.get(id, 0.0) + value
 					collection_progress[id] = current_val
@@ -70,7 +63,8 @@ func notify_progress(type: MissionItem.Type, value: float, id: String = ""):
 						success = true
 					else:
 						print("Progresso ", id, ": ", int(current_val), "/", int(mission.target_value))
-
+		
+		# --- CORREÇÃO AQUI: O 'if success' deve ficar fora do match, mas dentro do for ---
 		if success:
 			_complete_mission(mission)
 
@@ -84,9 +78,7 @@ func _complete_mission(mission: MissionItem):
 	print("📊 PROGRESSO TOTAL: ", completed_count, "/", current_map_data.missions.size())
 	print("-----------------------------------------")
 	
-	# Verifica se esta conclusão libera as próximas 7 missões
 	_check_visibility()
 	
-	# Verifica se liberou a próxima fase (ex: 4 missões concluídas)
 	if completed_count >= current_map_data.next_map_unlock_count:
 		print("✅ PRÓXIMA FASE LIBERADA!")

@@ -1,4 +1,4 @@
-[gd_scene load_steps=107 format=3 uid="uid://d2rblk8h626kc"]
+[gd_scene load_steps=111 format=3 uid="uid://d2rblk8h626kc"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_mm1ty"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="1_rakfq"]
@@ -17,6 +17,7 @@
 [ext_resource type="Resource" uid="uid://b4n2n37tjg3ed" path="res://Resources/Weapons/HomingMissile.tres" id="11_1cqfe"]
 [ext_resource type="Script" uid="uid://s5ljh6h40llv" path="res://Core/Objectives/CollectibleItem.gd" id="13_7c4m2"]
 [ext_resource type="PackedScene" uid="uid://8xllk2f6a63v" path="res://Assets/3D/vigilante_v8_2nd_offence_obakes_tsunami.glb" id="14_el8m7"]
+[ext_resource type="PackedScene" uid="uid://b2k5h2ktecs3c" path="res://Scenes/Prefabs/Triggers/ExplorationArea.tscn" id="15_3i0df"]
 [ext_resource type="PackedScene" uid="uid://dkv7513qwyimy" path="res://Scenes/Prefabs/Triggers/GapArea.tscn" id="15_el8m7"]
 [ext_resource type="Script" uid="uid://1qg3wklklqlt" path="res://Core/Objectives/LevelController.gd" id="16_li3u3"]
 [ext_resource type="Resource" uid="uid://7d4ald45sgah" path="res://Resources/TestMapMissions.tres" id="17_x31xc"]
@@ -284,6 +285,17 @@ points = PackedVector3Array(-5.7676992, -1.819825, -14.499047, 6.012024, 2.71006
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_3i0df"]
 size = Vector3(4.53, 3.93, 6.345)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_15ih5"]
+size = Vector3(80, 80, 80)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vj3fg"]
+transparency = 1
+albedo_color = Color(0.5372549, 1, 0.6666667, 0.4392157)
+
+[sub_resource type="BoxMesh" id="BoxMesh_vgdhx"]
+material = SubResource("StandardMaterial3D_vj3fg")
+size = Vector3(80, 80, 80)
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_3o871"]
 panorama = ExtResource("3_ab5bq")
@@ -851,41 +863,49 @@ shape = SubResource("ConvexPolygonShape3D_dm20i")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -159.68216, 0, -41.56138)
 collision_layer = 3
 collision_mask = 3
+mission_id = "barril"
 
 [node name="ObjectBase2" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("6_0eu0l")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -170.70956, 0, -41.56138)
 collision_layer = 3
 collision_mask = 3
+mission_id = "barril"
 
 [node name="ObjectBase3" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("6_0eu0l")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -159.68216, 0, -34.59708)
 collision_layer = 3
 collision_mask = 3
+mission_id = "barril"
 
 [node name="ObjectBase4" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("6_0eu0l")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -209.78766, 0, -45.710495)
 collision_layer = 3
 collision_mask = 3
+mission_id = "barril"
 
 [node name="ObjectBase5" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("7_jykq4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 142.22891, 0.9365082, -5.5297813)
 collision_layer = 3
 collision_mask = 3
+mission_id = "barril"
 
 [node name="ObjectBase6" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("7_jykq4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 128.39499, 0.9365082, -5.5297813)
 collision_layer = 3
 collision_mask = 3
+mission_id = "barril"
 
 [node name="ObjectBase7" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("7_jykq4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114.86784, 0.9365082, -5.5297813)
 collision_layer = 3
 collision_mask = 3
+mission_id = "barril"
 
 [node name="ObjectBase8" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("7_jykq4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 102.87477, 0.9365082, -5.5297813)
 collision_layer = 3
 collision_mask = 3
+mission_id = "barril"
 
 [node name="Teleporters" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
 
@@ -998,6 +1018,16 @@ transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items/Obake5"]
 shape = SubResource("BoxShape3D_3i0df")
 
+[node name="ExplorationArea" parent="GridContainer/Cont_P1/View_P1/Map/V8Map" instance=ExtResource("15_3i0df")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -310.7943, 12.716412, -291.967)
+explore_id = "secret"
+
+[node name="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/ExplorationArea" index="0"]
+shape = SubResource("BoxShape3D_15ih5")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/ExplorationArea"]
+mesh = SubResource("BoxMesh_vgdhx")
+
 [node name="GapArea" parent="GridContainer/Cont_P1/View_P1/Map/V8Map" instance=ExtResource("15_el8m7")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -157.68019, 11.596628, -104.33406)
 
@@ -1065,3 +1095,5 @@ voltas_para_vencer = 1
 [node name="LevelLogic" type="Node" parent="."]
 script = ExtResource("16_li3u3")
 map_missions = ExtResource("17_x31xc")
+
+[editable path="GridContainer/Cont_P1/View_P1/Map/V8Map/ExplorationArea"]

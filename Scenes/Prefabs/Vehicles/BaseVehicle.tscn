@@ -1416,26 +1416,32 @@ grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="AirTimeLabel" type="Label" parent="HUD/Messages"]
+[node name="AirTimeLabel" type="RichTextLabel" parent="HUD/Messages"]
+visible = false
 layout_mode = 2
 theme_override_colors/font_outline_color = Color(0.8980392, 0.19607843, 0, 0.36078432)
 theme_override_constants/outline_size = 15
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/normal_font_size = 24
+bbcode_enabled = true
 text = "blablabla + oloco + air + pica torta + oloco
 4x 50+50+60+22
 "
-horizontal_alignment = 1
+fit_content = true
 autowrap_mode = 2
+horizontal_alignment = 1
 
-[node name="AirMessageLabel" type="Label" parent="HUD/Messages"]
+[node name="AirMessageLabel" type="RichTextLabel" parent="HUD/Messages"]
+visible = false
 layout_mode = 2
 theme_override_colors/font_outline_color = Color(0.8666667, 0.39215687, 0.09803922, 0.654902)
 theme_override_constants/outline_size = 20
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/normal_font_size = 32
+bbcode_enabled = true
 text = "Cool air
 250.000 points"
-horizontal_alignment = 1
+fit_content = true
 autowrap_mode = 2
+horizontal_alignment = 1
 
 [node name="Recticle" type="Control" parent="HUD"]
 layout_mode = 3

@@ -20,6 +20,10 @@ signal stats_changed
 @export var speed_multiplier: float = 1.0
 @export var weight_multiplier: float = 1.0
 
+@export_group("Mission Settings")
+## ID da missão no Resource (ex: "enemy_car" ou "radar_tower")
+@export var mission_id : String = ""
+
 # --- TRAVA DE SEGURANÇA POR COLISOR ---
 var _hit_history: Dictionary = {}
 
@@ -62,6 +66,7 @@ func take_damage(amount: float, source: Node = null):
 			_process_scoring(source)
 		
 	if current_health <= 0:
+		_on_death() # <--- ADICIONADO: Avisa que morreu para as missões
 		health_depleted.emit()
 
 func _process_scoring(source: Node):
@@ -90,3 +95,10 @@ func _check_damage_state():
 func repair(amount: float):
 	current_health = clamp(current_health + amount, 0, max_health)
 	_check_damage_state()
+
+func _on_death():
+	# REGRA: Independente de quem matou, se tem ID de missão, avisa o Manager
+	if mission_id != "" and is_instance_valid(MissionManager):
+		MissionManager.notify_progress(MissionItem.Type.DESTROY, 1.0, mission_id)
+	
+	print("StatsComponent: Objeto '", mission_id, "' foi removido do mapa.")

@@ -11,6 +11,9 @@ class_name GroundTrickManager
 ## Tempo que o resultado final do combo de solo fica na tela
 @export var DISPLAY_STAY_TIME : float = 3.0
 
+# Cor padrão para ações de combate/chão
+const COLOR_GROUND = "#ff4444" # Vermelho
+
 const GROUND_DATA = {
 	"HIT_OBJECT": {"name": "Hit object", "points": 5},
 	"DESTROY_OBJECT": {"name": "Destroyed object", "points": 500},
@@ -27,9 +30,10 @@ func add_ground_action(id: String):
 	if not GROUND_DATA.has(id): return
 	
 	# Se o carro estiver no ar, envia a ação para o TrickManager (Combo Aéreo)
+	# Passamos o nome, os pontos e a cor VERMELHA
 	var air_tricks = car.get_node_or_null("%TrickManager") as TrickManager
 	if air_tricks and air_tricks.tracking_jump:
-		air_tricks.add_external_action(GROUND_DATA[id].name, GROUND_DATA[id].points)
+		air_tricks.add_external_action(GROUND_DATA[id].name, GROUND_DATA[id].points, COLOR_GROUND)
 		return
 		
 	# Inicia combo de solo se não estiver ativo
@@ -50,28 +54,28 @@ func _register_action_logic(id: String):
 	points_per_action.append(data.points)
 	_update_live_display()
 
-# --- NOVA LÓGICA DE MULTIPLICADOR DINÂMICO PARA O SOLO ---
+# --- MULTIPLICADOR DINÂMICO ---
 func _get_dynamic_multiplier() -> float:
 	if actions_done.size() == 0: return 1.0
 	
-	var mult = 1.0 # Base do combo
+	var mult = 1.0 
 	var seen_in_this_combo = {}
 	
 	for i in range(actions_done.size()):
 		var a_name = actions_done[i]
-		# A primeira ação do combo não soma, ela é a base (1.0)
 		if i == 0:
 			seen_in_this_combo[a_name] = true
 			continue
 			
 		if seen_in_this_combo.has(a_name):
-			mult += 0.5 # Repetida: soma apenas 0.5
+			mult += 0.5 
 		else:
-			mult += 1.0 # Nova: soma 1.0
+			mult += 1.0 
 			seen_in_this_combo[a_name] = true
 			
 	return mult
 
+# --- EXIBIÇÃO COM BBCODE ---
 func _update_live_display():
 	var hud = get_tree().get_first_node_in_group("HUD")
 	if not hud: return
@@ -87,23 +91,25 @@ func _update_live_display():
 		grouped[a_name].count += 1
 		grouped[a_name].points += a_pts
 
-	var names_text = ""
+	var names_bbcode = ""
 	var pts_text = ""
+	
 	for a_name in order:
 		var data = grouped[a_name]
 		if data.count >= 3:
-			names_text += "(x" + str(data.count) + " " + a_name + ") + "
+			names_bbcode += "[color=" + COLOR_GROUND + "](x" + str(data.count) + " " + a_name + ")[/color] + "
 			pts_text += str(data.points) + " + "
 		else:
 			for k in range(data.count):
-				names_text += a_name + " + "
+				names_bbcode += "[color=" + COLOR_GROUND + "]" + a_name + "[/color] + "
 				pts_text += str(int(data.points / data.count)) + " + "
 	
-	if names_text.ends_with(" + "): names_text = names_text.left(-3)
+	if names_bbcode.ends_with(" + "): names_bbcode = names_bbcode.left(-3)
 	if pts_text.ends_with(" + "): pts_text = pts_text.left(-3)
 
 	var current_mult = _get_dynamic_multiplier()
-	var info = names_text + "\n" + str(current_mult) + "x " + pts_text
+	# Envia a string formatada para o HUD
+	var info = names_bbcode + "\n" + str(current_mult) + "x " + pts_text
 	
 	hud.update_combo_live(info)
 
@@ -118,37 +124,34 @@ func _finalize_ground_score():
 	
 	ScoreManager.add_points(final_score)
 	
-	# --- RECONSTRUÇÃO DA STRING DETALHADA (IGUAL AO LIVE) ---
+	# --- RECONSTRUÇÃO DA STRING DETALHADA ---
 	var grouped = {}
 	var order = []
 	for i in range(actions_done.size()):
 		var a_name = actions_done[i]
-		var a_pts = points_per_action[i]
 		if not grouped.has(a_name):
 			grouped[a_name] = {"count": 0, "points": 0}
 			order.append(a_name)
 		grouped[a_name].count += 1
-		grouped[a_name].points += a_pts
+		grouped[a_name].points += points_per_action[i]
 
-	var names_text = ""
+	var names_bbcode = ""
 	var pts_text = ""
 	for a_name in order:
 		var data = grouped[a_name]
 		if data.count >= 3:
-			names_text += "(x" + str(data.count) + " " + a_name + ") + "
+			names_bbcode += "[color=" + COLOR_GROUND + "](x" + str(data.count) + " " + a_name + ")[/color] + "
 			pts_text += str(data.points) + " + "
 		else:
 			for k in range(data.count):
-				names_text += a_name + " + "
+				names_bbcode += "[color=" + COLOR_GROUND + "]" + a_name + "[/color] + "
 				pts_text += str(int(data.points / data.count)) + " + "
 	
-	if names_text.ends_with(" + "): names_text = names_text.left(-3)
+	if names_bbcode.ends_with(" + "): names_bbcode = names_bbcode.left(-3)
 	if pts_text.ends_with(" + "): pts_text = pts_text.left(-3)
 
-	# Info (Cima): Replicamos o texto do combo na air_time_label
-	var info = names_text + "\n" + str(mult) + "x " + pts_text
+	var info = names_bbcode + "\n" + str(mult) + "x " + pts_text
 	
-	# Result (Baixo): Mensagem de combo final na air_message_label
 	var msg = "Cool combo!" if mult > 1.5 else "Nice hit!"
 	var result = msg + "\n" + ScoreManager.format_score_with_dots(final_score) + " points"
 	
