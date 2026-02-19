@@ -1,22 +1,23 @@
-extends Control
+# pause_menu.gd
+extends CanvasLayer
 
-var pode_pausar: bool = true # A trava que você precisava
+var pode_pausar: bool = true
 
-@onready var resume_btn = $VBoxContainer/ResumeBtn
+## Arraste o nó StartMenu para este campo no Inspetor
+@export var start_menu: CanvasLayer
 
-func _ready():
-	hide() # Começa escondido
-	# Garante que os botões aceitem foco para navegação por teclado/controle
-	resume_btn.focus_neighbor_bottom = $VBoxContainer/MenuBtn.get_path()
-	$VBoxContainer/MenuBtn.focus_neighbor_top = resume_btn.get_path()
+# Use Unique Names (%) nos seus botões no editor!
+@onready var resume_btn = %ResumeBtn 
+@onready var menu_btn = %MenuBtn
 
 func _input(event):
-	# Só processa a pausa se a corrida ainda não acabou
+	if start_menu and start_menu.visible:
+		return
+
 	if pode_pausar and Input.is_action_just_pressed("Pause"):
 		_toggle_pause()
 
 func _toggle_pause():
-	# Se por algum motivo o jogo tentar pausar após o fim, bloqueia aqui também
 	if not pode_pausar: return
 	
 	var new_pause_state = !get_tree().paused
@@ -24,31 +25,31 @@ func _toggle_pause():
 	visible = new_pause_state
 	
 	if new_pause_state:
-		resume_btn.grab_focus()
+		# Se usar Unique Name (%), não precisa se preocupar com o caminho VBoxContainer/...
+		if resume_btn:
+			resume_btn.grab_focus()
 	else:
-		release_focus()
+		get_viewport().gui_release_focus()
 
-# Função que o seu RaceManager vai chamar quando alguém cruzar a linha de chegada
 func desativar_pausa():
 	pode_pausar = false
-	# Se o jogo estiver pausado no exato momento que acabar (raro, mas possível), despausa
 	if get_tree().paused:
 		_toggle_pause()
 
 func _on_resume_btn_pressed():
+	print("Botão Continuar pressionado!")
 	_toggle_pause()
 
 func _on_menu_btn_pressed():
-	get_tree().paused = false # IMPORTANTE: Despausar antes de mudar de cena
+	print("Botão Menu pressionado!")
+	get_tree().paused = false 
 	get_tree().change_scene_to_file("res://Scenes/UI/Menu.tscn")
 
-# Lógica para aceitar o botão de Pulo (X) como "Confirmar" na UI de pausa
 func _process(_delta):
 	if visible:
-		# Checa se algum dos 4 jogadores apertou o botão de pulo (X)
-		# Usando os mesmos prefixos que você configurou no Lobby
 		for esquema in ["K1", "K2", "J1", "J2", "J3", "J4"]:
 			if Input.is_action_just_pressed("Action_" + esquema):
 				var focused_node = get_viewport().gui_get_focus_owner()
 				if focused_node is Button:
+					# Isso força o clique do botão focado
 					focused_node.pressed.emit()

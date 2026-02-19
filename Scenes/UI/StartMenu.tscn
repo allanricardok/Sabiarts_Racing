@@ -1,0 +1,75 @@
+[gd_scene load_steps=2 format=3 uid="uid://o0rl3lkmd3ty"]
+
+[ext_resource type="Script" uid="uid://bhb7fywylejd5" path="res://Core/PlayerScripts/UI/StartMenu.gd" id="1_r73nm"]
+
+[node name="StartMenu" type="CanvasLayer"]
+script = ExtResource("1_r73nm")
+
+[node name="StartMenu" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect" type="ColorRect" parent="StartMenu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0627451, 0.105882354, 0.21176471, 1)
+
+[node name="MapDescription" type="RichTextLabel" parent="StartMenu"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 68.0
+offset_top = -311.0
+offset_right = 595.0
+offset_bottom = -60.0
+grow_vertical = 0
+theme_override_font_sizes/normal_font_size = 28
+text = "Welcome to the test map!
+Tips:
+- Use the teleporters!
+- Don't be afraid of the horses"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="StartMenu"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -653.0
+offset_top = 51.0
+offset_right = -59.0
+offset_bottom = 491.0
+grow_horizontal = 0
+
+[node name="MissionList" type="VBoxContainer" parent="StartMenu/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="StartButton" type="Button" parent="StartMenu"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -155.0
+offset_top = -92.0
+offset_right = -48.0
+offset_bottom = -26.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 42
+text = "Start"
+
+[connection signal="pressed" from="StartMenu/StartButton" to="." method="_on_start_btn_pressed"]

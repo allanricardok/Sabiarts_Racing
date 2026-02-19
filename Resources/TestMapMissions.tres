@@ -53,6 +53,8 @@ metadata/_custom_type_script = "uid://2oic07orss4"
 [resource]
 script = ExtResource("2_m10t6")
 map_name = "TestMap"
+time_limit = 20.0
 missions = Array[ExtResource("1_vtej8")]([SubResource("Resource_d3yxn"), SubResource("Resource_00uud"), SubResource("Resource_qo7tj"), SubResource("Resource_7nuau"), SubResource("Resource_vtej8"), SubResource("Resource_m10t6")])
 next_map_unlock_count = 6
+map_description = "Descreva os objetivos aqui... :)"
 metadata/_custom_type_script = "uid://dqrmrnt7j5mxe"

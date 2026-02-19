@@ -5,6 +5,7 @@ extends CanvasLayer
 @onready var air_time_label = $Messages/AirTimeLabel # Agora é um RichTextLabel
 @onready var air_message_label = $Messages/AirMessageLabel
 @onready var score_label = $UI_Base/ScoreLabel
+@onready var timer_label = $UI_Base/TimerLabel
 
 var _combo_display_version : int = 0
 
@@ -75,3 +76,18 @@ func clear_combo_display():
 	air_time_label.visible = false
 	air_message_label.visible = false
 	air_time_label.text = ""
+
+# Função para atualizar o relógio
+func atualizar_timer(segundos: float):
+	if not timer_label: return
+	
+	# Formata segundos em MM:SS
+	var minutos = int(segundos) / 60
+	var resto_segundos = int(segundos) % 60
+	timer_label.text = "%02d:%02d" % [minutos, resto_segundos]
+	
+	# Feedback visual: fica vermelho nos últimos 10 segundos
+	if segundos <= 10:
+		timer_label.add_theme_color_override("font_color", Color.RED)
+	else:
+		timer_label.add_theme_color_override("font_color", Color.WHITE)

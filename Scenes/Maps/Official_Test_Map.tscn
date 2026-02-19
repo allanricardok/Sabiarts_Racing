@@ -1,9 +1,8 @@
-[gd_scene load_steps=111 format=3 uid="uid://d2rblk8h626kc"]
+[gd_scene load_steps=112 format=3 uid="uid://d2rblk8h626kc"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_mm1ty"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="1_rakfq"]
 [ext_resource type="PackedScene" uid="uid://cw8ofahu5mqhn" path="res://Scenes/Prefabs/Vehicles/BaseVehicle.tscn" id="2_2yrvv"]
-[ext_resource type="PackedScene" uid="uid://cr2vgv1qfxty1" path="res://Scenes/UI/race_manager.tscn" id="3_3o871"]
 [ext_resource type="Texture2D" uid="uid://cy74dg4og5fwv" path="res://Assets/2D/skybox_test1.png" id="3_ab5bq"]
 [ext_resource type="Texture2D" uid="uid://bkmid1n6i7ij6" path="res://Assets/2D/Test_Texture.jpg" id="4_hvv5t"]
 [ext_resource type="PackedScene" uid="uid://do7x7c5gyyp8g" path="res://Scenes/UI/PauseMenu.tscn" id="4_umdbu"]
@@ -21,6 +20,8 @@
 [ext_resource type="PackedScene" uid="uid://dkv7513qwyimy" path="res://Scenes/Prefabs/Triggers/GapArea.tscn" id="15_el8m7"]
 [ext_resource type="Script" uid="uid://1qg3wklklqlt" path="res://Core/Objectives/LevelController.gd" id="16_li3u3"]
 [ext_resource type="Resource" uid="uid://7d4ald45sgah" path="res://Resources/TestMapMissions.tres" id="17_x31xc"]
+[ext_resource type="PackedScene" uid="uid://o0rl3lkmd3ty" path="res://Scenes/UI/StartMenu.tscn" id="20_15ih5"]
+[ext_resource type="PackedScene" uid="uid://otkba37h2pp0" path="res://Scenes/UI/FinishMenu.tscn" id="21_vj3fg"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_a70xh"]
 material = ExtResource("1_rakfq")
@@ -1087,10 +1088,15 @@ handle_input_locally = false
 size = Vector2i(2, 2)
 render_target_update_mode = 0
 
-[node name="RaceManager" parent="." instance=ExtResource("3_3o871")]
-voltas_para_vencer = 1
+[node name="PauseMenu" parent="." node_paths=PackedStringArray("start_menu") instance=ExtResource("4_umdbu")]
+visible = false
+start_menu = NodePath("../StartMenu")
 
-[node name="PauseMenu" parent="." instance=ExtResource("4_umdbu")]
+[node name="StartMenu" parent="." instance=ExtResource("20_15ih5")]
+process_mode = 3
+
+[node name="FinishMenu" parent="." instance=ExtResource("21_vj3fg")]
+visible = false
 
 [node name="LevelLogic" type="Node" parent="."]
 script = ExtResource("16_li3u3")

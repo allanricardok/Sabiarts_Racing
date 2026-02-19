@@ -1,0 +1,121 @@
+[gd_scene load_steps=3 format=3 uid="uid://otkba37h2pp0"]
+
+[ext_resource type="Script" uid="uid://crlgmbgxb8fpi" path="res://Core/FinishMenu.gd" id="1_jrnx4"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nqav1"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.1, 0.1, 0.1, 0.6)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+corner_detail = 5
+expand_margin_left = 8.0
+expand_margin_top = 8.0
+expand_margin_right = 8.0
+expand_margin_bottom = 8.0
+
+[node name="FinishMenu" type="CanvasLayer"]
+process_mode = 3
+script = ExtResource("1_jrnx4")
+
+[node name="FinishMenu" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect" type="ColorRect" parent="FinishMenu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0.039215688, 0.16470589, 0.94509804)
+
+[node name="TextureRect" type="TextureRect" parent="FinishMenu"]
+layout_mode = 0
+offset_left = 58.0
+offset_top = 43.0
+offset_right = 552.0
+offset_bottom = 301.0
+expand_mode = 1
+stretch_mode = 4
+
+[node name="VBoxContainer" type="VBoxContainer" parent="FinishMenu"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 47.0
+offset_top = -327.0
+offset_right = 417.0
+offset_bottom = -49.0
+grow_vertical = 0
+theme_override_constants/separation = 15
+
+[node name="ScoreFinalTitle" type="Label" parent="FinishMenu/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 42
+text = "Score:"
+
+[node name="FinalScoreLabel" type="Label" parent="FinishMenu/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Player 1: 00:00:00"
+
+[node name="Tempo2" type="Label" parent="FinishMenu/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+
+[node name="Tempo3" type="Label" parent="FinishMenu/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+
+[node name="Tempo4" type="Label" parent="FinishMenu/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+
+[node name="MenuBtn" type="Button" parent="FinishMenu"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -417.0
+offset_top = -126.0
+offset_right = -47.0
+offset_bottom = -51.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 48
+theme_override_styles/normal = SubResource("StyleBoxFlat_nqav1")
+text = "Back to Menu"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="FinishMenu"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -653.0
+offset_top = 51.0
+offset_right = -59.0
+offset_bottom = 491.0
+grow_horizontal = 0
+
+[node name="FinishMissionList" type="VBoxContainer" parent="FinishMenu/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[connection signal="pressed" from="FinishMenu/MenuBtn" to="." method="_on_menu_btn_pressed"]

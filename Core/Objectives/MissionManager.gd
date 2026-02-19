@@ -36,6 +36,9 @@ func _check_visibility():
 func notify_progress(type: MissionItem.Type, value: float, id: String = ""):
 	if current_map_data == null: return
 	
+	# TRAVA: Se o tempo acabou no LevelController, não conta mais nada
+	# (Assume que tens o LevelController como um nó acessível ou sinal)
+	
 	for i in range(current_map_data.missions.size()):
 		var mission = current_map_data.missions[i]
 		
