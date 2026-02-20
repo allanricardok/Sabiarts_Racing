@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://culevpqmdi0u8"]
 
-[ext_resource type="Script" uid="uid://dj3scp5ydcgu8" path="res://Core/Teleporter.gd" id="1_ig8n5"]
+[ext_resource type="Script" uid="uid://dj3scp5ydcgu8" path="res://Core/Items/Teleporter.gd" id="1_ig8n5"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_psb0f"]
 transparency = 1

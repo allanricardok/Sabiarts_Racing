@@ -1,0 +1,45 @@
+[gd_scene load_steps=7 format=3 uid="uid://cdg3xi8hhsm0t"]
+
+[ext_resource type="Script" uid="uid://m0tm36jppq3m" path="res://Core/Items/BoostPad.gd" id="1_idm0s"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wwxov"]
+transparency = 1
+albedo_color = Color(0, 6.125226, 3.8968759, 0.5058824)
+
+[sub_resource type="BoxMesh" id="BoxMesh_idm0s"]
+material = SubResource("StandardMaterial3D_wwxov")
+size = Vector3(6, 0.1, 10)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_63i7m"]
+transparency = 1
+albedo_color = Color(1, 0.84313726, 0, 0.41960785)
+
+[sub_resource type="PrismMesh" id="PrismMesh_yg7yn"]
+material = SubResource("StandardMaterial3D_63i7m")
+size = Vector3(3, 2, 0.11)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_idm0s"]
+size = Vector3(6, 8, 10)
+
+[node name="BoostPad" type="Area3D"]
+script = ExtResource("1_idm0s")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 0, 0, 0)
+mesh = SubResource("BoxMesh_idm0s")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="MeshInstance3D"]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0.15549535, 0)
+mesh = SubResource("PrismMesh_yg7yn")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="MeshInstance3D"]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0.15549535, 3.3285275)
+mesh = SubResource("PrismMesh_yg7yn")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="MeshInstance3D"]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0.15549535, -3.358499)
+mesh = SubResource("PrismMesh_yg7yn")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 0, 3.4517767, 0)
+shape = SubResource("BoxShape3D_idm0s")

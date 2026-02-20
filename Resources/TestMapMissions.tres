@@ -1,18 +1,18 @@
-[gd_resource type="Resource" script_class="MapMissionData" load_steps=9 format=3 uid="uid://7d4ald45sgah"]
+[gd_resource type="Resource" script_class="MapMissionData" load_steps=10 format=3 uid="uid://7d4ald45sgah"]
 
 [ext_resource type="Script" uid="uid://2oic07orss4" path="res://Core/Objectives/MissionItem.gd" id="1_vtej8"]
 [ext_resource type="Script" uid="uid://dqrmrnt7j5mxe" path="res://Core/Objectives/MapMissionData.gd" id="2_m10t6"]
 
 [sub_resource type="Resource" id="Resource_d3yxn"]
 script = ExtResource("1_vtej8")
-description = "Cool Score 1.000"
-target_value = 1000.0
+description = "Cool Score 5.000 points"
+target_value = 5000.0
 id = "01"
 metadata/_custom_type_script = "uid://2oic07orss4"
 
 [sub_resource type="Resource" id="Resource_00uud"]
 script = ExtResource("1_vtej8")
-description = "Radar top speed 120km/h"
+description = "Go through speed radar over 120km/h"
 type = 2
 target_value = 120.0
 id = "radar_120"
@@ -20,7 +20,7 @@ metadata/_custom_type_script = "uid://2oic07orss4"
 
 [sub_resource type="Resource" id="Resource_qo7tj"]
 script = ExtResource("1_vtej8")
-description = "Gap"
+description = "Gap trick over the balcony"
 type = 4
 target_value = 1.0
 id = "gap_balcony"
@@ -28,7 +28,7 @@ metadata/_custom_type_script = "uid://2oic07orss4"
 
 [sub_resource type="Resource" id="Resource_7nuau"]
 script = ExtResource("1_vtej8")
-description = "Collect 5 briefcases"
+description = "Collect 5 Obakes"
 type = 3
 target_value = 5.0
 id = "briefcase"
@@ -36,16 +36,24 @@ metadata/_custom_type_script = "uid://2oic07orss4"
 
 [sub_resource type="Resource" id="Resource_vtej8"]
 script = ExtResource("1_vtej8")
-description = "Destrua Barril"
+description = "Destroy at least 5 barrels"
 type = 1
-target_value = 4.0
+target_value = 5.0
 id = "barril"
 metadata/_custom_type_script = "uid://2oic07orss4"
 
 [sub_resource type="Resource" id="Resource_m10t6"]
 script = ExtResource("1_vtej8")
-description = "secret area"
+description = "Find the secret area"
 type = 5
+target_value = 1.0
+id = "secret"
+metadata/_custom_type_script = "uid://2oic07orss4"
+
+[sub_resource type="Resource" id="Resource_t15lh"]
+script = ExtResource("1_vtej8")
+description = "Find the secret item"
+type = 3
 target_value = 1.0
 id = "secret"
 metadata/_custom_type_script = "uid://2oic07orss4"
@@ -53,8 +61,8 @@ metadata/_custom_type_script = "uid://2oic07orss4"
 [resource]
 script = ExtResource("2_m10t6")
 map_name = "TestMap"
-time_limit = 20.0
-missions = Array[ExtResource("1_vtej8")]([SubResource("Resource_d3yxn"), SubResource("Resource_00uud"), SubResource("Resource_qo7tj"), SubResource("Resource_7nuau"), SubResource("Resource_vtej8"), SubResource("Resource_m10t6")])
+missions = Array[ExtResource("1_vtej8")]([SubResource("Resource_d3yxn"), SubResource("Resource_00uud"), SubResource("Resource_qo7tj"), SubResource("Resource_7nuau"), SubResource("Resource_vtej8"), SubResource("Resource_m10t6"), SubResource("Resource_t15lh")])
 next_map_unlock_count = 6
-map_description = "Descreva os objetivos aqui... :)"
+map_description = "Test map, have fun and explore!
+"
 metadata/_custom_type_script = "uid://dqrmrnt7j5mxe"
