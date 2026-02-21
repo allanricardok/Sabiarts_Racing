@@ -6,49 +6,50 @@ extends CanvasLayer
 @onready var menu_button = %MenuBtn
 
 func _ready():
-	# Adiciona ao grupo para o LevelController te achar fácil
 	add_to_group("FinishUI")
-	hide() # Começa escondido, diferente do StartMenu
+	hide()
 
-## Esta função é o que o LevelController vai chamar
 func abrir_resultados():
-	# 1. Trava o jogo e mostra a tela
 	get_tree().paused = true
 	show()
-	
-	# 2. Dá o foco no botão para o controle/teclado funcionar
 	menu_button.grab_focus()
 	
-	# 3. Pega o score final do ScoreManager
 	var total = ScoreManager.total_score
 	score_label.text = "PONTUAÇÃO TOTAL: " + ScoreManager.format_score_with_dots(total)
 	
-	# 4. Preenche a lista de missões
 	_preencher_resumo_missoes()
 
 func _preencher_resumo_missoes():
 	var data = MissionManager.current_map_data
 	if not data: return
 	
-	# Limpa a lista anterior
 	for child in mission_list.get_children(): 
 		child.queue_free()
 	
-	for m in data.missions:
+	for i in range(data.missions.size()):
+		var m = data.missions[i]
 		var item = Label.new()
+		item.custom_minimum_size.y = 30
 		
-		# Se a missão foi completada, mostra verde com check, se não, cinza com X
+		# LÓGICA DE VISIBILIDADE DO KARMA KILLER
+		
+		# 1. Missão concluída? Sempre revela (independente de batch)
 		if m.is_completed:
 			item.text = "✔ " + m.description
 			item.add_theme_color_override("font_color", Color.GREEN)
-		else:
+		
+		# 2. Não concluída, mas é do Batch 1 OU o Batch 2 já foi desbloqueado
+		elif i < 6 or MissionManager.batch_2_unlocked:
 			item.text = "✘ " + m.description
 			item.add_theme_color_override("font_color", Color.GRAY)
+			
+		# 3. É missão secreta e o jogador nem sabe que ela existe
+		else:
+			item.text = "🔒 ??? [SECRETO]"
+			item.add_theme_color_override("font_color", Color.DARK_SLATE_GRAY)
 		
-		item.custom_minimum_size.y = 30 
 		mission_list.add_child(item)
 
 func _on_menu_btn_pressed():
-	# Despausa antes de sair para não travar o Menu Principal
 	get_tree().paused = false
 	get_tree().change_scene_to_file("res://Scenes/UI/Menu.tscn")

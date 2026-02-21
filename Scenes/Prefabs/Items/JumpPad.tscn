@@ -23,7 +23,8 @@ size = Vector3(6, 8, 10)
 
 [node name="JumpPad" type="Area3D"]
 script = ExtResource("1_e2whu")
-jump_force = 222.0
+jump_force = 180.0
+forward_kick = 4.0
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 0, 0, 0)

@@ -676,12 +676,12 @@ transform = Transform3D(0.7051169, 0, 0.7090909, 0, 1, 0, -0.7090909, 0, 0.70511
 shape = SubResource("ConvexPolygonShape3D_opahr")
 
 [node name="Cerca5" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Buildings"]
-transform = Transform3D(0.7051169, 0, 0.7090909, 0, 1, 0, -0.7090909, 0, 0.7051169, -99.338165, 33.848286, 6.635517)
+transform = Transform3D(0.7051169, 0, 0.7090909, 0, 1, 0, -0.7090909, 0, 0.7051169, -99.338165, 29.769379, 6.635517)
 mesh = SubResource("BoxMesh_lgb87")
 surface_material_override/0 = SubResource("StandardMaterial3D_0eu0l")
 
 [node name="CollisionShape3D21" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Buildings"]
-transform = Transform3D(0.7051169, 0, 0.7090909, 0, 1, 0, -0.7090909, 0, 0.7051169, -99.338165, 20.074348, 6.635517)
+transform = Transform3D(0.7051169, 0, 0.7090909, 0, 1, 0, -0.7090909, 0, 0.7051169, -99.338165, 30.095428, 6.635517)
 shape = SubResource("ConvexPolygonShape3D_hctfs")
 
 [node name="MeshInstance3D12" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Buildings"]
@@ -975,7 +975,7 @@ transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -226.13998, 8.379992, -180.04
 destination_marker = NodePath("../Marker4")
 
 [node name="Marker4" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Teleporters"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -214.58334, 53.04703, -206.72322)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -214.58334, 53.04703, -204.52077)
 
 [node name="Teleporter5" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Teleporters" node_paths=PackedStringArray("destination_marker") instance=ExtResource("6_bnpdo")]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 337.97903, 0, 97.23125)
@@ -1067,7 +1067,7 @@ shape = SubResource("BoxShape3D_3i0df")
 [node name="SecretItem" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -282.16806, 29.259418, 69.22967)
 script = ExtResource("13_7c4m2")
-collectible_id = "secret"
+collectible_id = "secret_item"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items/SecretItem"]
 shape = SubResource("BoxShape3D_3i0df")
@@ -1108,7 +1108,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -144.8399, -1.3474443, -96.85
 transform = Transform3D(-0.29890755, 0, -0.95428205, 0, 1, 0, 0.95428205, 0, -0.29890755, -3.1788902, -1.4615917, -33.989567)
 
 [node name="BoostPad3" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("17_vj3fg")]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -81.05213, -1.4615917, -175.67952)
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -53.15934, -1.4615917, -175.67952)
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="GridContainer/Cont_P1/View_P1"]
 environment = SubResource("Environment_2yrvv")

@@ -1480,6 +1480,16 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="Toasts" type="VBoxContainer" parent="HUD"]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = -141.0
+offset_right = 537.0
+offset_bottom = -90.0
+grow_vertical = 0
+
 [node name="Hitbox" type="Area3D" parent="."]
 collision_layer = 6
 
@@ -1500,6 +1510,7 @@ script = ExtResource("3_wlsau")
 [node name="MovementComponent" type="Node" parent="Scripts" node_paths=PackedStringArray("wheel_rear_left", "wheel_rear_right", "wheel_front_left", "wheel_front_right")]
 unique_name_in_owner = true
 script = ExtResource("4_nd1mt")
+ENGINE_POWER = 2500.0
 wheel_rear_left = NodePath("../../TrasEsq")
 wheel_rear_right = NodePath("../../TrasDir")
 wheel_front_left = NodePath("../../FreEsq")
@@ -1512,8 +1523,7 @@ script = ExtResource("5_gotx0")
 [node name="AbilityComponent" type="Node" parent="Scripts" node_paths=PackedStringArray("energy_bar", "cooldown_bar")]
 unique_name_in_owner = true
 script = ExtResource("6_362yw")
-REGEN_RATE = 10.0
-COST_TELEPORT = 65.0
+COST_TELEPORT = 70.0
 COST_JUMP = 25.0
 SHARED_COOLDOWN_TIME = 0.5
 energy_bar = NodePath("../../HUD/UI_Base/AbilityBar")

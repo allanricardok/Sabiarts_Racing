@@ -296,3 +296,20 @@ visible = false
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "Chaos City"
+
+[node name="ClearDataButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -216.0
+offset_top = 32.0
+offset_right = -41.0
+offset_bottom = 85.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(0.8745098, 0.28235295, 0, 1)
+theme_override_font_sizes/font_size = 32
+text = "Reset Data"
+
+[connection signal="pressed" from="ClearDataButton" to="." method="_on_clear_data_button_pressed"]

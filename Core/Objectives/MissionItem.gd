@@ -2,11 +2,11 @@
 extends Resource
 class_name MissionItem
 
-enum Type { SCORE, DESTROY, SPEED, COLLECT, GAP, EXPLORE, MISSION }
+enum Type { SCORE, SPEED, COLLECT, DESTROY, GAP, EXPLORE, MISSION }
 
-@export var description: String = "Objetivo"
+@export var id: String = ""
+@export var description: String = ""
 @export var type: Type = Type.SCORE
-@export var target_value: float = 0.0 # Pontos, Quantidade de itens ou Velocidade
-@export var id: String = "" # Identificador único (ex: "radar_speed", "briefcase")
-
-var is_completed: bool = false
+@export var target_value: float = 0.0
+@export var item_icon: Texture2D # Adicionado para os ícones da UI
+@export var is_completed: bool = false
