@@ -1,7 +1,8 @@
+# BaseVehicle.gd
 extends VehicleBody3D
 class_name BaseVehicle
 
-# Adicione estas linhas no topo para matar os erros da imagem
+# --- VARIÁVEIS ORIGINAIS (PRESERVADAS) ---
 var id : int = 0
 var pode_mover : bool = true
 @export var input_source : String = "K1"
@@ -24,32 +25,36 @@ var pode_mover : bool = true
 @export var mesh_skeleton: MeshInstance3D
 
 @export_group("Interface")
-@export var speed_label: Label # Arraste o Label da velocidade aqui no Inspector
+@export var speed_label: Label 
 
+# --- VARIÁVEIS DE CONTROLE DE GAP ---
+var _active_gap_id : String = ""
 var teleport_material : StandardMaterial3D
-
-# --- VARIÁVEL DE CONTROLE DE HIT ---
 var _hit_cooldowns: Dictionary = {}
 
 func _ready():
 	add_to_group("jogadores")
-	# Se o Global estiver vazio (Teste F6), garantimos um valor inicial
 	if Global.dados_jogadores[0] == null:
 		input_source = "K1"
 	input.setup(input_source)
-	# Sincroniza a cor inicial
 	update_visual_damage(100.0)
 	
-	# Conecta o sinal de colisão se não fez pelo editor
 	body_entered.connect(_on_impacto_corpo)
 	body_entered.connect(_on_vehicle_collision)
 	
-	# Criamos o material de "Sombra/Vazio"
+	# --- CONEXÃO COM O MOVEMENT COMPONENT ---
+	if movement:
+		# Quando o movimento detecta o chão, ele avisa se o pouso foi limpo
+		movement.landed.connect(_on_pousou)
+		# Se o carro resetar (R ou Auto-flip), o Gap é cancelado
+		if movement.has_signal("vehicle_reset"):
+			movement.vehicle_reset.connect(_reset_gap_state)
+	
 	teleport_material = StandardMaterial3D.new()
-	teleport_material.albedo_color = Color(0.05, 0.05, 0.05) # Quase preto
+	teleport_material.albedo_color = Color(0.05, 0.05, 0.05) 
 	teleport_material.metallic = 0.0
-	teleport_material.roughness = 1.0 # Fosco total
-	teleport_material.shading_mode = StandardMaterial3D.SHADING_MODE_UNSHADED # Não recebe luz (vira um vulto)
+	teleport_material.roughness = 1.0 
+	teleport_material.shading_mode = StandardMaterial3D.SHADING_MODE_UNSHADED 
 
 func _physics_process(delta):
 	if not pode_mover:
@@ -57,119 +62,95 @@ func _physics_process(delta):
 		brake = 100
 		return
 	
-	brake = 0
-	
-	# --- ATUALIZAÇÃO DO VELOCÍMETRO ---
 	if speed_label:
-		# linear_velocity.length() dá metros por segundo. * 3.6 = KM/H
 		var kmh = linear_velocity.length() * 2
 		speed_label.text = str(int(kmh))
 	
-	# Aqui virá a lógica de movimento refatorada ou a sua antiga
-	# Por enquanto, mantemos o freio solto se puder mover
 	brake = 0
 
-# --- FUNÇÕES QUE OS COMPONENTES VÃO CHAMAR ---
+# --- LÓGICA DE GAPS (PONTE PARA O TRICK MANAGER) ---
+
+func _on_pousou(is_clean: bool):
+	# REPASSA O SINAL PARA O TRICK MANAGER VALIDAR O COMBO/GAP
+	var trick_manager = get_node_or_null("%TrickManager")
+	if trick_manager and trick_manager.has_method("check_landing"):
+		trick_manager.check_landing(is_clean)
+
+func set_active_gap(id_gap: String):
+	_active_gap_id = id_gap
+	var trick_manager = get_node_or_null("%TrickManager")
+	if trick_manager and trick_manager.has_method("iniciar_deteccao_gap"):
+		trick_manager.iniciar_deteccao_gap(id_gap)
+
+func set_gap_reached_end(id_gap: String, gap_name: String, points: int):
+	if _active_gap_id == id_gap:
+		# TRAVA: Limpamos o ID ativo IMEDIATAMENTE. 
+		# Isso impede que o Ponto B dispare o sinal várias vezes no mesmo frame/voo.
+		_active_gap_id = "" 
+		
+		var trick_manager = get_node_or_null("%TrickManager")
+		if trick_manager and trick_manager.has_method("marcar_gap_no_ar"):
+			trick_manager.marcar_gap_no_ar(id_gap, gap_name, points)
+			print("[Gap] END: Validado e aguardando pouso.")
+
+func _reset_gap_state():
+	_active_gap_id = ""
+	var trick_manager = get_node_or_null("%TrickManager")
+	if trick_manager and trick_manager.has_method("cancelar_gap"):
+		trick_manager.cancelar_gap()
+
+func _check_gap_cancel():
+	pass
 
 func update_visual_damage(percent: float):
-	# Se as meshes forem iguais (como no seu caso atual), elas ficam visíveis
-	# Se forem diferentes, o código alterna entre elas.
-	
-	if mesh_new:
-		mesh_new.visible = percent > 60
-	
-	if mesh_damaged and mesh_damaged != mesh_new:
-		mesh_damaged.visible = percent <= 60 and percent > 0
-		
-	if mesh_skeleton and mesh_skeleton != mesh_new:
-		mesh_skeleton.visible = percent <= 0
+	if mesh_new: mesh_new.visible = percent > 60
+	if mesh_damaged and mesh_damaged != mesh_new: mesh_damaged.visible = percent <= 60 and percent > 0
+	if mesh_skeleton and mesh_skeleton != mesh_new: mesh_skeleton.visible = percent <= 0
 
 func set_pode_mover(valor: bool):
 	pode_mover = valor
 	print("Carro ", input_source, " liberado: ", valor)
 
 func take_damage(amount: float, attacker: Node = null):
-	# Delega o dano para o componente de Stats, agora aceitando o atacante
-	if stats:
-		stats.take_damage(amount, attacker)
+	if stats: stats.take_damage(amount, attacker)
 
 func teleport_to(target_transform : Transform3D):
-	# Criamos o tween para gerenciar o tempo do efeito visual
 	var tween = create_tween()
 	var all_meshes = find_children("*", "MeshInstance3D", true)
-	
-	# 1. FLASH NEGRO (0.1s) - Feedback visual de "sumiço"
-	for mesh in all_meshes:
-		mesh.material_override = teleport_material
-	
-	# Aguarda o tempo do flash
+	for mesh in all_meshes: mesh.material_override = teleport_material
 	tween.tween_interval(0.1)
-	
-	# 2. O SALTO E O RESET FÍSICO
 	tween.tween_callback(func():
-		# Define posição e rotação idênticas ao Marker
 		global_transform = target_transform
-		
-		# RESET TOTAL: O carro aparece parado (sem inércia do movimento anterior)
 		linear_velocity = Vector3.ZERO
 		angular_velocity = Vector3.ZERO
 	)
-	
-	# 3. VOLTA AO NORMAL (0.1s)
 	tween.tween_interval(0.1)
 	tween.tween_callback(func():
-		for mesh in all_meshes:
-			mesh.material_override = null
+		for mesh in all_meshes: mesh.material_override = null
 	)
 
 func _on_impacto_corpo(body):
-	# --- TRAVA DE 1 SEGUNDO ---
 	var now = Time.get_ticks_msec()
 	var body_id = body.get_instance_id()
 	if _hit_cooldowns.has(body_id):
-		if now - _hit_cooldowns[body_id] < 1000:
-			return
+		if now - _hit_cooldowns[body_id] < 1000: return
 	_hit_cooldowns[body_id] = now
-
-	# 1. Pegamos a velocidade do alvo (se ele for físico)
-	var vel_alvo = Vector3.ZERO
-	if body is RigidBody3D:
-		vel_alvo = body.linear_velocity
-	
-	# 2. CALCULO DA VELOCIDADE RELATIVA
+	var vel_alvo = body.linear_velocity if body is RigidBody3D else Vector3.ZERO
 	var velocidade_relativa = (linear_velocity - vel_alvo).length()
-	
-	# 3. Filtro de segurança usando a velocidade de impacto real
-	if velocidade_relativa < velocidade_minima_dano:
-		return
-
-	# 4. Cálculo do dano baseado na massa da Brasília e na força do choque
+	if velocidade_relativa < velocidade_minima_dano: return
 	var massa_normalizada = mass / divisor_de_massa
-	var dano_calculado = (massa_normalizada * velocidade_relativa) * multiplicador_dano
-	
-	dano_calculado = clamp(dano_calculado, 0.0, dano_maximo_por_batida)
-	
-	if body.has_method("take_damage"):
-		# Atualizado para passar 'self' para o sistema de pontuação
-		body.take_damage(dano_calculado, self)
-		print("COLISÃO REAL: Dano ", int(dano_calculado), " | Alvo: ", body.name)
-		
-func _aplicar_impacto_visual(intensity):
-	pass
-	
+	var dano_calculado = clamp((massa_normalizada * velocidade_relativa) * multiplicador_dano, 0.0, dano_maximo_por_batida)
+	if body.has_method("take_damage"): body.take_damage(dano_calculado, self)
+
 func _on_vehicle_collision(body: Node):
-	# --- TRAVA DE 1 SEGUNDO ---
 	var now = Time.get_ticks_msec()
 	var body_id = body.get_instance_id()
 	if _hit_cooldowns.has(body_id):
-		if now - _hit_cooldowns[body_id] < 1000:
-			return
+		if now - _hit_cooldowns[body_id] < 1000: return
 	_hit_cooldowns[body_id] = now
-
-	# Se o que eu bati tem a função de tomar dano
 	if body.has_method("take_damage"):
-		# Calculamos o dano com base na velocidade do carro para dar "feeling" de peso
 		var impact_damage = linear_velocity.length() * 0.5 
-		
-		if impact_damage > 2.0: # Evita dar dano encostando parado
-			body.take_damage(impact_damage, self) # 'self' passa o carro como attacker
+		if impact_damage > 2.0: body.take_damage(impact_damage, self)
+
+func get_active_gap() -> String:
+	return _active_gap_id

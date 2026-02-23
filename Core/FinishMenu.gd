@@ -4,6 +4,9 @@ extends CanvasLayer
 @onready var mission_list = %FinishMissionList
 @onready var score_label = %FinalScoreLabel
 @onready var menu_button = %MenuBtn
+@onready var highscore_list = %HighscoreList
+@onready var current_score_label = %CurrentScoreLabel
+@onready var map_name_label = %MapNameLabel
 
 func _ready():
 	add_to_group("FinishUI")
@@ -12,14 +15,35 @@ func _ready():
 func abrir_resultados():
 	get_tree().paused = true
 	show()
-	menu_button.grab_focus()
+	
+	if menu_button:
+		menu_button.grab_focus()
 	
 	var total = ScoreManager.total_score
-	score_label.text = "PONTUAÇÃO TOTAL: " + ScoreManager.format_score_with_dots(total)
+	var formatted_score = ScoreManager.format_score_with_dots(total)
 	
+	if score_label:
+		score_label.text = "PONTUAÇÃO TOTAL: " + formatted_score
+	
+	if current_score_label:
+		current_score_label.text = formatted_score
+	
+	var map_name = "MAPA DESCONHECIDO"
+	if MissionManager.current_map_data:
+		map_name = MissionManager.current_map_data.map_name
+	
+	if map_name_label:
+		map_name_label.text = map_name
+	
+	# 1. Salva o recorde atual
+	SaveManager.save_highscore(map_name, total, "Player")
+	
+	# 2. Preenche as listas (passando o score atual para destacar)
 	_preencher_resumo_missoes()
+	_preencher_highscores(map_name, total)
 
 func _preencher_resumo_missoes():
+	if not mission_list: return
 	var data = MissionManager.current_map_data
 	if not data: return
 	
@@ -31,25 +55,58 @@ func _preencher_resumo_missoes():
 		var item = Label.new()
 		item.custom_minimum_size.y = 30
 		
-		# LÓGICA DE VISIBILIDADE DO KARMA KILLER
-		
-		# 1. Missão concluída? Sempre revela (independente de batch)
 		if m.is_completed:
 			item.text = "✔ " + m.description
 			item.add_theme_color_override("font_color", Color.GREEN)
-		
-		# 2. Não concluída, mas é do Batch 1 OU o Batch 2 já foi desbloqueado
 		elif i < 6 or MissionManager.batch_2_unlocked:
 			item.text = "✘ " + m.description
 			item.add_theme_color_override("font_color", Color.GRAY)
-			
-		# 3. É missão secreta e o jogador nem sabe que ela existe
 		else:
 			item.text = "🔒 ??? [SECRETO]"
 			item.add_theme_color_override("font_color", Color.DARK_SLATE_GRAY)
 		
 		mission_list.add_child(item)
 
+func _preencher_highscores(map_name: String, current_session_score: int):
+	if not highscore_list: return
+	
+	for child in highscore_list.get_children():
+		child.queue_free()
+	
+	var scores = SaveManager.get_highscores(map_name)
+	
+	# Variável para garantir que destacamos apenas uma entrada caso haja scores idênticos
+	var ja_destacou_atual = false
+	
+	for i in range(scores.size()):
+		var entry = scores[i]
+		var lbl = Label.new()
+		
+		var pos = str(i + 1) + ". "
+		var player = entry["name"].to_upper()
+		var points_val = entry["score"]
+		var points_text = ScoreManager.format_score_with_dots(points_val)
+		
+		var line_text = pos + player
+		var dots = ""
+		for j in range(max(2, 25 - line_text.length())):
+			dots += "."
+			
+		lbl.text = line_text + dots + points_text
+		
+		# --- NOVA LÓGICA DE COR ---
+		# Se o score desta linha for igual ao score que o jogador acabou de fazer: AMRELO
+		if points_val == current_session_score and not ja_destacou_atual:
+			lbl.add_theme_color_override("font_color", Color.YELLOW)
+			lbl.text += " [NEW]" # Pequeno sufixo opcional para dar destaque
+			ja_destacou_atual = true
+		else:
+			# Cor padrão para os outros (incluindo o 1º lugar se não for o atual)
+			lbl.add_theme_color_override("font_color", Color.WHITE)
+		
+		highscore_list.add_child(lbl)
+
 func _on_menu_btn_pressed():
+	print("[FinishMenu] Saindo para o menu.")
 	get_tree().paused = false
 	get_tree().change_scene_to_file("res://Scenes/UI/Menu.tscn")

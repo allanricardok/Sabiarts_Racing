@@ -1,4 +1,4 @@
-[gd_scene load_steps=116 format=3 uid="uid://d2rblk8h626kc"]
+[gd_scene load_steps=119 format=3 uid="uid://d2rblk8h626kc"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_mm1ty"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="1_rakfq"]
@@ -17,8 +17,8 @@
 [ext_resource type="Script" uid="uid://s5ljh6h40llv" path="res://Core/Objectives/CollectibleItem.gd" id="13_7c4m2"]
 [ext_resource type="PackedScene" uid="uid://8xllk2f6a63v" path="res://Assets/3D/vigilante_v8_2nd_offence_obakes_tsunami.glb" id="14_el8m7"]
 [ext_resource type="PackedScene" uid="uid://b2k5h2ktecs3c" path="res://Scenes/Prefabs/Triggers/ExplorationArea.tscn" id="15_3i0df"]
-[ext_resource type="PackedScene" uid="uid://dkv7513qwyimy" path="res://Scenes/Prefabs/Triggers/GapArea.tscn" id="15_el8m7"]
 [ext_resource type="Script" uid="uid://1qg3wklklqlt" path="res://Core/Objectives/LevelController.gd" id="16_li3u3"]
+[ext_resource type="Script" uid="uid://srf4jbjqbkxl" path="res://Core/Objectives/GapPoint.gd" id="16_vgdhx"]
 [ext_resource type="PackedScene" uid="uid://cdg3xi8hhsm0t" path="res://Scenes/Prefabs/Items/BoostPad.tscn" id="17_vj3fg"]
 [ext_resource type="Resource" uid="uid://7d4ald45sgah" path="res://Resources/TestMapMissions.tres" id="17_x31xc"]
 [ext_resource type="PackedScene" uid="uid://dpjwvb143dxpb" path="res://Scenes/Prefabs/Items/JumpPad.tscn" id="18_vgdhx"]
@@ -81,7 +81,7 @@ albedo_color = Color(0.25490198, 0.7607843, 1, 0.56078434)
 
 [sub_resource type="BoxMesh" id="BoxMesh_x31xc"]
 material = SubResource("StandardMaterial3D_li3u3")
-size = Vector3(9.43, 6.615, 1.06)
+size = Vector3(16.66, 9.68, 1.06)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bnpdo"]
 albedo_color = Color(0.47801313, 0.47801313, 0.47801313, 1)
@@ -312,6 +312,16 @@ albedo_color = Color(0.5372549, 1, 0.6666667, 0.4392157)
 [sub_resource type="BoxMesh" id="BoxMesh_vgdhx"]
 material = SubResource("StandardMaterial3D_vj3fg")
 size = Vector3(80, 80, 80)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qcgmd"]
+size = Vector3(18.11, 10.713, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_081xm"]
+size = Vector3(42.6, 16.383, 35.245)
+
+[sub_resource type="BoxMesh" id="BoxMesh_vm5d4"]
+material = SubResource("StandardMaterial3D_li3u3")
+size = Vector3(42.035, 16.07, 36.38)
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_3o871"]
 panorama = ExtResource("3_ab5bq")
@@ -1067,7 +1077,7 @@ shape = SubResource("BoxShape3D_3i0df")
 [node name="SecretItem" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -282.16806, 29.259418, 69.22967)
 script = ExtResource("13_7c4m2")
-collectible_id = "secret_item"
+mission_id = "secret_item"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items/SecretItem"]
 shape = SubResource("BoxShape3D_3i0df")
@@ -1088,12 +1098,33 @@ shape = SubResource("BoxShape3D_15ih5")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/ExplorationArea"]
 mesh = SubResource("BoxMesh_vgdhx")
 
-[node name="GapArea" parent="GridContainer/Cont_P1/View_P1/Map/V8Map" instance=ExtResource("15_el8m7")]
-transform = Transform3D(0.99994427, 0, 0.010559124, 0, 1, 0, -0.010559124, 0, 0.99994427, -189.42993, 27.22024, -170.65619)
+[node name="Gaps" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/GapArea"]
+[node name="Gap Balcony" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps"]
+transform = Transform3D(0.99994427, 0, 0.010559124, 0, 1, 0, -0.010559124, 0, 0.99994427, -189.42993, 27.22024, -170.65619)
+script = ExtResource("16_vgdhx")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps/Gap Balcony"]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 1.41679, 0)
+shape = SubResource("BoxShape3D_qcgmd")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps/Gap Balcony"]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 1.4785786, 0)
 mesh = SubResource("BoxMesh_x31xc")
+skeleton = NodePath("")
+
+[node name="Gap Balcony2" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps"]
+transform = Transform3D(0.99994427, 0, 0.010559124, 0, 1, 0, -0.010559124, 0, 0.99994427, -136.95425, 7.961664, -170.65619)
+script = ExtResource("16_vgdhx")
+point_type = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps/Gap Balcony2"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, -9.628204, 1.0620556, -0.10166931)
+shape = SubResource("BoxShape3D_081xm")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps/Gap Balcony2"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, -10.289841, 1.4785786, -0.10865784)
+mesh = SubResource("BoxMesh_vm5d4")
 skeleton = NodePath("")
 
 [node name="Pads" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
@@ -1172,5 +1203,8 @@ visible = false
 [node name="LevelLogic" type="Node" parent="."]
 script = ExtResource("16_li3u3")
 map_missions = ExtResource("17_x31xc")
+
+[connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps/Gap Balcony" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps/Gap Balcony" method="_on_body_entered"]
+[connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps/Gap Balcony2" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps/Gap Balcony2" method="_on_body_entered"]
 
 [editable path="GridContainer/Cont_P1/View_P1/Map/V8Map/ExplorationArea"]

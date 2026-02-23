@@ -1,28 +1,32 @@
-# CollectibleItem.gd
+# CollectibleItem.gd (Script genérico para itens)
 extends Area3D
 
-## O ID deve ser o mesmo do Resource (ex: "briefcase")
-@export var collectible_id : String = "briefcase"
-## Valor individual (geralmente 1)
-@export var value : float = 1.0
+@export var mission_id: String = "briefcase" # Deve bater com o ID no Resource
+@export var score_points: int = 500
 
 func _ready():
+	# Espera um frame para garantir que o MissionManager carregou o save
+	await get_tree().process_frame
+	
+	# Se a missão deste item já foi concluída no passado, o item se remove da cena
+	if MissionManager.is_mission_completed(mission_id):
+		print("[Item] Missão '", mission_id, "' já está completa. Removendo item do mapa.")
+		queue_free()
+		return
+
 	body_entered.connect(_on_body_entered)
 
 func _on_body_entered(body):
 	if body is BaseVehicle:
-		print("Coletou: ", collectible_id)
-		
-		# Avisa o MissionManager
-		if is_instance_valid(MissionManager):
-			MissionManager.notify_progress(MissionItem.Type.COLLECT, value, collectible_id)
-		
-		# Efeito sonoro/partícula aqui antes de sumir
-		_collect_effects()
-		
-		# Remove a maleta do mapa
-		queue_free()
+		_collect()
 
-func _collect_effects():
-	# TODO: Tocar som de "bling"
-	pass
+func _collect():
+	print("[Item] Coletou: ", mission_id)
+
+	# Notifica o MissionManager
+	MissionManager.notify_progress(MissionItem.Type.COLLECT, 1.0, mission_id)
+	
+	# Efeito visual/sonoro antes de sumir
+	# spawn_particles()
+	
+	queue_free()

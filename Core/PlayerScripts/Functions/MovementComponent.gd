@@ -6,7 +6,13 @@ class_name MovementComponent
 @onready var input = %InputComponent
 @onready var stats = %StatsComponent
 
-# --- PARÂMETROS DE MOTOR E FÍSICA ---
+# SINAIS PARA SINCRONIZAÇÃO
+signal landed(is_clean: bool)
+signal vehicle_reset() # Avisa que o carro foi "forçado" a ficar em pé
+
+var _was_on_ground: bool = true
+
+# --- PARÂMETROS ORIGINAIS PRESERVADOS ---
 @export_group("Física de Motor")
 @export var ENGINE_POWER = 3200.0
 @export var MAX_STEER = 0.35
@@ -50,45 +56,39 @@ func _physics_process(delta):
 	var speed_mps = car.linear_velocity.length()
 	var speed_kmh = speed_mps * 3.6
 	
-	# Lógica de Solo
+	# DETECÇÃO DE POUSO (Igual à das manobras)
+	if is_on_ground and not _was_on_ground:
+		var up_dot = car.global_transform.basis.y.dot(Vector3.UP)
+		# Se up_dot > 0.7, o carro está "de pé"
+		landed.emit(up_dot > 0.1)
+		
+	_was_on_ground = is_on_ground
+	
 	_handle_engine_and_steering(delta, is_on_ground, speed_mps)
 	_apply_dynamic_friction(speed_kmh)
-	
-	# Auxiliares de Solo/Física Geral
 	_handle_auto_flip(delta, speed_kmh)
 	_apply_drag(delta)
 
-# --- FUNÇÕES DE MOVIMENTAÇÃO PADRÃO ---
+# --- FUNÇÕES DE MOVIMENTAÇÃO (PRESERVADAS) ---
 
 func _handle_engine_and_steering(delta, is_on_ground, speed_mps):
 	var up_dot = car.global_transform.basis.y.dot(Vector3.UP)
 	car.steering = move_toward(car.steering, input.steering * MAX_STEER, delta * 10)
-	
 	var speed_kmh = speed_mps * 2.0 
 	var turn_dir = input.steering
-	
 	if is_on_ground:
-		# 1. GIRO NO PRÓPRIO EIXO (Estacionário)
 		if up_dot > 0.7 and speed_kmh < SPEED_MIN_ASSIST and abs(input.steering) > 0.1:
 			var forward_speed = car.linear_velocity.dot(car.global_transform.basis.z)
-			if forward_speed < -0.1:
-				turn_dir = -input.steering
+			if forward_speed < -0.1: turn_dir = -input.steering
 			car.apply_torque(car.global_transform.basis.y * turn_dir * STATIONARY_TURN_SPEED * car.mass)	
-
-		# 2. AUXÍLIO DE CURVA DINÂMICO
 		if speed_kmh >= SPEED_MIN_ASSIST and abs(input.steering) > 0.88:
 			var speed_factor = clamp(speed_kmh, SPEED_MIN_ASSIST, SPEED_MAX_ASSIST)
 			var dynamic_torque = remap(speed_factor, SPEED_MIN_ASSIST, SPEED_MAX_ASSIST, STEER_TORQUE_START, STEER_TORQUE_END)
-			var assist_force = input.steering * dynamic_torque
-			car.apply_torque(car.global_transform.basis.y * assist_force * car.mass)
-
-		# 3. MOTOR E FREIO
+			car.apply_torque(car.global_transform.basis.y * input.steering * dynamic_torque * car.mass)
 		var forward_velocity = car.linear_velocity.dot(car.global_transform.basis.z)
 		car.brake = 0.0
-		
 		var braking_forward = (forward_velocity > 0.5 and input.throttle < -0.1)
 		var braking_reverse = (forward_velocity < -0.5 and input.throttle > 0.1)
-		
 		if braking_forward or braking_reverse:
 			car.brake = BRAKE_POWER * abs(input.throttle)
 			var assist_dir = car.global_transform.basis.z * (BRAKE_ASSIST_FORCE if forward_velocity < 0 else -BRAKE_ASSIST_FORCE)
@@ -106,7 +106,6 @@ func _apply_dynamic_friction(speed_kmh):
 	var speed_clamp = clamp(speed_kmh, 0, speed_max_friction)
 	var f_rear = remap(speed_clamp, 0, speed_max_friction, friction_rear_min, friction_rear_max)
 	var f_front = remap(speed_clamp, 0, speed_max_friction, friction_front_max, friction_front_min)
-	
 	var wheels = [wheel_rear_left, wheel_rear_right, wheel_front_left, wheel_front_right]
 	for wheel in wheels:
 		if is_instance_valid(wheel):
@@ -132,11 +131,7 @@ func _check_grounded() -> bool:
 
 func _is_near_ground() -> bool:
 	var space_state = car.get_world_3d().direct_space_state
-	var query = PhysicsRayQueryParameters3D.create(
-		car.global_position, 
-		car.global_position + Vector3.DOWN * FALL_FORCE_BUFFER_DISTANCE,
-		1 
-	)
+	var query = PhysicsRayQueryParameters3D.create(car.global_position, car.global_position + Vector3.DOWN * FALL_FORCE_BUFFER_DISTANCE, 1)
 	query.exclude = [car.get_rid()]
 	var result = space_state.intersect_ray(query)
 	return result.size() > 0
@@ -147,6 +142,8 @@ func _reset_car_orientation():
 	car.global_position = current_pos + Vector3(0, 2.5, 0)
 	car.linear_velocity = Vector3.ZERO
 	car.angular_velocity = Vector3.ZERO
+	# AVISA QUE O CARRO RESETOU (MORRE GAP E MANOBRA)
+	vehicle_reset.emit()
 
 func _apply_drag(delta):
 	if car.linear_velocity.length() < 0.1: return

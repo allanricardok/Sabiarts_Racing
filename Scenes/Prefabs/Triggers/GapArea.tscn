@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://dkv7513qwyimy"]
 
-[ext_resource type="Script" uid="uid://srf4jbjqbkxl" path="res://Core/Objectives/GapArea.gd" id="1_icufi"]
+[ext_resource type="Script" uid="uid://srf4jbjqbkxl" path="res://Core/Objectives/GapPoint.gd" id="1_icufi"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_qcgmd"]
 size = Vector3(8.5703125, 6.2634277, 1)

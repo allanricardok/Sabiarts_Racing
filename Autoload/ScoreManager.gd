@@ -16,11 +16,12 @@ func add_points(amount: int):
 	if is_instance_valid(MissionManager):
 		MissionManager.notify_progress(MissionItem.Type.SCORE, total_score)
 	
-	print("Pontos Adicionados: ", amount, " | Total: ", total_score)
+	print("[ScoreManager] Pontos Adicionados: ", amount, " | Total: ", total_score)
 
 func reset_score():
 	total_score = 0
 	score_changed.emit(total_score)
+	print("[ScoreManager] Pontuação resetada.")
 	
 func format_score_with_dots(value: int) -> String:
 	var string_value = str(value)
