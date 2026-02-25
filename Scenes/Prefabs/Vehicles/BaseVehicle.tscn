@@ -1,4 +1,4 @@
-[gd_scene load_steps=105 format=4 uid="uid://cw8ofahu5mqhn"]
+[gd_scene load_steps=106 format=4 uid="uid://cw8ofahu5mqhn"]
 
 [ext_resource type="Script" uid="uid://b0i2wvnkcrknc" path="res://Core/PlayerScripts/Functions/BaseVehicle.gd" id="1_m0ew1"]
 [ext_resource type="Script" uid="uid://cjnmai87rc2f8" path="res://Core/camera_test_3.gd" id="2_8gjg4"]
@@ -28,6 +28,7 @@
 [ext_resource type="Script" uid="uid://burl25dksofc1" path="res://Core/PlayerScripts/Functions/AirMovementComponent.gd" id="23_hmxgi"]
 [ext_resource type="Script" uid="uid://dicgxfjk23y35" path="res://Core/PlayerScripts/Functions/TrickManager.gd" id="24_u7amk"]
 [ext_resource type="Script" uid="uid://di8qqp2x2hico" path="res://Core/PlayerScripts/Functions/GroundTrickManager.gd" id="26_x2n00"]
+[ext_resource type="Script" uid="uid://dtphvnh83nbxl" path="res://Core/PlayerScripts/Functions/Tricks/TrickBuilder.gd" id="27_1js6p"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_625mm"]
 friction = 0.01
@@ -1543,6 +1544,10 @@ script = ExtResource("24_u7amk")
 [node name="GroundTrickManager" type="Node" parent="Scripts"]
 unique_name_in_owner = true
 script = ExtResource("26_x2n00")
+
+[node name="TrickBuilder" type="Node" parent="Scripts"]
+unique_name_in_owner = true
+script = ExtResource("27_1js6p")
 
 [node name="WeaponManager" type="Node3D" parent="Scripts"]
 unique_name_in_owner = true

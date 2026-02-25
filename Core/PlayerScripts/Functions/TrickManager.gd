@@ -16,13 +16,7 @@ const COLOR_GROUND = "#ff4444" # Vermelho
 const COLOR_GAP = "#00aaff"    # Azul
 const COLOR_TIME = "#ffffff"   # Branco
 
-const TRICK_DATA = {
-	"ROLL_L": {"name": "Roll 360", "points": 50}, 
-	"ROLL_R": {"name": "Roll 360", "points": 50},
-	"BACKFLIP": {"name": "Backflip", "points": 80}, 
-	"FRONTFLIP": {"name": "Frontflip", "points": 80},
-	"SPIN": {"name": "Spin 360", "points": 40}
-}
+# O dicionário TRICK_DATA foi movido para o TrickBuilder.gd
 
 var global_stunt_uses = {}
 var air_time := 0.0
@@ -39,37 +33,29 @@ var _gap_completed_this_jump : bool = false
 var _gap_name_to_notify : String = ""
 
 var current_jump_uses = {}
-var angle_accumulator_y := 0.0 
-var last_basis : Basis
-
 var jump_start_timestamp : int = 0
 var display_version : int = 0
 var is_showing_final_score := false
 
-# --- LOGICA DE GAPS INTEGRADA ---
+# --- LOGICA DE GAPS INTEGRADA (MANTIDA) ---
 
-## Chamado pelo BaseVehicle quando entra no Ponto A
 func iniciar_deteccao_gap(gap_id: String):
 	_active_gap_id = gap_id
 	_gap_completed_this_jump = false
 	print("[TrickManager] Monitorando GAP: ", gap_id)
 
-## Chamado pelo BaseVehicle quando entra no Ponto B (ainda no ar)
 func marcar_gap_no_ar(gap_id: String, gap_name: String, points: int):
 	if _active_gap_id == gap_id and not _gap_completed_this_jump:
 		_gap_completed_this_jump = true
 		_gap_name_to_notify = gap_id
-		
-		# Adiciona o Gap na lista de manobras visual (em AZUL)
 		add_external_action(gap_name, points, COLOR_GAP)
-		print("[TrickManager] GAP atravessado com sucesso no ar!")
 
 func cancelar_gap():
 	_active_gap_id = ""
 	_gap_completed_this_jump = false
 	_gap_name_to_notify = ""
 
-# --- FUNÇÕES DE REGISTRO ---
+# --- FUNÇÕES DE REGISTRO E COMUNICAÇÃO ---
 
 func add_external_action(action_name: String, points: int, color_hex: String = "#ffffff"):
 	if not tracking_jump: _start_new_jump()
@@ -78,36 +64,44 @@ func add_external_action(action_name: String, points: int, color_hex: String = "
 	tricks_colors.append(color_hex)
 	_update_live_display()
 
+## Chamado por scripts externos (como AirMovement ou GroundTrickManager)
 func add_trick_manually(id: String):
-	if not tracking_jump: _start_new_jump()
-	_register_trick_logic(id)
+	var builder = car.get_node_or_null("%TrickBuilder")
+	if builder and builder.TRICK_DATA.has(id):
+		var data = builder.TRICK_DATA[id]
+		register_builder_trick(id, data.name, data.points)
+	else:
+		print("[TrickManager] Erro: ID de manobra não encontrado no Builder: ", id)
 
-func _register_trick_logic(id: String):
-	var base_pts = TRICK_DATA[id].points
+## NOVA FUNÇÃO: Recebe os dados brutos do TrickBuilder e aplica a lógica de pontos
+func register_builder_trick(id: String, trick_name: String, base_pts: int):
+	if not tracking_jump: _start_new_jump()
+	
+	# Lógica de multiplicadores original
 	var g_count = global_stunt_uses.get(id, 0)
 	var g_mult = max(0.1, 1.0 - (g_count * 0.05))
 	var j_count = current_jump_uses.get(id, 0)
 	var j_mult = max(0.1, pow(0.5, j_count))
 	var final_pts = int(base_pts * g_mult * j_mult)
 	
-	tricks_done.append(TRICK_DATA[id].name)
+	tricks_done.append(trick_name)
 	points_per_trick.append(final_pts)
 	tricks_colors.append(COLOR_AIR)
 	
 	current_jump_uses[id] = j_count + 1
+	global_stunt_uses[id] = g_count + 1
 	_update_live_display()
 
 func _start_new_jump():
 	tracking_jump = true
-	jump_start_timestamp = Time.get_ticks_msec()
-	air_time = 0.0
+	# jump_start_timestamp = Time.get_ticks_msec() # Podemos manter ou remover, não será mais usado para o air_time
+	air_time = 0.0 # Garante que começa em zero
 	display_version += 1 
 	
 	tricks_done.clear()
 	points_per_trick.clear()
 	tricks_colors.clear()
 	
-	# O Gap só persiste se o salto começou dentro de um Gap
 	if _active_gap_id == "":
 		_gap_completed_this_jump = false
 	
@@ -117,16 +111,14 @@ func _start_new_jump():
 			tricks_done.append(ground_manager.actions_done[i])
 			points_per_trick.append(ground_manager.points_per_action[i])
 			tricks_colors.append(COLOR_GROUND)
-			
 		ground_manager.tracking_combo = false
-		ground_manager.actions_done.clear()
-		ground_manager.points_per_action.clear()
 	
 	current_jump_uses.clear()
-	angle_accumulator_y = 0.0
-	last_basis = car.global_transform.basis
+	
+	var builder = car.get_node_or_null("%TrickBuilder")
+	if builder: builder.reset_builder_logic()
 
-# --- LÓGICA DE EXIBIÇÃO BBCODE ---
+# --- EXIBIÇÃO E FINALIZAÇÃO (MANTIDAS IGUAIS) ---
 
 func _update_live_display():
 	if is_showing_final_score: return
@@ -135,37 +127,29 @@ func _update_live_display():
 	
 	var grouped_tricks = {} 
 	var order = []
-	
 	for i in range(tricks_done.size()):
 		var t_name = tricks_done[i]
-		var t_pts = points_per_trick[i]
-		var t_color = tricks_colors[i]
-		
 		if not grouped_tricks.has(t_name):
-			grouped_tricks[t_name] = {"count": 0, "points": 0, "color": t_color}
+			grouped_tricks[t_name] = {"count": 0, "points": 0, "color": tricks_colors[i]}
 			order.append(t_name)
 		grouped_tricks[t_name].count += 1
-		grouped_tricks[t_name].points += t_pts
+		grouped_tricks[t_name].points += points_per_trick[i]
 
 	var names_bbcode = ""
 	var pts_text = ""
-	
 	for t_name in order:
 		var data = grouped_tricks[t_name]
-		var color = data.color
-		
 		if data.count >= 3:
-			names_bbcode += "[color=" + color + "](x" + str(data.count) + " " + t_name + ")[/color] + "
+			names_bbcode += "[color=" + data.color + "](x" + str(data.count) + " " + t_name + ")[/color] + "
 			pts_text += str(data.points) + " + "
 		else:
 			for k in range(data.count):
-				names_bbcode += "[color=" + color + "]" + t_name + "[/color] + "
+				names_bbcode += "[color=" + data.color + "]" + t_name + "[/color] + "
 				pts_text += str(int(data.points / data.count)) + " + "
 	
 	var current_mult = _get_dynamic_multiplier()
 	var info = names_bbcode + "[color=" + COLOR_TIME + "]" + ("%.2fs" % air_time) + " airtime[/color]"
 	info += "\n" + str(current_mult) + "x " + pts_text + str(int(air_time * AIR_TIME_POINTS_MULT))
-	
 	hud.update_combo_live(info)
 
 func _finalize_score():
@@ -180,22 +164,14 @@ func _finalize_score():
 	
 	ScoreManager.add_points(final_score)
 	
-	# --- NOTIFICAÇÃO DE MISSÃO (NO POUSO LIMPO) ---
 	if _gap_completed_this_jump and _gap_name_to_notify != "":
-		# 1. SEMPRE damos o feedback de console
-		print("[TrickManager] Gap '", _gap_name_to_notify, "' concluído no combo.")
-		
-		# 2. SÓ avisamos o MissionManager se a missão ainda não estiver feita
-		if is_instance_valid(MissionManager):
-			if not MissionManager.is_mission_completed(_gap_name_to_notify):
-				MissionManager.notify_progress(MissionItem.Type.GAP, 1.0, _gap_name_to_notify)
-				print("[TrickManager] Notificando MissionManager (Primeira vez).")
-			else:
-				print("[TrickManager] Missão já estava completa, apenas somando pontos.")
+		if is_instance_valid(MissionManager) and not MissionManager.is_mission_completed(_gap_name_to_notify):
+			MissionManager.notify_progress(MissionItem.Type.GAP, 1.0, _gap_name_to_notify)
 
 	_reset_gap_state_internal()
+	_update_final_display(hud, final_score, mult)
 
-	# --- RECONSTRUÇÃO IDÊNTICA AO LIVE ---
+func _update_final_display(hud, final_score, mult):
 	var grouped_tricks = {} 
 	var order = []
 	for i in range(tricks_done.size()):
@@ -228,15 +204,12 @@ func _finalize_score():
 	var result = msg + "\n" + ScoreManager.format_score_with_dots(final_score) + " points"
 	
 	hud.show_combo_final(info, result)
-	
 	await get_tree().create_timer(DISPLAY_STAY_TIME).timeout
 	is_showing_final_score = false
 
 func _reset_gap_state_internal():
 	_gap_completed_this_jump = false
 	_gap_name_to_notify = ""
-
-# --- RESTANTE DAS FUNÇÕES ORIGINAIS ---
 
 func _get_dynamic_multiplier() -> float:
 	var mult = 1.0
@@ -248,43 +221,38 @@ func _get_dynamic_multiplier() -> float:
 			seen_in_this_jump[t_name] = true
 	return mult
 
+# --- LOOP DE AR ---
+
 func process_air_time(_delta: float, _is_near_ground: bool):
 	if not tracking_jump:
 		if not _is_near_ground: _start_new_jump()
 		else: return
-	air_time = (Time.get_ticks_msec() - jump_start_timestamp) / 1000.0
-	_track_rotation()
+	
+	# --- CORREÇÃO DO BUG: Soma o delta em vez de calcular pelo clock real ---
+	air_time += _delta
+	
+	# CHAMA O BUILDER PARA DETETAR ROTAÇÃO E BOTÕES
+	var builder = car.get_node_or_null("%TrickBuilder")
+	if builder:
+		builder.process_maneuvers(_delta)
+		
 	if air_time >= AIR_TIME_THRESHOLD or tricks_done.size() > 0:
 		_update_live_display()
 
-## Chamado pelo BaseVehicle quando recebe o sinal de pouso
 func check_landing(is_clean: bool):
 	if tracking_jump:
 		if is_clean:
-			# Se o pouso for bom, finaliza e dá os pontos (e a missão do gap)
 			if air_time >= AIR_TIME_THRESHOLD or tricks_done.size() > 0: 
 				_finalize_score()
 			else: 
 				reset_trick()
 		else:
-			# SE CAIR DE CABEÇA PARA BAIXO: Reset total.
-			print("[TrickManager] BAIL! Manobra e Gap cancelados.")
 			reset_trick()
-			
 	tracking_jump = false
-
-func _track_rotation():
-	var current_basis = car.global_transform.basis
-	var euler = (last_basis.inverse() * current_basis).get_rotation_quaternion().get_euler()
-	last_basis = current_basis
-	angle_accumulator_y += euler.y
-	if abs(angle_accumulator_y) >= (PI * 1.85):
-		_register_trick_logic("SPIN")
-		angle_accumulator_y = 0.0
 
 func reset_trick():
 	tracking_jump = false
-	_reset_gap_state_internal() # Limpa o gap se a manobra falhar
+	_reset_gap_state_internal()
 	if is_showing_final_score: return
 	display_version += 1
 	var hud = get_tree().get_first_node_in_group("HUD")

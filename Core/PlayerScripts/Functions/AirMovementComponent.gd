@@ -4,7 +4,7 @@ class_name AirMovementComponent
 
 @onready var car = owner as VehicleBody3D
 @onready var input = %InputComponent
-@onready var trick_manager = %TrickManager # Referência ao novo componente
+@onready var trick_manager = %TrickManager
 
 # --- PARÂMETROS ---
 @export_group("Controle Aéreo")
@@ -18,6 +18,7 @@ class_name AirMovementComponent
 
 var is_doing_stunt := false
 var current_stunt_axis := Vector3.ZERO
+var current_trick_id := "" # NOVO: Armazena o ID para validar no final
 var accumulated_angle := 0.0
 var last_basis : Basis
 var stunt_timeout := 0.0 
@@ -31,7 +32,6 @@ func _physics_process(delta):
 	if not car.pode_mover: return
 	var is_on_ground = check_grounded()
 	
-	# --- LÓGICA DO SLOW MOTION ---
 	if is_on_ground and is_slow_mo_active:
 		_set_slow_motion(false)
 	
@@ -52,64 +52,48 @@ func _physics_process(delta):
 		
 		_apply_fast_fall(delta)
 		
-		if input.is_stunt_pressed and not is_doing_stunt:
-			_check_stunt_inputs()
-		
 		if is_doing_stunt:
 			_monitor_stunt_angle(delta)
 		
 		_handle_air_control(delta)
 	else:
-		# --- CORREÇÃO DO BUG DE DAMP ---
-		# Se o carro pousar enquanto ainda está em manobra, forçamos o encerramento
 		if is_doing_stunt:
 			_apply_stunt_brake()
 			
 		trick_manager.check_landing(is_doing_stunt)
 
-func _check_stunt_inputs():
-	if input.steering < -0.8:
-		_start_angle_stunt(Vector3(0, 0, 1), "ROLL_L")
-	elif input.steering > 0.8:
-		_start_angle_stunt(Vector3(0, 0, -1), "ROLL_R")
-	elif input.pitch < -0.8:
-		_start_angle_stunt(Vector3(1, 0, 0), "FRONTFLIP")
-	elif input.pitch > 0.8:
-		_start_angle_stunt(Vector3(-1, 0, 0), "BACKFLIP")
+# --- CHAMADO PELO TRICKBUILDER ---
+# Agora recebe o ID da manobra para saber o que validar
+func execute_stunt_command(axis: Vector3, trick_id: String):
+	if is_doing_stunt: return
+	current_trick_id = trick_id
+	_start_angle_stunt(axis)
 
-func _start_angle_stunt(axis: Vector3, trick_id: String):
+func _start_angle_stunt(axis: Vector3):
 	is_doing_stunt = true
 	accumulated_angle = 0.0
 	stunt_timeout = 2.0
 	current_stunt_axis = axis
 	last_basis = car.global_transform.basis
 	
-	# Aumentamos o damp para a manobra ser controlada
 	car.angular_damp = 2.0
 	
-	# Limpeza de inércia lateral/vertical para não "derivar" no ar
 	var local_ang_vel = car.global_transform.basis.inverse() * car.angular_velocity
-	if abs(axis.z) > 0.5: # Se for Roll
+	if abs(axis.z) > 0.5:
 		local_ang_vel.x = 0 
 		local_ang_vel.y = 0
 	car.angular_velocity = car.global_transform.basis * local_ang_vel
 
-	# Correção de bico (Nivelamento)
 	if abs(axis.z) > 0.5:
 		var nose_tilt = car.global_transform.basis.z.y 
 		var correction_strength = 15.0
 		var correction_impulse = car.global_transform.basis.x * (nose_tilt * car.mass * correction_strength)
 		car.apply_torque_impulse(correction_impulse)
-		
-	# Registro no sistema de pontos
-	trick_manager.add_trick_manually(trick_id)
 	
-	# Impulso da manobra
 	var stunt_impulse = axis * STUNT_IMPULSE_POWER * car.mass
 	car.apply_torque_impulse(car.global_transform.basis * stunt_impulse)
 
 func _monitor_stunt_angle(delta):
-	# Se houver contato físico do corpo do carro com o chão (não apenas rodas)
 	if car.get_contact_count() > 0:
 		_apply_stunt_brake()
 		return
@@ -122,19 +106,29 @@ func _monitor_stunt_angle(delta):
 	last_basis = current_basis
 	stunt_timeout -= delta
 
-	if accumulated_angle >= (PI * 2.2) or stunt_timeout <= 0:
+	# Se completou o giro (PI * 1.9 para margem de erro)
+	if accumulated_angle >= (PI * 1.9):
+		_confirm_trick_success()
+		_apply_stunt_brake()
+	elif stunt_timeout <= 0:
 		_apply_stunt_brake()
 
+func _confirm_trick_success():
+	# Só agora enviamos para o Manager contar os pontos!
+	if current_trick_id != "" and trick_manager:
+		trick_manager.add_trick_manually(current_trick_id)
+		print("[AirMovement] Manobra Validada: ", current_trick_id)
+	current_trick_id = ""
+
 func _apply_stunt_brake():
-	# Aplicamos um contra-impulso para parar a rotação da manobra
 	var local_angular_vel = car.global_transform.basis.inverse() * car.angular_velocity
 	var velocity_on_axis = local_angular_vel.dot(current_stunt_axis)
 	var counter_impulse = -current_stunt_axis * velocity_on_axis * car.mass
 	car.apply_torque_impulse(car.global_transform.basis * counter_impulse)
 	
-	# RESTORE: Volta o damp original e libera a flag
 	car.angular_damp = original_angular_damp
 	is_doing_stunt = false
+	current_trick_id = "" # Limpa o ID se a manobra falhar ou acabar o tempo
 	accumulated_angle = 0.0
 
 func _handle_air_control(delta):
