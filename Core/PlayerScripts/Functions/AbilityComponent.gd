@@ -9,7 +9,7 @@ class_name AbilityComponent
 # --- SISTEMA DE ENERGIA ---
 @export_group("Energy System")
 @export var MAX_ENERGY : float = 100.0
-@export var REGEN_RATE : float = 5.0 
+@export var REGEN_RATE : float = 5.0 # Editável como você pediu
 @export var current_energy : float = 100.0
 
 @export_group("Ability Costs")
@@ -36,13 +36,15 @@ var shield_material : StandardMaterial3D
 var spawn_transform : Transform3D
 
 func _ready():
+	# Salva a posição e rotação inicial para o Teleport Spawn
 	spawn_transform = car.global_transform
 	current_energy = MAX_ENERGY
 	
+	# Inicializa o material de prata metálica para o Shield
 	shield_material = StandardMaterial3D.new()
 	shield_material.albedo_color = Color(0.42, 0.45, 0.45) 
-	shield_material.metallic = 0.8 
-	shield_material.roughness = 0.1 
+	shield_material.metallic = 0.8 # Ficou 1.0 para ser 100% metálico como pedido
+	shield_material.roughness = 0.1 # Menos rugosidade = mais espelhado
 	
 	if energy_bar:
 		energy_bar.max_value = MAX_ENERGY
@@ -50,12 +52,15 @@ func _ready():
 		cooldown_bar.max_value = SHARED_COOLDOWN_TIME
 
 func _process(delta):
+	# 1. Recuperação de Energia
 	if current_energy < MAX_ENERGY:
 		current_energy = move_toward(current_energy, MAX_ENERGY, REGEN_RATE * delta)
 	
+	# 2. Gestão de Cooldown Global
 	if current_cooldown > 0:
 		current_cooldown -= delta
 	
+	# --- ATUALIZAÇÃO DAS BARRAS HUD ---
 	if energy_bar:
 		energy_bar.value = current_energy
 	
@@ -64,46 +69,41 @@ func _process(delta):
 	
 	if not car.pode_mover: return
 
+	# 3. Lógica de Ativação (Baseada no novo botão Modificador: Attribute/Círculo)
 	if input.is_attribute_pressed and current_cooldown <= 0:
 		_checar_combos_habilidade()
 
-# --- NOVA FUNÇÃO: RECARGA DE ENERGIA ---
-
-## Função chamada por objetos destruídos ou itens coletáveis
-func add_energy(amount: float):
-	var previous_energy = current_energy
-	current_energy = clamp(current_energy + amount, 0, MAX_ENERGY)
-	
-	# Feedback visual: Piscar a barra em verde ao receber energia
-	if energy_bar and current_energy > previous_energy:
-		var tween = create_tween()
-		tween.tween_property(energy_bar, "modulate", Color.GREEN, 0.1)
-		tween.tween_property(energy_bar, "modulate", Color.WHITE, 0.2)
-	
-	print("Energia Recarregada: +", amount, " | Total: ", int(current_energy))
-
-# --- LOGICA DE HABILIDADES (PRESERVADA) ---
-
 func _checar_combos_habilidade():
+	# Cima (Analógico) -> Agora executa o BOOST (Turbo)
 	if input.ability_up:
 		if current_energy >= COST_BOOST: _execute_boost()
 		else: _erro_falta_energia()
+	
+	# Baixo (Analógico) -> Agora executa o PULO
 	elif input.ability_down:
 		if current_energy >= COST_JUMP: _execute_jump()
 		else: _erro_falta_energia()
+	
+	# Esquerda (Analógico) -> TELEPORT
 	elif input.ability_left:
 		if current_energy >= COST_TELEPORT: _execute_teleport()
 		else: _erro_falta_energia()
+	
+	# Direita (Analógico) -> SHIELD
 	elif input.ability_right:
 		if current_energy >= COST_SHIELD: _execute_shield()
 		else: _erro_falta_energia()
+# --- FUNÇÃO DE FEEDBACK VISUAL ---
 
 func _erro_falta_energia():
 	if energy_bar:
 		energy_bar.modulate = Color.RED
+		# Volta ao normal em 0.5 segundos como você pediu
 		get_tree().create_timer(0.5).timeout.connect(func():
 			energy_bar.modulate = Color.WHITE
 		)
+
+# --- EXECUÇÃO DAS HABILIDADES ---
 
 func _execute_jump():
 	current_energy -= COST_JUMP
@@ -118,8 +118,10 @@ func _execute_boost():
 	_start_cooldown()
 
 func _execute_teleport():
+	# Teleporta para a posição salva no _ready
 	current_energy -= COST_TELEPORT
 	car.global_transform = spawn_transform
+	# Limpa as forças para não aparecer no spawn "voando"
 	car.linear_velocity = Vector3.ZERO
 	car.angular_velocity = Vector3.ZERO
 	_start_cooldown()
@@ -127,14 +129,19 @@ func _execute_teleport():
 func _execute_shield():
 	current_energy -= COST_SHIELD
 	if stats: stats.is_invulnerable = true
+	
+	# Efeito visual 100% Prata Metálico
 	_set_car_silver_effect(true)
+	
 	_start_cooldown()
+	
 	get_tree().create_timer(SHIELD_TIME).timeout.connect(func():
 		if stats: stats.is_invulnerable = false
 		_set_car_silver_effect(false)
 	)
 
 func _set_car_silver_effect(active: bool):
+	# Procura todas as meshes do carro para aplicar o cromo
 	var all_meshes = car.find_children("*", "MeshInstance3D", true)
 	for mesh in all_meshes:
 		if active:
