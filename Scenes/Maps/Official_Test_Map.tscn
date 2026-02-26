@@ -1,4 +1,4 @@
-[gd_scene load_steps=120 format=3 uid="uid://d2rblk8h626kc"]
+[gd_scene load_steps=127 format=3 uid="uid://d2rblk8h626kc"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_mm1ty"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="1_rakfq"]
@@ -15,6 +15,7 @@
 [ext_resource type="Resource" uid="uid://daftw5fiqy8a5" path="res://Resources/Weapons/BigSlow.tres" id="10_p07jo"]
 [ext_resource type="Resource" uid="uid://b4n2n37tjg3ed" path="res://Resources/Weapons/HomingMissile.tres" id="11_1cqfe"]
 [ext_resource type="Script" uid="uid://s5ljh6h40llv" path="res://Core/Objectives/CollectibleItem.gd" id="13_7c4m2"]
+[ext_resource type="Resource" uid="uid://nthc58owrale" path="res://Resources/Weapons/GrappleMissile.tres" id="13_dnuhq"]
 [ext_resource type="PackedScene" uid="uid://8xllk2f6a63v" path="res://Assets/3D/vigilante_v8_2nd_offence_obakes_tsunami.glb" id="14_el8m7"]
 [ext_resource type="PackedScene" uid="uid://b2k5h2ktecs3c" path="res://Scenes/Prefabs/Triggers/ExplorationArea.tscn" id="15_3i0df"]
 [ext_resource type="Script" uid="uid://1qg3wklklqlt" path="res://Core/Objectives/LevelController.gd" id="16_li3u3"]
@@ -287,6 +288,36 @@ size = Vector3(11.99, 5, 28.545)
 
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_dm20i"]
 points = PackedVector3Array(-5.7676992, -1.819825, -14.499047, 6.012024, 2.7100635, 14.499047, 5.5033894, -2.5, 13.293395, -6.221548, -2.2726543, 14.499047, 5.5033894, -2.5, -13.293395, 5.105523, 2.7100635, -14.499047, -5.7129135, -2.5, -13.293395, 2.8398693, 1.803873, 14.499047, 6.012024, 2.7100635, -14.499047, -5.7129135, -2.5, 13.293395, -5.7676992, -1.819825, 14.499047, 5.105523, 2.7100635, 14.499047, -6.221548, -2.2726543, -14.499047, -2.5955443, -0.46080527, -14.499047, 2.8398693, 1.803873, -14.499047, -2.5955443, -0.46080527, 14.499047)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_081xm"]
+albedo_color = Color(0.8784058, 0.8159532, 0.24347126, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_081xm"]
+material = SubResource("StandardMaterial3D_081xm")
+radius = 1.0
+height = 3.0
+radial_segments = 12
+rings = 4
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dnuhq"]
+albedo_color = Color(0.36323577, 0.6181798, 1.087277, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_vm5d4"]
+material = SubResource("StandardMaterial3D_dnuhq")
+radius = 1.0
+height = 3.0
+radial_segments = 12
+rings = 4
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_y2t1g"]
+albedo_color = Color(0.9640824, 0.26778197, 0.603195, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_768as"]
+material = SubResource("StandardMaterial3D_y2t1g")
+radius = 1.0
+height = 3.0
+radial_segments = 12
+rings = 4
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_3i0df"]
 size = Vector3(4.53, 3.93, 6.345)
@@ -1001,9 +1032,15 @@ transform = Transform3D(-4.371138e-08, 0, 0.9999998, 0, 1, 0, -0.9999998, 0, -4.
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -127.982346, 0, 37.00815)
 weapon_to_give = ExtResource("10_p07jo")
 
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups/BigSlowPickup"]
+mesh = SubResource("CapsuleMesh_081xm")
+
 [node name="BigSlowPickup2" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.07041, 0, -141.6286)
 weapon_to_give = ExtResource("10_p07jo")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups/BigSlowPickup2"]
+mesh = SubResource("CapsuleMesh_081xm")
 
 [node name="MissilePickup" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.07635, 0, -39.44407)
@@ -1011,11 +1048,17 @@ weapon_to_give = ExtResource("11_1cqfe")
 float_speed = 8.0
 float_amplitude = 0.5
 
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups/MissilePickup"]
+mesh = SubResource("CapsuleMesh_vm5d4")
+
 [node name="MissilePickup2" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -336.9929, 3.3929348, 37.00815)
 weapon_to_give = ExtResource("11_1cqfe")
 float_speed = 8.0
 float_amplitude = 0.5
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups/MissilePickup2"]
+mesh = SubResource("CapsuleMesh_vm5d4")
 
 [node name="MissilePickup3" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -80.44493, 20.247616, 186.34505)
@@ -1023,17 +1066,62 @@ weapon_to_give = ExtResource("11_1cqfe")
 float_speed = 8.0
 float_amplitude = 0.5
 
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups/MissilePickup3"]
+mesh = SubResource("CapsuleMesh_vm5d4")
+
 [node name="MissilePickup4" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.3232174, 0, -113.14746)
 weapon_to_give = ExtResource("11_1cqfe")
 float_speed = 8.0
 float_amplitude = 0.5
 
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups/MissilePickup4"]
+mesh = SubResource("CapsuleMesh_vm5d4")
+
 [node name="MissilePickup5" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.779995, 0, -114.4973)
 weapon_to_give = ExtResource("11_1cqfe")
 float_speed = 8.0
 float_amplitude = 0.5
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups/MissilePickup5"]
+mesh = SubResource("CapsuleMesh_vm5d4")
+
+[node name="GrapplePickup" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26.655727, 0, -76.54999)
+weapon_to_give = ExtResource("13_dnuhq")
+float_speed = 8.0
+float_amplitude = 0.5
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups/GrapplePickup"]
+mesh = SubResource("CapsuleMesh_768as")
+
+[node name="GrapplePickup2" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.495453, 0, -76.54999)
+weapon_to_give = ExtResource("13_dnuhq")
+float_speed = 8.0
+float_amplitude = 0.5
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups/GrapplePickup2"]
+mesh = SubResource("CapsuleMesh_768as")
+
+[node name="GrapplePickup3" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -263.58167, 8.0222645, -163.47665)
+weapon_to_give = ExtResource("13_dnuhq")
+float_speed = 8.0
+float_amplitude = 0.5
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups/GrapplePickup3"]
+mesh = SubResource("CapsuleMesh_768as")
+
+[node name="GrapplePickup4" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -289.69055, 10.456411, -96.259384)
+weapon_to_give = ExtResource("13_dnuhq")
+float_speed = 8.0
+float_amplitude = 0.5
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups/GrapplePickup4"]
+mesh = SubResource("CapsuleMesh_768as")
 
 [node name="Mission_Items" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
 

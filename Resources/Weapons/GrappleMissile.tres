@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="WeaponResource" load_steps=3 format=3 uid="uid://nthc58owrale"]
+
+[ext_resource type="PackedScene" uid="uid://cuq1m3j68rdpx" path="res://Scenes/Prefabs/Weapons/Projectiles/GrapplingMissileTracer.tscn" id="1_fhn1e"]
+[ext_resource type="Script" uid="uid://5wgfj8fmfmgf" path="res://Core/Weapons/WeaponItems/WeaponResource.gd" id="2_kwvig"]
+
+[resource]
+script = ExtResource("2_kwvig")
+nome = "GrapplingMissile"
+projectile_scene = ExtResource("1_fhn1e")
+metadata/_custom_type_script = "uid://5wgfj8fmfmgf"

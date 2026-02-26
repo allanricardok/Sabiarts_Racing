@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="WeaponResource" load_steps=3 format=3 uid="uid://daftw5fiqy8a5"]
 
-[ext_resource type="Script" uid="uid://5wgfj8fmfmgf" path="res://Core/Weapons/WeaponResource.gd" id="1_ddf8q"]
-[ext_resource type="PackedScene" uid="uid://db4qipccvwuyh" path="res://Scenes/Prefabs/Weapons/BigTracer.tscn" id="1_etxkf"]
+[ext_resource type="Script" uid="uid://5wgfj8fmfmgf" path="res://Core/Weapons/WeaponItems/WeaponResource.gd" id="1_ddf8q"]
+[ext_resource type="PackedScene" uid="uid://db4qipccvwuyh" path="res://Scenes/Prefabs/Weapons/Projectiles/BigTracer.tscn" id="1_etxkf"]
 
 [resource]
 script = ExtResource("1_ddf8q")

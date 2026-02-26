@@ -1,4 +1,4 @@
-[gd_scene load_steps=106 format=4 uid="uid://cw8ofahu5mqhn"]
+[gd_scene load_steps=107 format=4 uid="uid://cw8ofahu5mqhn"]
 
 [ext_resource type="Script" uid="uid://b0i2wvnkcrknc" path="res://Core/PlayerScripts/Functions/BaseVehicle.gd" id="1_m0ew1"]
 [ext_resource type="Script" uid="uid://cjnmai87rc2f8" path="res://Core/camera_test_3.gd" id="2_8gjg4"]
@@ -25,9 +25,10 @@
 [ext_resource type="Script" uid="uid://ca80dhy7dchio" path="res://Core/PlayerScripts/UI/hud.gd" id="18_krxcx"]
 [ext_resource type="Script" uid="uid://y3uxucxf1qqt" path="res://Core/PlayerScripts/UI/recticle.gd" id="19_u5777"]
 [ext_resource type="Resource" uid="uid://cl6d44tjh6xry" path="res://Resources/Weapons/MachineGun.tres" id="23_625mm"]
-[ext_resource type="Script" uid="uid://burl25dksofc1" path="res://Core/PlayerScripts/Functions/AirMovementComponent.gd" id="23_hmxgi"]
-[ext_resource type="Script" uid="uid://dicgxfjk23y35" path="res://Core/PlayerScripts/Functions/TrickManager.gd" id="24_u7amk"]
-[ext_resource type="Script" uid="uid://di8qqp2x2hico" path="res://Core/PlayerScripts/Functions/GroundTrickManager.gd" id="26_x2n00"]
+[ext_resource type="Script" uid="uid://burl25dksofc1" path="res://Core/PlayerScripts/Functions/Tricks/AirMovementComponent.gd" id="23_hmxgi"]
+[ext_resource type="Script" uid="uid://dicgxfjk23y35" path="res://Core/PlayerScripts/Functions/Tricks/TrickManager.gd" id="24_u7amk"]
+[ext_resource type="Script" uid="uid://o8qqxsyxuixf" path="res://Core/PlayerScripts/Functions/Tricks/StuntProcessor.gd" id="25_w2sg6"]
+[ext_resource type="Script" uid="uid://di8qqp2x2hico" path="res://Core/PlayerScripts/Functions/Tricks/GroundTrickManager.gd" id="26_x2n00"]
 [ext_resource type="Script" uid="uid://dtphvnh83nbxl" path="res://Core/PlayerScripts/Functions/Tricks/TrickBuilder.gd" id="27_1js6p"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_625mm"]
@@ -1537,6 +1538,10 @@ SHIELD_TIME = 5.0
 unique_name_in_owner = true
 script = ExtResource("23_hmxgi")
 
+[node name="StuntProcessor" type="Node" parent="Scripts/AirMovementComponent"]
+unique_name_in_owner = true
+script = ExtResource("25_w2sg6")
+
 [node name="TrickManager" type="Node" parent="Scripts"]
 unique_name_in_owner = true
 script = ExtResource("24_u7amk")
@@ -1631,5 +1636,25 @@ light_indirect_energy = 7.803
 light_volumetric_fog_energy = 1.252
 light_size = 0.52
 light_specular = 3.398
+
+[node name="GrapplingMissile" type="Node3D" parent="Guns"]
+unique_name_in_owner = true
+
+[node name="Gun" type="MeshInstance3D" parent="Guns/GrapplingMissile"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2385242, 0.7855307, 1.7817372)
+mesh = SubResource("BoxMesh_krxcx")
+
+[node name="Muzzle" type="Node3D" parent="Guns/GrapplingMissile"]
+transform = Transform3D(-0.99978435, 0.00036245174, 0.020764848, 0, 0.9998477, -0.017452406, -0.020768011, -0.017448641, -0.9996321, -0.22816062, 0.86951077, 2.1588902)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Guns/GrapplingMissile/Muzzle"]
+transform = Transform3D(-1, 0, 8.742277e-08, 0, 1, 0, -8.742278e-08, 0, -1, -2.3841858e-07, 0.05218804, -0.2682413)
+visible = false
+light_color = Color(0.5874243, 0.20463091, 0.25706837, 1)
+light_energy = 5.915
+light_indirect_energy = 6.909
+light_volumetric_fog_energy = 2.643
+light_size = 0.681
+light_specular = 8.466
 
 [connection signal="body_entered" from="." to="Scripts/MovementComponent" method="_on_base_vehicle_body_entered"]

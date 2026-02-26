@@ -1,9 +1,0 @@
-[gd_resource type="Resource" script_class="WeaponResource" load_steps=3 format=3 uid="uid://cl6d44tjh6xry"]
-
-[ext_resource type="PackedScene" uid="uid://dhpscp7wsptl0" path="res://Scenes/Prefabs/Weapons/BulletTracer.tscn" id="1_mggp1"]
-[ext_resource type="Script" uid="uid://5wgfj8fmfmgf" path="res://Core/Weapons/WeaponResource.gd" id="2_3btmi"]
-
-[resource]
-script = ExtResource("2_3btmi")
-projectile_scene = ExtResource("1_mggp1")
-metadata/_custom_type_script = "uid://5wgfj8fmfmgf"

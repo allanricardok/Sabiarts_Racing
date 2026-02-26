@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=3 uid="uid://cuq1m3j68rdpx"]
+
+[ext_resource type="Script" uid="uid://dv7ri7yjxtxyh" path="res://Core/Weapons/Projectiles/GrappleMissile.gd" id="1_is2f3"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x78nd"]
+shading_mode = 0
+albedo_color = Color(1.4109849, 0.36629462, 0.4811559, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_vuh8p"]
+material = SubResource("StandardMaterial3D_x78nd")
+size = Vector3(0.5, 0.5, 1.66)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_mkbs4"]
+points = PackedVector3Array(0.25, 0.25, 0.65, 0.25, -0.25, 0.65, 0.25, 0.25, -0.65, -0.25, 0.25, 0.65, -0.25, -0.25, 0.65, 0.25, -0.25, -0.65, -0.25, 0.25, -0.65, -0.25, -0.25, -0.65)
+
+[node name="GrapplingMissileTracer" type="Area3D"]
+script = ExtResource("1_is2f3")
+steering_force = 18.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_vuh8p")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("ConvexPolygonShape3D_mkbs4")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="body_shape_entered" from="." to="." method="_on_body_shape_entered"]
