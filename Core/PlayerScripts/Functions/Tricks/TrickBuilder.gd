@@ -6,17 +6,22 @@ class_name TrickBuilder
 @onready var manager = %TrickManager
 @onready var input = %InputComponent 
 
+# --- DICIONÁRIO DE MANOBRAS ---
+# Removi multiplicadores daqui. O AirMovement usa apenas o 'axis' e o 'id'.
 const TRICK_DATA = {
 	"ROLL_L": {"name": "Roll 360", "points": 50, "axis": Vector3(0, 0, 1)}, 
 	"ROLL_R": {"name": "Roll 360", "points": 50, "axis": Vector3(0, 0, -1)},
 	"BACKFLIP": {"name": "Backflip", "points": 80, "axis": Vector3(-1, 0, 0)}, 
 	"FRONTFLIP": {"name": "Frontflip", "points": 80, "axis": Vector3(1, 0, 0)},
 	"SPIN": {"name": "Spin 360", "points": 40, "axis": Vector3(0, 1, 0)},
-	"SHIELD_SPIN": {"name": "Spin Shield", "points": 250, "axis": Vector3(0, 2, 0)},
-	"EMOTE": {"name": "Style Emote", "points": 150, "axis": Vector3.ZERO},
-	"FIREBALL": {"name": "Fireball!", "points": 500, "axis": Vector3(0, 0, 0)},
-	"SHOCKWAVE": {"name": "Shockwave", "points": 450, "axis": Vector3.ZERO},
-	"SPECIAL_TRICK": {"name": "SPECIAL TRICK", "points": 1000, "axis": Vector3(0, 0, 0)}
+	
+	# ESPECIAIS: O AirMovement cuidará da força extra via SPECIAL_POWER_MULT
+	"SHIELD_SPIN": {"name": "Spin Shield", "points": 80, "axis": Vector3(0, 1, 0)},
+	"EMOTE": {"name": "Style Emote", "points": 150, "axis": Vector3(0, 1, 0)},
+	"FIREBALL": {"name": "Fireball!", "points": 100, "axis": Vector3.ZERO},
+	"SHOCKWAVE": {"name": "Shockwave", "points": 100, "axis": Vector3.ZERO},
+	
+	"SPECIAL_TRICK": {"name": "SPECIAL TRICK", "points": 200, "axis": Vector3.ZERO}
 }
 
 @export var SEQUENCE_WINDOW : int = 450 
@@ -83,9 +88,8 @@ func _execute_trick(id: String):
 	if not TRICK_DATA.has(id): return
 	var data = TRICK_DATA[id]
 	
-	# REMOVIDO: manager.register_builder_trick (Não ganha pontos ao apertar o botão)
-	
-	# ENVIAR PARA O MOVIMENTO: Agora passamos o ID para validação física posterior
+	# O Builder apenas "pede" a manobra. 
+	# O AirMovementComponent decide a força baseada no ID que enviamos.
 	var air_move = car.get_node_or_null("%AirMovementComponent")
 	if air_move and air_move.has_method("execute_stunt_command"):
 		air_move.execute_stunt_command(data.axis, id)
@@ -96,7 +100,6 @@ func _track_rotation():
 	last_basis = current_basis
 	angle_accumulator_y += euler.y
 	
-	# O SPIN físico de 360 (Eixo Y) continua automático pois a própria rotação é a validação
 	if abs(angle_accumulator_y) >= (PI * 1.85):
 		if manager.has_method("add_trick_manually"):
 			manager.add_trick_manually("SPIN")

@@ -1,4 +1,4 @@
-[gd_scene load_steps=119 format=3 uid="uid://d2rblk8h626kc"]
+[gd_scene load_steps=120 format=3 uid="uid://d2rblk8h626kc"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_mm1ty"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="1_rakfq"]
@@ -22,6 +22,7 @@
 [ext_resource type="PackedScene" uid="uid://cdg3xi8hhsm0t" path="res://Scenes/Prefabs/Items/BoostPad.tscn" id="17_vj3fg"]
 [ext_resource type="Resource" uid="uid://7d4ald45sgah" path="res://Resources/TestMapMissions.tres" id="17_x31xc"]
 [ext_resource type="PackedScene" uid="uid://dpjwvb143dxpb" path="res://Scenes/Prefabs/Items/JumpPad.tscn" id="18_vgdhx"]
+[ext_resource type="PackedScene" uid="uid://dadt551bspl1q" path="res://Scenes/Prefabs/Items/FloatingObject.tscn" id="19_081xm"]
 [ext_resource type="PackedScene" uid="uid://o0rl3lkmd3ty" path="res://Scenes/UI/StartMenu.tscn" id="20_15ih5"]
 [ext_resource type="PackedScene" uid="uid://otkba37h2pp0" path="res://Scenes/UI/FinishMenu.tscn" id="21_vj3fg"]
 
@@ -1022,6 +1023,18 @@ weapon_to_give = ExtResource("11_1cqfe")
 float_speed = 8.0
 float_amplitude = 0.5
 
+[node name="MissilePickup4" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.3232174, 0, -113.14746)
+weapon_to_give = ExtResource("11_1cqfe")
+float_speed = 8.0
+float_amplitude = 0.5
+
+[node name="MissilePickup5" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.779995, 0, -114.4973)
+weapon_to_give = ExtResource("11_1cqfe")
+float_speed = 8.0
+float_amplitude = 0.5
+
 [node name="Mission_Items" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
 
 [node name="Obake" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items"]
@@ -1140,6 +1153,20 @@ transform = Transform3D(-0.29890755, 0, -0.95428205, 0, 1, 0, 0.95428205, 0, -0.
 
 [node name="BoostPad3" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("17_vj3fg")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -53.15934, -1.4615917, -175.67952)
+
+[node name="Flying enemies" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
+
+[node name="FloatingObject" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_081xm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.986507, 8.432344, -119.77469)
+
+[node name="FloatingObject2" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_081xm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 51.249477, 21.18016, -125.532974)
+
+[node name="FloatingObject3" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_081xm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 73.82322, 34.92505, -133.75436)
+
+[node name="FloatingObject4" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_081xm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 96.26454, 52.351852, -145.7199)
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="GridContainer/Cont_P1/View_P1"]
 environment = SubResource("Environment_2yrvv")
