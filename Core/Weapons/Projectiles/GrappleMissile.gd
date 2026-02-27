@@ -5,6 +5,9 @@ extends Area3D
 @export var cable_color : Color = Color(0.2, 0.2, 0.2) # Cor de cabo de aço
 @export var cable_width : float = 0.05
 
+# --- NOVA VARIÁVEL PARA O PULO FINAL ---
+@export var finish_boost_force : float = 15.0 
+
 var velocity = Vector3.ZERO
 var target : Node3D = null
 var shooter : VehicleBody3D = null 
@@ -58,7 +61,9 @@ func setup(_dmg, shooter_vel, source_car, incoming_target = null):
 
 func _physics_process(delta):
 	if not is_instance_valid(shooter):
-		_finish_grapple()
+		# Se o atirador sumiu, apenas deletamos o cabo sem boost
+		_cleanup_visuals()
+		queue_free()
 		return
 
 	if not is_tethered:
@@ -76,7 +81,6 @@ func _update_cable_visual():
 	immediate_mesh.surface_begin(Mesh.PRIMITIVE_LINES)
 	
 	# Ponto A: O carro (Atirador)
-	# Idealmente, poderíamos pegar a posição da arma, mas usar o centro do carro é mais robusto
 	var start_point = shooter.global_position + Vector3.UP * 0.5
 	
 	# Ponto B: O próprio projétil
@@ -88,7 +92,7 @@ func _update_cable_visual():
 
 func _state_flying(delta):
 	time_alive += delta
-	if time_alive > 5.0: _finish_grapple()
+	if time_alive > 4.0: _finish_grapple()
 
 	if target and is_instance_valid(target):
 		var target_pos = target.global_position
@@ -109,7 +113,7 @@ func _state_flying(delta):
 func _state_tethered(delta):
 	time_alive += delta
 	
-	if time_alive > 3.0:
+	if time_alive > 3.2:
 		_finish_grapple()
 		return
 
@@ -164,7 +168,7 @@ func _state_tethered(delta):
 		shooter.linear_velocity = shooter.linear_velocity.limit_length(max_allowed_speed)
 
 	# 3. CONDIÇÃO DE TÉRMINO
-	if current_dist < 6.0:
+	if current_dist < 10.0:
 		_finish_grapple()
 
 func _start_tether(body):
@@ -207,8 +211,21 @@ func _is_path_blocked(pull_target_pos) -> bool:
 				return true
 	return false
 
-func _finish_grapple():
+# --- FUNÇÃO DE LIMPEZA AUXILIAR ---
+func _cleanup_visuals():
 	if is_instance_valid(cable_mesh_instance):
 		cable_mesh_instance.queue_free()
+
+func _finish_grapple():
+	# Só aplicamos o "pulo" se o gancho estava de fato puxando o jogador
+	if is_tethered and is_instance_valid(shooter):
+		# Direção do pulo: Para cima e um pouco para frente do carro
+		var jump_dir = (Vector3.UP * 25 + shooter.global_transform.basis.z * 0.5).normalized()
+		
+		# Aplicamos o impulso central
+		shooter.apply_central_impulse(jump_dir * finish_boost_force * shooter.mass)
+		print("[Grappling] Pulo de finalização aplicado!")
+
+	_cleanup_visuals()
 	print("[Grappling] Gancho finalizado e cabo removido")
 	queue_free()

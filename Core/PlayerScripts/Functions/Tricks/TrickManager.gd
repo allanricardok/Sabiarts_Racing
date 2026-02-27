@@ -11,10 +11,11 @@ class_name TrickManager
 @export var AIR_TIME_POINTS_MULT : float = 10.0
 
 # --- CORES DO SISTEMA ---
-const COLOR_AIR = "#ffaa00"    # Laranja
+const COLOR_AIR = "#ffaa00"     # Laranja (Padrão)
 const COLOR_GROUND = "#ff4444" # Vermelho
 const COLOR_GAP = "#00aaff"    # Azul
 const COLOR_TIME = "#ffffff"   # Branco
+const COLOR_SPECIAL = "#ffd700" # Dourado / Amarelo Escuro (Especiais)
 
 # O dicionário TRICK_DATA foi movido para o TrickBuilder.gd
 
@@ -64,7 +65,6 @@ func add_external_action(action_name: String, points: int, color_hex: String = "
 	tricks_colors.append(color_hex)
 	_update_live_display()
 
-## Chamado por scripts externos (como AirMovement ou GroundTrickManager)
 func add_trick_manually(id: String):
 	var builder = car.get_node_or_null("%TrickBuilder")
 	if builder and builder.TRICK_DATA.has(id):
@@ -73,7 +73,6 @@ func add_trick_manually(id: String):
 	else:
 		print("[TrickManager] Erro: ID de manobra não encontrado no Builder: ", id)
 
-## NOVA FUNÇÃO: Recebe os dados brutos do TrickBuilder e aplica a lógica de pontos
 func register_builder_trick(id: String, trick_name: String, base_pts: int):
 	if not tracking_jump: _start_new_jump()
 	
@@ -86,7 +85,14 @@ func register_builder_trick(id: String, trick_name: String, base_pts: int):
 	
 	tricks_done.append(trick_name)
 	points_per_trick.append(final_pts)
-	tricks_colors.append(COLOR_AIR)
+	
+	# --- LÓGICA DE COR DIFERENCIADA ---
+	# Identifica se a manobra é uma "Especial" (Fireball, Shockwave, Shield, Emote)
+	var special_ids = ["FIREBALL", "SHOCKWAVE", "SHIELD_SPIN", "EMOTE"]
+	if id in special_ids:
+		tricks_colors.append(COLOR_SPECIAL)
+	else:
+		tricks_colors.append(COLOR_AIR)
 	
 	current_jump_uses[id] = j_count + 1
 	global_stunt_uses[id] = g_count + 1
@@ -94,8 +100,7 @@ func register_builder_trick(id: String, trick_name: String, base_pts: int):
 
 func _start_new_jump():
 	tracking_jump = true
-	# jump_start_timestamp = Time.get_ticks_msec() # Podemos manter ou remover, não será mais usado para o air_time
-	air_time = 0.0 # Garante que começa em zero
+	air_time = 0.0 
 	display_version += 1 
 	
 	tricks_done.clear()
@@ -118,7 +123,7 @@ func _start_new_jump():
 	var builder = car.get_node_or_null("%TrickBuilder")
 	if builder: builder.reset_builder_logic()
 
-# --- EXIBIÇÃO E FINALIZAÇÃO (MANTIDAS IGUAIS) ---
+# --- EXIBIÇÃO E FINALIZAÇÃO ---
 
 func _update_live_display():
 	if is_showing_final_score: return
@@ -228,10 +233,8 @@ func process_air_time(_delta: float, _is_near_ground: bool):
 		if not _is_near_ground: _start_new_jump()
 		else: return
 	
-	# --- CORREÇÃO DO BUG: Soma o delta em vez de calcular pelo clock real ---
 	air_time += _delta
 	
-	# CHAMA O BUILDER PARA DETETAR ROTAÇÃO E BOTÕES
 	var builder = car.get_node_or_null("%TrickBuilder")
 	if builder:
 		builder.process_maneuvers(_delta)

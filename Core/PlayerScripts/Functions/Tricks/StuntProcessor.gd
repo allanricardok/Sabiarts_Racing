@@ -36,10 +36,16 @@ func initiate_stunt(axis: Vector3, trick_id: String):
 	current_trick_id = trick_id
 	var p_mult = _get_power_mult(trick_id)
 	
+	# --- TRUQUES ESPECIAIS COM CUSTO ---
 	if trick_id == "FIREBALL" or trick_id == "SHOCKWAVE":
 		if parent._modify_energy(-ENERGY_COST_SPECIAL):
 			_confirm_trick_success()
 			_apply_instant_physics(trick_id)
+		else:
+			# NOVO: Se falhar o gasto de energia, dispara o feedback visual
+			var ability = car.get_node_or_null("%AbilityComponent")
+			if ability and ability.has_method("_erro_falta_energia"):
+				ability._erro_falta_energia()
 		return
 	
 	if trick_id == "EMOTE":
@@ -110,8 +116,8 @@ func apply_stunt_brake():
 
 func _apply_instant_physics(id: String):
 	if id == "FIREBALL":
-		var launch = (car.global_transform.basis.z * 0.2 + Vector3.UP * 1.4).normalized()
-		car.apply_central_impulse(launch * 25.0 * car.mass)
+		var launch = (car.global_transform.basis.z * 0.1 + Vector3.UP * 1.5).normalized()
+		car.apply_central_impulse(launch * 30.0 * car.mass)
 	elif id == "SHOCKWAVE":
 		car.angular_velocity = Vector3.ZERO
 		car.apply_torque_impulse(car.global_transform.basis.y.cross(Vector3.UP) * 20.0 * car.mass)

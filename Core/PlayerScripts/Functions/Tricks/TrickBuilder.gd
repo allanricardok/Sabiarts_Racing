@@ -76,8 +76,8 @@ func _evaluate_combo_direction(steer, pitch):
 		
 	elif tap_count == 2:
 		if steer < -0.8: trick_id = "SHIELD_SPIN"
-		elif steer > 0.8: trick_id = "FIREBALL"
-		elif pitch < -0.8: trick_id = "EMOTE"
+		elif steer > 0.8: trick_id = "EMOTE"
+		elif pitch < -0.8: trick_id = "FIREBALL"
 		elif pitch > 0.8: trick_id = "SHOCKWAVE"
 
 	if trick_id != "":

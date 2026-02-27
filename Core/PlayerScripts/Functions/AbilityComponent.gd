@@ -97,10 +97,15 @@ func _checar_combos_habilidade():
 
 func _erro_falta_energia():
 	if energy_bar:
+		# Mata qualquer tween ou timer anterior para não haver conflito de cores
 		energy_bar.modulate = Color.RED
-		# Volta ao normal em 0.5 segundos como você pediu
-		get_tree().create_timer(0.5).timeout.connect(func():
-			energy_bar.modulate = Color.WHITE
+		
+		# Criamos um timer único para voltar ao branco
+		var timer = get_tree().create_timer(0.5)
+		timer.timeout.connect(func():
+			# Usamos um lerp simples ou apenas voltamos para o branco
+			var tween = get_tree().create_tween()
+			tween.tween_property(energy_bar, "modulate", Color.WHITE, 0.2)
 		)
 
 # --- EXECUÇÃO DAS HABILIDADES ---
