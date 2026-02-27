@@ -17,7 +17,17 @@ func setup(dmg, shooter_vel, source_car, incoming_target = null):
 	shooter = source_car
 	
 	var forward_dir = source_car.global_transform.basis.z 
-	velocity = shooter_vel + (forward_dir * 15.0)
+	
+	# CORREÇÃO: Em vez de um empurrão de 15.0, usamos a 'speed' total do míssil.
+	# Somamos shooter_vel apenas para herdar a inércia lateral/vertical, 
+	# mas garantimos que a força frontal seja absoluta.
+	velocity = (forward_dir * speed) + shooter_vel
+	
+	# Se ainda assim a velocidade resultante apontar para trás (devido a uma ré extrema),
+	# forçamos ela a ser pelo menos a direção frontal.
+	if velocity.dot(forward_dir) < 5.0:
+		velocity = forward_dir * speed
+
 	look_at(global_position + forward_dir, Vector3.UP)
 
 func _physics_process(delta):

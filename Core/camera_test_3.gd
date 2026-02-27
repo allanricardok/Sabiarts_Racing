@@ -1,3 +1,4 @@
+# Camera.gd
 extends Camera3D
 
 @export_group("Velocidades de Seguimento")
@@ -17,8 +18,6 @@ extends Camera3D
 @export var min_local_y := -0.8 
 @export var max_local_y := 8.0 
 @export var look_offset := 1.0
-@onready var target_node = $"../CameraTarget"
-@onready var car = $".."
 
 @export_group("Suavização de Transição")
 @export var transition_speed := 1.0 
@@ -29,6 +28,9 @@ var air_mode_weight : float = 0.0
 @export var camera_collision_margin := 0.2
 @export_flags_3d_physics var collision_mask = 1
 
+@onready var target_node = $"../CameraTarget"
+@onready var car = $".."
+@onready var input = car.get_node("%InputComponent") # CORREÇÃO: Pegando a referência do Input
 @onready var trick_manager = car.get_node("%TrickManager")
 
 var air_move : Node = null
@@ -41,13 +43,14 @@ func _ready():
 	default_target_offset = target_node.position
 
 func _physics_process(delta):
-	if not car or not target_node or not air_move: return
+	if not car or not target_node or not air_move or not input: return
 
 	# --- 1. LÓGICA DE ESTADO ---
 	var is_actually_in_air = not air_move.check_grounded()
 	var current_air_time = trick_manager.air_time
 	var is_stunting = air_move.is_doing_stunt 
-	var is_looking_back = Input.is_action_pressed("LookBehind_J1")
+	# CORREÇÃO: Agora usa a variável dinâmica do InputComponent em vez de hardcode J1
+	var is_looking_back = input.is_look_behind_pressed 
 
 	var target_weight = 0.0
 	var current_transition = transition_speed
@@ -89,11 +92,12 @@ func _physics_process(delta):
 		target_local_pos.z *= look_back_distance_multiplier
 		target_local_pos.y += look_back_height_offset
 
-	var r_stick = Vector2(Input.get_joy_axis(0, JOY_AXIS_RIGHT_X), Input.get_joy_axis(0, JOY_AXIS_RIGHT_Y))
-	if r_stick.length() < 0.15: r_stick = Vector2.ZERO
+	# CORREÇÃO: Lê o look_vector unificado (Mouse + Joy) do InputComponent
+	var look_dir = input.look_vector
 	
-	target_local_pos.x += r_stick.x * stick_sensitivity_x
-	var offset_y = -r_stick.y * stick_sensitivity_y
+	# Aplica as sensibilidades normais
+	target_local_pos.x += look_dir.x * stick_sensitivity_x
+	var offset_y = -look_dir.y * stick_sensitivity_y
 	target_local_pos.y += clamp(offset_y, min_local_y, max_local_y)
 	target_local_pos.z -= offset_y * 0.5 
 	

@@ -19,8 +19,8 @@ var selected_map_index = 0
 @onready var clear_data_button = get_node_or_null("ClearDataButton")
 
 # --- LÓGICA DE JOGADORES ---
-var esquemas_disponiveis = ["K1", "K2", "J1", "J2", "J3", "J4"]
-var nomes_controles = {"K1": "Keyboard 1", "K2": "Keyboard 2", "J1": "Joystick 1", "J2": "Joystick 2", "J3": "Joystick 3", "J4": "Joystick 4"}
+var esquemas_disponiveis = ["K1", "J1", "J2", "J3", "J4"]
+var nomes_controles = {"K1": "Keyboard 1", "J1": "Joystick 1", "J2": "Joystick 2", "J3": "Joystick 3", "J4": "Joystick 4"}
 var jogadores_ativos = [null, null, null, null]
 
 const ICON_KEYBOARD = preload("res://Assets/2D/images.jpg")

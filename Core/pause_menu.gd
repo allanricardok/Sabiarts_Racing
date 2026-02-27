@@ -72,7 +72,7 @@ func _on_menu_btn_pressed():
 
 func _process(_delta):
 	if visible:
-		for esquema in ["K1", "K2", "J1", "J2", "J3", "J4"]:
+		for esquema in ["K1", "J1", "J2", "J3", "J4"]:
 			if Input.is_action_just_pressed("Action_" + esquema):
 				var focused_node = get_viewport().gui_get_focus_owner()
 				if focused_node is Button:

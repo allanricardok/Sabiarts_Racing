@@ -1,14 +1,20 @@
-# GrapplingProjectile.gd
 extends Area3D
 
 @export var fly_speed = 170.0
 @export var steering_force = 10.0
+@export var cable_color : Color = Color(0.2, 0.2, 0.2) # Cor de cabo de aço
+@export var cable_width : float = 0.05
 
 var velocity = Vector3.ZERO
 var target : Node3D = null
 var shooter : VehicleBody3D = null 
 var is_tethered : bool = false
 var time_alive : float = 0.0
+
+# --- REFERÊNCIAS VISUAIS ---
+var cable_mesh_instance : MeshInstance3D
+var immediate_mesh : ImmediateMesh
+var cable_material : StandardMaterial3D
 
 # --- VARIÁVEIS DE REFINAMENTO ---
 var target_is_static : bool = false
@@ -18,27 +24,71 @@ var fixed_impact_point : Vector3 = Vector3.ZERO
 var initial_distance : float = 0.0
 var speed_multiplier : float = 1.0
 
+func _ready():
+	# Inicialização do sistema de cabo visual
+	cable_mesh_instance = MeshInstance3D.new()
+	immediate_mesh = ImmediateMesh.new()
+	cable_material = StandardMaterial3D.new()
+	
+	cable_material.albedo_color = cable_color
+	cable_material.shading_mode = StandardMaterial3D.SHADING_MODE_UNSHADED # Garante visibilidade
+	
+	cable_mesh_instance.mesh = immediate_mesh
+	cable_mesh_instance.material_override = cable_material
+	cable_mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	
+	# Adicionamos ao root da cena para que as coordenadas globais funcionem sem herdar rotação
+	get_tree().current_scene.add_child.call_deferred(cable_mesh_instance)
+	print("[Grappling] Cabo visual inicializado")
+
 func setup(_dmg, shooter_vel, source_car, incoming_target = null):
 	target = incoming_target
 	shooter = source_car
 	
 	var forward_dir = source_car.global_transform.basis.z 
-	velocity = shooter_vel + (forward_dir * 10.0)
+	
+	# Usamos a velocidade de voo (fly_speed) para garantir o disparo frontal
+	velocity = (forward_dir * fly_speed) + shooter_vel
+	
+	# Trava de segurança para ré
+	if velocity.dot(forward_dir) < 10.0:
+		velocity = forward_dir * fly_speed
+		
 	look_at(global_position + forward_dir, Vector3.UP)
 
 func _physics_process(delta):
 	if not is_instance_valid(shooter):
-		queue_free()
+		_finish_grapple()
 		return
 
 	if not is_tethered:
 		_state_flying(delta)
 	else:
 		_state_tethered(delta)
+	
+	_update_cable_visual()
+
+func _update_cable_visual():
+	if not is_instance_valid(shooter) or not is_instance_valid(immediate_mesh):
+		return
+		
+	immediate_mesh.clear_surfaces()
+	immediate_mesh.surface_begin(Mesh.PRIMITIVE_LINES)
+	
+	# Ponto A: O carro (Atirador)
+	# Idealmente, poderíamos pegar a posição da arma, mas usar o centro do carro é mais robusto
+	var start_point = shooter.global_position + Vector3.UP * 0.5
+	
+	# Ponto B: O próprio projétil
+	var end_point = global_position
+	
+	immediate_mesh.surface_add_vertex(start_point)
+	immediate_mesh.surface_add_vertex(end_point)
+	immediate_mesh.surface_end()
 
 func _state_flying(delta):
 	time_alive += delta
-	if time_alive > 5.0: queue_free()
+	if time_alive > 5.0: _finish_grapple()
 
 	if target and is_instance_valid(target):
 		var target_pos = target.global_position
@@ -97,25 +147,18 @@ func _state_tethered(delta):
 	var dir_to_target = (pull_target_pos - shooter.global_position).normalized()
 	
 	# --- EIXO XZ (HORIZONTAL) ---
-	# Usamos move_toward para dar o feeling de "trilho" que não deixa acelerar infinito
 	var target_vel_xz = Vector3(dir_to_target.x, 0, dir_to_target.z) * ideal_speed
 	var current_vel_xz = Vector3(shooter.linear_velocity.x, 0, shooter.linear_velocity.z)
 	
-	# Se o carro já estiver mais rápido que o ideal_speed, o move_toward vai freá-lo
-	# O valor '4.0' controla a "força" com que ele te puxa para a velocidade ideal
 	var new_vel_xz = current_vel_xz.move_toward(target_vel_xz, 4.0)
 	shooter.linear_velocity.x = new_vel_xz.x
 	shooter.linear_velocity.z = new_vel_xz.z
 
 	# --- EIXO Y (VERTICAL) ---
-	# Mantemos mecânico para vencer a gravidade, mas com teto
 	var target_vel_y = dir_to_target.y * ideal_speed
-	# O lerp aqui suaviza a subida sem deixar criar o efeito slingshot
 	shooter.linear_velocity.y = lerp(shooter.linear_velocity.y, target_vel_y, 0.15)
 
 	# --- TRAVA DE SEGURANÇA (SPEED CAP) ---
-	# Garante que a velocidade TOTAL nunca ultrapasse o v_peak calculado para o trajeto
-	# Adicionamos uma margem de 10% para não parecer uma parede invisível
 	var max_allowed_speed = v_peak * 1.1
 	if shooter.linear_velocity.length() > max_allowed_speed:
 		shooter.linear_velocity = shooter.linear_velocity.limit_length(max_allowed_speed)
@@ -127,6 +170,7 @@ func _state_tethered(delta):
 func _start_tether(body):
 	is_tethered = true
 	time_alive = 0.0 
+	print("[Grappling] Gancho conectado a: ", body.name)
 	
 	if body is StaticBody3D or body is GridMap:
 		target_is_static = true
@@ -164,4 +208,7 @@ func _is_path_blocked(pull_target_pos) -> bool:
 	return false
 
 func _finish_grapple():
+	if is_instance_valid(cable_mesh_instance):
+		cable_mesh_instance.queue_free()
+	print("[Grappling] Gancho finalizado e cabo removido")
 	queue_free()
