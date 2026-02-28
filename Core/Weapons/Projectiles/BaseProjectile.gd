@@ -20,12 +20,22 @@ func _ready():
 	body_entered.connect(_on_impact)
 	get_tree().create_timer(4.0).timeout.connect(queue_free)
 
-func _on_impact(body):
-	if hit_done or body == shooter: return
+func _on_impact(target_node):
+	if hit_done: return
+	
+	# --- MUDANÇA SÊNIOR: Identifica de quem é a Hitbox para evitar fogo amigo ---
+	var actual_target = target_node
+	if target_node is Area3D:
+		actual_target = target_node.owner if target_node.owner else target_node.get_parent()
+		
+	# Se a bala colidiu com o carro que atirou (ou sua hitbox), ignora e continua voando
+	if actual_target == shooter: 
+		return
+		
 	hit_done = true
 	
-	if body.has_method("take_damage"):
-		body.take_damage(damage, shooter) # Passa o shooter para o GroundTrickManager
+	if target_node.has_method("take_damage"):
+		target_node.take_damage(damage, shooter) # Passa o shooter para o GroundTrickManager
 	
 	_play_impact_vfx()
 

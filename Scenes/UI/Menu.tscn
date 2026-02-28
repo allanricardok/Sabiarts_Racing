@@ -312,4 +312,22 @@ theme_override_colors/font_color = Color(0.8745098, 0.28235295, 0, 1)
 theme_override_font_sizes/font_size = 32
 text = "Reset Data"
 
+[node name="ClearScoresButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -168.0
+offset_top = 92.0
+offset_right = -45.0
+offset_bottom = 131.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(0.8745098, 0.28235295, 0, 1)
+theme_override_font_sizes/font_size = 22
+text = "Reset Scores"
+
 [connection signal="pressed" from="ClearDataButton" to="." method="_on_clear_data_button_pressed"]
+[connection signal="pressed" from="ClearDataButton" to="." method="_on_clear_data_pressed"]
+[connection signal="pressed" from="ClearScoresButton" to="." method="_on_clear_scores_button_pressed"]
+[connection signal="pressed" from="ClearScoresButton" to="." method="_on_botao_apagar_scores_pressed"]

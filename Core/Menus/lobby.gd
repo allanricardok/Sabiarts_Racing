@@ -150,6 +150,6 @@ func _on_clear_data_pressed():
 				
 	print("[Lobby] Dados resetados com sucesso.")
 
-
-func _on_clear_data_button_pressed() -> void:
-	pass # Replace with function body.
+func _on_botao_apagar_scores_pressed():
+	SaveManager.clear_highscores()
+	# Aqui pode adicionar lógica extra, como atualizar a interface ou mostrar um aviso de sucesso.

@@ -1,3 +1,4 @@
+# Grappling.gd
 extends Area3D
 
 @export var fly_speed = 170.0
@@ -43,6 +44,12 @@ func _ready():
 	# Adicionamos ao root da cena para que as coordenadas globais funcionem sem herdar rotação
 	get_tree().current_scene.add_child.call_deferred(cable_mesh_instance)
 	print("[Grappling] Cabo visual inicializado")
+	
+	# --- MUDANÇA SÊNIOR: Conexões de sinais automáticas ---
+	if not body_entered.is_connected(_on_body_entered):
+		body_entered.connect(_on_body_entered)
+	if not area_entered.is_connected(_on_area_entered):
+		area_entered.connect(_on_area_entered)
 
 func setup(_dmg, shooter_vel, source_car, incoming_target = null):
 	target = incoming_target
@@ -97,7 +104,7 @@ func _state_flying(delta):
 	if target and is_instance_valid(target):
 		var target_pos = target.global_position
 		if global_position.distance_to(target_pos) < 2.5:
-			_start_tether(target)
+			_process_impact(target)
 			return
 
 		var desired_dir = (target_pos - global_position).normalized()
@@ -171,6 +178,46 @@ func _state_tethered(delta):
 	if current_dist < 10.0:
 		_finish_grapple()
 
+# --- Unificação de Impacto (Corpo ou Área) ---
+func _on_body_entered(body):
+	if not is_tethered:
+		_process_impact(body)
+
+func _on_area_entered(area):
+	if not is_tethered:
+		_process_impact(area)
+
+func _process_impact(target_node):
+	var actual_target = target_node
+	if target_node is Area3D:
+		actual_target = target_node.owner if target_node.owner else target_node.get_parent()
+		
+	# Prevenção de Fogo Amigo
+	if actual_target == shooter:
+		return
+		
+	# 1. Aplica o Dano de 10.0 na hora do impacto
+	if target_node.has_method("take_damage"):
+		target_node.take_damage(10.0, shooter)
+		print("[Grappling] Dano aplicado em: ", actual_target.name)
+		
+	# 2. Dispara a Explosão Visual de Impacto
+	_play_impact_explosion()
+	
+	# 3. Inicia o puxão com o cabo (continua vivo)
+	_start_tether(actual_target)
+
+func _play_impact_explosion():
+	print("[Grappling] BUM! Efeito de explosão no alvo ativado.")
+	# TODO: Aqui você pode instanciar as suas partículas de explosão.
+	# Exemplo:
+	# var explosion = preload("res://Caminho/Da/Sua/Explosao.tscn").instantiate()
+	# get_tree().current_scene.add_child(explosion)
+	# explosion.global_position = global_position
+	
+	# Como o grapple não usa "queue_free" agora, podemos esconder a 
+	# malha da ponta do gancho aqui, se você tiver uma!
+
 func _start_tether(body):
 	is_tethered = true
 	time_alive = 0.0 
@@ -192,17 +239,6 @@ func _start_tether(body):
 	speed_multiplier = max(1.0, required_avg_speed / default_avg_speed)
 	
 	if initial_distance < 1.0: initial_distance = 1.0
-
-func _on_body_entered(body):
-	if not is_tethered and body != shooter:
-		# BUSCA O COMPONENTE DE STATS NO ALVO
-		var target_stats = body.get_node_or_null("StatsComponent")
-		if target_stats and target_stats.has_method("take_damage"):
-			# Aplica um dano base (ex: 10) e passa o shooter para o ScoreManager saber quem atirou
-			target_stats.take_damage(10.0, shooter)
-			print("[Grappling] Dano aplicado em: ", body.name)
-		
-		_start_tether(body)
 
 func _is_path_blocked(pull_target_pos) -> bool:
 	var space_state = get_world_3d().direct_space_state

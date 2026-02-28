@@ -16,7 +16,7 @@ signal stats_changed
 @onready var current_health: float = max_health
 @onready var current_shield: float = max_shield
 
-@export_group("UI Integration (Optional if Auto-Link works)")
+@export_group("UI Integration")
 @export var health_bar : ProgressBar
 @export var shield_bar : ProgressBar
 
@@ -28,24 +28,17 @@ signal stats_changed
 ## ID da missão no Resource (ex: "enemy_car" ou "radar_tower")
 @export var mission_id : String = ""
 
-# --- TRAVA DE SEGURANÇA POR COLISOR ---
-var _hit_history: Dictionary = {}
+# Variável interna para o estilo da barra de vida
+var _health_stylebox : StyleBoxFlat = null
 
 func _ready():
-	# Inicializa as barras com os valores máximos configurados
 	_initialize_ui()
-	
-	# NOVO: Tenta linkar as barras automaticamente para o multiplayer
-	# Esperamos um frame (deferred) para garantir que a HUD já foi instanciada no Viewport
 	call_deferred("_auto_link_hud")
 
 func _auto_link_hud():
-	# Se as barras já foram colocadas manualmente, não faz nada
 	if health_bar and shield_bar:
 		return
 		
-	# Procura as barras dentro do Viewport atual do jogador
-	# No multiplayer, find_child vai olhar apenas dentro da "sua" fatia da tela
 	var my_viewport = get_viewport()
 	
 	if not health_bar:
@@ -61,53 +54,87 @@ func _initialize_ui():
 	if health_bar:
 		health_bar.max_value = max_health
 		health_bar.value = current_health
+		
+		# Clona o StyleBox para podermos mudar a cor dinamicamente sem afetar outros UI
+		var current_style = health_bar.get_theme_stylebox("fill")
+		if current_style is StyleBoxFlat:
+			_health_stylebox = current_style.duplicate()
+		else:
+			# Se não tiver um estilo configurado, cria um base
+			_health_stylebox = StyleBoxFlat.new()
+			_health_stylebox.corner_radius_top_left = 4
+			_health_stylebox.corner_radius_top_right = 4
+			_health_stylebox.corner_radius_bottom_right = 4
+			_health_stylebox.corner_radius_bottom_left = 4
+			
+		health_bar.add_theme_stylebox_override("fill", _health_stylebox)
+		
 	if shield_bar:
 		shield_bar.max_value = max_shield
 		shield_bar.value = current_shield
 
 func _process(_delta):
-	# Atualização contínua garante que mesmo curas ou efeitos graduais apareçam
 	_update_ui_bars()
 
 func _update_ui_bars():
-	# Interpolação suave para um visual de alta qualidade
 	if health_bar:
 		health_bar.value = lerp(health_bar.value, current_health, 0.2)
+		
+		# --- LÓGICA DE DEGRADÊ DE COR ---
+		var pct = (health_bar.value / max_health) * 100.0
+		var current_color = _get_health_color(pct)
+		
+		if _health_stylebox:
+			_health_stylebox.bg_color = current_color
+		else:
+			# Fallback caso dê algum erro na extração do StyleBox
+			health_bar.modulate = current_color
+			
 	if shield_bar:
 		shield_bar.value = lerp(shield_bar.value, current_shield, 0.2)
 
+# --- FUNÇÃO MATEMÁTICA DE CORES ---
+func _get_health_color(health_percent: float) -> Color:
+	if health_percent > 30.0:
+		# De 30% a 100%: Transição do Amarelo para o Verde
+		var t = (health_percent - 30.0) / 70.0
+		return Color.YELLOW.lerp(Color.GREEN, t)
+	elif health_percent > 5.0:
+		# De 5% a 30%: Transição do Vermelho para o Amarelo
+		var t = (health_percent - 5.0) / 25.0
+		return Color.RED.lerp(Color.YELLOW, t)
+	else:
+		# De 5% para baixo: Vermelho cravado
+		return Color.RED
+
 ## Recebe dano e o objeto que causou a batida (source)
 func take_damage(amount: float, source: Node = null):
-	# Se o objeto já estiver morto, ignora novos hits
 	if current_health <= 0: 
 		return
-
-	# REGRA: Trava de 1 segundo para o MESMO objeto que encostou
-	if source:
-		var id = source.get_instance_id()
-		var now = Time.get_ticks_msec()
-		
-		if _hit_history.has(id):
-			if now - _hit_history[id] < 1000: # 1000ms = 1 segundo
-				return # Bloqueia hits repetidos deste colisor específico
-		
-		# Registra o tempo do hit para este colisor
-		_hit_history[id] = now
 
 	if is_invulnerable:
 		return
 		
-	# Lógica de Escudo
-	if current_shield > 0:
-		var shield_damage = min(current_shield, amount)
-		current_shield -= shield_damage
-		amount -= shield_damage
-		if current_shield <= 0: 
-			shield_broken.emit()
+	# --- NOVA DISTRIBUIÇÃO DE DANO (80% / 20%) ---
+	var shield_damage_portion = amount * 0.8
+	var health_damage_portion = amount * 0.2
 	
-	# Lógica de Vida
-	if amount > 0:
-		current_health -= amount
+	if current_shield > 0:
+		if current_shield >= shield_damage_portion:
+			current_shield -= shield_damage_portion
+		else:
+			# Se o escudo for quebrar antes de absorver os 80%, o restante vaza para a vida
+			var leftover = shield_damage_portion - current_shield
+			current_shield = 0
+			health_damage_portion += leftover
+			shield_broken.emit()
+	else:
+		# Se não tem escudo, 100% do dano vai direto na vida
+		health_damage_portion = amount
+	
+	# Aplica o dano resultante na vida
+	if health_damage_portion > 0:
+		current_health -= health_damage_portion
 		_check_damage_state()
 		
 		# --- GERAÇÃO DE PONTUAÇÃO ---
@@ -116,7 +143,7 @@ func take_damage(amount: float, source: Node = null):
 		
 	if current_health <= 0:
 		current_health = 0 # Trava em zero para a UI não bugar
-		_on_death() # <--- ADICIONADO: Avisa que morreu para as missões
+		_on_death() # Avisa que morreu para as missões
 		health_depleted.emit()
 
 func _process_scoring(source: Node):
@@ -139,17 +166,16 @@ func _check_damage_state():
 	var parent = get_parent()
 	if not parent.has_method("update_visual_damage"): return
 	
-	# Cálculo de porcentagem de dano para o shader/visual do carro:
-	# $$\text{percent} = \frac{\text{current\_health}}{\text{max\_health}} \times 100$$
-	var percent = (current_health / max_health) * 100
+	# Cálculo de porcentagem de dano para o visual do carro:
+	var percent = (current_health / max_health) * 100.0
 	parent.update_visual_damage(percent)
 
 func repair(amount: float):
-	current_health = clamp(current_health + amount, 0, max_health)
+	current_health = clamp(current_health + amount, 0.0, max_health)
 	_check_damage_state()
 
 func _on_death():
-	# REGRA: Independente de quem matou, se tem ID de missão, avisa o Manager
+	# Independente de quem matou, se tem ID de missão, avisa o Manager
 	if mission_id != "" and is_instance_valid(MissionManager):
 		MissionManager.notify_progress(MissionItem.Type.DESTROY, 1.0, mission_id)
 	

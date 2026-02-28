@@ -77,14 +77,6 @@ points = PackedVector3Array(-5.6424136, -1.1426806, -7.619048, 6.0238094, 1.7142
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_li3u3"]
 points = PackedVector3Array(-5.6424136, -1.1426806, -7.619048, 6.0238094, 1.7142158, 7.619048, 5.7848983, 1.7142158, 7.619048, 5.5901275, -1.5, 7.07482, -6.119047, -1.3808641, 7.619048, 6.0238094, 1.7142158, -7.619048, 5.5901275, -1.5, -7.07482, -5.685365, -1.5, -7.07482, -5.6424136, -1.1426806, 7.619048, -5.685365, -1.5, 7.07482, 5.7848983, 1.7142158, -7.619048, -6.119047, -1.3808641, -7.619048, -1.8329135, -0.18994679, 7.619048, -1.8329135, -0.18994679, -7.619048)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_li3u3"]
-transparency = 1
-albedo_color = Color(0.25490198, 0.7607843, 1, 0.56078434)
-
-[sub_resource type="BoxMesh" id="BoxMesh_x31xc"]
-material = SubResource("StandardMaterial3D_li3u3")
-size = Vector3(16.66, 9.68, 1.06)
-
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bnpdo"]
 albedo_color = Color(0.47801313, 0.47801313, 0.47801313, 1)
 albedo_texture = ExtResource("5_mm1ty")
@@ -348,6 +340,14 @@ size = Vector3(80, 80, 80)
 [sub_resource type="BoxShape3D" id="BoxShape3D_qcgmd"]
 size = Vector3(18.11, 10.713, 1)
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_li3u3"]
+transparency = 1
+albedo_color = Color(0.25490198, 0.7607843, 1, 0.56078434)
+
+[sub_resource type="BoxMesh" id="BoxMesh_x31xc"]
+material = SubResource("StandardMaterial3D_li3u3")
+size = Vector3(16.66, 9.68, 25.485)
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_081xm"]
 size = Vector3(42.6, 16.383, 35.245)
 
@@ -521,14 +521,10 @@ skeleton = NodePath("../..")
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0, 0.11728859)
 shape = SubResource("ConvexPolygonShape3D_li3u3")
 
+[node name="Speedtrap2" parent="GridContainer/Cont_P1/View_P1/Map" instance=ExtResource("5_1cqfe")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -268.53418, 2.2692423, -63.015556)
+
 [node name="V8Map" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
-
-[node name="Speedtrap" parent="GridContainer/Cont_P1/View_P1/Map/V8Map" instance=ExtResource("5_1cqfe")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -254.9852, 0.7665043, -58.401398)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Speedtrap"]
-transform = Transform3D(0.017696725, 0, -0.9998434, 0, 1, 0, 0.9998434, 0, 0.017696725, 0, 1.2111902, 0)
-mesh = SubResource("BoxMesh_x31xc")
 
 [node name="layout_Mapa" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
 transform = Transform3D(-0.0008203227, -0.99999964, -4.3711374e-08, 0, -4.371139e-08, 1, -0.99999964, 0.0008203227, 3.5857445e-11, 0, -1.4593506, 0)
@@ -1127,6 +1123,8 @@ mesh = SubResource("CapsuleMesh_768as")
 
 [node name="Obake" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -217.74602, 50.57672, -195.14479)
+collision_layer = 4
+collision_mask = 15
 script = ExtResource("13_7c4m2")
 
 [node name="Sketchfab_Scene" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items/Obake" instance=ExtResource("14_el8m7")]
@@ -1137,6 +1135,8 @@ shape = SubResource("BoxShape3D_3i0df")
 
 [node name="Obake2" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 237.02173, -1.1306462, 157.9309)
+collision_layer = 4
+collision_mask = 15
 script = ExtResource("13_7c4m2")
 
 [node name="Sketchfab_Scene" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items/Obake2" instance=ExtResource("14_el8m7")]
@@ -1147,6 +1147,8 @@ shape = SubResource("BoxShape3D_3i0df")
 
 [node name="Obake3" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items"]
 transform = Transform3D(-0.24716814, 0, -0.9689726, 0, 1, 0, 0.9689726, 0, -0.24716814, -49.317467, 23.424963, 214.79395)
+collision_layer = 4
+collision_mask = 15
 script = ExtResource("13_7c4m2")
 
 [node name="Sketchfab_Scene" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items/Obake3" instance=ExtResource("14_el8m7")]
@@ -1157,6 +1159,8 @@ shape = SubResource("BoxShape3D_3i0df")
 
 [node name="Obake4" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -263.7621, -1.2178663, -390.20444)
+collision_layer = 4
+collision_mask = 15
 script = ExtResource("13_7c4m2")
 
 [node name="Sketchfab_Scene" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items/Obake4" instance=ExtResource("14_el8m7")]
@@ -1167,6 +1171,8 @@ shape = SubResource("BoxShape3D_3i0df")
 
 [node name="Obake5" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -160.01239, 8.896809, -96.36365)
+collision_layer = 4
+collision_mask = 15
 script = ExtResource("13_7c4m2")
 
 [node name="Sketchfab_Scene" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items/Obake5" instance=ExtResource("14_el8m7")]
@@ -1177,6 +1183,8 @@ shape = SubResource("BoxShape3D_3i0df")
 
 [node name="SecretItem" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -282.16806, 29.259418, 69.22967)
+collision_layer = 4
+collision_mask = 15
 script = ExtResource("13_7c4m2")
 mission_id = "secret_item"
 
@@ -1191,6 +1199,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5423012, 0)
 
 [node name="ExplorationArea" parent="GridContainer/Cont_P1/View_P1/Map/V8Map" instance=ExtResource("15_3i0df")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -310.7943, 12.716412, -291.967)
+collision_layer = 5
+collision_mask = 15
 explore_id = "secret"
 
 [node name="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/ExplorationArea" index="0"]
@@ -1203,6 +1213,7 @@ mesh = SubResource("BoxMesh_vgdhx")
 
 [node name="Gap Balcony" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps"]
 transform = Transform3D(0.99994427, 0, 0.010559124, 0, 1, 0, -0.010559124, 0, 0.99994427, -189.42993, 27.22024, -170.65619)
+collision_mask = 15
 script = ExtResource("16_vgdhx")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps/Gap Balcony"]
@@ -1216,6 +1227,7 @@ skeleton = NodePath("")
 
 [node name="Gap Balcony2" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps"]
 transform = Transform3D(0.99994427, 0, 0.010559124, 0, 1, 0, -0.010559124, 0, 0.99994427, -136.95425, 7.961664, -170.65619)
+collision_mask = 15
 script = ExtResource("16_vgdhx")
 point_type = 1
 

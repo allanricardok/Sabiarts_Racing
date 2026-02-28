@@ -46,9 +46,10 @@ func save_highscore(map_name: String, score: int, player_name: String = "Player"
 	# Ordena do maior para o menor
 	scores.sort_custom(func(a, b): return a["score"] > b["score"])
 	
-	# Mantém apenas o Top 5
-	if scores.size() > 5:
-		scores.resize(5)
+	# MUDANÇA: Mantém apenas o Top 8 (antes era 5)
+	if scores.size() > 8:
+		scores.resize(8)
+		print("[SaveManager] Limite atingido. Lista redimensionada para o Top 8.")
 	
 	config.set_value("Scores", map_name, scores)
 	config.save(HIGHSCORE_PATH)
@@ -59,3 +60,11 @@ func get_highscores(map_name: String) -> Array:
 	config.load(HIGHSCORE_PATH)
 	var list = config.get_value("Scores", map_name, [])
 	return list
+
+func clear_highscores():
+	var dir = DirAccess.open("user://")
+	if dir.file_exists("highscores.cfg"):
+		dir.remove("highscores.cfg")
+		print("[SaveManager] Ficheiro de highscores apagado com sucesso.")
+	else:
+		print("[SaveManager] Nenhum ficheiro de highscores encontrado para apagar.")

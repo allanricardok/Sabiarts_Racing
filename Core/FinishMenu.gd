@@ -19,14 +19,29 @@ func abrir_resultados():
 	if menu_button:
 		menu_button.grab_focus()
 	
-	var total = ScoreManager.total_score
-	var formatted_score = ScoreManager.format_score_with_dots(total)
+	# --- FIX MULTIPLAYER: Encontra a maior pontuação entre os jogadores ---
+	var highest_score : int = 0
+	var winner_id : int = 0
+	
+	for p_id in ScoreManager.player_scores.keys():
+		var p_score = ScoreManager.get_total_score(p_id)
+		if p_score > highest_score:
+			highest_score = p_score
+			winner_id = p_id
+			
+	print("[FinishMenu] Maior pontuação alcançada pelo Player ", winner_id + 1, ": ", highest_score)
+	
+	# Formata a maior pontuação encontrada e prepara o nome do vencedor
+	var formatted_score = ScoreManager.format_score_with_dots(highest_score)
+	var winner_name = "Player " + str(winner_id + 1)
 	
 	if score_label:
-		score_label.text = "PONTUAÇÃO TOTAL: " + formatted_score
+		score_label.text = "PONTUAÇÃO MÁXIMA: " + formatted_score
 	
+	# Adicionado o nome do jogador no CurrentScoreLabel
 	if current_score_label:
-		current_score_label.text = formatted_score
+		current_score_label.text = winner_name.to_upper() + " - " + formatted_score
+		print("[FinishMenu] CurrentScoreLabel atualizado: ", current_score_label.text)
 	
 	var map_name = "MAPA DESCONHECIDO"
 	if MissionManager.current_map_data:
@@ -35,12 +50,12 @@ func abrir_resultados():
 	if map_name_label:
 		map_name_label.text = map_name
 	
-	# 1. Salva o recorde atual
-	SaveManager.save_highscore(map_name, total, "Player")
+	# 1. Salva o recorde atual usando a maior pontuação e identifica o jogador vencedor
+	SaveManager.save_highscore(map_name, highest_score, winner_name)
 	
 	# 2. Preenche as listas (passando o score atual para destacar)
 	_preencher_resumo_missoes()
-	_preencher_highscores(map_name, total)
+	_preencher_highscores(map_name, highest_score)
 
 func _preencher_resumo_missoes():
 	if not mission_list: return
@@ -78,7 +93,11 @@ func _preencher_highscores(map_name: String, current_session_score: int):
 	# Variável para garantir que destacamos apenas uma entrada caso haja scores idênticos
 	var ja_destacou_atual = false
 	
-	for i in range(scores.size()):
+	# Limita o número máximo de scores exibidos para 8
+	var max_display_count = min(scores.size(), 8)
+	print("[FinishMenu] Exibindo os ", max_display_count, " melhores highscores.")
+	
+	for i in range(max_display_count):
 		var entry = scores[i]
 		var lbl = Label.new()
 		
@@ -95,7 +114,7 @@ func _preencher_highscores(map_name: String, current_session_score: int):
 		lbl.text = line_text + dots + points_text
 		
 		# --- NOVA LÓGICA DE COR ---
-		# Se o score desta linha for igual ao score que o jogador acabou de fazer: AMRELO
+		# Se o score desta linha for igual ao score que o jogador vencedor acabou de fazer: AMARELO
 		if points_val == current_session_score and not ja_destacou_atual:
 			lbl.add_theme_color_override("font_color", Color.YELLOW)
 			lbl.text += " [NEW]" # Pequeno sufixo opcional para dar destaque

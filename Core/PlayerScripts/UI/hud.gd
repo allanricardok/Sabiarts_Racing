@@ -2,20 +2,21 @@
 extends CanvasLayer
 
 # --- REFERÊNCIAS DE UI ---
+@onready var ui_base = $UI_Base
+@onready var messages = $Messages
+@onready var toast_container = $Toasts
+
 @onready var weapon_label = $UI_Base/WeaponLabel
 @onready var air_time_label = $Messages/AirTimeLabel
 @onready var air_message_label = $Messages/AirMessageLabel
 @onready var score_label = $UI_Base/ScoreLabel
 @onready var timer_label = $UI_Base/TimerLabel
-@onready var toast_container = $Toasts
 @onready var player_id_label = get_node_or_null("UI_Base/PlayerIDLabel")
-
-# Retículo (Certifique-se que o nome do nó na cena seja 'Reticle' ou 'lockon_rect')
-# Vou usar 'lockon_rect' para bater com o seu script anterior
-@onready var lockon_rect = $UI_Base/Reticle 
 
 # --- CONFIGURAÇÕES ---
 @export var toast_font_size: int = 38
+@export var multiplayer_ui_scale: float = 0.7 # Novo parâmetro para você testar 70% ou qualquer outro valor
+const REFERENCE_WIDTH : float = 1280.0 # A largura padrão do seu jogo em Singleplayer
 
 # --- ESTADO INTERNO ---
 var _combo_display_version : int = 0
@@ -29,81 +30,79 @@ func _ready():
 	air_time_label.visible = false
 	air_message_label.visible = false
 	
-	# Conexão com o ScoreManager (Filtro por ID)
 	if ScoreManager.is_connected("score_changed", _on_score_updated):
 		ScoreManager.score_changed.disconnect(_on_score_updated)
 	ScoreManager.score_changed.connect(_on_score_updated)
 	
-	# Conexões Globais de Missões
 	if not MissionManager.mission_completed.is_connected(_on_mission_completed):
 		MissionManager.mission_completed.connect(_on_mission_completed)
 	
 	if not MissionManager.mission_updated.is_connected(_on_mission_updated):
 		MissionManager.mission_updated.connect(_on_mission_updated)
 
-# Função chamada pelo BaseVehicle no nascimento
 func setup_hud(suffix: String, real_id: int):
 	player_suffix = suffix
 	my_player_id = real_id
 	
-	# Entra no grupo global para o Timer e no específico para o Carro
 	if not is_in_group("HUD"): add_to_group("HUD")
 	add_to_group("HUD" + player_suffix)
 	
-	# --- BUSCA DO CARRO LOCAL ---
-	# Procura o carro que compartilha o MESMO Viewport que este HUD
-	# Isso garante que o retículo do P2 não olhe para o alvo do P1
 	my_car = get_viewport().find_child("*", true, false) as BaseVehicle
 	
-	# Atualização visual do nome do jogador
 	if player_id_label:
 		player_id_label.text = "PLAYER " + str(my_player_id + 1)
-		# Diferenciação por cor para facilitar o teste
 		player_id_label.modulate = Color.CYAN if my_player_id == 0 else Color.ORANGE
 		
 	print("[HUD] Player ", my_player_id + 1, " pronto no Viewport: ", get_viewport().name)
 
-# --- PROCESSAMENTO ---
+# --- PROCESSAMENTO (ESCALA RESPONSIVA) ---
 
 func _process(_delta):
-	_update_lockon_reticle()
+	_update_ui_scaling()
 
-# --- LÓGICA DO RETÍCULO (INDIVIDUAL POR TELA) ---
+func _update_ui_scaling():
+	var current_size = get_viewport().size
+	if current_size.x == 0 or current_size.y == 0: return
 
-func _update_lockon_reticle():
-	# Se não houver carro ou o nó do retículo não existir, aborta
-	if not lockon_rect or not my_car: 
-		if lockon_rect: lockon_rect.visible = false
-		return
+	# Determina o fator de escala: Usa 1.0 se for Singleplayer, e a variável escolhida (ex: 0.7) no Multiplayer
+	var scale_factor = 1.0
+	if current_size.x < REFERENCE_WIDTH * 0.8: # Consideramos que se a tela é 20% menor que o padrão, dividiu
+		scale_factor = multiplayer_ui_scale
 	
-	var weapon_manager = my_car.weapons
-	if not weapon_manager: return
-	
-	var target = weapon_manager.current_target
-	var active = weapon_manager.get_active_special()
-	
-	# Só mostra retículo se a arma for de mira e houver um alvo válido
-	var is_aiming_weapon = active and (active.nome == "HomingMissile" or active.nome == "GrapplingMissile")
-	
-	if is_aiming_weapon and target and is_instance_valid(target):
-		# PEGA A CÂMERA DO VIEWPORT LOCAL (A câmera da metade da tela deste jogador)
-		var cam = get_viewport().get_camera_3d()
+	# 1. TRATAMENTO PARA FULL RECT (UI_Base)
+	# Congelamos no canto (0,0) e aumentamos o tamanho virtual para compensar o encolhimento
+	if ui_base:
+		ui_base.anchor_left = 0.0
+		ui_base.anchor_top = 0.0
+		ui_base.anchor_right = 0.0
+		ui_base.anchor_bottom = 0.0
+		ui_base.offset_left = 0.0
+		ui_base.offset_top = 0.0
 		
-		if cam and not cam.is_position_behind(target.global_position):
-			# Projeta a posição 3D para a tela 2D relativa a este Viewport
-			var screen_pos = cam.unproject_position(target.global_position)
-			lockon_rect.visible = true
-			# Centraliza o desenho (ex: se o retículo tem 64x64, ele centraliza no ponto)
-			lockon_rect.position = screen_pos - (lockon_rect.size / 2)
-		else:
-			lockon_rect.visible = false
-	else:
-		lockon_rect.visible = false
+		ui_base.scale = Vector2(scale_factor, scale_factor)
+		ui_base.size = current_size / scale_factor
+
+	# 2. TRATAMENTO PARA ELEMENTOS FLUTUANTES (Messages e Toasts)
+	# Aplicamos escala sem mexer nas âncoras para não perder a posição original
+	_scale_floating_control(messages, scale_factor)
+	_scale_floating_control(toast_container, scale_factor)
+
+# Calcula o pivô automático baseado nas âncoras para encolher no lugar certo
+func _scale_floating_control(control: Control, scale_factor: float):
+	if not control: return
+	
+	var anchor_center_x = (control.anchor_left + control.anchor_right) / 2.0
+	var anchor_center_y = (control.anchor_top + control.anchor_bottom) / 2.0
+	
+	control.pivot_offset = Vector2(
+		control.size.x * anchor_center_x,
+		control.size.y * anchor_center_y
+	)
+	control.scale = Vector2(scale_factor, scale_factor)
 
 # --- ATUALIZAÇÕES DE PONTUAÇÃO E INTERFACE ---
 
 func _on_score_updated(player_id: int, new_score: int):
-	# FILTRO CRUCIAL: Só atualiza se o ponto for deste jogador específico
 	if player_id == my_player_id:
 		if score_label:
 			score_label.text = ScoreManager.format_score_with_dots(new_score)

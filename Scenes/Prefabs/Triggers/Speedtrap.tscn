@@ -1,14 +1,27 @@
-[gd_scene load_steps=3 format=3 uid="uid://cd7vj18kiokji"]
+[gd_scene load_steps=5 format=3 uid="uid://cd7vj18kiokji"]
 
 [ext_resource type="Script" uid="uid://tnp7jcnh8ldp" path="res://Core/Objectives/SpeedTrap.gd" id="1_xpeqm"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_qcgmd"]
-size = Vector3(7.444336, 5.592041, 1)
+size = Vector3(15.718994, 5.592, 4.520508)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xpeqm"]
+transparency = 1
+albedo_color = Color(0.64963293, 0.37130392, 0.31689304, 0.3764706)
+
+[sub_resource type="BoxMesh" id="BoxMesh_xpeqm"]
+material = SubResource("StandardMaterial3D_xpeqm")
+size = Vector3(15.73, 5.435, 4.66)
 
 [node name="Speedtrap" type="Area3D"]
+collision_layer = 5
+collision_mask = 15
 script = ExtResource("1_xpeqm")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("BoxShape3D_qcgmd")
 
-[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_xpeqm")
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]

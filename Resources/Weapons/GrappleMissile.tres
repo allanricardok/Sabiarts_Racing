@@ -7,4 +7,5 @@
 script = ExtResource("2_kwvig")
 nome = "GrapplingMissile"
 projectile_scene = ExtResource("1_fhn1e")
+fire_rate = 0.5
 metadata/_custom_type_script = "uid://5wgfj8fmfmgf"
