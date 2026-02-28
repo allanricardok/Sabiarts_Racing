@@ -50,9 +50,9 @@ func _process_timer(delta: float):
 		_on_time_up()
 
 func _update_hud_timer():
-	var hud = get_tree().get_first_node_in_group("HUD")
-	if hud and hud.has_method("atualizar_timer"):
-		hud.atualizar_timer(time_left)
+	# MUDANÇA SENIOR: Em split-screen, precisamos atualizar TODOS os HUDs.
+	# get_first_node_in_group pegaria apenas o Player 1.
+	get_tree().call_group("HUD", "atualizar_timer", time_left)
 
 ## Executado quando o relógio zera
 func _on_time_up():
@@ -64,23 +64,21 @@ func _on_time_up():
 	# Isso aqui vai procurar qualquer nó no grupo "FinishUI" e rodar a função
 	get_tree().call_group("FinishUI", "abrir_resultados")
 	
-	# Limpa o HUD para não ficar texto sobrando
-	var hud = get_tree().get_first_node_in_group("HUD")
-	if hud:
-		hud.air_time_label.visible = false
-		hud.air_message_label.visible = false
+	# MUDANÇA SENIOR: Limpa o HUD de todos os jogadores para não ficar texto sobrando
+	get_tree().call_group("HUD", "clear_combo_display")
+	print("[LevelController] Solicitando limpeza de combo display para todos os jogadores.")
 
 func _show_results_summary():
 	# Aqui você pode instanciar sua cena de "Resultados" 
 	# ou ativar o mesmo menu de missões, mas agora mostrando o que foi concluído.
-	var hud = get_tree().get_first_node_in_group("HUD")
-	if hud:
-		# Exemplo: hud.abrir_menu_resultados()
-		print("LevelController: Solicitando tela de resultados ao HUD.")
+	# MUDANÇA SENIOR: Notifica todas as instâncias de HUD
+	get_tree().call_group("HUD", "abrir_menu_resultados")
+	print("LevelController: Solicitando tela de resultados ao grupo HUD.")
 
 # --- FUNÇÕES DE UTILIDADE ---
 
 ## Caso você precise adicionar tempo extra (ex: pegar um item de bônus)
 func add_bonus_time(amount: float):
 	time_left += amount
-	print("LevelController: +", amount, " segundos de bônus!")
+	_update_hud_timer() # Força atualização imediata em todos os HUDs
+	print("LevelController: +", amount, " segundos de bônus! Novo tempo: ", time_left)

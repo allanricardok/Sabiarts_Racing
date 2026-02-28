@@ -127,7 +127,8 @@ func _start_new_jump():
 
 func _update_live_display():
 	if is_showing_final_score: return
-	var hud = get_tree().get_first_node_in_group("HUD")
+	# Agora ele procura o HUD específico do seu carro!
+	var hud = get_tree().get_first_node_in_group("HUD" + car.input.suffix)
 	if not hud: return
 	
 	var grouped_tricks = {} 
@@ -158,8 +159,10 @@ func _update_live_display():
 	hud.update_combo_live(info)
 
 func _finalize_score():
-	var hud = get_tree().get_first_node_in_group("HUD")
+	# Busca o HUD específico deste carro para não exibir na tela errada
+	var hud = get_tree().get_first_node_in_group("HUD" + car.input.suffix)
 	if not hud: return
+	
 	is_showing_final_score = true 
 	
 	var total_base = int(air_time * AIR_TIME_POINTS_MULT)
@@ -167,7 +170,8 @@ func _finalize_score():
 	var mult = _get_dynamic_multiplier()
 	var final_score = int(total_base * mult)
 	
-	ScoreManager.add_points(final_score)
+	# --- MUDANÇA CRUCIAL: Passamos o ID do carro ---
+	ScoreManager.add_points(final_score, car.id)
 	
 	if _gap_completed_this_jump and _gap_name_to_notify != "":
 		if is_instance_valid(MissionManager) and not MissionManager.is_mission_completed(_gap_name_to_notify):
@@ -175,6 +179,24 @@ func _finalize_score():
 
 	_reset_gap_state_internal()
 	_update_final_display(hud, final_score, mult)
+
+# --- CORREÇÃO NO RESET ---
+
+func reset_trick():
+	tracking_jump = false
+	_reset_gap_state_internal()
+	if is_showing_final_score: return
+	display_version += 1
+	
+	# Busca o HUD específico deste carro para limpar
+	var hud = get_tree().get_first_node_in_group("HUD" + car.input.suffix)
+	if hud:
+		# Se o seu HUD tiver uma função de limpar, use-a, senão esconda os labels
+		if hud.has_method("clear_combo_display"):
+			hud.clear_combo_display()
+		else:
+			hud.air_time_label.visible = false
+			hud.air_message_label.visible = false
 
 func _update_final_display(hud, final_score, mult):
 	var grouped_tricks = {} 
@@ -252,13 +274,3 @@ func check_landing(is_clean: bool):
 		else:
 			reset_trick()
 	tracking_jump = false
-
-func reset_trick():
-	tracking_jump = false
-	_reset_gap_state_internal()
-	if is_showing_final_score: return
-	display_version += 1
-	var hud = get_tree().get_first_node_in_group("HUD")
-	if hud:
-		hud.air_time_label.visible = false
-		hud.air_message_label.visible = false

@@ -1,27 +1,34 @@
 # ScoreManager.gd
 extends Node
 
-# Esta variável guarda a pontuação total da partida
-var total_score : int = 0
+# Dicionário para guardar a pontuação individual de cada slot de jogador
+var player_scores : Dictionary = {0: 0, 1: 0, 2: 0, 3: 0}
 
-# Sinal que avisa ao HUD para se atualizar quando os pontos mudarem
-signal score_changed(new_score)
+# O sinal agora avisa QUEM mudou e QUAL o novo valor
+signal score_changed(player_id, new_score)
 
-func add_points(amount: int):
-	total_score += amount
-	score_changed.emit(total_score)
+func add_points(amount: int, player_id: int = 0):
+	if not player_scores.has(player_id):
+		player_scores[player_id] = 0
+		print("[ScoreManager] Novo player_id detectado e inicializado: ", player_id)
+		
+	player_scores[player_id] += amount
+	score_changed.emit(player_id, player_scores[player_id])
 	
-	# --- INTEGRAÇÃO COM MISSÕES ---
-	# Avisa o MissionManager para checar se batemos as metas de score (20k, 35k, 50k)
+	# Integração com missões (Geralmente baseada no Player Principal/Soma)
 	if is_instance_valid(MissionManager):
-		MissionManager.notify_progress(MissionItem.Type.SCORE, total_score)
+		MissionManager.notify_progress(MissionItem.Type.SCORE, player_scores[player_id])
 	
-	print("[ScoreManager] Pontos Adicionados: ", amount, " | Total: ", total_score)
+	print("[ScoreManager] Player ", player_id, " ganhou: ", amount, " | Total: ", player_scores[player_id])
+
+func get_total_score(player_id: int = 0) -> int:
+	return player_scores.get(player_id, 0)
 
 func reset_score():
-	total_score = 0
-	score_changed.emit(total_score)
-	print("[ScoreManager] Pontuação resetada.")
+	for id in player_scores.keys():
+		player_scores[id] = 0
+		score_changed.emit(id, 0)
+	print("[ScoreManager] Todas as pontuações foram resetadas.")
 	
 func format_score_with_dots(value: int) -> String:
 	var string_value = str(value)

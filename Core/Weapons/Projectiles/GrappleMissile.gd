@@ -195,6 +195,13 @@ func _start_tether(body):
 
 func _on_body_entered(body):
 	if not is_tethered and body != shooter:
+		# BUSCA O COMPONENTE DE STATS NO ALVO
+		var target_stats = body.get_node_or_null("StatsComponent")
+		if target_stats and target_stats.has_method("take_damage"):
+			# Aplica um dano base (ex: 10) e passa o shooter para o ScoreManager saber quem atirou
+			target_stats.take_damage(10.0, shooter)
+			print("[Grappling] Dano aplicado em: ", body.name)
+		
 		_start_tether(body)
 
 func _is_path_blocked(pull_target_pos) -> bool:

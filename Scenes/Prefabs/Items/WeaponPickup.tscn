@@ -6,6 +6,8 @@
 size = Vector3(3, 3, 3)
 
 [node name="WeaponPickup" type="Area3D"]
+collision_layer = 4
+collision_mask = 15
 script = ExtResource("1_vr2th")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]

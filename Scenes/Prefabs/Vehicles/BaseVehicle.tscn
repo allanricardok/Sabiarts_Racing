@@ -1010,8 +1010,8 @@ size = Vector3(0.1, 0.1, 0.5)
 size = Vector3(0.2, 0.2, 0.6)
 
 [node name="BaseVehicle" type="VehicleBody3D" node_paths=PackedStringArray("mesh_new", "mesh_damaged", "mesh_skeleton", "speed_label") groups=["Jogadores", "jogadores"]]
-collision_layer = 3
-collision_mask = 3
+collision_layer = 2
+collision_mask = 15
 mass = 500.0
 physics_material_override = SubResource("PhysicsMaterial_625mm")
 gravity_scale = 1.4
@@ -1366,18 +1366,18 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.8)
 
-[node name="PlayerIntroNum" type="Label" parent="HUD/UI_Base"]
+[node name="PlayerIDLabel" type="Label" parent="HUD/UI_Base"]
 layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_left = 16.0
-offset_top = -130.0
-offset_right = 242.0
-offset_bottom = -54.0
+offset_left = 21.0
+offset_top = -171.0
+offset_right = 247.0
+offset_bottom = -95.0
 grow_vertical = 0
 theme_override_font_sizes/font_size = 24
-text = "Player 1"
+text = "Player Bobo"
 vertical_alignment = 2
 clip_text = true
 
@@ -1396,13 +1396,13 @@ layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_left = 13.0
-offset_top = -58.0
-offset_right = 320.0
-offset_bottom = -13.0
+offset_left = 18.0
+offset_top = -99.0
+offset_right = 325.0
+offset_bottom = -54.0
 grow_vertical = 0
 theme_override_font_sizes/font_size = 32
-text = "Match Score: 25.200"
+text = "0"
 
 [node name="TimerLabel" type="Label" parent="HUD/UI_Base"]
 layout_mode = 1
@@ -1416,6 +1416,34 @@ offset_bottom = 70.0
 grow_horizontal = 2
 theme_override_font_sizes/font_size = 32
 text = "10:00:00"
+
+[node name="health_bar" type="ProgressBar" parent="HUD/UI_Base"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 19.0
+offset_top = -49.0
+offset_right = 323.0
+offset_bottom = -17.0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 26
+theme_override_styles/fill = SubResource("StyleBoxFlat_og6km")
+show_percentage = false
+
+[node name="shield_bar" type="ProgressBar" parent="HUD/UI_Base"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 330.0
+offset_top = -49.0
+offset_right = 490.0
+offset_bottom = -18.0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 26
+theme_override_styles/fill = SubResource("StyleBoxFlat_og6km")
+show_percentage = false
 
 [node name="Messages" type="VBoxContainer" parent="HUD"]
 clip_contents = true
@@ -1518,9 +1546,11 @@ wheel_rear_right = NodePath("../../TrasDir")
 wheel_front_left = NodePath("../../FreEsq")
 wheel_front_right = NodePath("../../FreDir")
 
-[node name="StatsComponent" type="Node" parent="Scripts"]
+[node name="StatsComponent" type="Node" parent="Scripts" node_paths=PackedStringArray("health_bar", "shield_bar")]
 unique_name_in_owner = true
 script = ExtResource("5_gotx0")
+health_bar = NodePath("../../HUD/UI_Base/health_bar")
+shield_bar = NodePath("../../HUD/UI_Base/shield_bar")
 
 [node name="AbilityComponent" type="Node" parent="Scripts" node_paths=PackedStringArray("energy_bar", "cooldown_bar")]
 unique_name_in_owner = true

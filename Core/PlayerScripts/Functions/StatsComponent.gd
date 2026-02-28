@@ -16,6 +16,10 @@ signal stats_changed
 @onready var current_health: float = max_health
 @onready var current_shield: float = max_shield
 
+@export_group("UI Integration (Optional if Auto-Link works)")
+@export var health_bar : ProgressBar
+@export var shield_bar : ProgressBar
+
 @export_group("Physics Multipliers")
 @export var speed_multiplier: float = 1.0
 @export var weight_multiplier: float = 1.0
@@ -26,6 +30,51 @@ signal stats_changed
 
 # --- TRAVA DE SEGURANÇA POR COLISOR ---
 var _hit_history: Dictionary = {}
+
+func _ready():
+	# Inicializa as barras com os valores máximos configurados
+	_initialize_ui()
+	
+	# NOVO: Tenta linkar as barras automaticamente para o multiplayer
+	# Esperamos um frame (deferred) para garantir que a HUD já foi instanciada no Viewport
+	call_deferred("_auto_link_hud")
+
+func _auto_link_hud():
+	# Se as barras já foram colocadas manualmente, não faz nada
+	if health_bar and shield_bar:
+		return
+		
+	# Procura as barras dentro do Viewport atual do jogador
+	# No multiplayer, find_child vai olhar apenas dentro da "sua" fatia da tela
+	var my_viewport = get_viewport()
+	
+	if not health_bar:
+		health_bar = my_viewport.find_child("HealthBar", true, false) as ProgressBar
+	if not shield_bar:
+		shield_bar = my_viewport.find_child("ShieldBar", true, false) as ProgressBar
+		
+	if health_bar or shield_bar:
+		print("[Stats] HUD detectada automaticamente para ", owner.name, " no Viewport: ", my_viewport.name)
+		_initialize_ui()
+
+func _initialize_ui():
+	if health_bar:
+		health_bar.max_value = max_health
+		health_bar.value = current_health
+	if shield_bar:
+		shield_bar.max_value = max_shield
+		shield_bar.value = current_shield
+
+func _process(_delta):
+	# Atualização contínua garante que mesmo curas ou efeitos graduais apareçam
+	_update_ui_bars()
+
+func _update_ui_bars():
+	# Interpolação suave para um visual de alta qualidade
+	if health_bar:
+		health_bar.value = lerp(health_bar.value, current_health, 0.2)
+	if shield_bar:
+		shield_bar.value = lerp(shield_bar.value, current_shield, 0.2)
 
 ## Recebe dano e o objeto que causou a batida (source)
 func take_damage(amount: float, source: Node = null):
@@ -66,6 +115,7 @@ func take_damage(amount: float, source: Node = null):
 			_process_scoring(source)
 		
 	if current_health <= 0:
+		current_health = 0 # Trava em zero para a UI não bugar
 		_on_death() # <--- ADICIONADO: Avisa que morreu para as missões
 		health_depleted.emit()
 
@@ -89,6 +139,8 @@ func _check_damage_state():
 	var parent = get_parent()
 	if not parent.has_method("update_visual_damage"): return
 	
+	# Cálculo de porcentagem de dano para o shader/visual do carro:
+	# $$\text{percent} = \frac{\text{current\_health}}{\text{max\_health}} \times 100$$
 	var percent = (current_health / max_health) * 100
 	parent.update_visual_damage(percent)
 

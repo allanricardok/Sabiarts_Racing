@@ -25,10 +25,20 @@ var current_target: Node3D = null
 var basic_cooldown : float = 0.0
 var special_cooldowns : Dictionary = {}
 
+# --- VARIÁVEL DE MULTIPLAYER ---
+var player_suffix : String = "" # Definido via setup_multiplayer
+
 func _ready():
 	_reset_weapon_visibility()
 	if weapon_nodes.has("MachineGun"):
 		weapon_nodes["MachineGun"].visible = true
+	# O primeiro update pode falhar se o setup do carro ainda não ocorreu
+	_atualizar_interface()
+
+# Chamado pelo BaseVehicle.gd no _ready para vincular a identidade
+func setup_multiplayer(suffix: String):
+	player_suffix = suffix
+	print("[WeaponManager] Vinculado ao sufixo: ", player_suffix)
 	_atualizar_interface()
 
 func _process(delta):
@@ -47,18 +57,17 @@ func _process(delta):
 		if not is_doing_ability:
 			fire_basic_weapon()
 
-	# 2. TROCA DE ARMAS (L1 / R1)
-	if Input.is_action_just_pressed("prev_weapon" + input.suffix): # L1
+	# 2. TROCA DE ARMAS
+	if Input.is_action_just_pressed("prev_weapon" + input.suffix): 
 		_switch_weapon(-1)
-	if Input.is_action_just_pressed("next_weapon" + input.suffix): # R1
+	if Input.is_action_just_pressed("next_weapon" + input.suffix): 
 		_switch_weapon(1)
 
 	# 3. TIRO ESPECIAL
-	var action_name = "Fire" + input.suffix
-	if Input.is_action_just_pressed(action_name):
+	if Input.is_action_just_pressed("Fire" + input.suffix):
 		fire_special_weapon()
 	
-	# 4. LOCK-ON (Apenas para a arma selecionada no momento)
+# 4. LOCK-ON (Apenas para a arma selecionada no momento)
 	var active_weapon = get_active_special()
 	if active_weapon and (active_weapon.nome == "HomingMissile" or active_weapon.nome == "GrapplingMissile"):
 		_find_lockon_target()
@@ -78,7 +87,6 @@ func equip_special_weapon(new_weapon_res: WeaponResource):
 			w.ammo += new_weapon_res.ammo
 			print("Munição adicionada ao pool: ", w.nome)
 			
-			# Força a seleção para a arma que acabou de receber munição
 			current_weapon_index = i
 			_update_visual_selection()
 			_atualizar_interface()
@@ -89,7 +97,6 @@ func equip_special_weapon(new_weapon_res: WeaponResource):
 		var dup = new_weapon_res.duplicate()
 		weapon_pool.append(dup)
 		
-		# Seleciona sempre a arma recém-adicionada (a última do array)
 		current_weapon_index = weapon_pool.size() - 1
 		_update_visual_selection()
 			
@@ -100,7 +107,7 @@ func equip_special_weapon(new_weapon_res: WeaponResource):
 	_atualizar_interface()
 
 func _switch_weapon(direction: int):
-	if weapon_pool.size() <= 1: return # Nada para trocar
+	if weapon_pool.size() <= 1: return 
 	
 	current_weapon_index += direction
 	
@@ -155,7 +162,6 @@ func _remove_current_weapon():
 		current_weapon_index = -1
 		_reset_weapon_visibility()
 	else:
-		# Volta para a arma anterior ou a primeira
 		current_weapon_index = clamp(current_weapon_index - 1, 0, weapon_pool.size() - 1)
 		_update_visual_selection()
 	
@@ -170,39 +176,46 @@ func _spawn_projectile(res: WeaponResource, node_name: String):
 	
 	get_tree().current_scene.add_child(proj)
 	
+	# Passamos o carro atirador (shooter) para o projétil lidar com colisões e dano
 	if proj.has_method("setup"):
 		if node_name == "HomingMissile" or node_name == "GrapplingMissile":
 			proj.setup(res.dano, car.linear_velocity, car, current_target)
 		else:
 			proj.setup(res.dano, car.linear_velocity, car)
 
-# --- REVISÃO DA RÉ (CORREÇÃO QUE FIZEMOS ANTES) ---
-
 func _muzzle_flash_effect(node_name: String):
 	var light = weapon_nodes[node_name].find_child("OmniLight3D", true, false)
 	if light:
 		light.visible = true
-		await get_tree().create_timer(0.05).timeout
-		light.visible = false
+		get_tree().create_timer(0.05).timeout.connect(func(): light.visible = false)
+
+# --- ATUALIZAÇÃO DE INTERFACE MULTIPLAYER ---
 
 func _atualizar_interface():
-	var hud = get_tree().get_first_node_in_group("HUD")
-	if hud:
+	# Crucial: Buscamos o HUD que pertence ao grupo específico deste jogador
+	var target_group = "HUD" + player_suffix
+	var hud = get_tree().get_first_node_in_group(target_group)
+	
+	if hud and hud.has_method("atualizar_arma"):
 		var active = get_active_special()
 		if active:
 			hud.atualizar_arma(active.nome, active.ammo)
 		else:
 			hud.atualizar_arma("None", 0)
-			
+
 func _find_lockon_target():
-	var targets = get_tree().get_nodes_in_group("Enemies")
+	# Procuramos em ambos os grupos: inimigos da IA e outros jogadores
+	var targets = get_tree().get_nodes_in_group("Enemies") + get_tree().get_nodes_in_group("jogadores")
+	
 	var best_target = null
 	var min_angle = 35.0 
 	var max_dist = 120.0 
 	var car_forward = car.global_transform.basis.z 
 
 	for t in targets:
-		if not is_instance_valid(t): continue
+		if not is_instance_valid(t) or t == car: # Crucial: Ignora o próprio carro
+			continue
+		
 		var dir = (t.global_position - car.global_position).normalized()
 		var angle = rad_to_deg(car_forward.angle_to(dir))
 		var dist = car.global_position.distance_to(t.global_position)
@@ -212,3 +225,33 @@ func _find_lockon_target():
 			min_angle = angle 
 			
 	current_target = best_target
+
+func _atualizar_posicao_reticulo():
+	var active = get_active_special()
+	# Busca o HUD específico pelo grupo (HUD_K1, HUD_J1...)
+	var target_group = "HUD" + player_suffix
+	var hud = get_tree().get_first_node_in_group(target_group)
+	
+	if not hud: return
+	
+	# Procuramos o retículo dentro do HUD
+	var reticle = hud.find_child("Reticle", true, false)
+	if not reticle: return
+
+	# Condição para mostrar: arma certa + ter alvo + alvo ser válido
+	if active and (active.nome == "HomingMissile" or active.nome == "GrapplingMissile") and is_instance_valid(current_target):
+		
+		# IMPORTANTE: Pegar a câmera que está renderizando este carro
+		var camera = get_viewport().get_camera_3d()
+		
+		if camera and not camera.is_position_behind(current_target.global_position):
+			# Converte a posição 3D do alvo para a posição 2D da tela do Viewport
+			var screen_pos = camera.unproject_position(current_target.global_position)
+			
+			reticle.visible = true
+			# Usamos global_position para evitar problemas se o Reticle for filho de outros Containers
+			reticle.global_position = hud.get_viewport().get_screen_transform() * screen_pos
+		else:
+			reticle.visible = false
+	else:
+		reticle.visible = false
