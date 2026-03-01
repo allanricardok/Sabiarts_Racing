@@ -1,4 +1,4 @@
-[gd_scene load_steps=141 format=3 uid="uid://d2rblk8h626kc"]
+[gd_scene load_steps=142 format=3 uid="uid://d2rblk8h626kc"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_mm1ty"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="1_rakfq"]
@@ -31,6 +31,7 @@
 [ext_resource type="Resource" uid="uid://q47f11lrnubs" path="res://Resources/Items/SuperHealthItem.tres" id="21_4j5t4"]
 [ext_resource type="PackedScene" uid="uid://otkba37h2pp0" path="res://Scenes/UI/FinishMenu.tscn" id="21_vj3fg"]
 [ext_resource type="Resource" uid="uid://1ive11yvog3g" path="res://Resources/Items/UltraHealth+Shield.tres" id="22_mudyu"]
+[ext_resource type="PackedScene" uid="uid://d08nc5o3ey67t" path="res://Scenes/Prefabs/Enemies/EnemyTurret.tscn" id="23_rldcu"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_a70xh"]
 material = ExtResource("1_rakfq")
@@ -360,7 +361,7 @@ size = Vector3(42.6, 16.383, 35.245)
 material = SubResource("StandardMaterial3D_li3u3")
 size = Vector3(42.035, 16.07, 36.38)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_klx8g"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rldcu"]
 albedo_color = Color(0, 0.2784314, 1, 0.7137255)
 emission_enabled = true
 emission = Color(0, 0.2784314, 1, 0.7137255)
@@ -372,7 +373,7 @@ size = Vector3(3, 3, 3)
 [sub_resource type="BoxShape3D" id="BoxShape3D_klx8g"]
 size = Vector3(3, 3, 3)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rldcu"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_d07yr"]
 albedo_color = Color(0.7176471, 0.827451, 0.78039217, 1)
 emission_enabled = true
 emission = Color(0.7176471, 0.827451, 0.78039217, 1)
@@ -382,7 +383,7 @@ emission_energy_multiplier = 0.5
 left_to_right = 1.0
 size = Vector3(3, 2, 3)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_d07yr"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4j5t4"]
 albedo_color = Color(0, 0.88235295, 0.83137256, 0.8117647)
 emission_enabled = true
 emission = Color(0, 0.88235295, 0.83137256, 0.8117647)
@@ -391,7 +392,7 @@ emission_energy_multiplier = 0.5
 [sub_resource type="PrismMesh" id="PrismMesh_yeuu5"]
 size = Vector3(1, 0.615, 1)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4j5t4"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mudyu"]
 albedo_color = Color(0.112888634, 0.112888634, 0.112888634, 0.9019608)
 emission_enabled = true
 emission = Color(0.112888634, 0.112888634, 0.112888634, 0.9019608)
@@ -1298,52 +1299,58 @@ mesh = SubResource("BoxMesh_vm5d4")
 skeleton = NodePath("")
 
 [node name="StatusItems" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.63427925, 0)
 
 [node name="ItemPickup" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems" instance=ExtResource("18_klx8g")]
-transform = Transform3D(0.24042043, 0, -0.9725704, 0, 1, 0, 0.9725704, 0, 0.24042043, -19.779785, 0.5516289, 30.782839)
+transform = Transform3D(0.9385002, 0, 0.35002804, 0, 1, 0, -0.35002804, 0, 0.9385002, -19.779785, -0.0075748097, 30.782839)
 status_data = ExtResource("19_rldcu")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup"]
-material_override = SubResource("StandardMaterial3D_klx8g")
+material_override = SubResource("StandardMaterial3D_rldcu")
 mesh = SubResource("PrismMesh_5twny")
 
 [node name="CollisionShape3D2" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup"]
 shape = SubResource("BoxShape3D_klx8g")
 
 [node name="ItemPickup2" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems" instance=ExtResource("18_klx8g")]
-transform = Transform3D(0.24042043, 0, -0.9725704, 0, 1, 0, 0.9725704, 0, 0.24042043, -19.779785, 0.5516289, 48.81527)
+transform = Transform3D(0.9385002, 0, 0.35002804, 0, 1, 0, -0.35002804, 0, 0.9385002, -19.779785, -0.0075748097, 48.81527)
 status_data = ExtResource("20_d07yr")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup2"]
-material_override = SubResource("StandardMaterial3D_rldcu")
+material_override = SubResource("StandardMaterial3D_d07yr")
 mesh = SubResource("PrismMesh_1yjh2")
 
 [node name="CollisionShape3D2" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup2"]
 shape = SubResource("BoxShape3D_klx8g")
 
 [node name="ItemPickup3" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems" instance=ExtResource("18_klx8g")]
-transform = Transform3D(0.24042043, 0, -0.9725704, 0, 1, 0, 0.9725704, 0, 0.24042043, -19.779785, 0.5516289, 72.74568)
+transform = Transform3D(0.9385002, 0, 0.35002804, 0, 1, 0, -0.35002804, 0, 0.9385002, -19.779785, -0.0075748097, 72.74568)
 status_data = ExtResource("21_4j5t4")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup3"]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
-material_override = SubResource("StandardMaterial3D_d07yr")
+material_override = SubResource("StandardMaterial3D_4j5t4")
 mesh = SubResource("PrismMesh_yeuu5")
 
 [node name="CollisionShape3D2" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup3"]
 shape = SubResource("BoxShape3D_klx8g")
 
 [node name="ItemPickup4" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems" instance=ExtResource("18_klx8g")]
-transform = Transform3D(0.24042043, 0, -0.9725704, 0, 1, 0, 0.9725704, 0, 0.24042043, -48.131565, 0.5516289, 30.782839)
+transform = Transform3D(0.9385002, 0, 0.35002804, 0, 1, 0, -0.35002804, 0, 0.9385002, -48.131565, -0.0075748097, 30.782839)
 status_data = ExtResource("22_mudyu")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup4"]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
-material_override = SubResource("StandardMaterial3D_4j5t4")
+material_override = SubResource("StandardMaterial3D_mudyu")
 mesh = SubResource("PrismMesh_f13cj")
 
 [node name="CollisionShape3D2" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup4"]
 shape = SubResource("BoxShape3D_klx8g")
+
+[node name="Enemies" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
+
+[node name="EnemyTurret" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Enemies" instance=ExtResource("23_rldcu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -43.07503, 0.8978927, -135.43686)
 
 [node name="Pads" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
 

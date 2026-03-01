@@ -23,19 +23,22 @@ func _ready():
 func _on_impact(target_node):
 	if hit_done: return
 	
-	# --- MUDANÇA SÊNIOR: Identifica de quem é a Hitbox para evitar fogo amigo ---
+	# Identifica de quem é a Hitbox para evitar fogo amigo
 	var actual_target = target_node
 	if target_node is Area3D:
 		actual_target = target_node.owner if target_node.owner else target_node.get_parent()
 		
-	# Se a bala colidiu com o carro que atirou (ou sua hitbox), ignora e continua voando
 	if actual_target == shooter: 
 		return
 		
 	hit_done = true
 	
+	# --- MUDANÇA SÊNIOR: Prevenção de Bala Fantasma ---
+	# Se a torre/carro que atirou já morreu, passamos 'null' como agressor
+	var valid_shooter = shooter if is_instance_valid(shooter) else null
+	
 	if target_node.has_method("take_damage"):
-		target_node.take_damage(damage, shooter) # Passa o shooter para o GroundTrickManager
+		target_node.take_damage(damage, valid_shooter) 
 	
 	_play_impact_vfx()
 

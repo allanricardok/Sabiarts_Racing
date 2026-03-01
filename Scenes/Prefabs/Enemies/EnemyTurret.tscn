@@ -1,0 +1,75 @@
+[gd_scene load_steps=10 format=3 uid="uid://d08nc5o3ey67t"]
+
+[ext_resource type="Script" uid="uid://batvbhuur18qc" path="res://Core/PlayerScripts/Functions/StatsComponent.gd" id="1_f3yil"]
+[ext_resource type="Script" uid="uid://17v2oug1wdmr" path="res://Core/PlayerScripts/Functions/VehicleHitbox.gd" id="1_hdaqv"]
+[ext_resource type="Script" uid="uid://d163sp1x1bs5" path="res://Core/Enemies/EnemyTurret.gd" id="1_qt66q"]
+[ext_resource type="PackedScene" uid="uid://dhpscp7wsptl0" path="res://Scenes/Prefabs/Weapons/Projectiles/BulletTracer.tscn" id="2_2vvtx"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_hdaqv"]
+size = Vector3(0.8, 4, 0.8)
+
+[sub_resource type="BoxMesh" id="BoxMesh_lgbd8"]
+size = Vector3(0.5, 0.5, 4)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_qt66q"]
+radius = 80.0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_2vvtx"]
+size = Vector3(2.168167, 3.2176952, 1.5663185)
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_qt66q"]
+height = 3.725525
+radius = 1.235
+
+[node name="EnemyTurret" type="StaticBody3D"]
+collision_layer = 2
+collision_mask = 15
+script = ExtResource("1_qt66q")
+projectile_scene = ExtResource("2_2vvtx")
+damage = 1.0
+fire_rate = 0.3
+projectile_speed = 130.0
+enemy_group_name = "Enemies"
+
+[node name="BaseMesh" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_hdaqv")
+
+[node name="Head" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2374241, -0.25787723)
+
+[node name="CannonMesh" type="MeshInstance3D" parent="Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.98635876, 0.31274974)
+mesh = SubResource("BoxMesh_lgbd8")
+
+[node name="Muzzle" type="Marker3D" parent="Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9869807, -2.3609362)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Head/Muzzle"]
+transform = Transform3D(-1, 0, 1.509958e-07, 0, 1, 0, -1.509958e-07, 0, -1, 0, 0.094712734, 0.25549126)
+visible = false
+light_color = Color(3.3529627, 2.9095888, 1.6301379, 1)
+
+[node name="DetectionZone" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DetectionZone"]
+shape = SubResource("SphereShape3D_qt66q")
+
+[node name="Hitbox" type="Area3D" parent="."]
+collision_layer = 3
+collision_mask = 15
+script = ExtResource("1_hdaqv")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hitbox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.020149231, -0.25649738, 0.04747963)
+shape = SubResource("BoxShape3D_2vvtx")
+
+[node name="StatsComponent" type="Node" parent="."]
+script = ExtResource("1_f3yil")
+max_health = 40.0
+max_shield = 0.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.098983765, -0.12855339, 0.054927826)
+shape = SubResource("CylinderShape3D_qt66q")
