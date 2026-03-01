@@ -126,19 +126,19 @@ func _apply_instant_physics(id: String):
 func _start_emote_sequence(p_mult: float):
 	parent.is_doing_stunt = true
 	current_stunt_axis = Vector3.UP
-	car.angular_damp = 2
-	var impulse = Vector3.UP * (STUNT_IMPULSE_POWER * p_mult) * car.mass
+	car.angular_damp = 1
+	var impulse = Vector3.UP * (STUNT_IMPULSE_POWER * p_mult * 1.8) * car.mass
 	car.apply_torque_impulse(car.global_transform.basis * impulse)
-	car.apply_torque_impulse(car.global_transform.basis.x * (car.global_transform.basis.z.y * car.mass * 3.0))
+	car.apply_torque_impulse(car.global_transform.basis.x * (car.global_transform.basis.z.y * car.mass * 5.0))
 	
-	await get_tree().create_timer(0.3).timeout
+	await get_tree().create_timer(0.1).timeout
 	if not parent.is_doing_stunt: return
 	car.angular_velocity = Vector3.ZERO
 	_confirm_trick_success()
-	await get_tree().create_timer(0.4).timeout
+	await get_tree().create_timer(0.25).timeout
 	if not parent.is_doing_stunt: return
 	car.apply_torque_impulse(car.global_transform.basis * impulse)
-	await get_tree().create_timer(0.3).timeout
+	await get_tree().create_timer(0.1).timeout
 	apply_stunt_brake()
 
 func _call_ability_shield(active: bool):

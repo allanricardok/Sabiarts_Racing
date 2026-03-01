@@ -101,6 +101,13 @@ func _on_pousou(is_clean: bool):
 	var trick_manager = get_node_or_null("%TrickManager")
 	if trick_manager and trick_manager.has_method("check_landing"):
 		trick_manager.check_landing(is_clean)
+		
+	# CORREÇÃO DO BUG DO GAP:
+	# Se tocamos no chão e ainda existe um ID de gap ativo (ou seja, 
+	# pegamos o Start mas não pegamos o Finish a tempo), nós cancelamos ele!
+	if _active_gap_id != "":
+		print("[BaseVehicle] Pousou sem terminar o Gap: ", _active_gap_id, ". Cancelando sequência.")
+		_reset_gap_state()
 
 func set_active_gap(id_gap: String):
 	_active_gap_id = id_gap

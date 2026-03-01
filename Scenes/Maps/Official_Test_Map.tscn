@@ -963,72 +963,84 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -168.94699, 0, -33.75521)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril"
+health = 10.0
 
 [node name="ObjectBase2" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("6_0eu0l")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -176.38745, 0, -37.17431)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril"
+health = 10.0
 
 [node name="ObjectBase3" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("6_0eu0l")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -159.68216, 0, -30.810684)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril"
+health = 10.0
 
 [node name="ObjectBase4" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("6_0eu0l")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -337.00797, 3.8237925, 60.843243)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril"
+health = 10.0
 
 [node name="ObjectBase5" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("7_jykq4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 157.51683, 0.9365082, 0.18806648)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril"
+health = 10.0
 
 [node name="ObjectBase6" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("7_jykq4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 128.39499, 0.9365082, -41.0726)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril"
+health = 10.0
 
 [node name="ObjectBase7" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("7_jykq4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114.86784, 0.9365082, 47.47423)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril"
+health = 10.0
 
 [node name="ObjectBase8" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("7_jykq4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66.16119, 0.9365082, -5.5297813)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril"
+health = 10.0
 
 [node name="ObjectBase9" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("7_jykq4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -165.61214, 13.881463, 130.5723)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril"
+health = 10.0
 
 [node name="ObjectBase10" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("6_0eu0l")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -337.00797, 7.8102922, 110.51956)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril"
+health = 10.0
 
 [node name="ObjectBase11" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("6_0eu0l")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -297.40475, 9.949448, 128.94043)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril"
+health = 10.0
 
 [node name="ObjectBase12" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("6_0eu0l")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -151.92142, 6.0470448, -21.385258)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril"
+health = 10.0
 
 [node name="Teleporters" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
 
@@ -1288,7 +1300,7 @@ skeleton = NodePath("")
 [node name="StatusItems" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
 
 [node name="ItemPickup" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems" instance=ExtResource("18_klx8g")]
-transform = Transform3D(-0.27380118, 0, 0.9617727, 0, 1, 0, -0.9617727, 0, -0.27380118, -19.779785, 0.2469796, 30.782839)
+transform = Transform3D(0.24042043, 0, -0.9725704, 0, 1, 0, 0.9725704, 0, 0.24042043, -19.779785, 0.5516289, 30.782839)
 status_data = ExtResource("19_rldcu")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup"]
@@ -1299,7 +1311,7 @@ mesh = SubResource("PrismMesh_5twny")
 shape = SubResource("BoxShape3D_klx8g")
 
 [node name="ItemPickup2" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems" instance=ExtResource("18_klx8g")]
-transform = Transform3D(-0.27380118, 0, 0.9617727, 0, 1, 0, -0.9617727, 0, -0.27380118, -19.779785, 0.2469796, 48.81527)
+transform = Transform3D(0.24042043, 0, -0.9725704, 0, 1, 0, 0.9725704, 0, 0.24042043, -19.779785, 0.5516289, 48.81527)
 status_data = ExtResource("20_d07yr")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup2"]
@@ -1310,7 +1322,7 @@ mesh = SubResource("PrismMesh_1yjh2")
 shape = SubResource("BoxShape3D_klx8g")
 
 [node name="ItemPickup3" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems" instance=ExtResource("18_klx8g")]
-transform = Transform3D(-0.27380118, 0, 0.9617727, 0, 1, 0, -0.9617727, 0, -0.27380118, -19.779785, 0.2469796, 72.74568)
+transform = Transform3D(0.24042043, 0, -0.9725704, 0, 1, 0, 0.9725704, 0, 0.24042043, -19.779785, 0.5516289, 72.74568)
 status_data = ExtResource("21_4j5t4")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup3"]
@@ -1322,7 +1334,7 @@ mesh = SubResource("PrismMesh_yeuu5")
 shape = SubResource("BoxShape3D_klx8g")
 
 [node name="ItemPickup4" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems" instance=ExtResource("18_klx8g")]
-transform = Transform3D(-0.27380118, 0, 0.9617727, 0, 1, 0, -0.9617727, 0, -0.27380118, -48.131565, 0.2469796, 30.782839)
+transform = Transform3D(0.24042043, 0, -0.9725704, 0, 1, 0, 0.9725704, 0, 0.24042043, -48.131565, 0.5516289, 30.782839)
 status_data = ExtResource("22_mudyu")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup4"]
@@ -1351,15 +1363,23 @@ transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -53.
 
 [node name="FloatingObject" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_081xm")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.986507, 8.432344, -119.77469)
+mission_id = "barril"
+health = 10.0
 
 [node name="FloatingObject2" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_081xm")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 51.249477, 21.18016, -125.532974)
+mission_id = "barril"
+health = 10.0
 
 [node name="FloatingObject3" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_081xm")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 73.82322, 34.92505, -133.75436)
+mission_id = "barril"
+health = 10.0
 
 [node name="FloatingObject4" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_081xm")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 96.26454, 52.351852, -145.7199)
+mission_id = "barril"
+health = 10.0
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="GridContainer/Cont_P1/View_P1"]
 environment = SubResource("Environment_2yrvv")

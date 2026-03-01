@@ -1279,8 +1279,15 @@ size_flags_vertical = 3
 
 [node name="ColorRect" type="ColorRect" parent="HUD/UI_Base"]
 layout_mode = 0
-offset_right = 346.0
-offset_bottom = 79.0
+offset_right = 323.0
+offset_bottom = 66.0
+color = Color(0.011764706, 0.011764706, 0.011764706, 0.16078432)
+
+[node name="ColorRect1" type="ColorRect" parent="HUD/UI_Base"]
+layout_mode = 0
+offset_top = 66.0
+offset_right = 145.0
+offset_bottom = 134.0
 color = Color(0.011764706, 0.011764706, 0.011764706, 0.16078432)
 
 [node name="ColorRect2" type="ColorRect" parent="HUD/UI_Base"]
@@ -1288,8 +1295,8 @@ layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -352.0
-offset_bottom = 108.0
+offset_left = -214.0
+offset_bottom = 70.0
 grow_horizontal = 0
 color = Color(0.011764706, 0.011764706, 0.011764706, 0.16078432)
 
@@ -1301,7 +1308,7 @@ anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
 offset_left = -652.5
-offset_top = -101.0
+offset_top = -67.0
 offset_right = 652.5
 grow_horizontal = 2
 grow_vertical = 0
@@ -1318,18 +1325,29 @@ offset_bottom = 58.0
 grow_horizontal = 2
 color = Color(0.011764706, 0.011764706, 0.011764706, 0.16078432)
 
+[node name="ColorRect5" type="ColorRect" parent="HUD/UI_Base"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -96.0
+offset_right = 203.0
+offset_bottom = -67.0
+grow_vertical = 0
+color = Color(0.011764706, 0.011764706, 0.011764706, 0.16078432)
+
 [node name="AbilityBar" type="ProgressBar" parent="HUD/UI_Base"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -336.0
-offset_top = 15.0
-offset_right = -13.0
-offset_bottom = 45.0
+offset_left = -204.0
+offset_top = 7.0
+offset_right = -6.0
+offset_bottom = 34.0
 grow_horizontal = 0
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 theme_override_styles/fill = SubResource("StyleBoxFlat_m0ew1")
 
 [node name="WeaponCooldown" type="ProgressBar" parent="HUD/UI_Base"]
@@ -1337,10 +1355,10 @@ layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -193.0
-offset_top = 52.0
-offset_right = -15.0
-offset_bottom = 73.0
+offset_left = -116.0
+offset_top = 39.0
+offset_right = -8.0
+offset_bottom = 60.0
 grow_horizontal = 0
 theme_override_font_sizes/font_size = 26
 theme_override_styles/fill = SubResource("StyleBoxFlat_og6km")
@@ -1351,31 +1369,29 @@ layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -144.0
-offset_top = 72.0
+offset_left = -108.0
+offset_top = 40.0
 offset_right = -18.0
-offset_bottom = 100.0
+offset_bottom = 60.0
 grow_horizontal = 0
-theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(1, 1, 1, 0.4117647)
+theme_override_font_sizes/font_size = 14
 text = "Cooldown"
-horizontal_alignment = 2
+horizontal_alignment = 1
 vertical_alignment = 1
 clip_text = true
 
 [node name="KM_H" type="Label" parent="HUD/UI_Base"]
 layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
+anchors_preset = 2
 anchor_top = 1.0
-anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -90.0
-offset_top = -57.0
-offset_right = -16.0
-offset_bottom = -11.0
-grow_horizontal = 0
+offset_left = 350.0
+offset_top = -40.0
+offset_right = 409.0
+offset_bottom = -14.0
 grow_vertical = 0
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 18
 text = "Km/h"
 vertical_alignment = 1
 clip_text = true
@@ -1383,18 +1399,15 @@ clip_text = true
 [node name="SpeedLabel" type="Label" parent="HUD/UI_Base"]
 unique_name_in_owner = true
 layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
+anchors_preset = 2
 anchor_top = 1.0
-anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -168.0
-offset_top = -68.0
-offset_right = -74.0
-offset_bottom = -10.0
-grow_horizontal = 0
+offset_left = 293.0
+offset_top = -54.0
+offset_right = 387.0
+offset_bottom = -9.0
 grow_vertical = 0
-theme_override_font_sizes/font_size = 42
+theme_override_font_sizes/font_size = 32
 text = "000"
 vertical_alignment = 1
 clip_text = true
@@ -1425,13 +1438,21 @@ vertical_alignment = 2
 clip_text = true
 
 [node name="WeaponLabel" type="Label" parent="HUD/UI_Base"]
-layout_mode = 0
-offset_left = 18.0
-offset_top = 16.0
-offset_right = 210.0
-offset_bottom = 135.0
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -346.0
+offset_top = -57.0
+offset_right = -12.0
+offset_bottom = -12.0
+grow_horizontal = 0
+grow_vertical = 0
 theme_override_font_sizes/font_size = 32
 text = "Carlinhos Kpeão: 24"
+horizontal_alignment = 2
 
 [node name="Score" type="Label" parent="HUD/UI_Base"]
 layout_mode = 1
@@ -1497,10 +1518,10 @@ layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_left = 206.0
-offset_top = -49.0
-offset_right = 276.0
-offset_bottom = -18.0
+offset_left = 207.0
+offset_top = -48.0
+offset_right = 277.0
+offset_bottom = -17.0
 grow_vertical = 0
 theme_override_font_sizes/font_size = 26
 theme_override_styles/fill = SubResource("StyleBoxFlat_og6km")
