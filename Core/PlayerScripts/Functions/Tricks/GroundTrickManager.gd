@@ -75,9 +75,17 @@ func _get_dynamic_multiplier() -> float:
 			
 	return mult
 
+# --- MUDANÇA SÊNIOR: Função auxiliar para encontrar a HUD correta do Split-Screen ---
+func _get_local_hud() -> Node:
+	for hud in get_tree().get_nodes_in_group("HUD"):
+		if hud.get_viewport() == car.get_viewport():
+			return hud
+	return null
+
 # --- EXIBIÇÃO COM BBCODE ---
 func _update_live_display():
-	var hud = get_tree().get_first_node_in_group("HUD")
+	# Substituímos a busca global pela busca do Viewport local
+	var hud = _get_local_hud()
 	if not hud: return
 	
 	var grouped = {}
@@ -114,7 +122,8 @@ func _update_live_display():
 	hud.update_combo_live(info)
 
 func _finalize_ground_score():
-	var hud = get_tree().get_first_node_in_group("HUD")
+	# Substituímos a busca global pela busca do Viewport local
+	var hud = _get_local_hud()
 	if not hud: return
 	
 	var total_base = 0
@@ -122,7 +131,8 @@ func _finalize_ground_score():
 	var mult = _get_dynamic_multiplier()
 	var final_score = int(total_base * mult)
 	
-	ScoreManager.add_points(final_score)
+	# Usamos a lógica de Multiplayer do ScoreManager (passando o ID do carro que pontuou)
+	ScoreManager.add_points(final_score, car.id)
 	
 	# --- RECONSTRUÇÃO DA STRING DETALHADA ---
 	var grouped = {}

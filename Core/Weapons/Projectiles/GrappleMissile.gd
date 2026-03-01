@@ -9,6 +9,9 @@ extends Area3D
 # --- NOVA VARIÁVEL PARA O PULO FINAL ---
 @export var finish_boost_force : float = 15.0 
 
+# MUDANÇA: Variável para armazenar o dano do .tres
+var damage : float = 0.0
+
 var velocity = Vector3.ZERO
 var target : Node3D = null
 var shooter : VehicleBody3D = null 
@@ -45,13 +48,14 @@ func _ready():
 	get_tree().current_scene.add_child.call_deferred(cable_mesh_instance)
 	print("[Grappling] Cabo visual inicializado")
 	
-	# --- MUDANÇA SÊNIOR: Conexões de sinais automáticas ---
 	if not body_entered.is_connected(_on_body_entered):
 		body_entered.connect(_on_body_entered)
 	if not area_entered.is_connected(_on_area_entered):
 		area_entered.connect(_on_area_entered)
 
-func setup(_dmg, shooter_vel, source_car, incoming_target = null):
+# MUDANÇA: Removemos o underline de dmg para ele ser usado de verdade
+func setup(dmg, shooter_vel, source_car, incoming_target = null):
+	damage = dmg # Salva o valor que veio do WeaponManager (.tres)
 	target = incoming_target
 	shooter = source_car
 	
@@ -87,10 +91,7 @@ func _update_cable_visual():
 	immediate_mesh.clear_surfaces()
 	immediate_mesh.surface_begin(Mesh.PRIMITIVE_LINES)
 	
-	# Ponto A: O carro (Atirador)
 	var start_point = shooter.global_position + Vector3.UP * 0.5
-	
-	# Ponto B: O próprio projétil
 	var end_point = global_position
 	
 	immediate_mesh.surface_add_vertex(start_point)
@@ -139,7 +140,6 @@ func _state_tethered(delta):
 			_finish_grapple()
 			return
 
-	# 1. CÁLCULO DA VELOCIDADE IDEAL
 	var current_dist = shooter.global_position.distance_to(pull_target_pos)
 	var progress = 1.0 - clamp(current_dist / initial_distance, 0.0, 1.0)
 	
@@ -154,10 +154,8 @@ func _state_tethered(delta):
 		var t = (progress - 0.7) / 0.3
 		ideal_speed = v_peak - (30.0 * t)
 
-	# 2. FÍSICA HÍBRIDA (Decomposição e Controle)
 	var dir_to_target = (pull_target_pos - shooter.global_position).normalized()
 	
-	# --- EIXO XZ (HORIZONTAL) ---
 	var target_vel_xz = Vector3(dir_to_target.x, 0, dir_to_target.z) * ideal_speed
 	var current_vel_xz = Vector3(shooter.linear_velocity.x, 0, shooter.linear_velocity.z)
 	
@@ -165,20 +163,16 @@ func _state_tethered(delta):
 	shooter.linear_velocity.x = new_vel_xz.x
 	shooter.linear_velocity.z = new_vel_xz.z
 
-	# --- EIXO Y (VERTICAL) ---
 	var target_vel_y = dir_to_target.y * ideal_speed
 	shooter.linear_velocity.y = lerp(shooter.linear_velocity.y, target_vel_y, 0.15)
 
-	# --- TRAVA DE SEGURANÇA (SPEED CAP) ---
 	var max_allowed_speed = v_peak * 1.1
 	if shooter.linear_velocity.length() > max_allowed_speed:
 		shooter.linear_velocity = shooter.linear_velocity.limit_length(max_allowed_speed)
 
-	# 3. CONDIÇÃO DE TÉRMINO
 	if current_dist < 10.0:
 		_finish_grapple()
 
-# --- Unificação de Impacto (Corpo ou Área) ---
 func _on_body_entered(body):
 	if not is_tethered:
 		_process_impact(body)
@@ -192,31 +186,20 @@ func _process_impact(target_node):
 	if target_node is Area3D:
 		actual_target = target_node.owner if target_node.owner else target_node.get_parent()
 		
-	# Prevenção de Fogo Amigo
 	if actual_target == shooter:
 		return
 		
-	# 1. Aplica o Dano de 10.0 na hora do impacto
+	# MUDANÇA: Agora usa a variável `damage` dinâmica em vez de 10.0 fixo
 	if target_node.has_method("take_damage"):
-		target_node.take_damage(10.0, shooter)
-		print("[Grappling] Dano aplicado em: ", actual_target.name)
+		target_node.take_damage(damage, shooter)
+		print("[Grappling] Dano aplicado em: ", actual_target.name, " | Dano: ", damage)
 		
-	# 2. Dispara a Explosão Visual de Impacto
 	_play_impact_explosion()
-	
-	# 3. Inicia o puxão com o cabo (continua vivo)
 	_start_tether(actual_target)
 
 func _play_impact_explosion():
 	print("[Grappling] BUM! Efeito de explosão no alvo ativado.")
-	# TODO: Aqui você pode instanciar as suas partículas de explosão.
-	# Exemplo:
-	# var explosion = preload("res://Caminho/Da/Sua/Explosao.tscn").instantiate()
-	# get_tree().current_scene.add_child(explosion)
-	# explosion.global_position = global_position
-	
-	# Como o grapple não usa "queue_free" agora, podemos esconder a 
-	# malha da ponta do gancho aqui, se você tiver uma!
+	# TODO: Instanciar as partículas de explosão.
 
 func _start_tether(body):
 	is_tethered = true
@@ -254,18 +237,13 @@ func _is_path_blocked(pull_target_pos) -> bool:
 				return true
 	return false
 
-# --- FUNÇÃO DE LIMPEZA AUXILIAR ---
 func _cleanup_visuals():
 	if is_instance_valid(cable_mesh_instance):
 		cable_mesh_instance.queue_free()
 
 func _finish_grapple():
-	# Só aplicamos o "pulo" se o gancho estava de fato puxando o jogador
 	if is_tethered and is_instance_valid(shooter):
-		# Direção do pulo: Para cima e um pouco para frente do carro
 		var jump_dir = (Vector3.UP * 25 + shooter.global_transform.basis.z * 0.5).normalized()
-		
-		# Aplicamos o impulso central
 		shooter.apply_central_impulse(jump_dir * finish_boost_force * shooter.mass)
 		print("[Grappling] Pulo de finalização aplicado!")
 

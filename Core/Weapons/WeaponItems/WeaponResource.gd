@@ -10,7 +10,7 @@ class_name WeaponResource
 ## A cena do projétil que esta arma dispara
 @export var projectile_scene: PackedScene 
 ## Dano causado por cada projétil
-@export var dano: float = 10.0
+@export var dano: float = 0
 ## Tempo entre disparos
 @export var fire_rate: float = 0.2
 

@@ -5,7 +5,6 @@ extends BaseProjectile
 func _ready():
 	# super._ready() executa a conexão de sinais e o timer de 4s que está no Pai
 	super._ready()
-	damage = 20.0 
 
 # CORREÇÃO DA ASSINATURA: Adicionamos o 4º argumento (propulsion_speed) 
 # para dar "match" com o BaseProjectile.gd

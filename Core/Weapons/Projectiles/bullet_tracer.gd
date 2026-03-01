@@ -6,7 +6,6 @@ func _ready():
 	# Executa a conexão de sinais e o timer de 4s do BaseProjectile
 	super._ready()
 	# Valor original da metralhadora
-	damage = 5.0 
 
 # Assinatura idêntica ao pai para evitar erros de compilação
 func setup(dmg_value: float, car_velocity: Vector3, source_car: Node3D, propulsion_speed: float = 50.0):

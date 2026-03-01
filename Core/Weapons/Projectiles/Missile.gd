@@ -3,7 +3,7 @@ extends Area3D
 
 @export var speed = 80.0
 @export var steering_force = 18.0 
-var damage = 100.0
+var damage = 1.0
 
 var velocity = Vector3.ZERO
 var target : Node3D = null

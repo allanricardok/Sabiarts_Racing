@@ -96,15 +96,12 @@ func _update_ui_bars():
 # --- FUNÇÃO MATEMÁTICA DE CORES ---
 func _get_health_color(health_percent: float) -> Color:
 	if health_percent > 30.0:
-		# De 30% a 100%: Transição do Amarelo para o Verde
 		var t = (health_percent - 30.0) / 70.0
 		return Color.YELLOW.lerp(Color.GREEN, t)
 	elif health_percent > 5.0:
-		# De 5% a 30%: Transição do Vermelho para o Amarelo
 		var t = (health_percent - 5.0) / 25.0
 		return Color.RED.lerp(Color.YELLOW, t)
 	else:
-		# De 5% para baixo: Vermelho cravado
 		return Color.RED
 
 ## Recebe dano e o objeto que causou a batida (source)
@@ -115,6 +112,15 @@ func take_damage(amount: float, source: Node = null):
 	if is_invulnerable:
 		return
 		
+	# --- LÓGICA DE DEBUG PARA BALANCEAMENTO ---
+	var nome_atacante = source.name if source else "Desconhecido/Impacto"
+	if source and "shooter" in source and source.shooter:
+		nome_atacante = source.shooter.name + " (via arma)"
+		
+	print("=========================================")
+	print("[COMBATE - DANO] Vítima: ", owner.name, " | Agressor: ", nome_atacante)
+	print(" -> Dano Bruto Recebido: ", amount)
+		
 	# --- NOVA DISTRIBUIÇÃO DE DANO (80% / 20%) ---
 	var shield_damage_portion = amount * 0.8
 	var health_damage_portion = amount * 0.2
@@ -122,19 +128,24 @@ func take_damage(amount: float, source: Node = null):
 	if current_shield > 0:
 		if current_shield >= shield_damage_portion:
 			current_shield -= shield_damage_portion
+			print(" -> Escudo absorveu: ", shield_damage_portion, " | Escudo Restante: ", current_shield)
 		else:
 			# Se o escudo for quebrar antes de absorver os 80%, o restante vaza para a vida
 			var leftover = shield_damage_portion - current_shield
+			print(" -> Escudo absorveu: ", current_shield, " (QUEBROU!) | Vazou para a vida: ", leftover)
 			current_shield = 0
 			health_damage_portion += leftover
 			shield_broken.emit()
 	else:
 		# Se não tem escudo, 100% do dano vai direto na vida
 		health_damage_portion = amount
+		print(" -> Sem escudo! Dano 100% direto na vida.")
 	
 	# Aplica o dano resultante na vida
 	if health_damage_portion > 0:
 		current_health -= health_damage_portion
+		print(" -> Dano final na vida: ", health_damage_portion, " | Vida Restante: ", current_health)
+		print("=========================================")
 		_check_damage_state()
 		
 		# --- GERAÇÃO DE PONTUAÇÃO ---
@@ -147,18 +158,18 @@ func take_damage(amount: float, source: Node = null):
 		health_depleted.emit()
 
 func _process_scoring(source: Node):
-	# Tenta encontrar quem é o atacante (se for bala, pega o shooter/carro)
 	var attacker = source
 	if "shooter" in source and source.shooter != null:
 		attacker = source.shooter
 	
-	# Procura o manager de manobras no atacante
-	var g_manager = attacker.get_node_or_null("%GroundTrickManager")
-	if g_manager:
-		# Adiciona o hit no multiplicador
+	# MUDANÇA SÊNIOR: Em vez de usar '%', usamos 'find_child' para garantir que 
+	# estamos pegando o TrickManager do inimigo, e não esbarrando no nosso próprio.
+	var g_manager = attacker.find_child("GroundTrickManager*", true, false)
+	
+	if g_manager and g_manager.has_method("add_ground_action"):
+		print("[Stats] Enviando bônus de HIT_OBJECT para o manager de: ", attacker.name)
 		g_manager.add_ground_action("HIT_OBJECT")
 		
-		# Se o golpe foi o fatal, adiciona bônus de destruição
 		if current_health <= 0:
 			g_manager.add_ground_action("DESTROY_OBJECT")
 
@@ -166,7 +177,6 @@ func _check_damage_state():
 	var parent = get_parent()
 	if not parent.has_method("update_visual_damage"): return
 	
-	# Cálculo de porcentagem de dano para o visual do carro:
 	var percent = (current_health / max_health) * 100.0
 	parent.update_visual_damage(percent)
 
@@ -174,8 +184,11 @@ func repair(amount: float):
 	current_health = clamp(current_health + amount, 0.0, max_health)
 	_check_damage_state()
 
+func restore_shield(amount: float):
+	current_shield = clamp(current_shield + amount, 0.0, max_shield)
+	print("[Stats] Escudo restaurado em ", amount, " | Escudo atual: ", current_shield)
+
 func _on_death():
-	# Independente de quem matou, se tem ID de missão, avisa o Manager
 	if mission_id != "" and is_instance_valid(MissionManager):
 		MissionManager.notify_progress(MissionItem.Type.DESTROY, 1.0, mission_id)
 	

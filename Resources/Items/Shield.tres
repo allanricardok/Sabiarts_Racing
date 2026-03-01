@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="StatusResource" load_steps=3 format=3 uid="uid://dxe5me0wdtt06"]
+
+[ext_resource type="Script" uid="uid://bjyyufi8sx8ta" path="res://Core/Items/StatusResource.gd" id="1_1yjh2"]
+
+[sub_resource type="PrismMesh" id="PrismMesh_1yjh2"]
+left_to_right = 1.0
+size = Vector3(3, 2, 3)
+
+[resource]
+script = ExtResource("1_1yjh2")
+item_name = "Shield"
+shield_amount = 25.0
+custom_mesh = SubResource("PrismMesh_1yjh2")
+item_color = Color(0.7176471, 0.827451, 0.78039217, 1)
+metadata/_custom_type_script = "uid://5wgfj8fmfmgf"

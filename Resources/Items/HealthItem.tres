@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="StatusResource" load_steps=3 format=3 uid="uid://hv86l3gypxgx"]
+
+[ext_resource type="Script" uid="uid://bjyyufi8sx8ta" path="res://Core/Items/StatusResource.gd" id="1_5twny"]
+
+[sub_resource type="PrismMesh" id="PrismMesh_5twny"]
+size = Vector3(3, 3, 3)
+
+[resource]
+script = ExtResource("1_5twny")
+item_name = "Health"
+health_amount = 25.0
+custom_mesh = SubResource("PrismMesh_5twny")
+item_color = Color(0, 0.2784314, 1, 0.7137255)
+metadata/_custom_type_script = "uid://5wgfj8fmfmgf"

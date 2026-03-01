@@ -14,6 +14,10 @@ var pode_mover : bool = true
 @export var dano_maximo_por_batida : float = 50.0
 @export var velocidade_minima_dano : float = 3.0
 
+# --- NOVO: Variáveis de Combate Dinâmico ---
+@export var hit_weight : float = 5
+@export var hit_constant : float = 2 # Dano base mínimo sofrido por quem "ganha" a colisão
+
 # --- COMPONENTES ---
 @onready var stats = %StatsComponent
 @onready var input = %InputComponent
@@ -38,37 +42,27 @@ var _hit_cooldowns: Dictionary = {}
 # --- INICIALIZAÇÃO ---
 
 func _ready():
-	# Adiciona ao grupo para o lock-on funcionar entre jogadores
 	add_to_group("jogadores")
 	
-	# 1. SINCRONIA DE DISPOSITIVO: O LevelController define o 'id'. 
-	# Buscamos no Global qual dispositivo esse ID deve usar.
 	if Global.dados_jogadores.size() > id and Global.dados_jogadores[id] != null:
 		input_source = Global.dados_jogadores[id]
 	else:
-		input_source = "K1" # Fallback caso o spawn falhe
+		input_source = "K1"
 	
-	# 2. CONFIGURAÇÃO DE INPUT: Define o sufixo (_K1, _J1, etc)
 	input.setup(input_source)
 	
-	# 3. MATERIAL DE TELEPORTE: Inicializado aqui para o carro não ficar invisível
 	teleport_material = StandardMaterial3D.new()
 	teleport_material.albedo_color = Color(0.05, 0.05, 0.05) 
 	teleport_material.metallic = 0.0
 	teleport_material.roughness = 1.0 
 	teleport_material.shading_mode = StandardMaterial3D.SHADING_MODE_UNSHADED 
 	
-	# 4. CONEXÃO COM HUD E ARMAS: Deferred para esperar o carregamento do Viewport
 	call_deferred("_setup_multiplayer_links")
 	
-	# 5. ESTADO INICIAL
 	update_visual_damage(100.0)
 	
-	# Conexões de colisão
 	body_entered.connect(_on_impacto_corpo)
-	body_entered.connect(_on_vehicle_collision)
 	
-	# Conexão com movimento para manobras
 	if movement:
 		movement.landed.connect(_on_pousou)
 		if movement.has_signal("vehicle_reset"):
@@ -77,13 +71,11 @@ func _ready():
 # --- PROCESSAMENTO ---
 
 func _physics_process(_delta):
-	# Trava o carro se não puder mover (início de partida ou morte)
 	if not pode_mover:
 		engine_force = 0
 		brake = 100
 		return
 	
-	# Velocímetro local
 	if speed_label:
 		var kmh = linear_velocity.length() * 2
 		speed_label.text = str(int(kmh))
@@ -94,15 +86,12 @@ func _physics_process(_delta):
 
 func _setup_multiplayer_links():
 	var suffix = "_" + input_source
-	# Procura a HUD dentro do Viewport onde este carro nasceu
 	var my_hud = get_viewport().find_child("HUD", true, false)
 	
 	if my_hud and my_hud.has_method("setup_hud"):
-		# PASSAMOS O SUFIXO E O ID REAL (Crucial para separar pontos e retículo)
 		my_hud.setup_hud(suffix, self.id)
 		print("[BaseVehicle] Player ", id + 1, " configurado com dispositivo ", input_source)
 	
-	# Avisa o WeaponManager para se preparar para o multiplayer
 	if weapons and weapons.has_method("setup_multiplayer"):
 		weapons.setup_multiplayer(suffix)
 
@@ -154,7 +143,6 @@ func teleport_to(target_transform : Transform3D):
 	var tween = create_tween()
 	var all_meshes = find_children("*", "MeshInstance3D", true)
 	
-	# Aplica material de efeito
 	for mesh in all_meshes: mesh.material_override = teleport_material
 	
 	tween.tween_interval(0.1)
@@ -165,40 +153,63 @@ func teleport_to(target_transform : Transform3D):
 	)
 	tween.tween_interval(0.1)
 	tween.tween_callback(func():
-		# Remove o override para o material original voltar
 		for mesh in all_meshes: mesh.material_override = null
 	)
 
 # --- COLISÕES E IMPACTO ---
 
-func _on_impacto_corpo(body):
+func _on_impacto_corpo(body: Node):
 	var now = Time.get_ticks_msec()
 	var body_id = body.get_instance_id()
 	
-	if _hit_cooldowns.has(body_id):
-		if now - _hit_cooldowns[body_id] < 1000: return
+	if _hit_cooldowns.has(body_id) and (now - _hit_cooldowns[body_id] < 1000):
+		return
 	_hit_cooldowns[body_id] = now
 	
-	var vel_alvo = body.linear_velocity if body is RigidBody3D else Vector3.ZERO
-	var velocidade_relativa = (linear_velocity - vel_alvo).length()
+	var my_speed = linear_velocity.length() * 2.0
+	var target_speed = 0.0
 	
-	if velocidade_relativa < velocidade_minima_dano: return
+	if body is RigidBody3D or body is VehicleBody3D:
+		target_speed = body.linear_velocity.length() * 2.0
 	
-	var massa_normalizada = mass / divisor_de_massa
-	var dano_calculado = clamp((massa_normalizada * velocidade_relativa) * multiplicador_dano, 0.0, dano_maximo_por_batida)
+	# Mudança: Contra objetos não-carros, consideramos a nossa própria velocidade como relativa
+	var relative_speed = abs(my_speed - target_speed)
+	if not (body is BaseVehicle):
+		relative_speed = my_speed
 	
-	if body.has_method("take_damage"): 
-		body.take_damage(dano_calculado, self)
-
-func _on_vehicle_collision(body: Node):
-	var now = Time.get_ticks_msec()
-	var body_id = body.get_instance_id()
+	if relative_speed < velocidade_minima_dano:
+		return
 	
-	if _hit_cooldowns.has(body_id):
-		if now - _hit_cooldowns[body_id] < 1000: return
-	_hit_cooldowns[body_id] = now
+	# --- LÓGICA DE DANO ASSIMÉTRICO (Bullying Automotivo) ---
+	var dano_gerado = hit_constant + ((my_speed*1.4) * hit_weight * 0.01)
 	
-	if body.has_method("take_damage"):
-		var impact_damage = linear_velocity.length() * 0.5 
-		if impact_damage > 2.0: 
-			body.take_damage(impact_damage, self)
+	if body is BaseVehicle:
+		var my_force = my_speed * hit_weight
+		var enemy_force = target_speed * body.hit_weight
+		
+		if my_force > enemy_force:
+			var dano_final = min(dano_gerado, dano_maximo_por_batida)
+			
+			# LÓGICA DE DEBUG PARA BALANCEAMENTO:
+			print("=========================================")
+			print("[COMBATE] BATEU! Agressor: Player ", self.id + 1, " | Vítima: Player ", body.id + 1)
+			print(" -> Força Agressor: ", int(my_force), " (Velocidade ", int(my_speed), " x Peso ", hit_weight, ")")
+			print(" -> Força Vítima:   ", int(enemy_force), " (Velocidade ", int(target_speed), " x Peso ", body.hit_weight, ")")
+			print(" -> Dano aplicado na vítima: ", dano_final)
+			print("=========================================")
+			
+			# Inimigo toma o dano e NÓS recebemos os pontos (self = source)
+			body.take_damage(dano_final, self)
+			
+			# MUDANÇA SÊNIOR: Nós tomamos um arranhão de leve, 
+			# mas passamos "null" para que a vítima NÃO receba bônus de combo!
+			self.take_damage(hit_constant, null)
+		else:
+			# Se formos mais fracos, apenas aguardamos o script do inimigo resolver a colisão.
+			pass
+			
+	elif body.has_method("take_damage"):
+		# Atropelamento de objetos estáticos destrutíveis (caixas, etc)
+		var dano_final = min(dano_gerado, dano_maximo_por_batida)
+		print("[COMBATE] Player ", self.id + 1, " atropelou objeto: ", body.name, " | Dano: ", dano_final)
+		body.take_damage(dano_final, self)
