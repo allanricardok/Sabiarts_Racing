@@ -8,6 +8,9 @@ var pode_pausar: bool = true
 @onready var resume_btn = %ResumeBtn 
 @onready var menu_btn = %MenuBtn
 
+# --- NOVO BOTÃO ---
+@onready var end_match_btn = get_node_or_null("%EndMatchBtn")
+
 func _input(event):
 	if start_menu and start_menu.visible:
 		return
@@ -69,6 +72,17 @@ func _on_menu_btn_pressed():
 	print("[PauseMenu] Saindo para o menu principal.")
 	get_tree().paused = false 
 	get_tree().change_scene_to_file("res://Scenes/UI/Menu.tscn")
+
+# --- NOVA FUNÇÃO: FINALIZAR PARTIDA ---
+func _on_end_match_btn_pressed():
+	print("[PauseMenu] Finalizar Partida pressionado.")
+	_toggle_pause() # Despausa o jogo e esconde o menu
+	
+	var controller = get_tree().get_first_node_in_group("LevelController")
+	if controller and controller.has_method("encerrar_partida"):
+		controller.encerrar_partida()
+	else:
+		push_error("[PauseMenu] LevelController não encontrado ou sem o método encerrar_partida()!")
 
 func _process(_delta):
 	if visible:

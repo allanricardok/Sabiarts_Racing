@@ -60,9 +60,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -540.5
-offset_top = -66.0
+offset_top = -37.0
 offset_right = 531.5
-offset_bottom = 294.0
+offset_bottom = 323.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 20
@@ -85,7 +85,7 @@ layout_mode = 2
 theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 24
-text = "Press any button"
+text = "Press Machine Gun"
 horizontal_alignment = 1
 
 [node name="ControllerIcon" type="TextureRect" parent="JoinPanel/HBoxContainer/PanelContainer/VBoxContainer"]
@@ -118,7 +118,7 @@ layout_mode = 2
 theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 24
-text = "Press any button"
+text = "Press Machine Gun"
 horizontal_alignment = 1
 
 [node name="ControllerIcon" type="TextureRect" parent="JoinPanel/HBoxContainer/PanelContainer2/VBoxContainer"]
@@ -151,7 +151,7 @@ layout_mode = 2
 theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 24
-text = "Press any button"
+text = "Press Machine Gun"
 horizontal_alignment = 1
 
 [node name="ControllerIcon" type="TextureRect" parent="JoinPanel/HBoxContainer/PanelContainer3/VBoxContainer"]
@@ -184,7 +184,7 @@ layout_mode = 2
 theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 24
-text = "Press any button"
+text = "Press Machine Gun"
 horizontal_alignment = 1
 
 [node name="ControllerIcon" type="TextureRect" parent="JoinPanel/HBoxContainer/PanelContainer4/VBoxContainer"]
@@ -205,16 +205,60 @@ layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -113.5
-offset_top = 29.0
-offset_right = 109.5
-offset_bottom = 142.0
+offset_left = -520.5
+offset_top = 34.0
+offset_right = -75.5
+offset_bottom = 292.0
 grow_horizontal = 2
 theme_override_font_sizes/font_size = 18
-text = "T1 = WASD Q Shift Space
-T2 = Arrows CTRL 0 1
+text = "Keyboard:
+WASD = Car Movement
+Mouse = Air movement + Camera
+Left Click = Machine Gun
+Right Click = Special Gun
+Mouse Wheel = weapon select (scroll) SloMo (press)
+Shift = Tricks                          E = Boost
+Space = Jump                        Q = Shield
+"
 
-Press Jump(Pular) to start"
+[node name="Instrucoes2" type="Label" parent="JoinPanel"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = 72.5
+offset_top = 32.0
+offset_right = 517.5
+offset_bottom = 290.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 18
+text = "Joystick (Sony Layout):
+R2 L2 = Accelerate Brake
+Left Joy = Land + Air movement
+X = Machine Gun
+Square = Special Gun
+R1 or L1 = weapon select 
+Triangle = Tricks                   L3 = SloMo (press)
+Circle + Left Joy = Jump, boost, shield, teleport
+Right Joy = Camera
+"
+
+[node name="LabelMapa2" type="Label" parent="JoinPanel"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -139.0
+offset_top = -153.0
+offset_right = 139.0
+offset_bottom = -60.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 32
+text = "Press Start / Enter
+to start"
 horizontal_alignment = 1
 
 [node name="Logo" type="TextureRect" parent="JoinPanel"]
@@ -296,6 +340,17 @@ visible = false
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "Chaos City"
+
+[node name="LabelMapa2" type="Label" parent="MapPanel"]
+layout_mode = 0
+offset_left = 778.0
+offset_top = 680.0
+offset_right = 1056.0
+offset_bottom = 773.0
+theme_override_font_sizes/font_size = 32
+text = "Press Start / Enter
+to start"
+horizontal_alignment = 1
 
 [node name="ClearDataButton" type="Button" parent="."]
 unique_name_in_owner = true

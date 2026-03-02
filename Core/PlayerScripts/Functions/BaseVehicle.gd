@@ -67,6 +67,9 @@ func _ready():
 		movement.landed.connect(_on_pousou)
 		if movement.has_signal("vehicle_reset"):
 			movement.vehicle_reset.connect(_reset_gap_state)
+	
+	if stats:
+		stats.health_depleted.connect(_on_vehicle_destroyed)
 
 # --- PROCESSAMENTO ---
 
@@ -220,3 +223,17 @@ func _on_impacto_corpo(body: Node):
 		var dano_final = min(dano_gerado, dano_maximo_por_batida)
 		print("[COMBATE] Player ", self.id + 1, " atropelou objeto: ", body.name, " | Dano: ", dano_final)
 		body.take_damage(dano_final, self)
+
+# --- MORTE E DESTRUIÇÃO ---
+func _on_vehicle_destroyed():
+	print("[BaseVehicle] Veículo destruído: Player ", id + 1)
+	
+	# Avisa o LevelController que alguém morreu para checar o Last-Man-Standing
+	var controller = get_tree().get_first_node_in_group("LevelController")
+	if controller and controller.has_method("registrar_morte_jogador"):
+		controller.registrar_morte_jogador()
+		
+	# TODO: Instanciar uma explosão GIGANTE de carro aqui
+	
+	# Some com o carro
+	queue_free()

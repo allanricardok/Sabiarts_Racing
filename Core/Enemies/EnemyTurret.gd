@@ -83,7 +83,13 @@ func _fire_projectile():
 	proj.global_transform = muzzle.global_transform
 	
 	if proj.has_method("setup"):
-		proj.setup(damage, Vector3.ZERO, self, projectile_speed)
+		# MUDANÇA SÊNIOR: Identifica o tipo de munição para passar o 4º argumento correto
+		if "target" in proj:
+			# É um míssil ou gancho! Passamos o carro do jogador para ele seguir.
+			proj.setup(damage, Vector3.ZERO, self, current_target)
+		else:
+			# É uma bala comum! Passamos a velocidade do tiro.
+			proj.setup(damage, Vector3.ZERO, self, projectile_speed)
 		
 	# --- EFEITO DE LUZ (MUZZLE FLASH) ---
 	if muzzle_flash:

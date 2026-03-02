@@ -11,6 +11,10 @@ class_name GroundTrickManager
 ## Tempo que o resultado final do combo de solo fica na tela
 @export var DISPLAY_STAY_TIME : float = 3.0
 
+@export_group("Limites")
+## Multiplicador máximo que o jogador pode alcançar no chão
+@export var MAX_COMBO_MULTIPLIER : float = 10.0
+
 # Cor padrão para ações de combate/chão
 const COLOR_GROUND = "#ff4444" # Vermelho
 
@@ -73,9 +77,10 @@ func _get_dynamic_multiplier() -> float:
 			mult += 1.0 
 			seen_in_this_combo[a_name] = true
 			
-	return mult
+	# MUDANÇA SÊNIOR: Retorna o multiplicador ou o limite máximo (o que for menor)
+	return min(mult, MAX_COMBO_MULTIPLIER)
 
-# --- MUDANÇA SÊNIOR: Função auxiliar para encontrar a HUD correta do Split-Screen ---
+# --- Função auxiliar para encontrar a HUD correta do Split-Screen ---
 func _get_local_hud() -> Node:
 	for hud in get_tree().get_nodes_in_group("HUD"):
 		if hud.get_viewport() == car.get_viewport():
@@ -84,7 +89,6 @@ func _get_local_hud() -> Node:
 
 # --- EXIBIÇÃO COM BBCODE ---
 func _update_live_display():
-	# Substituímos a busca global pela busca do Viewport local
 	var hud = _get_local_hud()
 	if not hud: return
 	
@@ -122,7 +126,6 @@ func _update_live_display():
 	hud.update_combo_live(info)
 
 func _finalize_ground_score():
-	# Substituímos a busca global pela busca do Viewport local
 	var hud = _get_local_hud()
 	if not hud: return
 	
@@ -163,6 +166,11 @@ func _finalize_ground_score():
 	var info = names_bbcode + "\n" + str(mult) + "x " + pts_text
 	
 	var msg = "Cool combo!" if mult > 1.5 else "Nice hit!"
+	
+	# Se o jogador bateu no teto de multiplicador, damos um feedback visual diferente!
+	if mult >= MAX_COMBO_MULTIPLIER:
+		msg = "MAX COMBO!"
+		
 	var result = msg + "\n" + ScoreManager.format_score_with_dots(final_score) + " points"
 	
 	hud.show_combo_final(info, result)

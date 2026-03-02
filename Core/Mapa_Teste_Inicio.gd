@@ -61,10 +61,19 @@ func _configurar_tela_e_spawn():
 		if camera_carro:
 			camera_carro.make_current()
 		
-		# Posicionamento nos SpawnPoints
+		# --- NOVO SISTEMA DE POSICIONAMENTO COM FALLBACK DE SEGURANÇA ---
 		print("Carro ", i+1, " (ID: ", i, ") criado no Viewport: ", viewport_atual.name)
-		if spawn_points:
+		if spawn_points and spawn_points.get_child_count() > 0:
 			var pontos = spawn_points.get_children()
-			if i < pontos.size():
-				novo_carro.global_transform = pontos[i].global_transform
-				print("Posição do Carro ", i+1, ": ", novo_carro.global_position)
+			
+			# O módulo (%) garante que se o i for maior que a quantidade de pontos, ele volta pro zero.
+			var index_ponto = i % pontos.size() 
+			novo_carro.global_transform = pontos[index_ponto].global_transform
+			
+			# Se teve que repetir o spawn (ex: 4 players mas só tem 1 spawn no mapa)
+			# Adiciona um deslocamento lateral (eixo X) para não explodirem juntos
+			if i >= pontos.size():
+				var offset_multiplicador = (i / pontos.size()) * 4.0 # 4 metros pro lado
+				novo_carro.global_position += novo_carro.global_transform.basis.x * offset_multiplicador
+				
+			print("Posição do Carro ", i+1, ": ", novo_carro.global_position)

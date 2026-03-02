@@ -64,6 +64,18 @@ map_name = "TestMap"
 time_limit = 140.0
 missions = Array[ExtResource("1_vtej8")]([SubResource("Resource_d3yxn"), SubResource("Resource_00uud"), SubResource("Resource_qo7tj"), SubResource("Resource_7nuau"), SubResource("Resource_vtej8"), SubResource("Resource_m10t6"), SubResource("Resource_t15lh")])
 next_map_unlock_count = 6
-map_description = "Test map, have fun and explore!
-"
+map_description = "Welcome to the test map!
+
+Tips:
+- Use the teleporters!
+- Destroy the turrets (they are fierce)
+- Capsules are weapons
+- Triangles are types of health
+- Obake is a 3 wheeled car
+- Learn how to do tricks! (Triangle or Shift)
+- Gap points are transparent blue
+- Speedtrap is transparent red
+
+- Circle + left or R is the Teleport function
+- Discover more functions using Circle"
 metadata/_custom_type_script = "uid://dqrmrnt7j5mxe"

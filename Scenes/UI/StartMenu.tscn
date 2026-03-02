@@ -1,6 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://o0rl3lkmd3ty"]
+[gd_scene load_steps=3 format=3 uid="uid://o0rl3lkmd3ty"]
 
 [ext_resource type="Script" uid="uid://bhb7fywylejd5" path="res://Core/PlayerScripts/UI/StartMenu.gd" id="1_r73nm"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r73nm"]
+bg_color = Color(0.5664601, 0.5664601, 0.85295856, 0.3647059)
 
 [node name="StartMenu" type="CanvasLayer"]
 script = ExtResource("1_r73nm")
@@ -28,16 +31,26 @@ layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_left = 68.0
-offset_top = -311.0
-offset_right = 595.0
-offset_bottom = -60.0
+offset_left = 40.0
+offset_top = -558.0
+offset_right = 580.0
+offset_bottom = -39.0
 grow_vertical = 0
-theme_override_font_sizes/normal_font_size = 28
+theme_override_font_sizes/normal_font_size = 24
 text = "Welcome to the test map!
+
 Tips:
 - Use the teleporters!
-- Don't be afraid of the horses"
+- Destroy the turrets (they are fierce)
+- Capsules are weapons
+- Triangles are types of health
+- Obake is a 3 wheeled car
+- Learn how to do tricks! (Triangle or Shift)
+- Gap points are transparent blue
+- Speedtrap is transparent red
+
+- Circle + left or R is the Teleport function
+- Discover more functions using Circle"
 
 [node name="ScrollContainer" type="ScrollContainer" parent="StartMenu"]
 unique_name_in_owner = true
@@ -70,6 +83,7 @@ offset_bottom = -26.0
 grow_horizontal = 0
 grow_vertical = 0
 theme_override_font_sizes/font_size = 42
+theme_override_styles/focus = SubResource("StyleBoxFlat_r73nm")
 text = "Start"
 
 [connection signal="pressed" from="StartMenu/StartButton" to="." method="_on_start_btn_pressed"]
