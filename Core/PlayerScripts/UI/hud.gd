@@ -1,6 +1,19 @@
 # HUD.gd
 extends CanvasLayer
 
+@onready var minimap_bg = get_node_or_null("UI_Base/MinimapBackground")
+# NOVO: Referências para a Info do Alvo
+@onready var target_info_panel = get_node_or_null("UI_Base/TargetInfoPanel") # Crie um Panel na UI para isso depois
+@onready var target_name_label = get_node_or_null("UI_Base/TargetInfoPanel/NameLabel")
+@onready var target_hp_bar = get_node_or_null("UI_Base/TargetInfoPanel/HPBar")
+
+# Variáveis que armazenam a "foto" do radar atual
+var _radar_targets : Array = []
+var _radar_current_target : Node3D = null
+var _radar_player_pos : Vector3 = Vector3.ZERO
+var _radar_player_fwd : Vector3 = Vector3.FORWARD
+var _radar_range : float = 150.0
+
 # --- REFERÊNCIAS DE UI ---
 @onready var ui_base = $UI_Base
 @onready var messages = $Messages
@@ -173,3 +186,36 @@ func criar_toast(texto: String, cor: Color):
 		var fade = create_tween()
 		fade.tween_property(label, "modulate:a", 0.0, 0.4)
 		fade.finished.connect(label.queue_free)
+
+func update_radar_data(targets: Array, lockon_target: Node3D, player_pos: Vector3, player_fwd: Vector3):
+	_radar_current_target = lockon_target
+	
+	if minimap_bg:
+		# Injetamos os dados direto no script do minimapa!
+		minimap_bg.radar_targets = targets
+		minimap_bg.current_target = lockon_target
+		minimap_bg.player_pos = player_pos
+		minimap_bg.player_fwd = player_fwd
+		
+		# Manda ele se redesenhar com os novos dados
+		minimap_bg.queue_redraw()
+		
+	_update_target_info_ui()
+
+func _update_target_info_ui():
+	# Se não temos painel configurado, ignora
+	if not target_info_panel: return
+	
+	if is_instance_valid(_radar_current_target):
+		target_info_panel.visible = true
+		if target_name_label:
+			target_name_label.text = _radar_current_target.name
+		
+		# Tenta extrair a vida do alvo para a barrinha
+		if target_hp_bar:
+			var stats = _radar_current_target.find_child("StatsComponent*", true, false)
+			if stats:
+				target_hp_bar.max_value = stats.max_health
+				target_hp_bar.value = stats.current_health
+	else:
+		target_info_panel.visible = false

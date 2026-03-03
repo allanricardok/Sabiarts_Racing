@@ -1,4 +1,4 @@
-[gd_scene load_steps=108 format=4 uid="uid://cw8ofahu5mqhn"]
+[gd_scene load_steps=110 format=4 uid="uid://cw8ofahu5mqhn"]
 
 [ext_resource type="Script" uid="uid://b0i2wvnkcrknc" path="res://Core/PlayerScripts/Functions/BaseVehicle.gd" id="1_m0ew1"]
 [ext_resource type="Script" uid="uid://cjnmai87rc2f8" path="res://Core/camera_test_3.gd" id="2_8gjg4"]
@@ -23,6 +23,7 @@
 [ext_resource type="Texture2D" uid="uid://ij3bki2m3mq0" path="res://Assets/3D/vigilante_v8_2nd_offence_obakes_tsunami_13.png" id="15_a2eke"]
 [ext_resource type="Texture2D" uid="uid://dn4gu5ika00yt" path="res://Assets/3D/vigilante_v8_2nd_offence_obakes_tsunami_14.png" id="16_apvhh"]
 [ext_resource type="Script" uid="uid://ca80dhy7dchio" path="res://Core/PlayerScripts/UI/hud.gd" id="18_krxcx"]
+[ext_resource type="Script" uid="uid://f41hkh6xnfgv" path="res://Core/PlayerScripts/UI/MinimapDraw.gd" id="19_cj7ej"]
 [ext_resource type="Script" uid="uid://y3uxucxf1qqt" path="res://Core/PlayerScripts/UI/recticle.gd" id="19_u5777"]
 [ext_resource type="Script" uid="uid://17v2oug1wdmr" path="res://Core/PlayerScripts/Functions/VehicleHitbox.gd" id="20_3a0p2"]
 [ext_resource type="Resource" uid="uid://cl6d44tjh6xry" path="res://Resources/Weapons/MachineGun.tres" id="23_625mm"]
@@ -1001,6 +1002,8 @@ corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 corner_detail = 6
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_cj7ej"]
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_bjxsa"]
 size = Vector3(3, 2.4401855, 5)
 
@@ -1279,14 +1282,14 @@ size_flags_vertical = 3
 
 [node name="ColorRect" type="ColorRect" parent="HUD/UI_Base"]
 layout_mode = 0
-offset_right = 323.0
-offset_bottom = 66.0
+offset_right = 420.0
+offset_bottom = 87.0
 color = Color(0.011764706, 0.011764706, 0.011764706, 0.16078432)
 
 [node name="ColorRect1" type="ColorRect" parent="HUD/UI_Base"]
 layout_mode = 0
-offset_top = 66.0
-offset_right = 145.0
+offset_top = 87.0
+offset_right = 140.0
 offset_bottom = 134.0
 color = Color(0.011764706, 0.011764706, 0.011764706, 0.16078432)
 
@@ -1335,6 +1338,15 @@ offset_right = 203.0
 offset_bottom = -67.0
 grow_vertical = 0
 color = Color(0.011764706, 0.011764706, 0.011764706, 0.16078432)
+
+[node name="MinimapBackground" type="ColorRect" parent="HUD/UI_Base"]
+layout_mode = 1
+offset_left = 12.0
+offset_top = 9.0
+offset_right = 128.0
+offset_bottom = 125.0
+color = Color(0, 0.3372549, 0, 0.54901963)
+script = ExtResource("19_cj7ej")
 
 [node name="AbilityBar" type="ProgressBar" parent="HUD/UI_Base"]
 unique_name_in_owner = true
@@ -1529,19 +1541,30 @@ theme_override_font_sizes/font_size = 26
 theme_override_styles/fill = SubResource("StyleBoxFlat_og6km")
 show_percentage = false
 
-[node name="CooldownText2" type="Label" parent="HUD/UI_Base"]
-layout_mode = 1
-offset_left = 12.0
-offset_top = 53.0
-offset_right = 203.0
-offset_bottom = 73.0
-rotation = -0.2216144
-theme_override_colors/font_color = Color(1, 1, 1, 0.4117647)
+[node name="TargetInfoPanel" type="Panel" parent="HUD/UI_Base"]
+layout_mode = 0
+offset_left = 141.0
+offset_top = 10.0
+offset_right = 410.0
+offset_bottom = 75.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_cj7ej")
+
+[node name="NameLabel" type="Label" parent="HUD/UI_Base/TargetInfoPanel"]
+layout_mode = 0
+offset_left = -1.0
+offset_top = -1.0
+offset_right = 267.0
+offset_bottom = 33.0
+theme_override_font_sizes/font_size = 24
+text = "Enemy name example"
+
+[node name="HPBar" type="ProgressBar" parent="HUD/UI_Base/TargetInfoPanel"]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 40.0
+offset_right = 267.0
+offset_bottom = 66.0
 theme_override_font_sizes/font_size = 14
-text = "Map Radar + Enemy"
-horizontal_alignment = 1
-vertical_alignment = 1
-clip_text = true
 
 [node name="Messages" type="VBoxContainer" parent="HUD"]
 unique_name_in_owner = true

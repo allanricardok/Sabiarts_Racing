@@ -1,6 +1,12 @@
 # WeaponManager.gd
 extends Node3D
 
+@export_group("Radar e Sensores")
+## Distância máxima (em metros) que o radar consegue enxergar
+@export var radar_range : float = 150.0 
+var radar_update_timer : float = 0.0
+const RADAR_UPDATE_INTERVAL : float = 1/24 # Atualiza a cada 0.1s (10 FPS)
+
 # --- CONFIGURAÇÕES ---
 @export_group("Armas")
 @export var basic_weapon_resource: WeaponResource 
@@ -63,14 +69,18 @@ func _process(delta):
 	if Input.is_action_just_pressed("next_weapon" + input.suffix): 
 		_switch_weapon(1)
 
-	# 3. TIRO ESPECIAL
+# 3. TIRO ESPECIAL
 	if Input.is_action_just_pressed("Fire" + input.suffix):
 		fire_special_weapon()
 	
-# 4. LOCK-ON (Apenas para a arma selecionada no momento)
-	var active_weapon = get_active_special()
-	if active_weapon and (active_weapon.nome == "HomingMissile" or active_weapon.nome == "GrapplingMissile"):
-		_find_lockon_target()
+# 4. RADAR E LOCK-ON (Independente da arma equipada!)
+	radar_update_timer -= delta
+	if radar_update_timer <= 0:
+		radar_update_timer = RADAR_UPDATE_INTERVAL
+		_update_radar_and_lockon()
+		
+	# 5. ATUALIZAÇÃO DO RETÍCULO (Roda a 60 FPS, usando a sua função intocada!)
+	_atualizar_posicao_reticulo()
 
 # --- GESTÃO DO INVENTÁRIO (POOL) ---
 
@@ -203,28 +213,60 @@ func _atualizar_interface():
 		else:
 			hud.atualizar_arma("None", 0)
 
-func _find_lockon_target():
-	# Procuramos em ambos os grupos: inimigos da IA e outros jogadores
-	var targets = get_tree().get_nodes_in_group("Enemies") + get_tree().get_nodes_in_group("jogadores")
+func _update_radar_and_lockon():
+	if not is_instance_valid(car): return
 	
-	var best_target = null
+	# Pega todos os possíveis alvos no mapa
+	var targets = get_tree().get_nodes_in_group("Enemies") + get_tree().get_nodes_in_group("inimigos") + get_tree().get_nodes_in_group("jogadores")
+	
+	var best_target = null # Este será o alvo do míssil/retículo (limitado)
+	var closest_radar_target = null # Este será o alvo do painel lateral (perpétuo)
+	
 	var min_angle = 35.0 
 	var max_dist = 120.0 
+	var min_radar_score = INF # Para achar o alvo perpétuo do HUD
+	
 	var car_forward = car.global_transform.basis.z 
+	var car_pos = car.global_position
+	
+	var radar_data = [] # Lista que enviaremos para a HUD
 
 	for t in targets:
-		if not is_instance_valid(t) or t == car: # Crucial: Ignora o próprio carro
+		if not is_instance_valid(t) or t == car: 
 			continue
-		
-		var dir = (t.global_position - car.global_position).normalized()
-		var angle = rad_to_deg(car_forward.angle_to(dir))
-		var dist = car.global_position.distance_to(t.global_position)
-		
-		if angle < min_angle and dist < max_dist:
-			best_target = t
-			min_angle = angle 
 			
+		var t_pos = t.global_position
+		var dist = car_pos.distance_to(t_pos)
+		
+		# 1. Popula o Minimapa
+		if dist <= radar_range:
+			radar_data.append(t)
+			
+		# 2. Lógica para achar o alvo Perpétuo do HUD (Nome e Vida na lateral)
+		var dir = (t_pos - car_pos).normalized()
+		var angle = rad_to_deg(car_forward.angle_to(dir))
+		var radar_score = angle + (dist * 0.1)
+		
+		if radar_score < min_radar_score:
+			closest_radar_target = t
+			min_radar_score = radar_score
+			
+		# 3. LÓGICA ORIGINAL DO RETÍCULO/MÍSSIL (Restrita por distância e arma)
+		var active = get_active_special()
+		if active and (active.nome == "HomingMissile" or active.nome == "GrapplingMissile"):
+			if angle < min_angle and dist < max_dist:
+				best_target = t
+				min_angle = angle 
+			
+	# Atualiza o alvo restrito para o Míssil e para a sua função de Retículo usar
 	current_target = best_target
+	
+	# Envia as informações para a HUD desenhar o Minimapa e a Info do Alvo (Usando o Alvo Perpétuo!)
+	var target_group = "HUD" + player_suffix
+	var hud = get_tree().get_first_node_in_group(target_group)
+	if hud and hud.has_method("update_radar_data"):
+		# IMPORTANTE: Enviamos closest_radar_target para a UI pintar o nome dele!
+		hud.update_radar_data(radar_data, closest_radar_target, car_pos, car_forward)
 
 func _atualizar_posicao_reticulo():
 	var active = get_active_special()
