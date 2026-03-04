@@ -55,12 +55,10 @@ func _initialize_ui():
 		health_bar.max_value = max_health
 		health_bar.value = current_health
 		
-		# Clona o StyleBox para podermos mudar a cor dinamicamente sem afetar outros UI
 		var current_style = health_bar.get_theme_stylebox("fill")
 		if current_style is StyleBoxFlat:
 			_health_stylebox = current_style.duplicate()
 		else:
-			# Se não tiver um estilo configurado, cria um base
 			_health_stylebox = StyleBoxFlat.new()
 			_health_stylebox.corner_radius_top_left = 4
 			_health_stylebox.corner_radius_top_right = 4
@@ -80,20 +78,17 @@ func _update_ui_bars():
 	if health_bar:
 		health_bar.value = lerp(health_bar.value, current_health, 0.2)
 		
-		# --- LÓGICA DE DEGRADÊ DE COR ---
 		var pct = (health_bar.value / max_health) * 100.0
 		var current_color = _get_health_color(pct)
 		
 		if _health_stylebox:
 			_health_stylebox.bg_color = current_color
 		else:
-			# Fallback caso dê algum erro na extração do StyleBox
 			health_bar.modulate = current_color
 			
 	if shield_bar:
 		shield_bar.value = lerp(shield_bar.value, current_shield, 0.2)
 
-# --- FUNÇÃO MATEMÁTICA DE CORES ---
 func _get_health_color(health_percent: float) -> Color:
 	if health_percent > 30.0:
 		var t = (health_percent - 30.0) / 70.0
@@ -112,16 +107,22 @@ func take_damage(amount: float, source: Node = null):
 	if is_invulnerable:
 		return
 		
-	# --- LÓGICA DE DEBUG PARA BALANCEAMENTO ---
 	var nome_atacante = source.name if source else "Desconhecido/Impacto"
-	if source and "shooter" in source and source.shooter:
-		nome_atacante = source.shooter.name + " (via arma)"
+	var attacker_node = source
+	var final_knockback = amount * 30.0 # Força padrão caso seja um impacto de cenário
+	
+	# Extrai os dados se a source for uma bala (BaseProjectile)
+	if source:
+		if "shooter" in source and is_instance_valid(source.shooter):
+			nome_atacante = source.shooter.name + " (via arma)"
+			attacker_node = source.shooter
+		if "knockback_force" in source:
+			final_knockback = source.knockback_force
 		
 	print("=========================================")
 	print("[COMBATE - DANO] Vítima: ", owner.name, " | Agressor: ", nome_atacante)
 	print(" -> Dano Bruto Recebido: ", amount)
 		
-	# --- NOVA DISTRIBUIÇÃO DE DANO (80% / 20%) ---
 	var shield_damage_portion = amount * 0.8
 	var health_damage_portion = amount * 0.2
 	
@@ -130,31 +131,37 @@ func take_damage(amount: float, source: Node = null):
 			current_shield -= shield_damage_portion
 			print(" -> Escudo absorveu: ", shield_damage_portion, " | Escudo Restante: ", current_shield)
 		else:
-			# Se o escudo for quebrar antes de absorver os 80%, o restante vaza para a vida
 			var leftover = shield_damage_portion - current_shield
 			print(" -> Escudo absorveu: ", current_shield, " (QUEBROU!) | Vazou para a vida: ", leftover)
 			current_shield = 0
 			health_damage_portion += leftover
 			shield_broken.emit()
 	else:
-		# Se não tem escudo, 100% do dano vai direto na vida
 		health_damage_portion = amount
 		print(" -> Sem escudo! Dano 100% direto na vida.")
 	
-	# Aplica o dano resultante na vida
 	if health_damage_portion > 0:
 		current_health -= health_damage_portion
 		print(" -> Dano final na vida: ", health_damage_portion, " | Vida Restante: ", current_health)
 		print("=========================================")
 		_check_damage_state()
 		
+		# --- EMPURRÃO FÍSICO CONTROLADO ---
+		if owner is VehicleBody3D or owner is RigidBody3D:
+			if is_instance_valid(attacker_node):
+				var hit_dir = (owner.global_position - attacker_node.global_position).normalized()
+				hit_dir.y = 0.2 
+				
+				# Aplica a força específica que extraímos da bala!
+				owner.apply_central_impulse(hit_dir * final_knockback)
+		
 		# --- GERAÇÃO DE PONTUAÇÃO ---
 		if source:
 			_process_scoring(source)
 		
 	if current_health <= 0:
-		current_health = 0 # Trava em zero para a UI não bugar
-		_on_death() # Avisa que morreu para as missões
+		current_health = 0 
+		_on_death() 
 		health_depleted.emit()
 
 func _process_scoring(source: Node):
@@ -162,8 +169,6 @@ func _process_scoring(source: Node):
 	if "shooter" in source and source.shooter != null:
 		attacker = source.shooter
 	
-	# MUDANÇA SÊNIOR: Em vez de usar '%', usamos 'find_child' para garantir que 
-	# estamos pegando o TrickManager do inimigo, e não esbarrando no nosso próprio.
 	var g_manager = attacker.find_child("GroundTrickManager*", true, false)
 	
 	if g_manager and g_manager.has_method("add_ground_action"):

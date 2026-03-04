@@ -6,6 +6,7 @@ extends CanvasLayer
 @onready var target_info_panel = get_node_or_null("UI_Base/TargetInfoPanel") # Crie um Panel na UI para isso depois
 @onready var target_name_label = get_node_or_null("UI_Base/TargetInfoPanel/NameLabel")
 @onready var target_hp_bar = get_node_or_null("UI_Base/TargetInfoPanel/HPBar")
+@onready var category_label = get_node_or_null("UI_Base/TargetInfoPanel/CategoryLabel")
 
 # Variáveis que armazenam a "foto" do radar atual
 var _radar_targets : Array = []
@@ -187,18 +188,21 @@ func criar_toast(texto: String, cor: Color):
 		fade.tween_property(label, "modulate:a", 0.0, 0.4)
 		fade.finished.connect(label.queue_free)
 
-func update_radar_data(targets: Array, lockon_target: Node3D, player_pos: Vector3, player_fwd: Vector3):
+# Adicionamos cat_index e cat_name na assinatura!
+func update_radar_data(targets: Array, lockon_target: Node3D, player_pos: Vector3, player_fwd: Vector3, cat_index: int, cat_name: String):
 	_radar_current_target = lockon_target
 	
 	if minimap_bg:
-		# Injetamos os dados direto no script do minimapa!
 		minimap_bg.radar_targets = targets
 		minimap_bg.current_target = lockon_target
 		minimap_bg.player_pos = player_pos
 		minimap_bg.player_fwd = player_fwd
-		
-		# Manda ele se redesenhar com os novos dados
+		minimap_bg.active_category_index = cat_index # Injeta no radar
 		minimap_bg.queue_redraw()
+		
+	# Atualiza o texto visual da HUD com a Categoria
+	if category_label:
+		category_label.text = cat_name
 		
 	_update_target_info_ui()
 
@@ -211,11 +215,38 @@ func _update_target_info_ui():
 		if target_name_label:
 			target_name_label.text = _radar_current_target.name
 		
-		# Tenta extrair a vida do alvo para a barrinha
 		if target_hp_bar:
+			var current_hp = 0.0
+			var max_hp = 100.0
+			var found_health_data = false
+			
+			# 1. Tenta achar via StatsComponent (Para Carros e Turrets)
 			var stats = _radar_current_target.find_child("StatsComponent*", true, false)
 			if stats:
-				target_hp_bar.max_value = stats.max_health
-				target_hp_bar.value = stats.current_health
+				current_hp = stats.current_health
+				max_hp = stats.max_health
+				found_health_data = true
+				
+			# 2. Se não achou, tenta achar via Duck Typing (Para DestructibleProps)
+			elif "health" in _radar_current_target and "max_health" in _radar_current_target:
+				current_hp = _radar_current_target.health
+				max_hp = _radar_current_target.max_health
+				found_health_data = true
+				
+			# 3. Se achou os dados de qualquer uma das formas, atualiza a UI
+			if found_health_data:
+				target_hp_bar.max_value = max_hp
+				target_hp_bar.value = current_hp
+				
+				# --- LÓGICA DE COR (DEGRADÊ) ---
+				var pct = (current_hp / max_hp) * 100.0
+				var current_color = Color.RED
+				
+				if pct > 30.0:
+					current_color = Color.YELLOW.lerp(Color.GREEN, (pct - 30.0) / 70.0)
+				elif pct > 5.0:
+					current_color = Color.RED.lerp(Color.YELLOW, (pct - 5.0) / 25.0)
+					
+				target_hp_bar.modulate = current_color
 	else:
 		target_info_panel.visible = false

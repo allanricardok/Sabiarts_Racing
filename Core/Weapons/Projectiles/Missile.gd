@@ -1,8 +1,12 @@
 # Missile.gd
 extends Area3D
 
+@export_group("Física de Combate")
 @export var speed = 80.0
 @export var steering_force = 18.0 
+## Define a força do solavanco que o alvo sofre ao ser atingido pelo míssil
+@export var knockback_force: float = 1500.0
+
 var damage = 1.0
 
 var velocity = Vector3.ZERO
@@ -71,10 +75,14 @@ func _on_impact(target_node):
 	if actual_target == shooter: 
 		return
 
+	# --- MUDANÇA SÊNIOR: A própria arma (self) se apresenta para dar o empurrão ---
 	if target_node.has_method("take_damage"):
-		target_node.take_damage(damage, shooter)
+		target_node.take_damage(damage, self)
 	_explode()
 
 func _explode():
-	# TODO: Instanciar explosão
+	# Ocultamos e desativamos colisão instantaneamente
+	set_deferred("monitoring", false)
+	visible = false
+	# TODO: Instanciar efeito de explosão aqui
 	queue_free()

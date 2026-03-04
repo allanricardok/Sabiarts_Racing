@@ -49,6 +49,9 @@ var _was_on_ground: bool = true
 var flipped_timer = 0.0
 var _reverse_timer := 0.0
 
+# NOVA VARIÁVEL: Mede o tempo de input para a precisão de mira
+var _steering_hold_time := 0.0
+
 func _physics_process(delta):
 	if not car.pode_mover: return
 	
@@ -56,10 +59,9 @@ func _physics_process(delta):
 	var speed_mps = car.linear_velocity.length()
 	var speed_kmh = speed_mps * 3.6
 	
-	# DETECÇÃO DE POUSO (Igual à das manobras)
+	# DETECÇÃO DE POUSO
 	if is_on_ground and not _was_on_ground:
 		var up_dot = car.global_transform.basis.y.dot(Vector3.UP)
-		# Se up_dot > 0.7, o carro está "de pé"
 		landed.emit(up_dot > 0.1)
 		
 	_was_on_ground = is_on_ground
@@ -69,26 +71,49 @@ func _physics_process(delta):
 	_handle_auto_flip(delta, speed_kmh)
 	_apply_drag(delta)
 
-# --- FUNÇÕES DE MOVIMENTAÇÃO (PRESERVADAS) ---
+# --- FUNÇÕES DE MOVIMENTAÇÃO ---
 
 func _handle_engine_and_steering(delta, is_on_ground, speed_mps):
 	var up_dot = car.global_transform.basis.y.dot(Vector3.UP)
-	car.steering = move_toward(car.steering, input.steering * MAX_STEER, delta * 10)
+	
+	# --- SISTEMA DE PRECISÃO DE MIRA (RAMP-UP DE 0.4s) ---
+	if abs(input.steering) > 0.05:
+		_steering_hold_time += delta
+	else:
+		_steering_hold_time = 0.0
+		
+	# A curva vai de 0.2 (20% de sensibilidade para toquinhos leves) até 1.0 (100% de força)
+	var aim_precision_ramp = clamp(_steering_hold_time / 0.4, 0.2, 1.0)
+	
+	# As próprias rodas viram de forma mais cadenciada quando você dá toquinhos
+	var steer_speed = lerp(3.0, 10.0, aim_precision_ramp)
+	car.steering = move_toward(car.steering, input.steering * MAX_STEER, delta * steer_speed)
+	
 	var speed_kmh = speed_mps * 2.0 
 	var turn_dir = input.steering
+	
 	if is_on_ground:
+		# 1. GIRO EM BAIXA VELOCIDADE (Com curva de precisão!)
 		if up_dot > 0.7 and speed_kmh < SPEED_MIN_ASSIST and abs(input.steering) > 0.1:
 			var forward_speed = car.linear_velocity.dot(car.global_transform.basis.z)
 			if forward_speed < -0.1: turn_dir = -input.steering
-			car.apply_torque(car.global_transform.basis.y * turn_dir * STATIONARY_TURN_SPEED * car.mass)	
+			
+			# Multiplicamos a força estática bruta pela nossa curva de sensibilidade
+			var final_turn_speed = STATIONARY_TURN_SPEED * aim_precision_ramp
+			car.apply_torque(car.global_transform.basis.y * turn_dir * final_turn_speed * car.mass)	
+			
+		# 2. ASSISTÊNCIA DE CURVA EM ALTA VELOCIDADE
 		if speed_kmh >= SPEED_MIN_ASSIST and abs(input.steering) > 0.88:
 			var speed_factor = clamp(speed_kmh, SPEED_MIN_ASSIST, SPEED_MAX_ASSIST)
 			var dynamic_torque = remap(speed_factor, SPEED_MIN_ASSIST, SPEED_MAX_ASSIST, STEER_TORQUE_START, STEER_TORQUE_END)
 			car.apply_torque(car.global_transform.basis.y * input.steering * dynamic_torque * car.mass)
+			
+		# 3. ACELERAÇÃO E FREIO
 		var forward_velocity = car.linear_velocity.dot(car.global_transform.basis.z)
 		car.brake = 0.0
 		var braking_forward = (forward_velocity > 0.5 and input.throttle < -0.1)
 		var braking_reverse = (forward_velocity < -0.5 and input.throttle > 0.1)
+		
 		if braking_forward or braking_reverse:
 			car.brake = BRAKE_POWER * abs(input.throttle)
 			var assist_dir = car.global_transform.basis.z * (BRAKE_ASSIST_FORCE if forward_velocity < 0 else -BRAKE_ASSIST_FORCE)
@@ -142,7 +167,6 @@ func _reset_car_orientation():
 	car.global_position = current_pos + Vector3(0, 2.5, 0)
 	car.linear_velocity = Vector3.ZERO
 	car.angular_velocity = Vector3.ZERO
-	# AVISA QUE O CARRO RESETOU (MORRE GAP E MANOBRA)
 	vehicle_reset.emit()
 
 func _apply_drag(delta):

@@ -13,15 +13,11 @@ size = Vector3(0.8, 0.8, 1.4)
 [sub_resource type="BoxShape3D" id="BoxShape3D_vcnxj"]
 size = Vector3(1.5893555, 1.4423828, 1)
 
-[node name="BigTracer" type="RigidBody3D"]
-collision_layer = 12
-collision_mask = 15
-mass = 30.0
-gravity_scale = 0.0
-continuous_cd = true
-contact_monitor = true
-max_contacts_reported = 1
+[node name="BigTracer" type="Area3D"]
+collision_layer = 8
+collision_mask = 7
 script = ExtResource("1_mkbs4")
+knockback_force = 7000.0
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("BoxMesh_18icp")

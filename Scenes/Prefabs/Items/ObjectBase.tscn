@@ -16,9 +16,9 @@ rings = 2
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_wqnwe"]
 points = PackedVector3Array(1, 1, 0, 0.7069303, 1, 0.7069303, 1, -1, 0, 0.7069303, 1, -0.7071261, 0, 1, 1, 0.7069303, -1, 0.7069303, 0.7069303, -1, -0.7071261, 0, 1, -1, -0.7071261, 1, 0.7069303, 0, -1, 1, 0, -1, -1, -0.7071261, 1, -0.7071261, -1, 1, 0, -0.7071261, -1, 0.7069303, -0.7071261, -1, -0.7071261, -1, -1, 0)
 
-[node name="ObjectBase" type="RigidBody3D" groups=["Enemies"]]
+[node name="ObjectBase" type="RigidBody3D" groups=["destructibles"]]
 collision_mask = 15
-mass = 79.301
+mass = 100.0
 gravity_scale = 1.806
 script = ExtResource("1_0e0mj")
 

@@ -1282,15 +1282,23 @@ size_flags_vertical = 3
 
 [node name="ColorRect" type="ColorRect" parent="HUD/UI_Base"]
 layout_mode = 0
-offset_right = 420.0
+offset_right = 466.0
 offset_bottom = 87.0
 color = Color(0.011764706, 0.011764706, 0.011764706, 0.16078432)
 
 [node name="ColorRect1" type="ColorRect" parent="HUD/UI_Base"]
 layout_mode = 0
 offset_top = 87.0
-offset_right = 140.0
-offset_bottom = 134.0
+offset_right = 183.0
+offset_bottom = 180.0
+color = Color(0.011764706, 0.011764706, 0.011764706, 0.16078432)
+
+[node name="ColorRect1_2" type="ColorRect" parent="HUD/UI_Base"]
+layout_mode = 0
+offset_left = 183.0
+offset_top = 87.0
+offset_right = 292.0
+offset_bottom = 113.0
 color = Color(0.011764706, 0.011764706, 0.011764706, 0.16078432)
 
 [node name="ColorRect2" type="ColorRect" parent="HUD/UI_Base"]
@@ -1343,8 +1351,8 @@ color = Color(0.011764706, 0.011764706, 0.011764706, 0.16078432)
 layout_mode = 1
 offset_left = 12.0
 offset_top = 9.0
-offset_right = 128.0
-offset_bottom = 125.0
+offset_right = 170.0
+offset_bottom = 167.0
 color = Color(0, 0.3372549, 0, 0.54901963)
 script = ExtResource("19_cj7ej")
 
@@ -1543,9 +1551,9 @@ show_percentage = false
 
 [node name="TargetInfoPanel" type="Panel" parent="HUD/UI_Base"]
 layout_mode = 0
-offset_left = 141.0
+offset_left = 184.0
 offset_top = 10.0
-offset_right = 410.0
+offset_right = 453.0
 offset_bottom = 75.0
 theme_override_styles/panel = SubResource("StyleBoxEmpty_cj7ej")
 
@@ -1565,6 +1573,15 @@ offset_top = 40.0
 offset_right = 267.0
 offset_bottom = 66.0
 theme_override_font_sizes/font_size = 14
+
+[node name="CategoryLabel" type="Label" parent="HUD/UI_Base/TargetInfoPanel"]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 74.0
+offset_right = 101.0
+offset_bottom = 97.0
+theme_override_font_sizes/font_size = 14
+text = "Category"
 
 [node name="Messages" type="VBoxContainer" parent="HUD"]
 unique_name_in_owner = true

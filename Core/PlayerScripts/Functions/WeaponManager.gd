@@ -1,9 +1,15 @@
 # WeaponManager.gd
 extends Node3D
 
+# --- SISTEMA DE ALVOS TÁTICO ---
+var target_categories = ["All Targets", "Adversaries", "Fuckers", "Environment"]
+var current_category_index : int = 0
+var manual_target_index : int = 0
+var active_targets_sorted : Array = []
+
 @export_group("Radar e Sensores")
 ## Distância máxima (em metros) que o radar consegue enxergar
-@export var radar_range : float = 150.0 
+@export var radar_range : float = 350.0 
 var radar_update_timer : float = 0.0
 const RADAR_UPDATE_INTERVAL : float = 1/24 # Atualiza a cada 0.1s (10 FPS)
 
@@ -46,6 +52,7 @@ func setup_multiplayer(suffix: String):
 	player_suffix = suffix
 	print("[WeaponManager] Vinculado ao sufixo: ", player_suffix)
 	_atualizar_interface()
+	call_deferred("_validate_initial_category")
 
 func _process(delta):
 	if basic_cooldown > 0:
@@ -73,13 +80,23 @@ func _process(delta):
 	if Input.is_action_just_pressed("Fire" + input.suffix):
 		fire_special_weapon()
 	
-# 4. RADAR E LOCK-ON (Independente da arma equipada!)
+# 4. NAVEGAÇÃO DE ALVOS E CATEGORIAS
+	if Input.is_action_just_pressed("cat_left" + input.suffix):
+		_cycle_category(-1)
+	if Input.is_action_just_pressed("cat_right" + input.suffix):
+		_cycle_category(1)
+	if Input.is_action_just_pressed("target_up" + input.suffix):
+		_cycle_target(-1)
+	if Input.is_action_just_pressed("target_down" + input.suffix):
+		_cycle_target(1)
+
+	# 5. RADAR E LOCK-ON
 	radar_update_timer -= delta
 	if radar_update_timer <= 0:
 		radar_update_timer = RADAR_UPDATE_INTERVAL
 		_update_radar_and_lockon()
 		
-	# 5. ATUALIZAÇÃO DO RETÍCULO (Roda a 60 FPS, usando a sua função intocada!)
+	# 6. ATUALIZAÇÃO DO RETÍCULO
 	_atualizar_posicao_reticulo()
 
 # --- GESTÃO DO INVENTÁRIO (POOL) ---
@@ -213,60 +230,127 @@ func _atualizar_interface():
 		else:
 			hud.atualizar_arma("None", 0)
 
+func _cycle_category(direction: int):
+	# Tenta pular para a próxima categoria. Se estiver vazia, tenta a próxima de novo.
+	# O loop roda no máximo 3 vezes (pois temos 3 categorias) para evitar loop infinito.
+	for i in range(4): # Agora são 4 categorias (0, 1, 2, 3)
+		current_category_index += direction
+		if current_category_index > 3: current_category_index = 0
+		elif current_category_index < 0: current_category_index = 3
+		
+		# Se achou uma categoria que tem pelo menos 1 alvo, para de procurar!
+		if _get_category_count(current_category_index) > 0:
+			break
+	
+	manual_target_index = 0 # Reseta o alvo ao trocar de categoria
+	_update_radar_and_lockon() # Força atualização imediata
+	print("[Targeting] Categoria alterada para: ", target_categories[current_category_index])
+
+# --- FUNÇÕES AUXILIARES DE CATEGORIA ---
+
+# Conta quantos alvos válidos existem na categoria solicitada
+func _get_category_count(index: int) -> int:
+	var count = 0
+	if index == 0:
+		# ALL TARGETS: Se tiver qualquer coisa no mapa, essa categoria é válida
+		return 1 
+	elif index == 1:
+		for p in get_tree().get_nodes_in_group("jogadores"):
+			if p != car and is_instance_valid(p): count += 1
+	elif index == 2:
+		for t in get_tree().get_nodes_in_group("inimigos"):
+			if is_instance_valid(t): count += 1
+	elif index == 3:
+		for p in get_tree().get_nodes_in_group("destructibles"):
+			if is_instance_valid(p): count += 1
+			
+	return count
+
+func _validate_initial_category():
+	# Se a categoria que o jogo começou (0) estiver vazia, 
+	# simulamos um toque pro lado para ele achar a primeira categoria cheia.
+	if _get_category_count(current_category_index) == 0:
+		_cycle_category(1)
+
+func _cycle_target(direction: int):
+	if active_targets_sorted.is_empty(): return
+	
+	manual_target_index += direction
+	if manual_target_index >= active_targets_sorted.size(): manual_target_index = 0
+	elif manual_target_index < 0: manual_target_index = active_targets_sorted.size() - 1
+	
+	_update_radar_and_lockon() # Força atualização imediata
+
 func _update_radar_and_lockon():
 	if not is_instance_valid(car): return
 	
 	# Pega todos os possíveis alvos no mapa
-	var targets = get_tree().get_nodes_in_group("Enemies") + get_tree().get_nodes_in_group("inimigos") + get_tree().get_nodes_in_group("jogadores")
+	var all_players = get_tree().get_nodes_in_group("jogadores")
+	var all_turrets = get_tree().get_nodes_in_group("inimigos")
+	var all_props = get_tree().get_nodes_in_group("destructibles")
 	
-	var best_target = null # Este será o alvo do míssil/retículo (limitado)
-	var closest_radar_target = null # Este será o alvo do painel lateral (perpétuo)
-	
-	var min_angle = 35.0 
-	var max_dist = 120.0 
-	var min_radar_score = INF # Para achar o alvo perpétuo do HUD
-	
-	var car_forward = car.global_transform.basis.z 
+	var all_targets = all_players + all_turrets + all_props
 	var car_pos = car.global_position
+	var car_forward = car.global_transform.basis.z 
 	
-	var radar_data = [] # Lista que enviaremos para a HUD
+	var radar_data = []
+	var category_bucket = [] # Apenas os alvos da categoria atual
 
-	for t in targets:
-		if not is_instance_valid(t) or t == car: 
-			continue
-			
-		var t_pos = t.global_position
-		var dist = car_pos.distance_to(t_pos)
+	# 1. Filtra os baldes e popula o radar global
+	for t in all_targets:
+		if not is_instance_valid(t) or t == car: continue
 		
-		# 1. Popula o Minimapa
+		var dist = car_pos.distance_to(t.global_position)
 		if dist <= radar_range:
 			radar_data.append(t)
 			
-		# 2. Lógica para achar o alvo Perpétuo do HUD (Nome e Vida na lateral)
-		var dir = (t_pos - car_pos).normalized()
-		var angle = rad_to_deg(car_forward.angle_to(dir))
-		var radar_score = angle + (dist * 0.1)
+		# Separa o alvo se ele pertencer à categoria selecionada no momento
+# Separa o alvo se ele pertencer à categoria selecionada no momento
+		if current_category_index == 0: 
+			category_bucket.append(t) # ALL TARGETS pega todo mundo!
+		elif current_category_index == 1 and t.is_in_group("jogadores"): 
+			category_bucket.append(t)
+		elif current_category_index == 2 and t.is_in_group("inimigos"): 
+			category_bucket.append(t)
+		elif current_category_index == 3 and t.is_in_group("destructibles"): 
+			category_bucket.append(t)
+			
+	# 2. Ordena o balde atual pelo "Score" (Mais perto e mais centralizado)
+	category_bucket.sort_custom(func(a, b):
+		var dir_a = (a.global_position - car_pos).normalized()
+		var score_a = rad_to_deg(car_forward.angle_to(dir_a)) + (car_pos.distance_to(a.global_position) * 0.1)
 		
-		if radar_score < min_radar_score:
-			closest_radar_target = t
-			min_radar_score = radar_score
-			
-		# 3. LÓGICA ORIGINAL DO RETÍCULO/MÍSSIL (Restrita por distância e arma)
-		var active = get_active_special()
-		if active and (active.nome == "HomingMissile" or active.nome == "GrapplingMissile"):
-			if angle < min_angle and dist < max_dist:
-				best_target = t
-				min_angle = angle 
-			
-	# Atualiza o alvo restrito para o Míssil e para a sua função de Retículo usar
-	current_target = best_target
+		var dir_b = (b.global_position - car_pos).normalized()
+		var score_b = rad_to_deg(car_forward.angle_to(dir_b)) + (car_pos.distance_to(b.global_position) * 0.1)
+		
+		return score_a < score_b
+	)
 	
-	# Envia as informações para a HUD desenhar o Minimapa e a Info do Alvo (Usando o Alvo Perpétuo!)
+	active_targets_sorted = category_bucket
+	var closest_radar_target = null
+	
+	# 3. Trava o alvo perpétuo baseado no índice manual
+	if not active_targets_sorted.is_empty():
+		# Proteção caso um alvo seja destruído e o array diminua de tamanho
+		manual_target_index = clampi(manual_target_index, 0, active_targets_sorted.size() - 1)
+		closest_radar_target = active_targets_sorted[manual_target_index]
+		
+	# Lógica restrita do Míssil (O Míssil só trava no alvo selecionado manualmente se ele for válido)
+	current_target = null
+	var active = get_active_special()
+	if is_instance_valid(closest_radar_target) and active and (active.nome == "HomingMissile" or active.nome == "GrapplingMissile"):
+		var dist = car_pos.distance_to(closest_radar_target.global_position)
+		var angle = rad_to_deg(car_forward.angle_to((closest_radar_target.global_position - car_pos).normalized()))
+		if dist <= 120.0 and angle <= 45.0:
+			current_target = closest_radar_target # Permite atirar!
+
+	# 4. Envia para a HUD
 	var target_group = "HUD" + player_suffix
 	var hud = get_tree().get_first_node_in_group(target_group)
 	if hud and hud.has_method("update_radar_data"):
-		# IMPORTANTE: Enviamos closest_radar_target para a UI pintar o nome dele!
-		hud.update_radar_data(radar_data, closest_radar_target, car_pos, car_forward)
+		# Injetamos também o nome da categoria atual e o index dela!
+		var cat_name = target_categories[current_category_index]
+		hud.update_radar_data(radar_data, closest_radar_target, car_pos, car_forward, current_category_index, cat_name)
 
 func _atualizar_posicao_reticulo():
 	var active = get_active_special()

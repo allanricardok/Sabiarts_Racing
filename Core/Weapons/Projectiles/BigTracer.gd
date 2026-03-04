@@ -14,10 +14,12 @@ func setup(dmg_value: float, car_velocity: Vector3, source_car: Node3D, propulsi
 	super.setup(dmg_value, car_velocity, source_car, propulsion_speed)
 
 # Sobrescrita da limpeza para manter o delay de 0.1s que você tinha originalmente
+# Mantemos o delay de 0.1s para garantir que o impacto seja processado 
+# visualmente antes do queue_free
 func _handle_cleanup():
-	freeze = true
+	# Substituímos o 'freeze = true' por desativar o monitoramento da Area3D
+	set_deferred("monitoring", false)
 	visible = false
 	
-	# Delay para som ou partículas antes de sumir
 	await get_tree().create_timer(0.1).timeout
 	queue_free()

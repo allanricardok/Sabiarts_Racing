@@ -1,11 +1,18 @@
 # Grappling.gd
 extends Area3D
 
+@export_group("Movimento do Gancho")
 @export var fly_speed = 170.0
 @export var steering_force = 10.0
+@export var finish_boost_force : float = 15.0 
+
+@export_group("Física de Combate")
+## Força do tranco inicial que o inimigo sofre quando o cabo agarra nele
+@export var knockback_force: float = 100.0
+
+@export_group("Visuals")
 @export var cable_color : Color = Color(0.2, 0.2, 0.2)
 @export var cable_width : float = 0.05
-@export var finish_boost_force : float = 15.0 
 
 var damage : float = 0.0
 
@@ -159,25 +166,21 @@ func _on_area_entered(area):
 func _process_impact(target_node):
 	var actual_target = target_node
 	
-	# MUDANÇA SÊNIOR: Filtro inteligente de Area3D
 	if target_node is Area3D:
 		var dono = target_node.owner if target_node.owner else target_node.get_parent()
 		
-		# Só aceitamos a Area3D se ela for a Hitbox de algo que tenha Stats ou receba dano explícito
-		if dono and (dono.has_method("take_damage") or dono.find_child("StatsComponent*", true, false)):
+		if dono and (dono.has_method("take_damage") or dono.is_in_group("jogadores") or dono.is_in_group("inimigos") or dono.is_in_group("destructibles")):
 			actual_target = dono
 		else:
-			# É um Pickup, Radar, SpawnPoint ou outro trigger genérico. Ignora a colisão!
-			return
+			return 
 		
-	# Prevenção de Fogo Amigo e Loops
 	if actual_target == shooter or actual_target == shooter.owner: return
 	
-	# Prevenção extra para marcadores
 	if (actual_target is Marker3D) or ("SpawnPoint" in actual_target.name): return
 		
+	# --- MUDANÇA SÊNIOR: O próprio gancho (self) passa a física para a vítima ---
 	if target_node.has_method("take_damage"):
-		target_node.take_damage(damage, shooter)
+		target_node.take_damage(damage, self)
 		
 	_play_impact_explosion()
 	_start_tether(actual_target)
