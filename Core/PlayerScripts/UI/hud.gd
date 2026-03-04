@@ -1,6 +1,7 @@
 # HUD.gd
 extends CanvasLayer
 
+@onready var ped_kill_label = find_child("PedKillLabel", true, false)
 @onready var minimap_bg = get_node_or_null("UI_Base/MinimapBackground")
 # NOVO: Referências para a Info do Alvo
 @onready var target_info_panel = get_node_or_null("UI_Base/TargetInfoPanel") # Crie um Panel na UI para isso depois
@@ -43,6 +44,12 @@ var my_car : BaseVehicle = null # Referência única do carro deste Viewport
 func _ready():
 	air_time_label.visible = false
 	air_message_label.visible = false
+	
+	# Conecta a HUD ao cofre global
+	if GameStats:
+		GameStats.pedestrian_killed.connect(_update_ped_kill_ui)
+		# Garante que ele já comece mostrando o número certo (zero ou o que estiver salvo na run)
+		_update_ped_kill_ui(GameStats.pedestrians_killed_this_run)
 	
 	if ScoreManager.is_connected("score_changed", _on_score_updated):
 		ScoreManager.score_changed.disconnect(_on_score_updated)
@@ -250,3 +257,8 @@ func _update_target_info_ui():
 				target_hp_bar.modulate = current_color
 	else:
 		target_info_panel.visible = false
+
+# Função que atualiza o texto quando alguém morre
+func _update_ped_kill_ui(amount: int):
+	if ped_kill_label:
+		ped_kill_label.text = "x" + str(amount)

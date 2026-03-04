@@ -7,6 +7,9 @@ extends Node3D
 
 func _ready():
 	_configurar_tela_e_spawn()
+# Zera a contagem toda vez que o mapa é carregado!
+	if GameStats:
+		GameStats.reset_run_stats()
 
 func _configurar_tela_e_spawn():
 	var jogadores_logados = []

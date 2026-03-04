@@ -24,6 +24,7 @@ GameManager="*res://Core/game_manager.gd"
 ScoreManager="*res://Autoload/ScoreManager.gd"
 MissionManager="*res://Core/Objectives/MissionManager.gd"
 SaveManager="*res://Autoload/SaveManager.gd"
+GameStats="*res://Autoload/GameStats.gd"
 
 [display]
 
@@ -43,6 +44,7 @@ obstacles=""
 menu_pausa=""
 inimigos=""
 destructibles=""
+pedestrians=""
 
 [input]
 

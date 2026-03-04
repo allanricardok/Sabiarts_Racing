@@ -288,34 +288,40 @@ func _update_radar_and_lockon():
 	var all_players = get_tree().get_nodes_in_group("jogadores")
 	var all_turrets = get_tree().get_nodes_in_group("inimigos")
 	var all_props = get_tree().get_nodes_in_group("destructibles")
+	var all_peds = get_tree().get_nodes_in_group("pedestrians")
 	
-	var all_targets = all_players + all_turrets + all_props
+	var all_targets = all_players + all_turrets + all_props + all_peds
 	var car_pos = car.global_position
 	var car_forward = car.global_transform.basis.z 
 	
 	var radar_data = []
-	var category_bucket = [] # Apenas os alvos da categoria atual
+	var category_bucket = [] 
 
-	# 1. Filtra os baldes e popula o radar global
 	for t in all_targets:
 		if not is_instance_valid(t) or t == car: continue
 		
-		var dist = car_pos.distance_to(t.global_position)
-		if dist <= radar_range:
-			radar_data.append(t)
+		# --- IGNORA PEDESTRES INVENCÍVEIS ---
+		if t.is_in_group("pedestrians") and "is_invincible" in t and t.is_invincible:
+			continue
 			
-		# Separa o alvo se ele pertencer à categoria selecionada no momento
-# Separa o alvo se ele pertencer à categoria selecionada no momento
+		var dist = car_pos.distance_to(t.global_position)
+		
+		# 1. Popula o radar global (apenas se estiver no range e NÃO for pedestre)
+		if dist <= radar_range:
+			if not t.is_in_group("pedestrians"): 
+				radar_data.append(t)
+			
+		# 2. Separa o alvo se ele pertencer à categoria selecionada
 		if current_category_index == 0: 
-			category_bucket.append(t) # ALL TARGETS pega todo mundo!
+			category_bucket.append(t) # ALL TARGETS
 		elif current_category_index == 1 and t.is_in_group("jogadores"): 
 			category_bucket.append(t)
 		elif current_category_index == 2 and t.is_in_group("inimigos"): 
 			category_bucket.append(t)
-		elif current_category_index == 3 and t.is_in_group("destructibles"): 
-			category_bucket.append(t)
-			
-	# 2. Ordena o balde atual pelo "Score" (Mais perto e mais centralizado)
+		elif current_category_index == 3 and (t.is_in_group("destructibles") or t.is_in_group("pedestrians")): 
+			category_bucket.append(t) # ENVIRONMENT
+
+	# 3. Ordena o balde atual pelo "Score" (Mais perto e mais centralizado)
 	category_bucket.sort_custom(func(a, b):
 		var dir_a = (a.global_position - car_pos).normalized()
 		var score_a = rad_to_deg(car_forward.angle_to(dir_a)) + (car_pos.distance_to(a.global_position) * 0.1)
@@ -329,26 +335,24 @@ func _update_radar_and_lockon():
 	active_targets_sorted = category_bucket
 	var closest_radar_target = null
 	
-	# 3. Trava o alvo perpétuo baseado no índice manual
+	# 4. Trava o alvo perpétuo baseado no índice manual
 	if not active_targets_sorted.is_empty():
-		# Proteção caso um alvo seja destruído e o array diminua de tamanho
 		manual_target_index = clampi(manual_target_index, 0, active_targets_sorted.size() - 1)
 		closest_radar_target = active_targets_sorted[manual_target_index]
 		
-	# Lógica restrita do Míssil (O Míssil só trava no alvo selecionado manualmente se ele for válido)
+	# 5. Lógica restrita do Retículo (Armas de mira limitadas por distância e ângulo)
 	current_target = null
 	var active = get_active_special()
 	if is_instance_valid(closest_radar_target) and active and (active.nome == "HomingMissile" or active.nome == "GrapplingMissile"):
 		var dist = car_pos.distance_to(closest_radar_target.global_position)
 		var angle = rad_to_deg(car_forward.angle_to((closest_radar_target.global_position - car_pos).normalized()))
 		if dist <= 120.0 and angle <= 45.0:
-			current_target = closest_radar_target # Permite atirar!
+			current_target = closest_radar_target 
 
-	# 4. Envia para a HUD
+	# 6. Envia para a HUD
 	var target_group = "HUD" + player_suffix
 	var hud = get_tree().get_first_node_in_group(target_group)
 	if hud and hud.has_method("update_radar_data"):
-		# Injetamos também o nome da categoria atual e o index dela!
 		var cat_name = target_categories[current_category_index]
 		hud.update_radar_data(radar_data, closest_radar_target, car_pos, car_forward, current_category_index, cat_name)
 

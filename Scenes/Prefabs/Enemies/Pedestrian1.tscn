@@ -1,0 +1,46 @@
+[gd_scene load_steps=7 format=3 uid="uid://ceckf8ip1lrcr"]
+
+[ext_resource type="Script" uid="uid://dhgtr33cx5enf" path="res://Core/Enemies/Pedestrian.gd" id="1_pv5kd"]
+[ext_resource type="Texture2D" uid="uid://bihhh4f73gjkt" path="res://Assets/2D/images.jpg" id="2_7mlyh"]
+[ext_resource type="Texture2D" uid="uid://bkmid1n6i7ij6" path="res://Assets/2D/Test_Texture.jpg" id="3_3mlng"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_rckox"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_x3qfs"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_7mlyh")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_3mlng")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_8jl4j"]
+size = Vector3(2.5570679, 2.6169128, 1.5858154)
+
+[node name="Pedestrian" type="CharacterBody3D" groups=["pedestrians"]]
+script = ExtResource("1_pv5kd")
+base_speed = 20.0
+max_wander_radius = 100.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1.8, 0, 0, 0, 1.8, 0, 0, 0, 1.8, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_rckox")
+
+[node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="."]
+billboard = 2
+sprite_frames = SubResource("SpriteFrames_x3qfs")
+frame_progress = 0.9890991
+
+[node name="Hitbox" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hitbox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.08169556, -0.016036987, 0.2929077)
+shape = SubResource("BoxShape3D_8jl4j")
+
+[connection signal="body_entered" from="Hitbox" to="." method="_on_hitbox_body_entered"]

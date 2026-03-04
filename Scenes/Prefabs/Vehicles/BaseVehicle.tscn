@@ -1,4 +1,4 @@
-[gd_scene load_steps=110 format=4 uid="uid://cw8ofahu5mqhn"]
+[gd_scene load_steps=111 format=4 uid="uid://cw8ofahu5mqhn"]
 
 [ext_resource type="Script" uid="uid://b0i2wvnkcrknc" path="res://Core/PlayerScripts/Functions/BaseVehicle.gd" id="1_m0ew1"]
 [ext_resource type="Script" uid="uid://cjnmai87rc2f8" path="res://Core/camera_test_3.gd" id="2_8gjg4"]
@@ -26,6 +26,7 @@
 [ext_resource type="Script" uid="uid://f41hkh6xnfgv" path="res://Core/PlayerScripts/UI/MinimapDraw.gd" id="19_cj7ej"]
 [ext_resource type="Script" uid="uid://y3uxucxf1qqt" path="res://Core/PlayerScripts/UI/recticle.gd" id="19_u5777"]
 [ext_resource type="Script" uid="uid://17v2oug1wdmr" path="res://Core/PlayerScripts/Functions/VehicleHitbox.gd" id="20_3a0p2"]
+[ext_resource type="Texture2D" uid="uid://bkmid1n6i7ij6" path="res://Assets/2D/Test_Texture.jpg" id="20_7n43q"]
 [ext_resource type="Resource" uid="uid://cl6d44tjh6xry" path="res://Resources/Weapons/MachineGun.tres" id="23_625mm"]
 [ext_resource type="Script" uid="uid://burl25dksofc1" path="res://Core/PlayerScripts/Functions/Tricks/AirMovementComponent.gd" id="23_hmxgi"]
 [ext_resource type="Script" uid="uid://dicgxfjk23y35" path="res://Core/PlayerScripts/Functions/Tricks/TrickManager.gd" id="24_u7amk"]
@@ -1582,6 +1583,34 @@ offset_right = 101.0
 offset_bottom = 97.0
 theme_override_font_sizes/font_size = 14
 text = "Category"
+
+[node name="ColorRect6" type="ColorRect" parent="HUD/UI_Base"]
+layout_mode = 0
+offset_top = 218.0
+offset_right = 92.0
+offset_bottom = 265.0
+color = Color(0.011764706, 0.011764706, 0.011764706, 0.16078432)
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HUD/UI_Base"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 6.0
+offset_top = -290.0
+offset_right = 87.0
+offset_bottom = -255.0
+grow_vertical = 2
+
+[node name="TextureRect" type="TextureRect" parent="HUD/UI_Base/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("20_7n43q")
+expand_mode = 2
+
+[node name="PedKillLabel" type="Label" parent="HUD/UI_Base/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "x699"
 
 [node name="Messages" type="VBoxContainer" parent="HUD"]
 unique_name_in_owner = true

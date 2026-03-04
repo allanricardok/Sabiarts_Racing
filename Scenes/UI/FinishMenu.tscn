@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://otkba37h2pp0"]
+[gd_scene load_steps=5 format=3 uid="uid://otkba37h2pp0"]
 
 [ext_resource type="Script" uid="uid://crlgmbgxb8fpi" path="res://Core/FinishMenu.gd" id="1_jrnx4"]
+[ext_resource type="Texture2D" uid="uid://bkmid1n6i7ij6" path="res://Assets/2D/Test_Texture.jpg" id="2_2t4tm"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nqav1"]
 content_margin_left = 4.0
@@ -50,9 +51,9 @@ anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 47.0
-offset_top = -438.0
+offset_top = -783.0
 offset_right = 417.0
-offset_bottom = -49.0
+offset_bottom = -394.0
 grow_vertical = 0
 theme_override_constants/separation = 15
 
@@ -109,9 +110,9 @@ anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 45.0
-offset_top = -666.0
+offset_top = -975.0
 offset_right = 415.0
-offset_bottom = -513.0
+offset_bottom = -822.0
 grow_vertical = 0
 theme_override_constants/separation = 15
 
@@ -126,5 +127,49 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
 text = "Player 1: 00:00:00"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="FinishMenu"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 58.0
+offset_top = 257.0
+offset_right = 315.0
+offset_bottom = 336.0
+grow_vertical = 2
+
+[node name="Texturedeath" type="TextureRect" parent="FinishMenu/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("2_2t4tm")
+expand_mode = 2
+
+[node name="RunKillsLabel" type="Label" parent="FinishMenu/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "x699"
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="FinishMenu"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 58.0
+offset_top = 348.0
+offset_right = 353.0
+offset_bottom = 427.0
+grow_vertical = 2
+
+[node name="Texturedeathtotal" type="TextureRect" parent="FinishMenu/HBoxContainer2"]
+layout_mode = 2
+texture = ExtResource("2_2t4tm")
+expand_mode = 2
+
+[node name="TotalKillsLabel" type="Label" parent="FinishMenu/HBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "x233900"
 
 [connection signal="pressed" from="FinishMenu/MenuBtn" to="." method="_on_menu_btn_pressed"]
