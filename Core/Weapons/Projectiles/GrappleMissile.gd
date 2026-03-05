@@ -70,10 +70,17 @@ func _physics_process(delta):
 		queue_free()
 		return
 
+	# --- ANTI SLOW-MOTION ---
+	var real_delta = delta
+	if shooter.is_in_group("jogadores"):
+		real_delta = delta / Engine.time_scale
+
 	if not is_tethered:
-		_state_flying(delta)
+		# Passamos o tempo real para o estado de voo
+		_state_flying(real_delta)
 	else:
-		_state_tethered(delta)
+		# Passamos o tempo real para o estado de puxão
+		_state_tethered(real_delta)
 	
 	_update_cable_visual()
 
@@ -165,7 +172,7 @@ func _on_area_entered(area):
 
 func _process_impact(target_node):
 	var actual_target = target_node
-	
+	if not is_instance_valid(target_node): return
 	if target_node is Area3D:
 		var dono = target_node.owner if target_node.owner else target_node.get_parent()
 		

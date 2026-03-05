@@ -32,16 +32,32 @@ func _ready():
 	get_tree().create_timer(4.0).timeout.connect(queue_free)
 
 func _physics_process(delta):
-	# Como é um Area3D, nós movemos o projétil manualmente pelo espaço
-	global_position += velocity * delta
+	var real_delta = delta
+	
+	# Se quem atirou foi o jogador, anulamos o efeito do slow-motion!
+	if is_instance_valid(shooter) and shooter.is_in_group("jogadores"):
+		real_delta = delta / Engine.time_scale
+		
+	# Move o projétil usando o delta corrigido
+	global_position += velocity * real_delta
 
 func _on_impact(target_node):
 	if hit_done: return
 	
+	# --- CORREÇÃO: BLINDAGEM DUPLA (LIMBO DO QUEUE_FREE) ---
+	# 1. Verifica se a memória existe
+	if not is_instance_valid(target_node): return
+	# 2. Verifica se ele já está com o "pé na cova" (esperando o fim do frame para sumir)
+	if target_node.is_queued_for_deletion(): return
+	
 	# Identifica de quem é a Hitbox para evitar fogo amigo
 	var actual_target = target_node
 	if target_node is Area3D:
-		actual_target = target_node.owner if target_node.owner else target_node.get_parent()
+		# Camada extra de segurança antes de acessar a hierarquia
+		if is_instance_valid(target_node.owner):
+			actual_target = target_node.owner
+		elif is_instance_valid(target_node.get_parent()):
+			actual_target = target_node.get_parent()
 		
 	# Previne atirar em si mesmo
 	if actual_target == shooter or actual_target == shooter.owner: 
@@ -49,9 +65,11 @@ func _on_impact(target_node):
 		
 	hit_done = true
 	
-	# --- MUDANÇA SÊNIOR: A própria bala se apresenta como o 'source' do impacto! ---
+	# A própria bala se apresenta como o 'source' do impacto!
 	if target_node.has_method("take_damage"):
 		target_node.take_damage(damage, self) 
+	
+	_play_impact_vfx()
 	
 	_play_impact_vfx()
 

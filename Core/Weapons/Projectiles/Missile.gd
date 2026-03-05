@@ -37,7 +37,13 @@ func setup(dmg, shooter_vel, source_car, incoming_target = null):
 	look_at(global_position + forward_dir, Vector3.UP)
 
 func _physics_process(delta):
-	time_alive += delta
+	# --- ANTI SLOW-MOTION ---
+	var real_delta = delta
+	if is_instance_valid(shooter) and shooter.is_in_group("jogadores"):
+		real_delta = delta / Engine.time_scale
+
+	# O tempo de vida do míssil também passa rápido para não durar para sempre
+	time_alive += real_delta
 	if time_alive > 0.1: can_explode = true
 	
 	if time_alive > 5.0: _explode() 
@@ -49,12 +55,15 @@ func _physics_process(delta):
 			return
 
 		var desired_dir = (target_pos - global_position).normalized()
-		var steering = (desired_dir * speed - velocity) * steering_force * delta
+		# Usa o real_delta na força de curva
+		var steering = (desired_dir * speed - velocity) * steering_force * real_delta
 		velocity += steering
 	else:
-		velocity = velocity.move_toward(velocity.normalized() * speed, delta * 100.0)
+		# Usa o real_delta na aceleração livre
+		velocity = velocity.move_toward(velocity.normalized() * speed, real_delta * 100.0)
 	
-	global_position += velocity * delta
+	# Usa o real_delta na movimentação final
+	global_position += velocity * real_delta
 	if velocity.length() > 0.1:
 		look_at(global_position + velocity, Vector3.UP)
 
@@ -67,6 +76,7 @@ func _on_area_entered(area):
 	_on_impact(area)
 
 func _on_impact(target_node):
+	if not is_instance_valid(target_node): return
 	# Proteção contra fogo amigo usando a propriedade owner da Hitbox
 	var actual_target = target_node
 	if target_node is Area3D:

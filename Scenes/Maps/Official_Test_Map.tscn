@@ -1636,6 +1636,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.509514, -0.5100812, -144.
 [node name="PedestrianSpawner2" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("31_2p5n0")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26.232098, -0.4843378, -161.48889)
 pedestrian_scene = ExtResource("32_7qfue")
+spawn_interval = 1.0
+max_alive = 2
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="GridContainer/Cont_P1/View_P1"]
 environment = SubResource("Environment_2yrvv")

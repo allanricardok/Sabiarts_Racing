@@ -55,12 +55,20 @@ func setup_multiplayer(suffix: String):
 	call_deferred("_validate_initial_category")
 
 func _process(delta):
+	# --- ANTI SLOW-MOTION ---
+	var real_delta = delta
+	# O WeaponManager vive no carro, então testamos o dono dele
+	if is_instance_valid(car) and car.is_in_group("jogadores"):
+		real_delta = delta / Engine.time_scale
+
+	# Recarrega a arma base na velocidade normal
 	if basic_cooldown > 0:
-		basic_cooldown -= delta
+		basic_cooldown -= real_delta
 	
+	# Recarrega as armas especiais na velocidade normal
 	for weapon_name in special_cooldowns.keys():
 		if special_cooldowns[weapon_name] > 0:
-			special_cooldowns[weapon_name] -= delta
+			special_cooldowns[weapon_name] -= real_delta
 		
 	if not car.pode_mover: return
 
@@ -76,11 +84,11 @@ func _process(delta):
 	if Input.is_action_just_pressed("next_weapon" + input.suffix): 
 		_switch_weapon(1)
 
-# 3. TIRO ESPECIAL
+	# 3. TIRO ESPECIAL
 	if Input.is_action_just_pressed("Fire" + input.suffix):
 		fire_special_weapon()
 	
-# 4. NAVEGAÇÃO DE ALVOS E CATEGORIAS
+	# 4. NAVEGAÇÃO DE ALVOS E CATEGORIAS
 	if Input.is_action_just_pressed("cat_left" + input.suffix):
 		_cycle_category(-1)
 	if Input.is_action_just_pressed("cat_right" + input.suffix):
@@ -90,15 +98,14 @@ func _process(delta):
 	if Input.is_action_just_pressed("target_down" + input.suffix):
 		_cycle_target(1)
 
-	# 5. RADAR E LOCK-ON
-	radar_update_timer -= delta
+	# 5. RADAR E LOCK-ON (Atualiza o radar rápido durante o slow-mo)
+	radar_update_timer -= real_delta
 	if radar_update_timer <= 0:
 		radar_update_timer = RADAR_UPDATE_INTERVAL
 		_update_radar_and_lockon()
 		
 	# 6. ATUALIZAÇÃO DO RETÍCULO
 	_atualizar_posicao_reticulo()
-
 # --- GESTÃO DO INVENTÁRIO (POOL) ---
 
 func get_active_special() -> WeaponResource:
