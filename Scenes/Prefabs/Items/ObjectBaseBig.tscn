@@ -22,6 +22,9 @@ collision_mask = 15
 mass = 400.0
 gravity_scale = 1.806
 script = ExtResource("1_8vci2")
+max_health = 15.0
+energy_on_destroy = 8.0
+energy_on_hit = 0.5
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("CylinderMesh_0e0mj")

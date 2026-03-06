@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponResource" load_steps=3 format=3 uid="uid://b4n2n37tjg3ed"]
+[gd_resource type="Resource" script_class="WeaponResource" load_steps=4 format=3 uid="uid://b4n2n37tjg3ed"]
 
+[ext_resource type="CapsuleMesh" uid="uid://bxy5ey4x44ega" path="res://Assets/3D/blue_capsule.tres" id="1_8chqf"]
 [ext_resource type="PackedScene" uid="uid://4fwkbah8i0pr" path="res://Scenes/Prefabs/Weapons/Projectiles/MissileTracer.tscn" id="1_lnq0v"]
 [ext_resource type="Script" uid="uid://5wgfj8fmfmgf" path="res://Core/Weapons/WeaponItems/WeaponResource.gd" id="1_rlkal"]
 
@@ -9,4 +10,6 @@ nome = "HomingMissile"
 projectile_scene = ExtResource("1_lnq0v")
 dano = 5.0
 fire_rate = 0.8
+custom_mesh = ExtResource("1_8chqf")
+item_color = Color(0, 0.33968204, 0.8151441, 1)
 metadata/_custom_type_script = "uid://5wgfj8fmfmgf"

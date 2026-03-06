@@ -9,12 +9,18 @@ class_name EnemyTurret
 @export var projectile_speed : float = 80.0
 @export var enemy_group_name : String = "inimigos"
 
+@export_group("Loot / Recompensas")
+## A cena base do item genérico (ex: ItemBox.tscn ou Pickup.tscn)
+@export var drop_item_scene : PackedScene
+## O arquivo .tres que define o que o jogador vai ganhar (Vida, Arma, etc)
+@export var drop_item_resource : Resource
+
 @onready var head = $Head
 @onready var muzzle = $Head/Muzzle
 @onready var detection_zone = $DetectionZone
 @onready var stats = $StatsComponent
 
-# --- NOVO: Referência para a luz do tiro ---
+# Referência para a luz do tiro
 @onready var muzzle_flash = $Head/Muzzle/OmniLight3D
 
 var targets_in_range : Array = []
@@ -24,8 +30,9 @@ var fire_cooldown : float = 0.0
 func _ready():
 	add_to_group(enemy_group_name)
 	
-	detection_zone.body_entered.connect(_on_target_entered)
-	detection_zone.body_exited.connect(_on_target_exited)
+	if detection_zone:
+		detection_zone.body_entered.connect(_on_target_entered)
+		detection_zone.body_exited.connect(_on_target_exited)
 	
 	if stats:
 		stats.health_depleted.connect(_on_death)
@@ -83,7 +90,7 @@ func _fire_projectile():
 	proj.global_transform = muzzle.global_transform
 	
 	if proj.has_method("setup"):
-		# MUDANÇA SÊNIOR: Identifica o tipo de munição para passar o 4º argumento correto
+		# Identifica o tipo de munição para passar o 4º argumento correto
 		if "target" in proj:
 			# É um míssil ou gancho! Passamos o carro do jogador para ele seguir.
 			proj.setup(damage, Vector3.ZERO, self, current_target)
@@ -120,4 +127,33 @@ func take_damage(amount: float, attacker: Node = null):
 
 func _on_death():
 	print("[Turret] Torre destruída!")
+	
+	# --- SISTEMA DE DROP DE ITEM ---
+	if drop_item_scene:
+		var drop = drop_item_scene.instantiate()
+		
+		# Colocamos o item 1 metro acima da base da torre para ele não nascer dentro do chão
+		drop.position = self.global_position + Vector3(0, 1.0, 0)
+		
+		# --- INJEÇÃO DO .TRES ---
+		if drop_item_resource:
+			# Substitua pela variável real que você usa no script do seu coletável!
+			if "item_data" in drop:
+				drop.item_data = drop_item_resource
+			elif "resource" in drop:
+				drop.resource = drop_item_resource
+			elif "pickup_data" in drop:
+				drop.pickup_data = drop_item_resource
+				
+			# Se a sua caixa tiver uma função que atualiza a cor/ícone ao iniciar, chame-a aqui:
+			if drop.has_method("update_visuals"):
+				drop.update_visuals()
+				
+		# Se o item for um corpo rígido (RigidBody3D), podemos dar um leve "pulo" estilo explosão
+		if drop is RigidBody3D:
+			drop.linear_velocity = Vector3(randf_range(-3.0, 3.0), 6.0, randf_range(-3.0, 3.0))
+			
+		# Usamos call_deferred pois estamos no meio do processamento da física (a torre está morrendo)
+		get_tree().current_scene.call_deferred("add_child", drop)
+	
 	queue_free()

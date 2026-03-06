@@ -1,0 +1,11 @@
+[gd_resource type="CapsuleMesh" load_steps=2 format=3 uid="uid://cb3ona2hthmuf"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_081xm"]
+albedo_color = Color(0.8784058, 0.8159532, 0.24347126, 1)
+
+[resource]
+material = SubResource("StandardMaterial3D_081xm")
+radius = 1.0
+height = 3.0
+radial_segments = 12
+rings = 4

@@ -17,3 +17,11 @@ class_name WeaponResource
 @export_group("Munição")
 ## Quantidade de balas. Use -1 para munição infinita (Metralhadora)
 @export var ammo: int = 6
+
+@export_group("Visual do Pickup")
+## O modelo 3D que vai girar no mapa quando este item for dropado
+@export var custom_mesh: Mesh
+## Tamanho do modelo no mapa
+@export var mesh_scale: Vector3 = Vector3.ONE
+## Cor do brilho do item no mapa
+@export var item_color: Color = Color.WHITE
