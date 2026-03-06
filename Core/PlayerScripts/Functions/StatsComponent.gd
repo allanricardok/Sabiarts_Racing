@@ -25,10 +25,8 @@ signal stats_changed
 @export var weight_multiplier: float = 1.0
 
 @export_group("Mission Settings")
-## ID da missão no Resource (ex: "enemy_car" ou "radar_tower")
 @export var mission_id : String = ""
 
-# Variável interna para o estilo da barra de vida
 var _health_stylebox : StyleBoxFlat = null
 
 func _ready():
@@ -47,7 +45,6 @@ func _auto_link_hud():
 		shield_bar = my_viewport.find_child("ShieldBar", true, false) as ProgressBar
 		
 	if health_bar or shield_bar:
-		print("[Stats] HUD detectada automaticamente para ", owner.name, " no Viewport: ", my_viewport.name)
 		_initialize_ui()
 
 func _initialize_ui():
@@ -99,29 +96,18 @@ func _get_health_color(health_percent: float) -> Color:
 	else:
 		return Color.RED
 
-## Recebe dano e o objeto que causou a batida (source)
 func take_damage(amount: float, source: Node = null):
-	if current_health <= 0: 
-		return
-
-	if is_invulnerable:
+	if current_health <= 0 or is_invulnerable:
 		return
 		
-	var nome_atacante = source.name if source else "Desconhecido/Impacto"
 	var attacker_node = source
-	var final_knockback = amount * 30.0 # Força padrão caso seja um impacto de cenário
+	var final_knockback = amount * 30.0 
 	
-	# Extrai os dados se a source for uma bala (BaseProjectile)
 	if source:
 		if "shooter" in source and is_instance_valid(source.shooter):
-			nome_atacante = source.shooter.name + " (via arma)"
 			attacker_node = source.shooter
 		if "knockback_force" in source:
 			final_knockback = source.knockback_force
-		
-	print("=========================================")
-	print("[COMBATE - DANO] Vítima: ", owner.name, " | Agressor: ", nome_atacante)
-	print(" -> Dano Bruto Recebido: ", amount)
 		
 	var shield_damage_portion = amount * 0.8
 	var health_damage_portion = amount * 0.2
@@ -129,33 +115,24 @@ func take_damage(amount: float, source: Node = null):
 	if current_shield > 0:
 		if current_shield >= shield_damage_portion:
 			current_shield -= shield_damage_portion
-			print(" -> Escudo absorveu: ", shield_damage_portion, " | Escudo Restante: ", current_shield)
 		else:
 			var leftover = shield_damage_portion - current_shield
-			print(" -> Escudo absorveu: ", current_shield, " (QUEBROU!) | Vazou para a vida: ", leftover)
 			current_shield = 0
 			health_damage_portion += leftover
 			shield_broken.emit()
 	else:
 		health_damage_portion = amount
-		print(" -> Sem escudo! Dano 100% direto na vida.")
 	
 	if health_damage_portion > 0:
 		current_health -= health_damage_portion
-		print(" -> Dano final na vida: ", health_damage_portion, " | Vida Restante: ", current_health)
-		print("=========================================")
 		_check_damage_state()
 		
-		# --- EMPURRÃO FÍSICO CONTROLADO ---
 		if owner is VehicleBody3D or owner is RigidBody3D:
 			if is_instance_valid(attacker_node):
 				var hit_dir = (owner.global_position - attacker_node.global_position).normalized()
 				hit_dir.y = 0.2 
-				
-				# Aplica a força específica que extraímos da bala!
 				owner.apply_central_impulse(hit_dir * final_knockback)
 		
-		# --- GERAÇÃO DE PONTUAÇÃO ---
 		if source:
 			_process_scoring(source)
 		
@@ -172,9 +149,7 @@ func _process_scoring(source: Node):
 	var g_manager = attacker.find_child("GroundTrickManager*", true, false)
 	
 	if g_manager and g_manager.has_method("add_ground_action"):
-		print("[Stats] Enviando bônus de HIT_OBJECT para o manager de: ", attacker.name)
 		g_manager.add_ground_action("HIT_OBJECT")
-		
 		if current_health <= 0:
 			g_manager.add_ground_action("DESTROY_OBJECT")
 
@@ -191,10 +166,7 @@ func repair(amount: float):
 
 func restore_shield(amount: float):
 	current_shield = clamp(current_shield + amount, 0.0, max_shield)
-	print("[Stats] Escudo restaurado em ", amount, " | Escudo atual: ", current_shield)
 
 func _on_death():
 	if mission_id != "" and is_instance_valid(MissionManager):
 		MissionManager.notify_progress(MissionItem.Type.DESTROY, 1.0, mission_id)
-	
-	print("StatsComponent: Objeto '", mission_id, "' foi removido do mapa.")

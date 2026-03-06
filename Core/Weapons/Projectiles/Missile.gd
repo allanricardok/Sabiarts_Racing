@@ -34,6 +34,10 @@ func setup(dmg, shooter_vel, source_car, incoming_target = null):
 	if velocity.dot(forward_dir) < 5.0:
 		velocity = forward_dir * speed
 
+	# Timer blindado contra o Slow-motion
+	var ignore_slowmo = source_car.is_in_group("jogadores")
+	get_tree().create_timer(5.0, false, false, ignore_slowmo).timeout.connect(_explode)
+
 	look_at(global_position + forward_dir, Vector3.UP)
 
 func _physics_process(delta):
@@ -42,11 +46,8 @@ func _physics_process(delta):
 	if is_instance_valid(shooter) and shooter.is_in_group("jogadores"):
 		real_delta = delta / Engine.time_scale
 
-	# O tempo de vida do míssil também passa rápido para não durar para sempre
 	time_alive += real_delta
 	if time_alive > 0.1: can_explode = true
-	
-	if time_alive > 5.0: _explode() 
 	
 	if target and is_instance_valid(target):
 		var target_pos = target.global_position
@@ -55,14 +56,11 @@ func _physics_process(delta):
 			return
 
 		var desired_dir = (target_pos - global_position).normalized()
-		# Usa o real_delta na força de curva
 		var steering = (desired_dir * speed - velocity) * steering_force * real_delta
 		velocity += steering
 	else:
-		# Usa o real_delta na aceleração livre
 		velocity = velocity.move_toward(velocity.normalized() * speed, real_delta * 100.0)
 	
-	# Usa o real_delta na movimentação final
 	global_position += velocity * real_delta
 	if velocity.length() > 0.1:
 		look_at(global_position + velocity, Vector3.UP)
@@ -76,22 +74,30 @@ func _on_area_entered(area):
 	_on_impact(area)
 
 func _on_impact(target_node):
+	# 1. BLINDAGEM DO ALVO
 	if not is_instance_valid(target_node): return
-	# Proteção contra fogo amigo usando a propriedade owner da Hitbox
+	if target_node.is_queued_for_deletion(): return
+	
 	var actual_target = target_node
 	if target_node is Area3D:
-		actual_target = target_node.owner if target_node.owner else target_node.get_parent()
+		# Camada extra de segurança antes de acessar a hierarquia
+		if is_instance_valid(target_node.owner):
+			actual_target = target_node.owner
+		elif is_instance_valid(target_node.get_parent()):
+			actual_target = target_node.get_parent()
 		
-	if actual_target == shooter: 
-		return
+	# 2. BLINDAGEM DO ATIRADOR (O 'shooter' ainda está vivo?)
+	if is_instance_valid(shooter):
+		if actual_target == shooter or actual_target == shooter.owner: 
+			return
 
-	# --- MUDANÇA SÊNIOR: A própria arma (self) se apresenta para dar o empurrão ---
 	if target_node.has_method("take_damage"):
 		target_node.take_damage(damage, self)
+		
 	_explode()
 
 func _explode():
-	# Ocultamos e desativamos colisão instantaneamente
+	if not is_inside_tree(): return
 	set_deferred("monitoring", false)
 	visible = false
 	# TODO: Instanciar efeito de explosão aqui

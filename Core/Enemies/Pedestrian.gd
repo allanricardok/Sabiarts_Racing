@@ -1,6 +1,8 @@
 # Pedestrian.gd
 extends CharacterBody3D
 
+var is_dead: bool = false
+
 @export_group("Pedestrian Settings")
 @export var base_speed: float = 6.0
 ## Se ativo, ele foge magicamente dos carros e não morre atropelado (Estilo Driver)
@@ -83,7 +85,16 @@ func _on_hitbox_body_entered(body):
 		take_damage(100.0, body)
 
 func take_damage(amount: float, attacker: Node3D = null):
-	if is_invincible: return 
+	var attacker_name = attacker.name if is_instance_valid(attacker) else "Desconhecido"
+	
+	# NOVO LOG: O pedestre escutou a chamada de dano
+	print("[PEDESTRE DEBUG] O Pedestre ", self.name, " recebeu a chamada de dano do atacante: ", attacker_name)
+
+	# --- BLINDAGEM CONTRA METRALHADORA (MULTI-HITS) ---
+	if is_invincible or is_dead: 
+		print(" -> Mas o pedestre ignorou o tiro (Invencível ou já estava morto).")
+		return 
+	is_dead = true # Morreu!
 	
 	var actual_shooter = attacker
 	if attacker and "shooter" in attacker and is_instance_valid(attacker.shooter):
@@ -97,7 +108,9 @@ func take_damage(amount: float, attacker: Node3D = null):
 		var gtm = actual_shooter.get_node_or_null("%GroundTrickManager")
 		if gtm:
 			gtm.add_ground_action("HIT_OBJECT")
+			
 	if GameStats:
 		GameStats.add_pedestrian_kill()
-	# TODO: Instanciar VFX/SFX de morte
+		
+	# TODO: Instanciar VFX/SFX de morte (Isso vai resolver a sua sensação de tiros falsos!)
 	queue_free()

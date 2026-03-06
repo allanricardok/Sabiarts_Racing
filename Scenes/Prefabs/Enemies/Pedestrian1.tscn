@@ -21,11 +21,11 @@ animations = [{
 }]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_8jl4j"]
-size = Vector3(2.5570679, 2.6169128, 1.5858154)
+size = Vector3(3.3457031, 3.1007614, 1.5858154)
 
 [node name="Pedestrian" type="CharacterBody3D" groups=["pedestrians"]]
 script = ExtResource("1_pv5kd")
-base_speed = 20.0
+base_speed = 10.0
 max_wander_radius = 100.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
@@ -40,7 +40,7 @@ frame_progress = 0.9890991
 [node name="Hitbox" type="Area3D" parent="."]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Hitbox"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.08169556, -0.016036987, 0.2929077)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.08169556, -0.25796127, 0.2929077)
 shape = SubResource("BoxShape3D_8jl4j")
 
 [connection signal="body_entered" from="Hitbox" to="." method="_on_hitbox_body_entered"]

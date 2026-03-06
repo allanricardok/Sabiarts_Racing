@@ -7,7 +7,6 @@ extends Area3D
 @export var finish_boost_force : float = 15.0 
 
 @export_group("Física de Combate")
-## Força do tranco inicial que o inimigo sofre quando o cabo agarra nele
 @export var knockback_force: float = 100.0
 
 @export_group("Visuals")
@@ -76,10 +75,8 @@ func _physics_process(delta):
 		real_delta = delta / Engine.time_scale
 
 	if not is_tethered:
-		# Passamos o tempo real para o estado de voo
 		_state_flying(real_delta)
 	else:
-		# Passamos o tempo real para o estado de puxão
 		_state_tethered(real_delta)
 	
 	_update_cable_visual()
@@ -171,21 +168,30 @@ func _on_area_entered(area):
 		_process_impact(area)
 
 func _process_impact(target_node):
-	var actual_target = target_node
+	# 1. BLINDAGEM DO ALVO
 	if not is_instance_valid(target_node): return
+	if target_node.is_queued_for_deletion(): return
+
+	var actual_target = target_node
 	if target_node is Area3D:
-		var dono = target_node.owner if target_node.owner else target_node.get_parent()
+		var dono = null
+		if is_instance_valid(target_node.owner):
+			dono = target_node.owner
+		elif is_instance_valid(target_node.get_parent()):
+			dono = target_node.get_parent()
 		
 		if dono and (dono.has_method("take_damage") or dono.is_in_group("jogadores") or dono.is_in_group("inimigos") or dono.is_in_group("destructibles")):
 			actual_target = dono
 		else:
 			return 
 		
-	if actual_target == shooter or actual_target == shooter.owner: return
+	# 2. BLINDAGEM DO ATIRADOR
+	if is_instance_valid(shooter):
+		if actual_target == shooter or actual_target == shooter.owner: 
+			return
 	
 	if (actual_target is Marker3D) or ("SpawnPoint" in actual_target.name): return
 		
-	# --- MUDANÇA SÊNIOR: O próprio gancho (self) passa a física para a vítima ---
 	if target_node.has_method("take_damage"):
 		target_node.take_damage(damage, self)
 		

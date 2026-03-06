@@ -44,32 +44,28 @@ func _physics_process(delta):
 func _on_impact(target_node):
 	if hit_done: return
 	
-	# --- CORREÇÃO: BLINDAGEM DUPLA (LIMBO DO QUEUE_FREE) ---
-	# 1. Verifica se a memória existe
 	if not is_instance_valid(target_node): return
-	# 2. Verifica se ele já está com o "pé na cova" (esperando o fim do frame para sumir)
 	if target_node.is_queued_for_deletion(): return
 	
-	# Identifica de quem é a Hitbox para evitar fogo amigo
 	var actual_target = target_node
 	if target_node is Area3D:
-		# Camada extra de segurança antes de acessar a hierarquia
 		if is_instance_valid(target_node.owner):
 			actual_target = target_node.owner
 		elif is_instance_valid(target_node.get_parent()):
 			actual_target = target_node.get_parent()
 		
-	# Previne atirar em si mesmo
-	if actual_target == shooter or actual_target == shooter.owner: 
-		return
-		
+	if is_instance_valid(shooter):
+		if actual_target == shooter or actual_target == shooter.owner: 
+			return
+			
 	hit_done = true
 	
-	# A própria bala se apresenta como o 'source' do impacto!
-	if target_node.has_method("take_damage"):
-		target_node.take_damage(damage, self) 
+	# Pode remover os logs de debug agora se quiser!
+	#print("[ARMA DEBUG] O Tiro básico encostou no objeto: ", actual_target.name)
 	
-	_play_impact_vfx()
+	# --- A GRANDE CORREÇÃO: Usar actual_target em vez de target_node ---
+	if actual_target.has_method("take_damage"):
+		actual_target.take_damage(damage, self) 
 	
 	_play_impact_vfx()
 

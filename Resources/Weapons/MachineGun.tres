@@ -7,7 +7,7 @@
 script = ExtResource("2_3btmi")
 nome = "MachineGun"
 projectile_scene = ExtResource("1_mggp1")
-dano = 0.5
-fire_rate = 0.15
+dano = 0.3
+fire_rate = 0.1
 ammo = -1
 metadata/_custom_type_script = "uid://5wgfj8fmfmgf"

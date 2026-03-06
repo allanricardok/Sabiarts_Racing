@@ -214,38 +214,56 @@ func update_radar_data(targets: Array, lockon_target: Node3D, player_pos: Vector
 	_update_target_info_ui()
 
 func _update_target_info_ui():
-	# Se não temos painel configurado, ignora
 	if not target_info_panel: return
 	
-	if is_instance_valid(_radar_current_target):
+	var display_target = _radar_current_target
+	
+	# Se não temos um alvo travado, OU se o alvo travado for um pedestre...
+	if not is_instance_valid(display_target) or display_target.is_in_group("pedestrians"):
+		display_target = null
+		var closest_dist = INF
+		
+		# --- CORREÇÃO: BUSCA GLOBAL ---
+		# Buscamos diretamente no mundo inteiro, e não apenas no pequeno raio do radar!
+		var all_players = get_tree().get_nodes_in_group("jogadores")
+		var all_turrets = get_tree().get_nodes_in_group("inimigos")
+		var all_props = get_tree().get_nodes_in_group("destructibles")
+		
+		# Junta todo mundo (excluindo os pedestres)
+		var valid_fallback_targets = all_players + all_turrets + all_props
+		
+		for t in valid_fallback_targets:
+			if is_instance_valid(t) and t != my_car:
+				var dist = _radar_player_pos.distance_to(t.global_position)
+				if dist < closest_dist:
+					closest_dist = dist
+					display_target = t # Elege o alvo não-pedestre mais próximo de você
+					
+	# Agora desenhamos a UI baseada no display_target escolhido
+	if is_instance_valid(display_target):
 		target_info_panel.visible = true
 		if target_name_label:
-			target_name_label.text = _radar_current_target.name
+			target_name_label.text = display_target.name
 		
 		if target_hp_bar:
 			var current_hp = 0.0
 			var max_hp = 100.0
 			var found_health_data = false
 			
-			# 1. Tenta achar via StatsComponent (Para Carros e Turrets)
-			var stats = _radar_current_target.find_child("StatsComponent*", true, false)
+			var stats = display_target.find_child("StatsComponent*", true, false)
 			if stats:
 				current_hp = stats.current_health
 				max_hp = stats.max_health
 				found_health_data = true
-				
-			# 2. Se não achou, tenta achar via Duck Typing (Para DestructibleProps)
-			elif "health" in _radar_current_target and "max_health" in _radar_current_target:
-				current_hp = _radar_current_target.health
-				max_hp = _radar_current_target.max_health
+			elif "health" in display_target and "max_health" in display_target:
+				current_hp = display_target.health
+				max_hp = display_target.max_health
 				found_health_data = true
 				
-			# 3. Se achou os dados de qualquer uma das formas, atualiza a UI
 			if found_health_data:
 				target_hp_bar.max_value = max_hp
 				target_hp_bar.value = current_hp
 				
-				# --- LÓGICA DE COR (DEGRADÊ) ---
 				var pct = (current_hp / max_hp) * 100.0
 				var current_color = Color.RED
 				

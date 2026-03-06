@@ -24,6 +24,7 @@ animations = [{
 size = Vector3(2.5570679, 2.6169128, 1.5858154)
 
 [node name="Pedestrian" type="CharacterBody3D" groups=["pedestrians"]]
+collision_mask = 11
 script = ExtResource("1_7hgr0")
 base_speed = 1.0
 is_invincible = true
