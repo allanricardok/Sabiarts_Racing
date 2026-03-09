@@ -34,6 +34,10 @@ func _update_visuals():
 	if "custom_mesh" in item_data and item_data.custom_mesh:
 		mesh_inst.mesh = item_data.custom_mesh
 		
+		# --- A CURA DO BUG INVISÍVEL ---
+		# Força o manequim a ficar visível não importa como a cena foi salva!
+		mesh_inst.visible = true 
+		
 		if "mesh_scale" in item_data:
 			mesh_inst.scale = item_data.mesh_scale
 			

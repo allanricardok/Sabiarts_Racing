@@ -12,3 +12,5 @@ script = ExtResource("1_spuik")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("BoxShape3D_aowhd")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]

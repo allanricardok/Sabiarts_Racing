@@ -9,17 +9,17 @@ class_name AbilityComponent
 # --- SISTEMA DE ENERGIA ---
 @export_group("Energy System")
 @export var MAX_ENERGY : float = 100.0
-@export var REGEN_RATE : float = 5.0 # Editável como você pediu
+@export var REGEN_RATE : float = 3.0
 @export var current_energy : float = 100.0
 
 @export_group("Ability Costs")
-@export var COST_TELEPORT : float = 60.0
+@export var COST_TELEPORT : float = 70.0
 @export var COST_JUMP : float = 20.0
-@export var COST_SHIELD : float = 40.0
+@export var COST_SHIELD : float = 50.0
 @export var COST_BOOST : float = 20.0
 
 @export_group("Cooldown")
-@export var SHARED_COOLDOWN_TIME : float = 1.0
+@export var SHARED_COOLDOWN_TIME : float = 1.5
 var current_cooldown : float = 0.0
 
 @export_group("UI")
@@ -33,18 +33,22 @@ var shield_material : StandardMaterial3D
 @export var BOOST_IMPULSE : float = 65.0
 @export var SHIELD_TIME : float = 2.5
 
+# --- LÓGICA DE COMBO (TAP + HOLD) ---
+var _was_attribute_pressed : bool = false
+var tap_count : int = 0
+var sequence_timer : float = 0.0
+const SEQUENCE_WINDOW : float = 0.45 # Exatos 450ms, igual ao seu TrickBuilder!
+
 var spawn_transform : Transform3D
 
 func _ready():
-	# Salva a posição e rotação inicial para o Teleport Spawn
 	spawn_transform = car.global_transform
 	current_energy = MAX_ENERGY
 	
-	# Inicializa o material de prata metálica para o Shield
 	shield_material = StandardMaterial3D.new()
 	shield_material.albedo_color = Color(0.42, 0.45, 0.45) 
-	shield_material.metallic = 0.8 # Ficou 1.0 para ser 100% metálico como pedido
-	shield_material.roughness = 0.1 # Menos rugosidade = mais espelhado
+	shield_material.metallic = 0.8 
+	shield_material.roughness = 0.1 
 	
 	if energy_bar:
 		energy_bar.max_value = MAX_ENERGY
@@ -52,63 +56,72 @@ func _ready():
 		cooldown_bar.max_value = SHARED_COOLDOWN_TIME
 
 func _process(delta):
-	# 1. Recuperação de Energia
+	# 1. Recuperação e Cooldown
 	if current_energy < MAX_ENERGY:
 		current_energy = move_toward(current_energy, MAX_ENERGY, REGEN_RATE * delta)
-	
-	# 2. Gestão de Cooldown Global
 	if current_cooldown > 0:
 		current_cooldown -= delta
-	
-	# --- ATUALIZAÇÃO DAS BARRAS HUD ---
-	if energy_bar:
-		energy_bar.value = current_energy
-	
-	if cooldown_bar:
-		cooldown_bar.value = current_cooldown
+		
+	# 2. Timer da janela de Combo
+	if sequence_timer > 0:
+		sequence_timer -= delta
+		
+	# --- ATUALIZAÇÃO DAS BARRAS ---
+	if energy_bar: energy_bar.value = current_energy
+	if cooldown_bar: cooldown_bar.value = current_cooldown
 	
 	if not car.pode_mover: return
 
-	# 3. Lógica de Ativação (Baseada no novo botão Modificador: Attribute/Círculo)
+	# --- 3. LÓGICA DE TAP (TOQUES) ---
+	var attribute_just_pressed = input.is_attribute_pressed and not _was_attribute_pressed
+	
+	if attribute_just_pressed:
+		if sequence_timer <= 0:
+			tap_count = 1 # Primeiro toque
+		else:
+			tap_count += 1 # Segundo toque (ou mais)
+		sequence_timer = SEQUENCE_WINDOW # Renova a janela de tempo
+		
+	# Se o jogador soltou o botão e o tempo expirou, zera a contagem
+	if not input.is_attribute_pressed and sequence_timer <= 0:
+		tap_count = 0
+
+	# --- 4. EXECUÇÃO ENQUANTO MANTÉM PRESSIONADO ---
 	if input.is_attribute_pressed and current_cooldown <= 0:
 		_checar_combos_habilidade()
 
+	_was_attribute_pressed = input.is_attribute_pressed
+
 func _checar_combos_habilidade():
-	# Cima (Analógico) -> Agora executa o BOOST (Turbo)
-	if input.ability_up:
+	# TELEPORTE: Exige tap_count >= 2 (Toque duplo + Segurar) e Esquerda!
+	if input.ability_left and tap_count >= 2:
+		if current_energy >= COST_TELEPORT: _execute_teleport()
+		else: _erro_falta_energia()
+		
+	# As outras podem ser ativadas segurando no primeiro toque normal
+	elif input.ability_up:
 		if current_energy >= COST_BOOST: _execute_boost()
 		else: _erro_falta_energia()
-	
-	# Baixo (Analógico) -> Agora executa o PULO
+		
 	elif input.ability_down:
 		if current_energy >= COST_JUMP: _execute_jump()
 		else: _erro_falta_energia()
-	
-	# Esquerda (Analógico) -> TELEPORT
-	elif input.ability_left:
-		if current_energy >= COST_TELEPORT: _execute_teleport()
-		else: _erro_falta_energia()
-	
-	# Direita (Analógico) -> SHIELD
+		
 	elif input.ability_right:
 		if current_energy >= COST_SHIELD: _execute_shield()
 		else: _erro_falta_energia()
-# --- FUNÇÃO DE FEEDBACK VISUAL ---
+
+# --- FUNÇÕES DE EXECUÇÃO ---
 
 func _erro_falta_energia():
 	if energy_bar:
-		# Mata qualquer tween ou timer anterior para não haver conflito de cores
 		energy_bar.modulate = Color.RED
-		
-		# Criamos um timer único para voltar ao branco
 		var timer = get_tree().create_timer(0.5)
 		timer.timeout.connect(func():
-			# Usamos um lerp simples ou apenas voltamos para o branco
-			var tween = get_tree().create_tween()
-			tween.tween_property(energy_bar, "modulate", Color.WHITE, 0.2)
+			if is_instance_valid(energy_bar):
+				var tween = get_tree().create_tween()
+				tween.tween_property(energy_bar, "modulate", Color.WHITE, 0.2)
 		)
-
-# --- EXECUÇÃO DAS HABILIDADES ---
 
 func _execute_jump():
 	current_energy -= COST_JUMP
@@ -123,21 +136,36 @@ func _execute_boost():
 	_start_cooldown()
 
 func _execute_teleport():
-	# Teleporta para a posição salva no _ready
-	current_energy -= COST_TELEPORT
-	car.global_transform = spawn_transform
-	# Limpa as forças para não aparecer no spawn "voando"
-	car.linear_velocity = Vector3.ZERO
-	car.angular_velocity = Vector3.ZERO
-	_start_cooldown()
+	# Puxa os pontos de teleporte e acha o mais próximo que seja válido (> 20m)
+	var teleport_markers = get_tree().get_nodes_in_group("AbilityTeleport")
+	
+	if teleport_markers.is_empty():
+		return
+		
+	var closest_marker : Node3D = null
+	var closest_dist = INF
+	
+	for marker in teleport_markers:
+		var dist = car.global_position.distance_to(marker.global_position)
+		if dist >= 80.0 and dist < closest_dist:
+			closest_dist = dist
+			closest_marker = marker
+			
+	if closest_marker:
+		current_energy -= COST_TELEPORT
+		car.global_transform = closest_marker.global_transform
+		car.linear_velocity = Vector3.ZERO
+		car.angular_velocity = Vector3.ZERO
+			
+		_start_cooldown()
+	else:
+		_erro_falta_energia()
 
 func _execute_shield():
 	current_energy -= COST_SHIELD
 	if stats: stats.is_invulnerable = true
 	
-	# Efeito visual 100% Prata Metálico
 	_set_car_silver_effect(true)
-	
 	_start_cooldown()
 	
 	get_tree().create_timer(SHIELD_TIME).timeout.connect(func():
@@ -146,13 +174,10 @@ func _execute_shield():
 	)
 
 func _set_car_silver_effect(active: bool):
-	# Procura todas as meshes do carro para aplicar o cromo
 	var all_meshes = car.find_children("*", "MeshInstance3D", true)
 	for mesh in all_meshes:
-		if active:
-			mesh.material_override = shield_material
-		else:
-			mesh.material_override = null
+		if active: mesh.material_override = shield_material
+		else: mesh.material_override = null
 
 func _start_cooldown():
 	current_cooldown = SHARED_COOLDOWN_TIME

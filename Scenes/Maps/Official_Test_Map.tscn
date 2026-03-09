@@ -1,4 +1,4 @@
-[gd_scene load_steps=157 format=3 uid="uid://d2rblk8h626kc"]
+[gd_scene load_steps=154 format=3 uid="uid://d2rblk8h626kc"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_mm1ty"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="1_rakfq"]
@@ -14,19 +14,16 @@
 [ext_resource type="PackedScene" uid="uid://c2vj1t0kkmxex" path="res://Scenes/Prefabs/Items/WeaponPickup.tscn" id="8_ka3dh"]
 [ext_resource type="Resource" uid="uid://daftw5fiqy8a5" path="res://Resources/Weapons/BigSlow.tres" id="10_p07jo"]
 [ext_resource type="Resource" uid="uid://b4n2n37tjg3ed" path="res://Resources/Weapons/HomingMissile.tres" id="11_1cqfe"]
-[ext_resource type="Script" uid="uid://cjj6dvautg8bu" path="res://Core/Items/UniversalPickup.gd" id="11_2p5n0"]
-[ext_resource type="CapsuleMesh" uid="uid://cb3ona2hthmuf" path="res://Assets/3D/yellow_capsule.tres" id="12_lmn2j"]
 [ext_resource type="Script" uid="uid://s5ljh6h40llv" path="res://Core/Objectives/CollectibleItem.gd" id="13_7c4m2"]
 [ext_resource type="Resource" uid="uid://nthc58owrale" path="res://Resources/Weapons/GrappleMissile.tres" id="13_dnuhq"]
-[ext_resource type="CapsuleMesh" uid="uid://bxy5ey4x44ega" path="res://Assets/3D/blue_capsule.tres" id="14_187w2"]
 [ext_resource type="PackedScene" uid="uid://8xllk2f6a63v" path="res://Assets/3D/vigilante_v8_2nd_offence_obakes_tsunami.glb" id="14_el8m7"]
 [ext_resource type="PackedScene" uid="uid://b2k5h2ktecs3c" path="res://Scenes/Prefabs/Triggers/ExplorationArea.tscn" id="15_3i0df"]
-[ext_resource type="CapsuleMesh" uid="uid://bcbcqwgvv6iqx" path="res://Assets/3D/pink_capsule.tres" id="16_187w2"]
 [ext_resource type="Script" uid="uid://1qg3wklklqlt" path="res://Core/Objectives/LevelController.gd" id="16_li3u3"]
 [ext_resource type="Script" uid="uid://srf4jbjqbkxl" path="res://Core/Objectives/GapPoint.gd" id="16_vgdhx"]
 [ext_resource type="PackedScene" uid="uid://cdg3xi8hhsm0t" path="res://Scenes/Prefabs/Items/BoostPad.tscn" id="17_vj3fg"]
 [ext_resource type="Resource" uid="uid://7d4ald45sgah" path="res://Resources/TestMapMissions.tres" id="17_x31xc"]
 [ext_resource type="PackedScene" uid="uid://bp4khshtfj0rp" path="res://Scenes/Prefabs/Items/UniversalPickup.tscn" id="18_klx8g"]
+[ext_resource type="PackedScene" uid="uid://diff4fm8e6dig" path="res://Scenes/Prefabs/Enemies/ItemSpawner.tscn" id="18_opahr"]
 [ext_resource type="PackedScene" uid="uid://dpjwvb143dxpb" path="res://Scenes/Prefabs/Items/JumpPad.tscn" id="18_vgdhx"]
 [ext_resource type="PackedScene" uid="uid://dadt551bspl1q" path="res://Scenes/Prefabs/Items/FloatingObject.tscn" id="19_081xm"]
 [ext_resource type="Resource" uid="uid://hv86l3gypxgx" path="res://Resources/Items/HealthItem.tres" id="19_rldcu"]
@@ -1126,113 +1123,45 @@ transform = Transform3D(-4.371138e-08, 0, 0.9999998, 0, 1, 0, -0.9999998, 0, -4.
 
 [node name="Pickups" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
 
-[node name="BigSlowPickup" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
-transform = Transform3D(0.7510213, 0, -0.6602714, 0, 1, 0, 0.6602714, 0, 0.7510213, -127.982346, 0.019997485, 37.00815)
-script = ExtResource("11_2p5n0")
-item_data = ExtResource("10_p07jo")
-preview_animacao = false
+[node name="ItemSpawner" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("18_opahr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.822699, -0.11270952, 1.4090614)
+pickup_scene = ExtResource("18_klx8g")
+specific_item = ExtResource("11_1cqfe")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups/BigSlowPickup"]
-mesh = ExtResource("12_lmn2j")
+[node name="ItemSpawner2" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("18_opahr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -130.44061, -0.11270952, 39.409275)
+pickup_scene = ExtResource("18_klx8g")
+specific_item = ExtResource("10_p07jo")
 
-[node name="BigSlowPickup2" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
-transform = Transform3D(0.17908177, 0, 0.9838303, 0, 1, 0, -0.9838303, 0, 0.17908177, -225.1669, 8.141207, -156.73625)
-script = ExtResource("11_2p5n0")
-item_data = ExtResource("10_p07jo")
-preview_animacao = false
+[node name="ItemSpawner3" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("18_opahr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -54.307266, -0.11270952, -141.18747)
+pickup_scene = ExtResource("18_klx8g")
+specific_item = ExtResource("13_dnuhq")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups/BigSlowPickup2"]
-mesh = ExtResource("12_lmn2j")
+[node name="ItemSpawner4" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("18_opahr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 91.48723, -0.11270952, 1.4090614)
+pickup_scene = ExtResource("18_klx8g")
+specific_item = ExtResource("10_p07jo")
 
-[node name="MissilePickup" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38.54969, 9.446865, -25.134945)
-script = ExtResource("11_2p5n0")
-item_data = ExtResource("11_1cqfe")
-preview_animacao = false
+[node name="ItemSpawner5" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("18_opahr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -326.47766, -0.11270952, -59.16664)
+pickup_scene = ExtResource("18_klx8g")
+specific_item = ExtResource("11_1cqfe")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups/MissilePickup"]
-mesh = ExtResource("14_187w2")
+[node name="ItemSpawner6" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("18_opahr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -260.0532, 8.230984, -157.44566)
+pickup_scene = ExtResource("18_klx8g")
+specific_item = ExtResource("13_dnuhq")
 
-[node name="MissilePickup2" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -336.9929, 3.3929348, 37.00815)
-script = ExtResource("11_2p5n0")
-item_data = ExtResource("11_1cqfe")
-preview_animacao = false
+[node name="ItemSpawner7" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("18_opahr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 270.13837, -0.11270952, 1.4090614)
+pickup_scene = ExtResource("18_klx8g")
+specific_item = ExtResource("13_dnuhq")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups/MissilePickup2"]
-mesh = ExtResource("14_187w2")
-
-[node name="MissilePickup3" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -80.44493, 20.247616, 186.34505)
-script = ExtResource("11_2p5n0")
-item_data = ExtResource("11_1cqfe")
-preview_animacao = false
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups/MissilePickup3"]
-mesh = ExtResource("14_187w2")
-
-[node name="MissilePickup4" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.3232174, 0, -113.14746)
-script = ExtResource("11_2p5n0")
-item_data = ExtResource("11_1cqfe")
-preview_animacao = false
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups/MissilePickup4"]
-mesh = ExtResource("14_187w2")
-
-[node name="MissilePickup5" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -39.483673, 0, -155.21623)
-script = ExtResource("11_2p5n0")
-item_data = ExtResource("11_1cqfe")
-preview_animacao = false
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups/MissilePickup5"]
-mesh = ExtResource("14_187w2")
-
-[node name="GrapplePickup" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 213.23068, 0, -141.31418)
-script = ExtResource("11_2p5n0")
-item_data = ExtResource("13_dnuhq")
-preview_animacao = false
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups/GrapplePickup"]
-mesh = ExtResource("16_187w2")
-
-[node name="GrapplePickup2" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40.365494, 0, -128.52505)
-script = ExtResource("11_2p5n0")
-item_data = ExtResource("13_dnuhq")
-preview_animacao = false
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups/GrapplePickup2"]
-mesh = ExtResource("16_187w2")
-
-[node name="GrapplePickup3" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -263.58167, 25.714651, -170.19572)
-script = ExtResource("11_2p5n0")
-item_data = ExtResource("13_dnuhq")
-preview_animacao = false
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups/GrapplePickup3"]
-mesh = ExtResource("16_187w2")
-
-[node name="GrapplePickup4" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -289.69055, 10.456411, -96.259384)
-script = ExtResource("11_2p5n0")
-item_data = ExtResource("13_dnuhq")
-preview_animacao = false
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups/GrapplePickup4"]
-mesh = ExtResource("16_187w2")
-
-[node name="BigSlowPickup3" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_ka3dh")]
-transform = Transform3D(0.17908177, 0, 0.9838303, 0, 1, 0, -0.9838303, 0, 0.17908177, -127.982346, 0.16308004, -361.13467)
-script = ExtResource("11_2p5n0")
-item_data = ExtResource("10_p07jo")
-preview_animacao = false
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups/BigSlowPickup3"]
-mesh = ExtResource("12_lmn2j")
+[node name="ItemSpawner8" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("18_opahr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -150.28021, 20.380953, 188.06352)
+pickup_scene = ExtResource("18_klx8g")
+specific_item = ExtResource("10_p07jo")
 
 [node name="Mission_Items" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
 
@@ -1364,7 +1293,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.63427925, 0)
 transform = Transform3D(0.98471665, 0, -0.18562213, 0, 1, 0, 0.18562213, 0, 0.98471665, 112.303314, 0.20363593, -1.7466412)
 item_data = ExtResource("19_rldcu")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup"]
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup"]
 material_override = SubResource("StandardMaterial3D_lgb87")
 mesh = SubResource("PrismMesh_5twny")
 
@@ -1375,7 +1304,7 @@ shape = SubResource("BoxShape3D_klx8g")
 transform = Transform3D(0.98471665, 0, -0.18562213, 0, 1, 0, 0.18562213, 0, 0.98471665, -102.046036, 13.240561, 13.206718)
 item_data = ExtResource("20_d07yr")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup2"]
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup2"]
 material_override = SubResource("StandardMaterial3D_opahr")
 mesh = SubResource("PrismMesh_1yjh2")
 
@@ -1386,7 +1315,7 @@ shape = SubResource("BoxShape3D_klx8g")
 transform = Transform3D(0.98471665, 0, -0.18562213, 0, 1, 0, 0.18562213, 0, 0.98471665, 214.24896, 31.02908, 149.77692)
 item_data = ExtResource("21_4j5t4")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup3"]
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup3"]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
 material_override = SubResource("StandardMaterial3D_hctfs")
 mesh = SubResource("PrismMesh_yeuu5")
@@ -1398,7 +1327,7 @@ shape = SubResource("BoxShape3D_klx8g")
 transform = Transform3D(0.98471665, 0, -0.18562213, 0, 1, 0, 0.18562213, 0, 0.98471665, -74.006744, 79.45731, -12.619397)
 item_data = ExtResource("22_mudyu")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup4"]
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup4"]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
 material_override = SubResource("StandardMaterial3D_hltcm")
 mesh = SubResource("PrismMesh_f13cj")
@@ -1410,7 +1339,7 @@ shape = SubResource("BoxShape3D_klx8g")
 transform = Transform3D(-0.5345576, 0, -0.84758097, 0, 1, 0, 0.84758097, 0, -0.5345576, -206.2727, 28.570799, 109.53064)
 item_data = ExtResource("19_rldcu")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup5"]
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup5"]
 material_override = SubResource("StandardMaterial3D_pji7s")
 mesh = SubResource("PrismMesh_5twny")
 
@@ -1421,7 +1350,7 @@ shape = SubResource("BoxShape3D_klx8g")
 transform = Transform3D(0.98471665, 0, -0.18562213, 0, 1, 0, 0.18562213, 0, 0.98471665, -198.18347, 6.4580336, -21.712364)
 item_data = ExtResource("20_d07yr")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup6"]
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup6"]
 material_override = SubResource("StandardMaterial3D_etf2l")
 mesh = SubResource("PrismMesh_1yjh2")
 
@@ -1432,7 +1361,7 @@ shape = SubResource("BoxShape3D_klx8g")
 transform = Transform3D(-0.5345576, 0, -0.84758097, 0, 1, 0, 0.84758097, 0, -0.5345576, -248.30455, 7.105812, -22.534058)
 item_data = ExtResource("19_rldcu")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup7"]
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup7"]
 material_override = SubResource("StandardMaterial3D_n4ujd")
 mesh = SubResource("PrismMesh_5twny")
 
@@ -1443,7 +1372,7 @@ shape = SubResource("BoxShape3D_klx8g")
 transform = Transform3D(0.98471665, 0, -0.18562213, 0, 1, 0, 0.18562213, 0, 0.98471665, 126.141205, 0.20363593, -1.7466412)
 item_data = ExtResource("19_rldcu")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup8"]
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup8"]
 material_override = SubResource("StandardMaterial3D_vpx50")
 mesh = SubResource("PrismMesh_5twny")
 
@@ -1454,7 +1383,7 @@ shape = SubResource("BoxShape3D_klx8g")
 transform = Transform3D(0.98471665, 0, -0.18562213, 0, 1, 0, 0.18562213, 0, 0.98471665, -91.16997, 19.9973, 227.43327)
 item_data = ExtResource("20_d07yr")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup9"]
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup9"]
 material_override = SubResource("StandardMaterial3D_yty7a")
 mesh = SubResource("PrismMesh_1yjh2")
 
@@ -1465,7 +1394,7 @@ shape = SubResource("BoxShape3D_klx8g")
 
 [node name="EnemyTurret" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Enemies" instance=ExtResource("23_rldcu")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -43.07503, 0.33784318, -141.94794)
-drop_item_scene = ExtResource("8_ka3dh")
+drop_item_scene = ExtResource("18_klx8g")
 drop_item_resource = ExtResource("11_1cqfe")
 
 [node name="EnemyTurret2" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Enemies" instance=ExtResource("23_rldcu")]
@@ -1560,6 +1489,35 @@ max_shield = 0.0
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Enemies/EnemyTurretPLUS"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.098983765, -0.12855339, 0.054927826)
 shape = SubResource("CylinderShape3D_qt66q")
+
+[node name="AbilityTeleportMarkers" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
+
+[node name="Marker3D" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/AbilityTeleportMarkers" groups=["AbilityTeleport"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0520811, 15.452152)
+
+[node name="Marker3D2" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/AbilityTeleportMarkers" groups=["AbilityTeleport"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -131.63576, 1.0520811, 15.452152)
+
+[node name="Marker3D3" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/AbilityTeleportMarkers" groups=["AbilityTeleport"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -307.06268, 1.0520811, -64.905975)
+
+[node name="Marker3D4" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/AbilityTeleportMarkers" groups=["AbilityTeleport"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -79.67105, 1.0520811, -165.72525)
+
+[node name="Marker3D5" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/AbilityTeleportMarkers" groups=["AbilityTeleport"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 157.28796, 1.0520811, -121.842445)
+
+[node name="Marker3D6" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/AbilityTeleportMarkers" groups=["AbilityTeleport"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 157.28796, 1.0520811, 188.82698)
+
+[node name="Marker3D7" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/AbilityTeleportMarkers" groups=["AbilityTeleport"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -147.67677, 21.17511, 188.82698)
+
+[node name="Marker3D8" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/AbilityTeleportMarkers" groups=["AbilityTeleport"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -339.48517, 11.060591, 123.16139)
+
+[node name="Marker3D9" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/AbilityTeleportMarkers" groups=["AbilityTeleport"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -274.8238, 8.890818, -162.40982)
 
 [node name="Pads" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
 

@@ -13,15 +13,15 @@ class_name GroundTrickManager
 
 @export_group("Limites")
 ## Multiplicador máximo que o jogador pode alcançar no chão
-@export var MAX_COMBO_MULTIPLIER : float = 10.0
+@export var MAX_COMBO_MULTIPLIER : float = 5.0
 
 # Cor padrão para ações de combate/chão
 const COLOR_GROUND = "#ff4444" # Vermelho
 
 const GROUND_DATA = {
 	"HIT_OBJECT": {"name": "Hit object", "points": 5},
-	"DESTROY_OBJECT": {"name": "Destroyed object", "points": 500},
-	"COMBAT_HIT": {"name": "Impact!", "points": 150}
+	"DESTROY_OBJECT": {"name": "Destroyed object", "points": 100},
+	"COMBAT_HIT": {"name": "Impact!", "points": 50}
 }
 
 var actions_done : Array = []
