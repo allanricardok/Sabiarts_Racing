@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://ce2gdvomfunn8"]
+[gd_scene load_steps=5 format=3 uid="uid://ce2gdvomfunn8"]
 
 [ext_resource type="Script" uid="uid://dsev4t7ikm1du" path="res://Core/Menus/lobby.gd" id="1_qyifk"]
 [ext_resource type="PackedScene" uid="uid://d2rblk8h626kc" path="res://Scenes/Maps/Official_Test_Map.tscn" id="2_353f8"]
+[ext_resource type="PackedScene" uid="uid://d1rl8sskrmddj" path="res://Scenes/Maps/BuenosAires_BlockedVS.tscn" id="3_6jtbh"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jrgwx"]
 content_margin_left = 25.0
@@ -29,7 +30,8 @@ offset_right = 9.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_qyifk")
-cenas_dos_mapas = Array[PackedScene]([ExtResource("2_353f8")])
+nomes_dos_mapas = Array[String](["Official_Test_Map", "BA"])
+cenas_dos_mapas = Array[PackedScene]([ExtResource("2_353f8"), ExtResource("3_6jtbh")])
 
 [node name="ColorRect" type="ColorRect" parent="."]
 layout_mode = 1
@@ -284,7 +286,6 @@ expand_mode = 1
 stretch_mode = 4
 
 [node name="MapPanel" type="Control" parent="."]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -336,10 +337,9 @@ theme_override_font_sizes/font_size = 32
 text = "Official_Test_Map"
 
 [node name="LabelMapa2" type="Label" parent="MapPanel/VBoxContainer"]
-visible = false
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
-text = "Chaos City"
+text = "BA"
 
 [node name="LabelMapa2" type="Label" parent="MapPanel"]
 layout_mode = 0

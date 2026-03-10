@@ -1,0 +1,816 @@
+[gd_scene load_steps=87 format=3 uid="uid://d1rl8sskrmddj"]
+
+[ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_u8o8m"]
+[ext_resource type="PackedScene" uid="uid://cw8ofahu5mqhn" path="res://Scenes/Prefabs/Vehicles/BaseVehicle.tscn" id="2_g1d4t"]
+[ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="3_is8dr"]
+[ext_resource type="PackedScene" uid="uid://cd7vj18kiokji" path="res://Scenes/Prefabs/Triggers/Speedtrap.tscn" id="4_pyjdw"]
+[ext_resource type="Texture2D" uid="uid://bwpxnucjbgwg4" path="res://Assets/2D/2026-03-08 22_40_26-Maps Layout - Google Planilhas.png" id="5_u8o8m"]
+[ext_resource type="PackedScene" uid="uid://3jy2jv3yflr2" path="res://Scenes/Prefabs/Items/ObjectBase.tscn" id="6_oublg"]
+[ext_resource type="PackedScene" uid="uid://culevpqmdi0u8" path="res://Scenes/Prefabs/Items/Teleporter.tscn" id="7_ip1o4"]
+[ext_resource type="PackedScene" uid="uid://diff4fm8e6dig" path="res://Scenes/Prefabs/Enemies/ItemSpawner.tscn" id="8_haj77"]
+[ext_resource type="PackedScene" uid="uid://bp4khshtfj0rp" path="res://Scenes/Prefabs/Items/UniversalPickup.tscn" id="9_kxusw"]
+[ext_resource type="Resource" uid="uid://b4n2n37tjg3ed" path="res://Resources/Weapons/HomingMissile.tres" id="10_75jtm"]
+[ext_resource type="Script" uid="uid://s5ljh6h40llv" path="res://Core/Objectives/CollectibleItem.gd" id="11_6vwi6"]
+[ext_resource type="PackedScene" uid="uid://8xllk2f6a63v" path="res://Assets/3D/vigilante_v8_2nd_offence_obakes_tsunami.glb" id="12_vj8u6"]
+[ext_resource type="PackedScene" uid="uid://b2k5h2ktecs3c" path="res://Scenes/Prefabs/Triggers/ExplorationArea.tscn" id="13_t5btl"]
+[ext_resource type="Script" uid="uid://srf4jbjqbkxl" path="res://Core/Objectives/GapPoint.gd" id="14_textq"]
+[ext_resource type="Resource" uid="uid://hv86l3gypxgx" path="res://Resources/Items/HealthItem.tres" id="15_o7pxb"]
+[ext_resource type="PackedScene" uid="uid://d08nc5o3ey67t" path="res://Scenes/Prefabs/Enemies/EnemyTurret.tscn" id="16_af68g"]
+[ext_resource type="PackedScene" uid="uid://cdg3xi8hhsm0t" path="res://Scenes/Prefabs/Items/BoostPad.tscn" id="17_stypw"]
+[ext_resource type="PackedScene" uid="uid://dpjwvb143dxpb" path="res://Scenes/Prefabs/Items/JumpPad.tscn" id="18_r7ole"]
+[ext_resource type="PackedScene" uid="uid://dadt551bspl1q" path="res://Scenes/Prefabs/Items/FloatingObject.tscn" id="19_6fv6f"]
+[ext_resource type="PackedScene" uid="uid://dopugjiu2xcnc" path="res://Scenes/Prefabs/Enemies/PedestrianSpawner.tscn" id="20_4e1cd"]
+[ext_resource type="Texture2D" uid="uid://cy74dg4og5fwv" path="res://Assets/2D/skybox_test1.png" id="21_44s4c"]
+[ext_resource type="Material" uid="uid://cbslnqdpwr8nl" path="res://Assets/2D/grass_test.tres" id="21_g1d4t"]
+[ext_resource type="PackedScene" uid="uid://do7x7c5gyyp8g" path="res://Scenes/UI/PauseMenu.tscn" id="22_jtjsh"]
+[ext_resource type="PackedScene" uid="uid://o0rl3lkmd3ty" path="res://Scenes/UI/StartMenu.tscn" id="23_kq8oo"]
+[ext_resource type="PackedScene" uid="uid://otkba37h2pp0" path="res://Scenes/UI/FinishMenu.tscn" id="24_neuqn"]
+[ext_resource type="Script" uid="uid://1qg3wklklqlt" path="res://Core/Objectives/LevelController.gd" id="25_qdutf"]
+[ext_resource type="Resource" uid="uid://7d4ald45sgah" path="res://Resources/TestMapMissions.tres" id="26_gamsr"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_a70xh"]
+material = ExtResource("3_is8dr")
+size = Vector3(1000, 5, 1000)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_hvv5t"]
+points = PackedVector3Array(507.9365, 5.436508, 507.9365, -507.9365, -10.436508, -507.9365, -507.9365, 5.436508, -507.9365, 507.9365, -10.436508, -507.9365, -507.9365, -10.436508, 507.9365, -507.9365, 5.436508, 507.9365, 507.9365, 5.436508, -507.9365, 507.9365, -10.436508, 507.9365)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bnpdo"]
+albedo_color = Color(0.47801313, 0.47801313, 0.47801313, 1)
+albedo_texture = ExtResource("5_u8o8m")
+
+[sub_resource type="QuadMesh" id="QuadMesh_0eu0l"]
+material = SubResource("StandardMaterial3D_bnpdo")
+size = Vector2(750, 900)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_3i0df"]
+size = Vector3(4.53, 3.93, 6.345)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vgdhx"]
+albedo_color = Color(1, 0.8392157, 0, 1)
+metallic = 0.68
+metallic_specular = 1.0
+
+[sub_resource type="TorusMesh" id="TorusMesh_081xm"]
+material = SubResource("StandardMaterial3D_vgdhx")
+inner_radius = 0.645
+outer_radius = 1.663
+rings = 12
+ring_segments = 8
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_15ih5"]
+size = Vector3(80, 80, 80)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vj3fg"]
+transparency = 1
+albedo_color = Color(0.5372549, 1, 0.6666667, 0.4392157)
+
+[sub_resource type="BoxMesh" id="BoxMesh_vgdhx"]
+material = SubResource("StandardMaterial3D_vj3fg")
+size = Vector3(80, 80, 80)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qcgmd"]
+size = Vector3(18.11, 14.808771, 7.102173)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_li3u3"]
+transparency = 1
+albedo_color = Color(0.25490198, 0.7607843, 1, 0.25882354)
+
+[sub_resource type="BoxMesh" id="BoxMesh_x31xc"]
+material = SubResource("StandardMaterial3D_li3u3")
+size = Vector3(16.66, 14.995, 8.645)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_081xm"]
+size = Vector3(42.6, 16.383, 42.21527)
+
+[sub_resource type="BoxMesh" id="BoxMesh_vm5d4"]
+material = SubResource("StandardMaterial3D_li3u3")
+size = Vector3(42.035, 16.07, 44.282)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lgb87"]
+albedo_color = Color(0, 0.2784314, 1, 0.7137255)
+emission_enabled = true
+emission = Color(0, 0.2784314, 1, 0.7137255)
+emission_energy_multiplier = 0.5
+
+[sub_resource type="PrismMesh" id="PrismMesh_5twny"]
+size = Vector3(3, 3, 3)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_klx8g"]
+size = Vector3(3, 3, 3)
+
+[sub_resource type="BoxMesh" id="BoxMesh_u8o8m"]
+size = Vector3(124.8, 55.335, 221.61)
+
+[sub_resource type="BoxMesh" id="BoxMesh_g1d4t"]
+size = Vector3(124.8, 55.335, 89.45)
+
+[sub_resource type="BoxMesh" id="BoxMesh_is8dr"]
+size = Vector3(124.8, 55.335, 44.4)
+
+[sub_resource type="BoxMesh" id="BoxMesh_pyjdw"]
+size = Vector3(53.145, 38.645, 39.21)
+
+[sub_resource type="PrismMesh" id="PrismMesh_vbp2c"]
+left_to_right = 1.0
+size = Vector3(100, 100, 31.13)
+
+[sub_resource type="PrismMesh" id="PrismMesh_oublg"]
+left_to_right = 1.0
+size = Vector3(155, 160, 31.13)
+
+[sub_resource type="BoxMesh" id="BoxMesh_vbp2c"]
+size = Vector3(38.255, 60.66, 159.06)
+
+[sub_resource type="BoxMesh" id="BoxMesh_oublg"]
+size = Vector3(38.255, 60.66, 80.74)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ip1o4"]
+size = Vector3(53.39, 94.85, 80.74)
+
+[sub_resource type="BoxMesh" id="BoxMesh_haj77"]
+size = Vector3(158.885, 94.85, 47.025)
+
+[sub_resource type="BoxMesh" id="BoxMesh_kxusw"]
+size = Vector3(122.51, 94.85, 43.17)
+
+[sub_resource type="BoxMesh" id="BoxMesh_75jtm"]
+size = Vector3(47.05, 94.85, 43.17)
+
+[sub_resource type="BoxMesh" id="BoxMesh_6vwi6"]
+size = Vector3(188.53, 94.85, 50.565)
+
+[sub_resource type="BoxMesh" id="BoxMesh_vj8u6"]
+size = Vector3(207.81, 6.55, 136.46)
+
+[sub_resource type="BoxMesh" id="BoxMesh_t5btl"]
+size = Vector3(188.625, 6.55, 115.33)
+
+[sub_resource type="BoxMesh" id="BoxMesh_textq"]
+size = Vector3(14.855, 150.205, 14.155)
+
+[sub_resource type="BoxMesh" id="BoxMesh_o7pxb"]
+size = Vector3(249.72, 94.85, 62.285)
+
+[sub_resource type="BoxMesh" id="BoxMesh_af68g"]
+size = Vector3(119.615, 94.85, 170.12)
+
+[sub_resource type="BoxMesh" id="BoxMesh_stypw"]
+size = Vector3(119.615, 94.85, 106.445)
+
+[sub_resource type="PrismMesh" id="PrismMesh_r7ole"]
+left_to_right = 1.0
+size = Vector3(130, 130, 109.205)
+
+[sub_resource type="BoxMesh" id="BoxMesh_r7ole"]
+material = ExtResource("21_g1d4t")
+size = Vector3(24.14, 3.265, 215.995)
+
+[sub_resource type="BoxMesh" id="BoxMesh_6fv6f"]
+material = ExtResource("21_g1d4t")
+size = Vector3(24.14, 3.265, 282.09)
+
+[sub_resource type="BoxMesh" id="BoxMesh_4e1cd"]
+material = ExtResource("21_g1d4t")
+size = Vector3(24.14, 3.265, 32.57)
+
+[sub_resource type="BoxMesh" id="BoxMesh_44s4c"]
+material = ExtResource("21_g1d4t")
+size = Vector3(26.835, 3.265, 54.335)
+
+[sub_resource type="BoxMesh" id="BoxMesh_jtjsh"]
+material = ExtResource("21_g1d4t")
+size = Vector3(24.14, 3.265, 158.42)
+
+[sub_resource type="BoxMesh" id="BoxMesh_kq8oo"]
+material = ExtResource("21_g1d4t")
+size = Vector3(8.295, 3.265, 215.995)
+
+[sub_resource type="BoxMesh" id="BoxMesh_neuqn"]
+material = ExtResource("21_g1d4t")
+size = Vector3(8.295, 3.265, 154.375)
+
+[sub_resource type="BoxMesh" id="BoxMesh_qdutf"]
+material = ExtResource("21_g1d4t")
+size = Vector3(8.295, 3.265, 104.535)
+
+[sub_resource type="BoxMesh" id="BoxMesh_gamsr"]
+material = ExtResource("21_g1d4t")
+size = Vector3(8.295, 3.265, 209.12)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ftvov"]
+material = ExtResource("21_g1d4t")
+size = Vector3(35.535, 3.265, 234.72)
+
+[sub_resource type="BoxMesh" id="BoxMesh_g1bi8"]
+size = Vector3(8.295, 3.265, 104.535)
+
+[sub_resource type="BoxMesh" id="BoxMesh_yp3g3"]
+size = Vector3(8.295, 3.265, 209.12)
+
+[sub_resource type="BoxMesh" id="BoxMesh_keab0"]
+size = Vector3(25.275, 3.265, 154.375)
+
+[sub_resource type="BoxMesh" id="BoxMesh_i3s4m"]
+size = Vector3(31.775, 3.265, 397.37)
+
+[sub_resource type="BoxMesh" id="BoxMesh_g7yph"]
+size = Vector3(25.275, 3.265, 216.03)
+
+[sub_resource type="BoxMesh" id="BoxMesh_h44hj"]
+size = Vector3(1, 10, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_0p4fw"]
+size = Vector3(12.555, 1, 129.925)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ioiyf"]
+size = Vector3(12.555, 1, 177.61)
+
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_3o871"]
+panorama = ExtResource("21_44s4c")
+
+[sub_resource type="Sky" id="Sky_umdbu"]
+sky_material = SubResource("PanoramaSkyMaterial_3o871")
+radiance_size = 4
+
+[sub_resource type="Environment" id="Environment_2yrvv"]
+background_mode = 2
+background_energy_multiplier = 1.65
+sky = SubResource("Sky_umdbu")
+sky_custom_fov = 106.5
+
+[node name="PrefabMap" type="Node3D"]
+script = ExtResource("1_u8o8m")
+carro_cena = ExtResource("2_g1d4t")
+
+[node name="GridContainer" type="GridContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+columns = 2
+
+[node name="Cont_P1" type="SubViewportContainer" parent="GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+stretch = true
+
+[node name="View_P1" type="SubViewport" parent="GridContainer/Cont_P1"]
+handle_input_locally = false
+size = Vector2i(912, 1026)
+render_target_update_mode = 4
+
+[node name="Map" type="Node3D" parent="GridContainer/Cont_P1/View_P1"]
+
+[node name="Floor" type="StaticBody3D" parent="GridContainer/Cont_P1/View_P1/Map"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -4, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Floor"]
+mesh = SubResource("BoxMesh_a70xh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Floor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -3, 0)
+shape = SubResource("ConvexPolygonShape3D_hvv5t")
+
+[node name="SpawnPoints" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
+unique_name_in_owner = true
+
+[node name="Spawn1" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/SpawnPoints"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 1, 0)
+
+[node name="Spawn2" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/SpawnPoints"]
+transform = Transform3D(0.6481331, 0, -0.761527, 0, 1, 0, 0.761527, 0, 0.6481331, -286.85876, 1, 9.889812)
+
+[node name="Spawn3" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/SpawnPoints"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 198.50693, 1, 201.39218)
+
+[node name="Spawn4" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/SpawnPoints"]
+transform = Transform3D(0.7878066, 0, -0.6159228, 0, 1, 0, 0.6159228, 0, 0.7878066, -78.60038, 1, -171.07263)
+
+[node name="Speedtrap2" parent="GridContainer/Cont_P1/View_P1/Map" instance=ExtResource("4_pyjdw")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -268.53418, 2.2692423, -59.995872)
+
+[node name="V8Map" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
+
+[node name="layout_Mapa" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
+transform = Transform3D(-0.0008203227, -0.99999964, -4.3711374e-08, 0, -4.371139e-08, 1, -0.99999964, 0.0008203227, 3.5857445e-11, 0, -1.4593506, 0)
+mesh = SubResource("QuadMesh_0eu0l")
+skeleton = NodePath("../..")
+
+[node name="Destructibles" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
+
+[node name="ObjectBase" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Destructibles" instance=ExtResource("6_oublg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -168.94699, 0, -33.75521)
+collision_layer = 3
+collision_mask = 3
+mission_id = "barril"
+
+[node name="Teleporters" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
+
+[node name="Teleporter1" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Teleporters" node_paths=PackedStringArray("destination_marker") instance=ExtResource("7_ip1o4")]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -356.4023, 0, -59.67155)
+destination_marker = NodePath("../Marker1")
+
+[node name="Marker1" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Teleporters"]
+transform = Transform3D(-0.015532747, 0, -0.99987936, 0, 1, 0, 0.99987936, 0, -0.015532747, 312.58475, 6.4773045, 93.99169)
+
+[node name="Teleporter2" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Teleporters" node_paths=PackedStringArray("destination_marker") instance=ExtResource("7_ip1o4")]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -275.57175, 8.379992, -194.56427)
+destination_marker = NodePath("../Marker2")
+
+[node name="Marker2" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Teleporters"]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -298.4899, 0, -332.61548)
+
+[node name="Pickups" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
+
+[node name="ItemSpawner" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.822699, -0.11270952, 1.4090614)
+pickup_scene = ExtResource("9_kxusw")
+specific_item = ExtResource("10_75jtm")
+
+[node name="Mission_Items" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
+
+[node name="Obake" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -217.74602, 50.57672, -195.14479)
+collision_layer = 4
+collision_mask = 15
+script = ExtResource("11_6vwi6")
+
+[node name="Sketchfab_Scene" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items/Obake" instance=ExtResource("12_vj8u6")]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items/Obake"]
+shape = SubResource("BoxShape3D_3i0df")
+
+[node name="SecretItem" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -282.16806, 29.259418, 69.22967)
+collision_layer = 4
+collision_mask = 15
+script = ExtResource("11_6vwi6")
+mission_id = "secret_item"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items/SecretItem"]
+shape = SubResource("BoxShape3D_3i0df")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items/SecretItem"]
+mesh = SubResource("TorusMesh_081xm")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items/SecretItem"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5423012, 0)
+
+[node name="ExplorationArea" parent="GridContainer/Cont_P1/View_P1/Map/V8Map" instance=ExtResource("13_t5btl")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -310.7943, 12.716412, -291.967)
+collision_layer = 5
+collision_mask = 15
+explore_id = "secret"
+
+[node name="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/ExplorationArea" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -15.220154)
+shape = SubResource("BoxShape3D_15ih5")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/ExplorationArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -15.80246)
+mesh = SubResource("BoxMesh_vgdhx")
+
+[node name="Gaps" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
+
+[node name="Gap Balcony" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps"]
+transform = Transform3D(0.99994427, 0, 0.010559124, 0, 1, 0, -0.010559124, 0, 0.99994427, -189.42993, 27.22024, -170.65619)
+collision_mask = 15
+script = ExtResource("14_textq")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps/Gap Balcony"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, 0.33544922, 3.464676, -3.0517578e-05)
+shape = SubResource("BoxShape3D_qcgmd")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps/Gap Balcony"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, 0, 3.7381763, 0)
+mesh = SubResource("BoxMesh_x31xc")
+skeleton = NodePath("")
+
+[node name="Gap Balcony2" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps"]
+transform = Transform3D(0.99994427, 0, 0.010559124, 0, 1, 0, -0.010559124, 0, 0.99994427, -136.95425, 7.961664, -170.65619)
+collision_mask = 15
+script = ExtResource("14_textq")
+point_type = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps/Gap Balcony2"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, -6.1430664, 1.0620556, -0.10166931)
+shape = SubResource("BoxShape3D_081xm")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps/Gap Balcony2"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, -5.735977, 1.4785786, -0.060562134)
+mesh = SubResource("BoxMesh_vm5d4")
+skeleton = NodePath("")
+
+[node name="StatusItems" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.63427925, 0)
+
+[node name="ItemPickup" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems" instance=ExtResource("9_kxusw")]
+transform = Transform3D(0.98471665, 0, -0.18562213, 0, 1, 0, 0.18562213, 0, 0.98471665, 112.303314, 0.20363593, -1.7466412)
+item_data = ExtResource("15_o7pxb")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup"]
+material_override = SubResource("StandardMaterial3D_lgb87")
+mesh = SubResource("PrismMesh_5twny")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup"]
+shape = SubResource("BoxShape3D_klx8g")
+
+[node name="Enemies" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
+
+[node name="EnemyTurret" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Enemies" instance=ExtResource("16_af68g")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -43.07503, 0.33784318, -141.94794)
+drop_item_scene = ExtResource("9_kxusw")
+drop_item_resource = ExtResource("10_75jtm")
+
+[node name="AbilityTeleportMarkers" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
+
+[node name="Marker3D" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/AbilityTeleportMarkers" groups=["AbilityTeleport"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0520811, 15.452152)
+
+[node name="Pads" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
+
+[node name="BoostPad" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("17_stypw")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -149.02847, -1.4615917, -59.123077)
+
+[node name="JumpPad" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("18_r7ole")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -140.07523, -1.3474443, -96.85005)
+
+[node name="Flying enemies" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
+
+[node name="FloatingObject" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.986507, 8.432344, -119.77469)
+mission_id = "barril"
+
+[node name="Pedestrians" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
+
+[node name="PedestrianSpawner" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.509514, -0.5100812, -144.41035)
+
+[node name="Buildings" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 381.73495, 24.994312, 263.5719)
+mesh = SubResource("BoxMesh_u8o8m")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 381.73495, 24.994312, -238.27495)
+mesh = SubResource("BoxMesh_g1d4t")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 381.73495, 24.994312, -343.5868)
+mesh = SubResource("BoxMesh_is8dr")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 417.52112, 16.030514, -301.7618)
+mesh = SubResource("BoxMesh_pyjdw")
+
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
+transform = Transform3D(-4.3711385e-08, -0.99999994, 4.371139e-08, 0, -4.3711385e-08, -1, 0.99999994, -4.3711385e-08, 1.9106855e-15, 186.7358, 13.517609, -261.28894)
+mesh = SubResource("PrismMesh_vbp2c")
+
+[node name="MeshInstance3D6" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
+transform = Transform3D(-4.3711385e-08, 0.9999999, -4.371139e-08, 0, -4.3711385e-08, -1, -0.9999999, -4.3711385e-08, 1.9106855e-15, 159.82822, 13.517609, -286.7852)
+mesh = SubResource("PrismMesh_oublg")
+
+[node name="MeshInstance3D7" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 61.033615, 16.030514, -288.05927)
+mesh = SubResource("BoxMesh_vbp2c")
+
+[node name="MeshInstance3D8" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -37.642166, -8.18111, -241.82855)
+mesh = SubResource("BoxMesh_oublg")
+
+[node name="MeshInstance3D9" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -82.53151, 32.77266, -241.82855)
+mesh = SubResource("BoxMesh_ip1o4")
+
+[node name="MeshInstance3D10" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -150.12991, -30.18154, -241.82855)
+mesh = SubResource("BoxMesh_ip1o4")
+
+[node name="MeshInstance3D11" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -97.77412, -30.18154, -342.82626)
+mesh = SubResource("BoxMesh_haj77")
+
+[node name="MeshInstance3D12" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -253.08055, 3.6933842, -237.06807)
+mesh = SubResource("BoxMesh_kxusw")
+
+[node name="MeshInstance3D13" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -333.73904, 3.6933842, -237.06807)
+mesh = SubResource("BoxMesh_kxusw")
+
+[node name="MeshInstance3D14" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -253.08055, 3.6933842, -343.81033)
+mesh = SubResource("BoxMesh_75jtm")
+
+[node name="MeshInstance3D15" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -333.73904, 3.6933842, -343.81033)
+mesh = SubResource("BoxMesh_75jtm")
+
+[node name="MeshInstance3D16" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -422.93875, 39.497482, -270.05695)
+mesh = SubResource("BoxMesh_6vwi6")
+
+[node name="MeshInstance3D17" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -293.96045, 27.68765, -263.39468)
+mesh = SubResource("BoxMesh_vj8u6")
+
+[node name="MeshInstance3D18" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -293.7886, 52.755424, -272.61115)
+mesh = SubResource("BoxMesh_t5btl")
+
+[node name="MeshInstance3D19" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.6953125, 50.155174, -26.98962)
+mesh = SubResource("BoxMesh_textq")
+
+[node name="MeshInstance3D20" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -416.64627, 5.5645294, 249.42072)
+mesh = SubResource("BoxMesh_o7pxb")
+
+[node name="MeshInstance3D21" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -316.94394, 5.5645294, 314.31146)
+mesh = SubResource("BoxMesh_af68g")
+
+[node name="MeshInstance3D22" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -301.70963, -16.066223, 198.67511)
+mesh = SubResource("BoxMesh_stypw")
+
+[node name="MeshInstance3D23" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
+transform = Transform3D(-4.3711385e-08, -0.99999994, 4.371139e-08, 0, -4.3711385e-08, -1, 0.99999994, -4.3711385e-08, 1.9106855e-15, -66.40201, 13.517609, 201.00249)
+mesh = SubResource("PrismMesh_vbp2c")
+
+[node name="MeshInstance3D24" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
+transform = Transform3D(-4.371138e-08, 0.9999998, -4.371139e-08, 0, -4.371138e-08, -1, -0.9999998, -4.371138e-08, 1.9106855e-15, -121.857216, 13.517609, 201.00249)
+mesh = SubResource("PrismMesh_vbp2c")
+
+[node name="MeshInstance3D25" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
+transform = Transform3D(-4.371138e-08, 0.9999998, -4.371139e-08, 0, -4.371138e-08, -1, -0.9999998, -4.371138e-08, 1.9106855e-15, 108.56771, 50.516777, 216.35435)
+mesh = SubResource("PrismMesh_r7ole")
+
+[node name="Grass details" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
+
+[node name="MeshInstance3D16" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Grass details"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -341.60138, -2.827364, -133.80807)
+mesh = SubResource("BoxMesh_r7ole")
+
+[node name="MeshInstance3D17" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Grass details"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 28.733742, -2.827364, -162.72037)
+mesh = SubResource("BoxMesh_6fv6f")
+
+[node name="MeshInstance3D18" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Grass details"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -157.92825, -2.827364, -133.80807)
+mesh = SubResource("BoxMesh_4e1cd")
+
+[node name="MeshInstance3D19" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Grass details"]
+transform = Transform3D(0.5698103, 0, -0.8217763, 0, 1, 0, 0.8217763, 0, 0.5698103, -126.92092, -2.827364, -148.29247)
+mesh = SubResource("BoxMesh_44s4c")
+
+[node name="MeshInstance3D20" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Grass details"]
+transform = Transform3D(4.371139e-08, -3.821371e-15, 1, -8.742278e-08, -1, 0, 1, -8.742278e-08, -4.371139e-08, 214.079, -2.82, -133.808)
+mesh = SubResource("BoxMesh_4e1cd")
+
+[node name="MeshInstance3D21" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Grass details"]
+transform = Transform3D(-0.5769627, 8.4094786e-08, 0.81677043, -1.5099579e-07, -1, -3.7025916e-09, 0.8167703, -1.2546516e-07, 0.57696277, 183.642, -2.817, -148.292)
+mesh = SubResource("BoxMesh_44s4c")
+
+[node name="MeshInstance3D22" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Grass details"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 369.13123, -2.827364, -133.80807)
+mesh = SubResource("BoxMesh_jtjsh")
+
+[node name="MeshInstance3D23" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Grass details"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -341.60138, -2.827364, 83.00012)
+mesh = SubResource("BoxMesh_r7ole")
+
+[node name="MeshInstance3D24" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Grass details"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 369.13123, -2.827364, 83.00012)
+mesh = SubResource("BoxMesh_jtjsh")
+
+[node name="MeshInstance3D25" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Grass details"]
+transform = Transform3D(-7.54979e-08, -2.0980978e-10, -1, 8.742278e-08, -1, 2.0980317e-10, -1, -8.742278e-08, 7.54979e-08, 28.733742, -2.7370634, 112.96547)
+mesh = SubResource("BoxMesh_6fv6f")
+
+[node name="MeshInstance3D26" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Grass details"]
+transform = Transform3D(-7.54979e-08, -2.0980978e-10, -1, 8.742278e-08, -1, 2.0980317e-10, -1, -8.742278e-08, 7.54979e-08, -157.92825, -2.8758347, 84.053505)
+mesh = SubResource("BoxMesh_4e1cd")
+
+[node name="MeshInstance3D27" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Grass details"]
+transform = Transform3D(0.5698058, 0.0022475668, -0.8217762, 8.742245e-08, -0.99999624, -0.0027349396, -0.8217794, 0.0015583127, -0.5698036, -126.92093, -2.8063135, 98.53773)
+mesh = SubResource("BoxMesh_44s4c")
+
+[node name="MeshInstance3D28" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Grass details"]
+transform = Transform3D(-7.54979e-08, 2.0979657e-10, 1, 8.742278e-08, -1, 2.0980317e-10, 1, 8.742278e-08, 7.54979e-08, 214.079, -2.883199, 84.05347)
+mesh = SubResource("BoxMesh_4e1cd")
+
+[node name="MeshInstance3D29" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Grass details"]
+transform = Transform3D(0.57695836, -0.002261813, 0.8167704, 8.742243e-08, -0.9999962, -0.0027692667, 0.81677336, 0.0015978232, -0.5769563, 183.642, -2.8166797, 98.53732)
+mesh = SubResource("BoxMesh_44s4c")
+
+[node name="MeshInstance3D30" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Grass details"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -341.60138, -2.827364, -64.89566)
+mesh = SubResource("BoxMesh_kq8oo")
+
+[node name="MeshInstance3D31" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Grass details"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -341.60138, -2.827364, 16.243317)
+mesh = SubResource("BoxMesh_kq8oo")
+
+[node name="MeshInstance3D32" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Grass details"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 367.64838, -2.827364, -64.89566)
+mesh = SubResource("BoxMesh_neuqn")
+
+[node name="MeshInstance3D33" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Grass details"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 367.64838, -2.827364, 16.243317)
+mesh = SubResource("BoxMesh_neuqn")
+
+[node name="MeshInstance3D34" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Grass details"]
+transform = Transform3D(0.3575042, 0, -0.9339115, 0, 1, 0, 0.9339115, 0, 0.3575042, 177.9363, -2.827364, 39.077744)
+mesh = SubResource("BoxMesh_qdutf")
+
+[node name="MeshInstance3D35" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Grass details"]
+transform = Transform3D(0.35836795, 0, 0.93358034, 0, 1, 0, -0.93358034, 0, 0.35836795, -123.56403, -2.827364, 39.077744)
+mesh = SubResource("BoxMesh_qdutf")
+
+[node name="MeshInstance3D36" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Grass details"]
+transform = Transform3D(-4.3711385e-08, 0, 0.9999999, 0, 1, 0, -0.9999999, 0, -4.3711385e-08, 26.963554, -2.827364, 57.18112)
+mesh = SubResource("BoxMesh_gamsr")
+
+[node name="MeshInstance3D37" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Grass details"]
+transform = Transform3D(0.3575042, 0, -0.9339115, -0.0007823519, -0.99999964, -0.0002994867, -0.93391114, 0.00083771546, -0.35750407, 177.9363, -2.8223088, -89.84123)
+mesh = SubResource("BoxMesh_qdutf")
+
+[node name="MeshInstance3D38" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Grass details"]
+transform = Transform3D(0.3583679, 0, 0.9335802, 0.00078207446, -0.99999964, -0.0003002103, 0.93357986, 0.00083771534, -0.35836777, -123.564026, -2.8223088, -89.84123)
+mesh = SubResource("BoxMesh_qdutf")
+
+[node name="MeshInstance3D39" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Grass details"]
+transform = Transform3D(-4.371138e-08, 0, 0.9999999, 0.0008377152, -0.99999964, 3.6617695e-11, 0.9999995, 0.00083771534, 4.3711367e-08, 26.963554, -2.8374743, -107.944595)
+mesh = SubResource("BoxMesh_gamsr")
+
+[node name="MeshInstance3D40" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Grass details"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 28.733742, -2.9, -57.037674)
+mesh = SubResource("BoxMesh_ftvov")
+
+[node name="MeshInstance3D41" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Grass details"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 28.733742, -2.9, 5.938263)
+mesh = SubResource("BoxMesh_ftvov")
+
+[node name="Sidewalk details" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
+
+[node name="MeshInstance3D40" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Sidewalk details"]
+transform = Transform3D(0.3575042, 0, -0.9339115, -0.0007823519, -0.99999964, -0.0002994867, -0.93391114, 0.00083771546, -0.35750407, 177.9363, -2.8223088, -59.69421)
+mesh = SubResource("BoxMesh_g1bi8")
+
+[node name="MeshInstance3D41" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Sidewalk details"]
+transform = Transform3D(0.3583679, 0, 0.9335802, 0.00078207446, -0.99999964, -0.0003002103, 0.93357986, 0.00083771534, -0.35836777, -123.564026, -2.8223088, -59.69421)
+mesh = SubResource("BoxMesh_g1bi8")
+
+[node name="MeshInstance3D42" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Sidewalk details"]
+transform = Transform3D(-4.371138e-08, 0, 0.9999999, 0.0008377152, -0.99999964, 3.6617695e-11, 0.9999995, 0.00083771534, 4.3711367e-08, 26.963554, -2.8374743, -77.79758)
+mesh = SubResource("BoxMesh_yp3g3")
+
+[node name="MeshInstance3D43" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Sidewalk details"]
+transform = Transform3D(0.3575042, 0, -0.9339115, 0, 1, 0, 0.9339115, 0, 0.3575042, 177.9363, -2.827364, 8.459534)
+mesh = SubResource("BoxMesh_g1bi8")
+
+[node name="MeshInstance3D44" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Sidewalk details"]
+transform = Transform3D(0.35836795, 0, 0.93358034, 0, 1, 0, -0.93358034, 0, 0.35836795, -123.56403, -2.827364, 8.459534)
+mesh = SubResource("BoxMesh_g1bi8")
+
+[node name="MeshInstance3D45" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Sidewalk details"]
+transform = Transform3D(-4.3711385e-08, 0, 0.9999999, 0, 1, 0, -0.9999999, 0, -4.3711385e-08, 26.963554, -2.827364, 26.562912)
+mesh = SubResource("BoxMesh_yp3g3")
+
+[node name="MeshInstance3D33" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Sidewalk details"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 367.64838, -2.827364, -25.719439)
+mesh = SubResource("BoxMesh_keab0")
+
+[node name="MeshInstance3D34" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Sidewalk details"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 27.323067, -2.827364, -25.719439)
+mesh = SubResource("BoxMesh_i3s4m")
+
+[node name="MeshInstance3D35" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Sidewalk details"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -341.1576, -2.827364, -25.719439)
+mesh = SubResource("BoxMesh_g7yph")
+
+[node name="Objects" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
+
+[node name="BusStops" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects"]
+
+[node name="Poles" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/BusStops"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/BusStops/Poles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 414.66345, 3.0779605, -25.609276)
+mesh = SubResource("BoxMesh_h44hj")
+skeleton = NodePath("../..")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/BusStops/Poles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 369.96542, 3.0779605, -25.609276)
+mesh = SubResource("BoxMesh_h44hj")
+skeleton = NodePath("../..")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/BusStops/Poles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 324.04663, 3.0779605, -25.609276)
+mesh = SubResource("BoxMesh_h44hj")
+skeleton = NodePath("../..")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/BusStops/Poles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -272.72678, 3.0779605, -25.609276)
+mesh = SubResource("BoxMesh_h44hj")
+skeleton = NodePath("../..")
+
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/BusStops/Poles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -317.42484, 3.0779605, -25.609276)
+mesh = SubResource("BoxMesh_h44hj")
+skeleton = NodePath("../..")
+
+[node name="MeshInstance3D6" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/BusStops/Poles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -363.3436, 3.0779605, -25.609276)
+mesh = SubResource("BoxMesh_h44hj")
+skeleton = NodePath("../..")
+
+[node name="MeshInstance3D7" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/BusStops/Poles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -414.62518, 3.0779605, -25.609276)
+mesh = SubResource("BoxMesh_h44hj")
+skeleton = NodePath("../..")
+
+[node name="Roof" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/BusStops"]
+
+[node name="MeshInstance3D33" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/BusStops/Roof"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 367.64838, 7.802992, -25.719439)
+mesh = SubResource("BoxMesh_0p4fw")
+
+[node name="MeshInstance3D34" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/BusStops/Roof"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -343.2677, 7.802992, -25.719439)
+mesh = SubResource("BoxMesh_ioiyf")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="GridContainer/Cont_P1/View_P1"]
+environment = SubResource("Environment_2yrvv")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="GridContainer/Cont_P1/View_P1/WorldEnvironment"]
+transform = Transform3D(1, 0, 0, 0, 0.21643965, 0.976296, 0, -0.976296, 0.21643965, 0, 30.937544, 0)
+light_color = Color(0.2537991, 0.2537991, 0.21011144, 1)
+light_energy = 0.1
+light_indirect_energy = 1.449
+light_volumetric_fog_energy = 1.797
+light_angular_distance = 32.83
+light_specular = 0.341
+light_bake_mode = 1
+
+[node name="Cont_P2" type="SubViewportContainer" parent="GridContainer"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+stretch = true
+
+[node name="View_P2" type="SubViewport" parent="GridContainer/Cont_P2"]
+handle_input_locally = false
+size = Vector2i(2, 2)
+render_target_update_mode = 0
+
+[node name="Cont_P3" type="SubViewportContainer" parent="GridContainer"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+stretch = true
+
+[node name="View_P3" type="SubViewport" parent="GridContainer/Cont_P3"]
+handle_input_locally = false
+size = Vector2i(2, 2)
+render_target_update_mode = 0
+
+[node name="Cont_P4" type="SubViewportContainer" parent="GridContainer"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+stretch = true
+
+[node name="View_P4" type="SubViewport" parent="GridContainer/Cont_P4"]
+handle_input_locally = false
+size = Vector2i(2, 2)
+render_target_update_mode = 0
+
+[node name="PauseMenu" parent="." node_paths=PackedStringArray("start_menu") instance=ExtResource("22_jtjsh")]
+visible = false
+start_menu = NodePath("../StartMenu")
+
+[node name="StartMenu" parent="." instance=ExtResource("23_kq8oo")]
+process_mode = 3
+
+[node name="FinishMenu" parent="." instance=ExtResource("24_neuqn")]
+visible = false
+
+[node name="LevelLogic" type="Node" parent="."]
+script = ExtResource("25_qdutf")
+map_missions = ExtResource("26_gamsr")
+
+[connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps/Gap Balcony" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps/Gap Balcony" method="_on_body_entered"]
+[connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps/Gap Balcony2" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps/Gap Balcony2" method="_on_body_entered"]
+
+[editable path="GridContainer/Cont_P1/View_P1/Map/V8Map/ExplorationArea"]
