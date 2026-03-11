@@ -1,0 +1,56 @@
+[gd_scene load_steps=7 format=3 uid="uid://mvk1h22hqsq5"]
+
+[sub_resource type="PrismMesh" id="PrismMesh_g1d4t"]
+left_to_right = 1.0
+size = Vector3(10, 3, 8)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_is8dr"]
+points = PackedVector3Array(-2.2214851, -0.4679277, 4.015873, -4.8263173, -1.5, -3.877717, -4.8263173, -1.5, 3.8142252, 4.826287, -1.5, -3.877717, 5.0793343, 1.5946169, -4.079365, 4.826287, -1.5, 3.8142252, 5.0793343, 1.5946169, 4.015873, -4.76116, -1.2615008, -4.079365, 4.126707, 1.4364614, -4.079365, 4.126707, 1.4364614, 4.015873, -5.079365, -1.4202776, 4.015873, -3.8085332, -0.94425803, -4.079365, -4.2848463, -1.1027241, 4.015873, -5.079365, -1.4202776, -4.079365, 4.7611284, 1.5946169, 4.015873, 4.7611284, 1.5946169, -4.079365, -4.76116, -1.2615008, 4.015873, -3.8085332, -0.94425803, 4.015873)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_pyjdw"]
+points = PackedVector3Array(-2.2214851, -0.4679277, 4.015873, -4.8263173, -1.5, -3.877717, -4.8263173, -1.5, 3.8142252, 4.826287, -1.5, -3.877717, 5.0793343, 1.5946169, -4.079365, 4.826287, -1.5, 3.8142252, 5.0793343, 1.5946169, 4.015873, -4.76116, -1.2615008, -4.079365, 4.126707, 1.4364614, -4.079365, 4.126707, 1.4364614, 4.015873, -5.079365, -1.4202776, 4.015873, -3.8085332, -0.94425803, -4.079365, -4.2848463, -1.1027241, 4.015873, -5.079365, -1.4202776, -4.079365, 4.7611284, 1.5946169, 4.015873, 4.7611284, 1.5946169, -4.079365, -4.76116, -1.2615008, 4.015873, -3.8085332, -0.94425803, 4.015873)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_vbp2c"]
+points = PackedVector3Array(-2.2214851, -0.4679277, 4.015873, -4.8263173, -1.5, -3.877717, -4.8263173, -1.5, 3.8142252, 4.826287, -1.5, -3.877717, 5.0793343, 1.5946169, -4.079365, 4.826287, -1.5, 3.8142252, 5.0793343, 1.5946169, 4.015873, -4.76116, -1.2615008, -4.079365, 4.126707, 1.4364614, -4.079365, 4.126707, 1.4364614, 4.015873, -5.079365, -1.4202776, 4.015873, -3.8085332, -0.94425803, -4.079365, -4.2848463, -1.1027241, 4.015873, -5.079365, -1.4202776, -4.079365, 4.7611284, 1.5946169, 4.015873, 4.7611284, 1.5946169, -4.079365, -4.76116, -1.2615008, 4.015873, -3.8085332, -0.94425803, 4.015873)
+
+[sub_resource type="PrismMesh" id="PrismMesh_ip1o4"]
+left_to_right = 1.0
+size = Vector3(1.665, 3, 8)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_haj77"]
+points = PackedVector3Array(0.6275938, 1.4837294, 4.0634923, -0.89581805, -1.5631814, -4.0634923, 0.8325, -1.4754817, -3.8389373, 0.7546028, 1.6108005, -4.0634923, 0.8325, -1.4754817, 3.8389373, -0.89581805, -1.3090391, 4.0634923, 0.88161176, 1.6108005, 4.0634923, -0.6418001, -0.80137604, -4.0634923, -0.89581805, -1.5631814, 4.0634923, 0.88161176, 1.6108005, -4.0634923, 0.6275938, 1.4837294, -4.0634923, -0.89581805, -1.3090391, -4.0634923, -0.6418001, -0.80137604, 4.0634923, 0.7546028, 1.6108005, 4.0634923)
+
+[node name="SmallRamp" type="StaticBody3D"]
+transform = Transform3D(-0.99999994, 0, 8.742277e-08, 0, 1, 0, -8.742277e-08, 0, -0.99999994, 0, 0, 0)
+disable_mode = 1
+collision_mask = 11
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("PrismMesh_g1d4t")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("ConvexPolygonShape3D_is8dr")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.99319303, -0.11648007, 0, 0.11648007, 0.99319303, 0, 0, 0, 1, 0.083099365, 0, 0)
+mesh = SubResource("PrismMesh_g1d4t")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="."]
+transform = Transform3D(0.99319303, -0.11648007, 0, 0.11648007, 0.99319303, 0, 0, 0, 1, 0.083099365, 0, 0)
+shape = SubResource("ConvexPolygonShape3D_pyjdw")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.9762204, -0.21678041, 0, 0.21678041, 0.9762204, 0, 0, 0, 1, 0.82684326, 0, 0)
+mesh = SubResource("PrismMesh_g1d4t")
+
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="."]
+transform = Transform3D(0.9762204, -0.21678041, 0, 0.21678041, 0.9762204, 0, 0, 0, 1, 0.82684326, 0, 0)
+shape = SubResource("ConvexPolygonShape3D_vbp2c")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.9762204, -0.21678041, 0, 0.21678041, 0.9762204, 0, 0, 0, 1, 5.0876465, 0, 0)
+mesh = SubResource("PrismMesh_ip1o4")
+
+[node name="CollisionShape3D4" type="CollisionShape3D" parent="."]
+transform = Transform3D(0.9762204, -0.21678041, 0, 0.21678041, 0.9762204, 0, 0, 0, 1, 5.0876465, 0, 0)
+shape = SubResource("ConvexPolygonShape3D_haj77")

@@ -67,7 +67,7 @@ shape = SubResource("BoxShape3D_2vvtx")
 
 [node name="StatsComponent" type="Node" parent="."]
 script = ExtResource("1_f3yil")
-max_health = 40.0
+max_health = 25.0
 max_shield = 0.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]

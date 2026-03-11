@@ -22,6 +22,7 @@ mass = 0.001
 gravity_scale = 0.0
 freeze = true
 script = ExtResource("1_5wofp")
+max_health = 4.0
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("SphereMesh_2chrp")

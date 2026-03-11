@@ -94,7 +94,14 @@ func take_damage(amount: float, attacker: Node3D = null):
 	if is_invincible or is_dead: 
 		print(" -> Mas o pedestre ignorou o tiro (Invencível ou já estava morto).")
 		return 
+	
 	is_dead = true # Morreu!
+	
+	# --- A CURA DO ZUMBI (JOLT FIX) ---
+	# Desliga o pedestre da simulação física na mesma hora.
+	# Isso impede que o carro trombe na colisão invisível nos frames de atraso do queue_free().
+	process_mode = Node.PROCESS_MODE_DISABLED
+	visible = false
 	
 	var actual_shooter = attacker
 	if attacker and "shooter" in attacker and is_instance_valid(attacker.shooter):
@@ -112,5 +119,5 @@ func take_damage(amount: float, attacker: Node3D = null):
 	if GameStats:
 		GameStats.add_pedestrian_kill()
 		
-	# TODO: Instanciar VFX/SFX de morte (Isso vai resolver a sua sensação de tiros falsos!)
+	# TODO: Instanciar VFX/SFX de morte (Sangue/Poeira/Explosão)
 	queue_free()

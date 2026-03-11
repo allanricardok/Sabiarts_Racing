@@ -679,6 +679,7 @@ target_up_J3={
 
 common/physics_ticks_per_second=160
 common/max_physics_steps_per_frame=16
+3d/physics_engine="Jolt Physics"
 
 [rendering]
 

@@ -5,6 +5,8 @@ extends Area3D
 @export var fly_speed = 170.0
 @export var steering_force = 10.0
 @export var finish_boost_force : float = 15.0 
+# --- NOVO: Tempo máximo de voo antes de sumir ---
+@export var max_fly_time : float = 2 
 
 @export_group("Física de Combate")
 @export var knockback_force: float = 100.0
@@ -92,7 +94,11 @@ func _update_cable_visual():
 
 func _state_flying(delta):
 	time_alive += delta
-	if time_alive > 4.0: _finish_grapple()
+	
+	# --- CORREÇÃO: Usando a nova variável exportada ---
+	if time_alive > max_fly_time: 
+		_finish_grapple()
+		return
 
 	if target and is_instance_valid(target):
 		var target_pos = target.global_position
@@ -168,7 +174,6 @@ func _on_area_entered(area):
 		_process_impact(area)
 
 func _process_impact(target_node):
-	# 1. BLINDAGEM DO ALVO
 	if not is_instance_valid(target_node): return
 	if target_node.is_queued_for_deletion(): return
 
@@ -185,15 +190,14 @@ func _process_impact(target_node):
 		else:
 			return 
 		
-	# 2. BLINDAGEM DO ATIRADOR
 	if is_instance_valid(shooter):
 		if actual_target == shooter or actual_target == shooter.owner: 
 			return
 	
 	if (actual_target is Marker3D) or ("SpawnPoint" in actual_target.name): return
 		
-	if target_node.has_method("take_damage"):
-		target_node.take_damage(damage, self)
+	if actual_target.has_method("take_damage"):
+		actual_target.take_damage(damage, self)
 		
 	_play_impact_explosion()
 	_start_tether(actual_target)
@@ -237,5 +241,10 @@ func _finish_grapple():
 	if is_tethered and is_instance_valid(shooter):
 		var jump_dir = (Vector3.UP * 25 + shooter.global_transform.basis.z * 0.5).normalized()
 		shooter.apply_central_impulse(jump_dir * finish_boost_force * shooter.mass)
+		
+		if not target_is_static and is_instance_valid(target):
+			if target.has_method("take_damage"):
+				target.take_damage(damage * 0.5, self)
+
 	_cleanup_visuals()
 	queue_free()

@@ -91,8 +91,9 @@ func _on_impact(target_node):
 		if actual_target == shooter or actual_target == shooter.owner: 
 			return
 
-	if target_node.has_method("take_damage"):
-		target_node.take_damage(damage, self)
+	# CORREÇÃO AQUI: Troque target_node por actual_target nessas duas linhas!
+	if actual_target.has_method("take_damage"):
+		actual_target.take_damage(damage, self)
 		
 	_explode()
 

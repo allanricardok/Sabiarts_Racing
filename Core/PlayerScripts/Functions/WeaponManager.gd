@@ -350,10 +350,14 @@ func _update_radar_and_lockon():
 	# 5. Lógica restrita do Retículo (Armas de mira limitadas por distância e ângulo)
 	current_target = null
 	var active = get_active_special()
+	
 	if is_instance_valid(closest_radar_target) and active and (active.nome == "HomingMissile" or active.nome == "GrapplingMissile"):
 		var dist = car_pos.distance_to(closest_radar_target.global_position)
 		var angle = rad_to_deg(car_forward.angle_to((closest_radar_target.global_position - car_pos).normalized()))
-		if dist <= 120.0 and angle <= 45.0:
+		
+		# --- CORREÇÃO: Pega o range dinamicamente do .tres ---
+		# Usamos o 'lockon_range' do Resource, e mantemos os 45 graus de cone frontal
+		if dist <= active.lockon_range and angle <= 45.0:
 			current_target = closest_radar_target 
 
 	# 6. Envia para a HUD

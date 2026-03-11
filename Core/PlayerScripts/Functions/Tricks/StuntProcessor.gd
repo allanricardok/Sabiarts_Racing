@@ -6,13 +6,13 @@ var parent : AirMovementComponent
 var car : VehicleBody3D
 
 @export_group("Multiplicadores de Manobra")
-@export var STUNT_IMPULSE_POWER : float = 5.0
+@export var STUNT_IMPULSE_POWER : float = 6.0
 @export var ROLL_POWER_MULT : float = 1.0
-@export var FLIP_POWER_MULT : float = 1.6 
-@export var SPECIAL_POWER_MULT : float = 2.0
+@export var FLIP_POWER_MULT : float = 1.9 
+@export var SPECIAL_POWER_MULT : float = 3.0
 
 @export_group("Energia de Habilidade")
-@export var ENERGY_COST_SPECIAL : float = 25.0
+@export var ENERGY_COST_SPECIAL : float = 20.0
 @export var ENERGY_RECOVERY_ROLL : float = 5.0
 @export var ENERGY_RECOVERY_FLIP : float = 8.0
 @export var ENERGY_RECOVERY_EMOTE : float = 10.0
@@ -60,7 +60,7 @@ func _start_rotation_stunt(axis: Vector3, p_mult: float):
 	stunt_timeout = 2.0
 	current_stunt_axis = axis
 	last_basis = car.global_transform.basis
-	car.angular_damp = 2.0
+	car.angular_damp = 0.01
 	trickdone = false
 	
 	var local_ang_vel = car.global_transform.basis.inverse() * car.angular_velocity
@@ -69,10 +69,10 @@ func _start_rotation_stunt(axis: Vector3, p_mult: float):
 
 	if abs(axis.z) > 0.5:
 		var nose_tilt = car.global_transform.basis.z.y 
-		var correction_impulse = car.global_transform.basis.x * (nose_tilt * car.mass * 25.0)
+		var correction_impulse = car.global_transform.basis.x * (nose_tilt * car.mass * 5.0)
 		car.apply_torque_impulse(correction_impulse)
 	
-	var stunt_impulse = axis * (STUNT_IMPULSE_POWER * p_mult) * car.mass
+	var stunt_impulse = axis * (STUNT_IMPULSE_POWER * p_mult*1.5) * car.mass
 	car.apply_torque_impulse(car.global_transform.basis * stunt_impulse)
 	
 	if current_trick_id == "SHIELD_SPIN": _call_ability_shield(true)
@@ -106,9 +106,17 @@ func apply_stunt_brake():
 	car.angular_damp = parent.original_angular_damp
 	
 	if current_trick_id != "EMOTE":
+		# Pegamos a velocidade de giro atual do carro
 		var local_vel = car.global_transform.basis.inverse() * car.angular_velocity
-		var counter = -current_stunt_axis * local_vel.dot(current_stunt_axis) * car.mass
-		car.apply_torque_impulse(car.global_transform.basis * counter)
+		
+		# --- CORREÇÃO DO FREIO ---
+		# Em vez de aplicar um empurrão contrário, nós simplesmente subtraímos 
+		# a velocidade daquele eixo específico (zerando o giro da manobra).
+		# Isso mantém intactas outras forças (como você virando o volante).
+		local_vel -= current_stunt_axis * local_vel.dot(current_stunt_axis)
+		
+		# Devolvemos a velocidade limpa para o carro
+		car.angular_velocity = car.global_transform.basis * local_vel
 	
 	parent.is_doing_stunt = false
 	current_trick_id = ""
@@ -126,8 +134,8 @@ func _apply_instant_physics(id: String):
 func _start_emote_sequence(p_mult: float):
 	parent.is_doing_stunt = true
 	current_stunt_axis = Vector3.UP
-	car.angular_damp = 1
-	var impulse = Vector3.UP * (STUNT_IMPULSE_POWER * p_mult * 1.8) * car.mass
+	car.angular_damp = 0.1
+	var impulse = Vector3.UP * (STUNT_IMPULSE_POWER * p_mult * 4.8) * car.mass
 	car.apply_torque_impulse(car.global_transform.basis * impulse)
 	car.apply_torque_impulse(car.global_transform.basis.x * (car.global_transform.basis.z.y * car.mass * 5.0))
 	
