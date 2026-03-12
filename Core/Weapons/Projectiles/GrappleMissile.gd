@@ -5,7 +5,6 @@ extends Area3D
 @export var fly_speed = 170.0
 @export var steering_force = 10.0
 @export var finish_boost_force : float = 15.0 
-# --- NOVO: Tempo máximo de voo antes de sumir ---
 @export var max_fly_time : float = 2 
 
 @export_group("Física de Combate")
@@ -56,6 +55,7 @@ func setup(dmg, shooter_vel, source_car, incoming_target = null):
 	damage = dmg
 	target = incoming_target
 	shooter = source_car
+	is_tethered = false # Garante estado limpo ao nascer
 	
 	var forward_dir = source_car.global_transform.basis.z 
 	velocity = (forward_dir * fly_speed) + shooter_vel
@@ -71,7 +71,6 @@ func _physics_process(delta):
 		queue_free()
 		return
 
-	# --- ANTI SLOW-MOTION ---
 	var real_delta = delta
 	if shooter.is_in_group("jogadores"):
 		real_delta = delta / Engine.time_scale
@@ -94,8 +93,6 @@ func _update_cable_visual():
 
 func _state_flying(delta):
 	time_alive += delta
-	
-	# --- CORREÇÃO: Usando a nova variável exportada ---
 	if time_alive > max_fly_time: 
 		_finish_grapple()
 		return
@@ -166,14 +163,15 @@ func _state_tethered(delta):
 		_finish_grapple()
 
 func _on_body_entered(body):
-	if not is_tethered:
-		_process_impact(body)
+	if not is_tethered: _process_impact(body)
 
 func _on_area_entered(area):
-	if not is_tethered:
-		_process_impact(area)
+	if not is_tethered: _process_impact(area)
 
 func _process_impact(target_node):
+	# --- CADEADO DO GANCHO: Se já agarrou, ignora o resto! ---
+	if is_tethered: return
+
 	if not is_instance_valid(target_node): return
 	if target_node.is_queued_for_deletion(): return
 
@@ -206,7 +204,7 @@ func _play_impact_explosion():
 	pass
 
 func _start_tether(body):
-	is_tethered = true
+	is_tethered = true # Tranca a porta!
 	time_alive = 0.0 
 	
 	if body is StaticBody3D or body is GridMap:

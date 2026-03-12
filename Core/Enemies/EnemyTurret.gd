@@ -26,6 +26,7 @@ class_name EnemyTurret
 var targets_in_range : Array = []
 var current_target : Node3D = null
 var fire_cooldown : float = 0.0
+var is_dead : bool = false # <--- ADICIONE ESTA LINHA AQUI
 
 func _ready():
 	add_to_group(enemy_group_name)
@@ -84,8 +85,9 @@ func _aim_and_fire(_delta):
 func _fire_projectile():
 	if not projectile_scene: return
 	
-	var proj = projectile_scene.instantiate()
-	get_tree().current_scene.add_child(proj)
+	# --- A MÁGICA DA PERFORMANCE (OBJECT POOLING) ---
+	# Em vez de instantiate() e add_child(), a gente puxa do Autoload
+	var proj = ProjectilePool.get_projectile(projectile_scene)
 	
 	proj.global_transform = muzzle.global_transform
 	
@@ -116,27 +118,39 @@ func _on_target_exited(body):
 # --- SISTEMA DE DANO ---
 
 func take_damage(amount: float, attacker: Node = null):
+	# --- ESCUDO FINAL ANTI-METRALHADORA ---
+	# Se já morreu, o cadáver ignora qualquer tiro extra!
+	if is_dead: 
+		return 
+		
 	if stats:
 		stats.take_damage(amount, attacker)
 
 func _on_death():
+	# --- CADEADO DUPLO DE SEGURANÇA ---
+	# Garante que ela só morre uma vez E que ainda existe no mundo
+	if is_dead or not is_inside_tree(): 
+		return
+	is_dead = true
+	
 	print("[Turret] Torre destruída! Gerando Loot...")
 	
-	# --- SISTEMA DE DROP DE ITEM CORRIGIDO ---
 	if drop_item_scene and drop_item_resource:
 		var drop = drop_item_scene.instantiate()
 		
-		# 1. Carimbamos a posição GLOBAL correta antes dele nascer no mapa
-		# Subimos 1.5 metros para garantir que não vai nascer atravessando o chão
+		# Agora é 100% seguro pegar a global_position
 		drop.global_position = self.global_position + Vector3(0, 0, 0)
 		
-		# 2. Injetamos o .tres na nova arquitetura
 		if "item_data" in drop:
 			drop.item_data = drop_item_resource
 			
-		# 3. Adicionamos com segurança ao mundo
 		get_tree().current_scene.call_deferred("add_child", drop)
 	else:
 		print("[Turret] Sem loot configurado para esta torre.")
+	
+	# --- A CORREÇÃO DA FÍSICA ---
+	# Usamos set_deferred para avisar o motor: "Desligue isso quando puder"
+	set_deferred("process_mode", Node.PROCESS_MODE_DISABLED)
+	visible = false
 	
 	queue_free()

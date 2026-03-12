@@ -553,18 +553,21 @@ size = Vector3(10.945, 11.66, 8.615)
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_kn4vw"]
 data = PackedVector3Array(-5.4725, 5.83, 4.3075, 5.4725, 5.83, 4.3075, -5.4725, -5.83, 4.3075, 5.4725, 5.83, 4.3075, 5.4725, -5.83, 4.3075, -5.4725, -5.83, 4.3075, 5.4725, 5.83, -4.3075, -5.4725, 5.83, -4.3075, 5.4725, -5.83, -4.3075, -5.4725, 5.83, -4.3075, -5.4725, -5.83, -4.3075, 5.4725, -5.83, -4.3075, 5.4725, 5.83, 4.3075, 5.4725, 5.83, -4.3075, 5.4725, -5.83, 4.3075, 5.4725, 5.83, -4.3075, 5.4725, -5.83, -4.3075, 5.4725, -5.83, 4.3075, -5.4725, 5.83, -4.3075, -5.4725, 5.83, 4.3075, -5.4725, -5.83, -4.3075, -5.4725, 5.83, 4.3075, -5.4725, -5.83, 4.3075, -5.4725, -5.83, -4.3075, 5.4725, 5.83, 4.3075, -5.4725, 5.83, 4.3075, 5.4725, 5.83, -4.3075, -5.4725, 5.83, 4.3075, -5.4725, 5.83, -4.3075, 5.4725, 5.83, -4.3075, -5.4725, -5.83, 4.3075, 5.4725, -5.83, 4.3075, -5.4725, -5.83, -4.3075, 5.4725, -5.83, 4.3075, 5.4725, -5.83, -4.3075, -5.4725, -5.83, -4.3075)
 
-[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_3o871"]
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_oublg"]
 panorama = ExtResource("21_44s4c")
 
 [sub_resource type="Sky" id="Sky_umdbu"]
-sky_material = SubResource("PanoramaSkyMaterial_3o871")
+sky_material = SubResource("PanoramaSkyMaterial_oublg")
 radiance_size = 4
 
-[sub_resource type="Environment" id="Environment_2yrvv"]
+[sub_resource type="Environment" id="Environment_ip1o4"]
 background_mode = 2
 background_energy_multiplier = 1.65
 sky = SubResource("Sky_umdbu")
 sky_custom_fov = 106.5
+ambient_light_source = 2
+ambient_light_color = Color(0.7016299, 0.7016299, 0.6706925, 1)
+ambient_light_energy = 1.71
 
 [node name="PrefabMap" type="Node3D"]
 script = ExtResource("1_u8o8m")
@@ -1855,18 +1858,19 @@ transform = Transform3D(-0.25881886, 0, 0.96592575, 0, 1, 0, -0.96592575, 0, -0.
 [node name="SmallRamp17" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Ramps" instance=ExtResource("22_is8dr")]
 transform = Transform3D(0.09836455, 0, 0.9951503, 0, 1, 0, -0.9951503, 0, 0.09836455, -399.86816, 54.285553, 132.73518)
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="GridContainer/Cont_P1/View_P1"]
-environment = SubResource("Environment_2yrvv")
+[node name="WorldEnvironment2" type="WorldEnvironment" parent="GridContainer/Cont_P1/View_P1"]
+environment = SubResource("Environment_ip1o4")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="GridContainer/Cont_P1/View_P1/WorldEnvironment"]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="GridContainer/Cont_P1/View_P1/WorldEnvironment2"]
 transform = Transform3D(1, 0, 0, 0, 0.21643965, 0.976296, 0, -0.976296, 0.21643965, 0, 30.937544, 0)
-light_color = Color(0.2537991, 0.2537991, 0.21011144, 1)
+light_color = Color(1.8922116, 1.8922116, 1.8922116, 1)
 light_energy = 0.1
 light_indirect_energy = 1.449
 light_volumetric_fog_energy = 1.797
 light_angular_distance = 32.83
 light_specular = 0.341
-light_bake_mode = 1
+light_bake_mode = 0
+directional_shadow_mode = 0
 
 [node name="Cont_P2" type="SubViewportContainer" parent="GridContainer"]
 visible = false

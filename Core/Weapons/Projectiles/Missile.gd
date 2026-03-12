@@ -11,12 +11,14 @@ var damage = 1.0
 
 var velocity = Vector3.ZERO
 var target : Node3D = null
-var shooter : Node3D = null # Essencial para os pontos!
+var shooter : Node3D = null 
 var can_explode : bool = false
 var time_alive : float = 0.0
 
+# --- NOVO: A Trava de Segurança ---
+var has_exploded : bool = false 
+
 func _ready():
-	# Conexões automáticas para garantir a detecção
 	if not body_entered.is_connected(_on_body_entered):
 		body_entered.connect(_on_body_entered)
 	if not area_entered.is_connected(_on_area_entered):
@@ -26,6 +28,7 @@ func setup(dmg, shooter_vel, source_car, incoming_target = null):
 	damage = dmg
 	target = incoming_target
 	shooter = source_car
+	has_exploded = false # Garante que nasce destrancado
 	
 	var forward_dir = source_car.global_transform.basis.z 
 	
@@ -34,14 +37,12 @@ func setup(dmg, shooter_vel, source_car, incoming_target = null):
 	if velocity.dot(forward_dir) < 5.0:
 		velocity = forward_dir * speed
 
-	# Timer blindado contra o Slow-motion
 	var ignore_slowmo = source_car.is_in_group("jogadores")
 	get_tree().create_timer(5.0, false, false, ignore_slowmo).timeout.connect(_explode)
 
 	look_at(global_position + forward_dir, Vector3.UP)
 
 func _physics_process(delta):
-	# --- ANTI SLOW-MOTION ---
 	var real_delta = delta
 	if is_instance_valid(shooter) and shooter.is_in_group("jogadores"):
 		real_delta = delta / Engine.time_scale
@@ -74,31 +75,33 @@ func _on_area_entered(area):
 	_on_impact(area)
 
 func _on_impact(target_node):
-	# 1. BLINDAGEM DO ALVO
+	# --- CADEADO ATIVADO: Ignora impactos fantasmas ---
+	if has_exploded: return
+	
 	if not is_instance_valid(target_node): return
 	if target_node.is_queued_for_deletion(): return
 	
 	var actual_target = target_node
 	if target_node is Area3D:
-		# Camada extra de segurança antes de acessar a hierarquia
 		if is_instance_valid(target_node.owner):
 			actual_target = target_node.owner
 		elif is_instance_valid(target_node.get_parent()):
 			actual_target = target_node.get_parent()
 		
-	# 2. BLINDAGEM DO ATIRADOR (O 'shooter' ainda está vivo?)
 	if is_instance_valid(shooter):
 		if actual_target == shooter or actual_target == shooter.owner: 
 			return
 
-	# CORREÇÃO AQUI: Troque target_node por actual_target nessas duas linhas!
+	# TRANCA A PORTA PARA OS PRÓXIMOS HITS DO MESMO FRAME!
+	has_exploded = true
+
 	if actual_target.has_method("take_damage"):
 		actual_target.take_damage(damage, self)
 		
 	_explode()
 
 func _explode():
-	if not is_inside_tree(): return
+	if not is_inside_tree() or not visible: return
 	set_deferred("monitoring", false)
 	visible = false
 	# TODO: Instanciar efeito de explosão aqui

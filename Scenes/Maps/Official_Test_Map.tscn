@@ -430,15 +430,18 @@ radius = 1.235
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_3o871"]
 panorama = ExtResource("3_ab5bq")
 
-[sub_resource type="Sky" id="Sky_umdbu"]
+[sub_resource type="Sky" id="Sky_7qfue"]
 sky_material = SubResource("PanoramaSkyMaterial_3o871")
 radiance_size = 4
 
 [sub_resource type="Environment" id="Environment_2yrvv"]
 background_mode = 2
 background_energy_multiplier = 1.65
-sky = SubResource("Sky_umdbu")
+sky = SubResource("Sky_7qfue")
 sky_custom_fov = 106.5
+ambient_light_source = 2
+ambient_light_color = Color(0.7016299, 0.7016299, 0.6706925, 1)
+ambient_light_energy = 1.71
 
 [node name="OfficialTestMap" type="Node3D"]
 script = ExtResource("1_mm1ty")
@@ -1443,7 +1446,7 @@ fire_rate = 1.5
 projectile_speed = 130.0
 enemy_group_name = "Enemies"
 drop_item_scene = ExtResource("8_ka3dh")
-drop_item_resource = ExtResource("11_1cqfe")
+drop_item_resource = ExtResource("13_dnuhq")
 
 [node name="BaseMesh" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Enemies/EnemyTurretPLUS"]
 mesh = SubResource("BoxMesh_hdaqv")
@@ -1592,13 +1595,14 @@ environment = SubResource("Environment_2yrvv")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="GridContainer/Cont_P1/View_P1/WorldEnvironment"]
 transform = Transform3D(1, 0, 0, 0, 0.21643965, 0.976296, 0, -0.976296, 0.21643965, 0, 30.937544, 0)
-light_color = Color(0.2537991, 0.2537991, 0.21011144, 1)
+light_color = Color(1.8922116, 1.8922116, 1.8922116, 1)
 light_energy = 0.1
 light_indirect_energy = 1.449
 light_volumetric_fog_energy = 1.797
 light_angular_distance = 32.83
 light_specular = 0.341
-light_bake_mode = 1
+light_bake_mode = 0
+directional_shadow_mode = 0
 
 [node name="Cont_P2" type="SubViewportContainer" parent="GridContainer"]
 visible = false

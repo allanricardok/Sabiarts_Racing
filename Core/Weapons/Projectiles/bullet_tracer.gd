@@ -3,23 +3,22 @@ extends BaseProjectile
 # Não declaramos damage, shooter ou hit_done, pois já existem no Pai
 
 func _ready():
-	# Executa a conexão de sinais e o timer de 4s do BaseProjectile
+	# O pai (BaseProjectile) já conecta os sinais automaticamente.
 	super._ready()
-	# Valor original da metralhadora
 
-# Assinatura idêntica ao pai para evitar erros de compilação
+# Assinatura idêntica ao pai
 func setup(dmg_value: float, car_velocity: Vector3, source_car: Node3D, propulsion_speed: float = 50.0):
-	# Repassamos para o pai processar a velocidade relativa e o shooter
+	# Repassamos para o pai fazer todo o cálculo de velocidade e reset do Pool
 	super.setup(dmg_value, car_velocity, source_car, propulsion_speed)
 
-# Mantemos o delay de 0.1s para garantir que o impacto seja processado 
-# visualmente antes do queue_free
-# Mantemos o delay de 0.1s para garantir que o impacto seja processado 
-# visualmente antes do queue_free
-func _handle_cleanup():
-	# Substituímos o 'freeze = true' por desativar o monitoramento da Area3D
-	set_deferred("monitoring", false)
-	visible = false
+# --- A MÁGICA DA LIMPEZA ---
+# Apagamos o _handle_cleanup e o queue_free()!
+# Se você precisar de um efeito visual específico para essa bala no futuro, 
+# basta usar a função abaixo. O pai já vai cuidar de devolver pro Pool depois!
+
+func _play_impact_vfx():
+	# Aqui você pode ligar partículas no futuro:
+	# $HitParticles.emitting = true
 	
-	await get_tree().create_timer(0.1).timeout
-	queue_free()
+	# Chama a lógica do pai (que desliga a colisão e prepara a devolução pro Pool)
+	super._play_impact_vfx()

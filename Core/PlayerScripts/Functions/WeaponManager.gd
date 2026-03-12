@@ -202,14 +202,14 @@ func _remove_current_weapon():
 	_atualizar_interface()
 
 func _spawn_projectile(res: WeaponResource, node_name: String):
-	var proj = res.projectile_scene.instantiate()
+# Pedimos a bala pro Autoload
+	var proj = ProjectilePool.get_projectile(res.projectile_scene)
 	var muzzle = weapon_nodes[node_name].find_child("Muzzle", true, false)
 	
 	if muzzle:
 		proj.global_transform = muzzle.global_transform
 	
-	get_tree().current_scene.add_child(proj)
-	
+	# NÃO TEM MAIS add_child AQUI! O Pool já toma conta disso!	
 	# Passamos o carro atirador (shooter) para o projétil lidar com colisões e dano
 	if proj.has_method("setup"):
 		if node_name == "HomingMissile" or node_name == "GrapplingMissile":
