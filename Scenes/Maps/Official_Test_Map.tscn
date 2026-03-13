@@ -1,4 +1,4 @@
-[gd_scene load_steps=154 format=3 uid="uid://d2rblk8h626kc"]
+[gd_scene load_steps=153 format=3 uid="uid://d2rblk8h626kc"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_mm1ty"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="1_rakfq"]
@@ -11,7 +11,6 @@
 [ext_resource type="PackedScene" uid="uid://3jy2jv3yflr2" path="res://Scenes/Prefabs/Items/ObjectBase.tscn" id="6_0eu0l"]
 [ext_resource type="PackedScene" uid="uid://culevpqmdi0u8" path="res://Scenes/Prefabs/Items/Teleporter.tscn" id="6_bnpdo"]
 [ext_resource type="PackedScene" uid="uid://csft7rrtnlb57" path="res://Scenes/Prefabs/Items/ObjectBaseBig.tscn" id="7_jykq4"]
-[ext_resource type="PackedScene" uid="uid://c2vj1t0kkmxex" path="res://Scenes/Prefabs/Items/WeaponPickup.tscn" id="8_ka3dh"]
 [ext_resource type="Resource" uid="uid://daftw5fiqy8a5" path="res://Resources/Weapons/BigSlow.tres" id="10_p07jo"]
 [ext_resource type="Resource" uid="uid://b4n2n37tjg3ed" path="res://Resources/Weapons/HomingMissile.tres" id="11_1cqfe"]
 [ext_resource type="Script" uid="uid://s5ljh6h40llv" path="res://Core/Objectives/CollectibleItem.gd" id="13_7c4m2"]
@@ -1402,37 +1401,37 @@ drop_item_resource = ExtResource("11_1cqfe")
 
 [node name="EnemyTurret2" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Enemies" instance=ExtResource("23_rldcu")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -167.46594, 9.936538, -96.93074)
-drop_item_scene = ExtResource("8_ka3dh")
+drop_item_scene = ExtResource("18_klx8g")
 drop_item_resource = ExtResource("11_1cqfe")
 
 [node name="EnemyTurret3" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Enemies" instance=ExtResource("23_rldcu")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -281.8084, 9.936538, -96.93074)
-drop_item_scene = ExtResource("8_ka3dh")
+drop_item_scene = ExtResource("18_klx8g")
 drop_item_resource = ExtResource("11_1cqfe")
 
 [node name="EnemyTurret4" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Enemies" instance=ExtResource("23_rldcu")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -314.52914, 3.3859196, 49.54064)
-drop_item_scene = ExtResource("8_ka3dh")
+drop_item_scene = ExtResource("18_klx8g")
 drop_item_resource = ExtResource("11_1cqfe")
 
 [node name="EnemyTurret5" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Enemies" instance=ExtResource("23_rldcu")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -43.07503, 19.11679, 159.8086)
-drop_item_scene = ExtResource("8_ka3dh")
+drop_item_scene = ExtResource("18_klx8g")
 drop_item_resource = ExtResource("11_1cqfe")
 
 [node name="EnemyTurret6" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Enemies" instance=ExtResource("23_rldcu")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -57.896477, 19.11679, 159.8086)
-drop_item_scene = ExtResource("8_ka3dh")
+drop_item_scene = ExtResource("18_klx8g")
 drop_item_resource = ExtResource("11_1cqfe")
 
 [node name="EnemyTurret7" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Enemies" instance=ExtResource("23_rldcu")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -73.3918, 19.11679, 159.8086)
-drop_item_scene = ExtResource("8_ka3dh")
+drop_item_scene = ExtResource("18_klx8g")
 drop_item_resource = ExtResource("11_1cqfe")
 
 [node name="EnemyTurret8" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Enemies" instance=ExtResource("23_rldcu")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 193.38493, 29.617771, 129.83455)
-drop_item_scene = ExtResource("8_ka3dh")
+drop_item_scene = ExtResource("18_klx8g")
 drop_item_resource = ExtResource("11_1cqfe")
 
 [node name="EnemyTurretPLUS" type="StaticBody3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Enemies" groups=["inimigos"]]
@@ -1445,7 +1444,7 @@ damage = 2.0
 fire_rate = 1.5
 projectile_speed = 130.0
 enemy_group_name = "Enemies"
-drop_item_scene = ExtResource("8_ka3dh")
+drop_item_scene = ExtResource("18_klx8g")
 drop_item_resource = ExtResource("13_dnuhq")
 
 [node name="BaseMesh" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Enemies/EnemyTurretPLUS"]
@@ -1486,7 +1485,7 @@ shape = SubResource("BoxShape3D_2vvtx")
 
 [node name="StatsComponent" type="Node" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Enemies/EnemyTurretPLUS"]
 script = ExtResource("27_2p5n0")
-max_health = 40.0
+max_health = 10.0
 max_shield = 0.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Enemies/EnemyTurretPLUS"]

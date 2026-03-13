@@ -1,4 +1,4 @@
-[gd_scene load_steps=198 format=3 uid="uid://d1rl8sskrmddj"]
+[gd_scene load_steps=199 format=3 uid="uid://d1rl8sskrmddj"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_u8o8m"]
 [ext_resource type="PackedScene" uid="uid://cw8ofahu5mqhn" path="res://Scenes/Prefabs/Vehicles/BaseVehicle.tscn" id="2_g1d4t"]
@@ -27,6 +27,7 @@
 [ext_resource type="Script" uid="uid://dxwtvbecpphjn" path="res://Core/Destructibles/DestructibleProp.gd" id="21_pyjdw"]
 [ext_resource type="PackedScene" uid="uid://mvk1h22hqsq5" path="res://Scenes/Prefabs/MapObjects/small_ramp.tscn" id="22_is8dr"]
 [ext_resource type="PackedScene" uid="uid://do7x7c5gyyp8g" path="res://Scenes/UI/PauseMenu.tscn" id="22_jtjsh"]
+[ext_resource type="Material" uid="uid://cudmfnfmgghum" path="res://Assets/3D/test_material.tres" id="23_ip1o4"]
 [ext_resource type="PackedScene" uid="uid://o0rl3lkmd3ty" path="res://Scenes/UI/StartMenu.tscn" id="23_kq8oo"]
 [ext_resource type="PackedScene" uid="uid://otkba37h2pp0" path="res://Scenes/UI/FinishMenu.tscn" id="24_neuqn"]
 [ext_resource type="Script" uid="uid://1qg3wklklqlt" path="res://Core/Objectives/LevelController.gd" id="25_qdutf"]
@@ -621,9 +622,11 @@ transform = Transform3D(0.7878066, 0, -0.6159228, 0, 1, 0, 0.6159228, 0, 0.78780
 
 [node name="Speedtrap2" parent="GridContainer/Cont_P1/View_P1/Map" instance=ExtResource("4_pyjdw")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -166.22882, 1.3321209, -100.77724)
+target_speed_reference = 140.0
 
 [node name="Speedtrap3" parent="GridContainer/Cont_P1/View_P1/Map" instance=ExtResource("4_pyjdw")]
 transform = Transform3D(-4.3711392e-08, 0, 1.0000001, 0, 1, 0, -1.0000001, 0, -4.3711392e-08, 220.37704, 2.332121, 49.491253)
+target_speed_reference = 140.0
 
 [node name="V8Map" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
 
@@ -742,7 +745,7 @@ transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 10.1
 
 [node name="Teleporter3" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Teleporters" node_paths=PackedStringArray("destination_marker") instance=ExtResource("7_ip1o4")]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 60.63864, 32.121635, -218.6436)
-destination_marker = NodePath("../Marker2")
+destination_marker = NodePath("../Marker3")
 
 [node name="Marker3" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Teleporters"]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 75.70886, 108.027405, 207.93234)
@@ -953,6 +956,30 @@ drop_item_resource = ExtResource("10_75jtm")
 [node name="Marker3D" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/AbilityTeleportMarkers" groups=["AbilityTeleport"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0520811, 15.452152)
 
+[node name="Marker3D2" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/AbilityTeleportMarkers" groups=["AbilityTeleport"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 322.28683, 1.0520811, 15.452152)
+
+[node name="Marker3D3" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/AbilityTeleportMarkers" groups=["AbilityTeleport"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 245.31152, 1.0520811, -145.56476)
+
+[node name="Marker3D4" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/AbilityTeleportMarkers" groups=["AbilityTeleport"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.01944, 1.0520811, -268.1485)
+
+[node name="Marker3D5" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/AbilityTeleportMarkers" groups=["AbilityTeleport"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.207855, 1.0520811, 320.26453)
+
+[node name="Marker3D6" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/AbilityTeleportMarkers" groups=["AbilityTeleport"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -129.39832, 1.0520811, 127.04675)
+
+[node name="Marker3D7" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/AbilityTeleportMarkers" groups=["AbilityTeleport"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -199.5253, 1.0520811, -193.0516)
+
+[node name="Marker3D8" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/AbilityTeleportMarkers" groups=["AbilityTeleport"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -384.61935, 1.0520811, -141.40689)
+
+[node name="Marker3D9" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/AbilityTeleportMarkers" groups=["AbilityTeleport"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -371.89554, 1.0520811, 163.30798)
+
 [node name="Pads" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
 
 [node name="BoostPad" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("17_stypw")]
@@ -1078,6 +1105,7 @@ collision_mask = 3
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 381.73495, 24.994312, 263.5719)
 mesh = SubResource("BoxMesh_u8o8m")
 skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("23_ip1o4")
 
 [node name="CollisionShape3D2" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Exteriors"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 381.73495, 24.994312, 263.5719)
@@ -1087,6 +1115,7 @@ shape = SubResource("ConcavePolygonShape3D_6vwi6")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 381.73495, 24.994312, -238.27495)
 mesh = SubResource("BoxMesh_g1d4t")
 skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("23_ip1o4")
 
 [node name="CollisionShape3D3" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Exteriors"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 381.73495, 24.994312, -238.27495)
@@ -1096,6 +1125,7 @@ shape = SubResource("ConcavePolygonShape3D_vj8u6")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 381.73495, 23.276638, -343.5868)
 mesh = SubResource("BoxMesh_is8dr")
 skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("23_ip1o4")
 
 [node name="CollisionShape3D4" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Exteriors"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 381.73495, 23.276638, -343.5868)
@@ -1105,6 +1135,7 @@ shape = SubResource("ConcavePolygonShape3D_t5btl")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 417.52112, 20.429039, -301.7618)
 mesh = SubResource("BoxMesh_pyjdw")
 skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("23_ip1o4")
 
 [node name="CollisionShape3D5" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Exteriors"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 417.52112, 20.429039, -301.7618)
@@ -1114,6 +1145,7 @@ shape = SubResource("ConcavePolygonShape3D_1qqb1")
 transform = Transform3D(-4.3711385e-08, -0.99999994, 4.371139e-08, 0, -4.3711385e-08, -1, 0.99999994, -4.3711385e-08, 1.9106855e-15, 186.7358, 13.517609, -261.28894)
 mesh = SubResource("PrismMesh_vbp2c")
 skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("23_ip1o4")
 
 [node name="CollisionShape3D6" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Exteriors"]
 transform = Transform3D(-4.3711385e-08, -0.99999994, 4.371139e-08, 0, -4.3711385e-08, -1, 0.99999994, -4.3711385e-08, 1.9106855e-15, 186.7358, 13.517609, -261.28894)
@@ -1123,6 +1155,7 @@ shape = SubResource("ConcavePolygonShape3D_o7pxb")
 transform = Transform3D(-4.3711385e-08, 0.9999999, -4.371139e-08, 0, -4.3711385e-08, -1, -0.9999999, -4.3711385e-08, 1.9106855e-15, 159.82822, 13.517609, -286.7852)
 mesh = SubResource("PrismMesh_oublg")
 skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("23_ip1o4")
 
 [node name="CollisionShape3D7" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Exteriors"]
 transform = Transform3D(-4.3711385e-08, 0.9999999, -4.371139e-08, 0, -4.3711385e-08, -1, -0.9999999, -4.3711385e-08, 1.9106855e-15, 159.82822, 13.517609, -286.7852)
@@ -1132,6 +1165,7 @@ shape = SubResource("ConcavePolygonShape3D_af68g")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 61.033615, -2.6247883, -288.05927)
 mesh = SubResource("BoxMesh_vbp2c")
 skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("23_ip1o4")
 
 [node name="CollisionShape3D8" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Exteriors"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 61.033615, -2.6247883, -288.05927)
@@ -1141,6 +1175,7 @@ shape = SubResource("ConcavePolygonShape3D_stypw")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -37.642166, -8.18111, -241.82855)
 mesh = SubResource("BoxMesh_oublg")
 skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("23_ip1o4")
 
 [node name="CollisionShape3D9" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Exteriors"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -37.642166, -8.18111, -241.82855)
@@ -1150,6 +1185,7 @@ shape = SubResource("ConcavePolygonShape3D_r7ole")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -82.53151, 32.77266, -241.82855)
 mesh = SubResource("BoxMesh_ip1o4")
 skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("23_ip1o4")
 
 [node name="CollisionShape3D10" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Exteriors"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -82.53151, 32.77266, -241.82855)
@@ -1159,6 +1195,7 @@ shape = SubResource("ConcavePolygonShape3D_6fv6f")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -150.12991, -30.18154, -241.82855)
 mesh = SubResource("BoxMesh_ip1o4")
 skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("23_ip1o4")
 
 [node name="CollisionShape3D11" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Exteriors"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -150.12991, -30.18154, -241.82855)
@@ -1168,6 +1205,7 @@ shape = SubResource("ConcavePolygonShape3D_4e1cd")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -97.77412, -30.18154, -342.82626)
 mesh = SubResource("BoxMesh_haj77")
 skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("23_ip1o4")
 
 [node name="CollisionShape3D12" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Exteriors"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -97.77412, -30.18154, -342.82626)
@@ -1177,6 +1215,7 @@ shape = SubResource("ConcavePolygonShape3D_44s4c")
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -253.08055, 3.6933842, -237.06807)
 mesh = SubResource("BoxMesh_kxusw")
 skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("23_ip1o4")
 
 [node name="CollisionShape3D13" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Exteriors"]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -253.08055, 3.6933842, -237.06807)
@@ -1186,6 +1225,7 @@ shape = SubResource("ConcavePolygonShape3D_jtjsh")
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -333.73904, 3.6933842, -237.06807)
 mesh = SubResource("BoxMesh_kxusw")
 skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("23_ip1o4")
 
 [node name="CollisionShape3D14" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Exteriors"]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -333.73904, 3.6933842, -237.06807)
@@ -1195,6 +1235,7 @@ shape = SubResource("ConcavePolygonShape3D_kq8oo")
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -253.08055, 3.6933842, -343.81033)
 mesh = SubResource("BoxMesh_75jtm")
 skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("23_ip1o4")
 
 [node name="CollisionShape3D15" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Exteriors"]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -253.08055, 3.6933842, -343.81033)
@@ -1204,6 +1245,7 @@ shape = SubResource("ConcavePolygonShape3D_neuqn")
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -333.73904, 3.6933842, -343.81033)
 mesh = SubResource("BoxMesh_75jtm")
 skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("23_ip1o4")
 
 [node name="CollisionShape3D16" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Exteriors"]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -333.73904, 3.6933842, -343.81033)
@@ -1213,6 +1255,7 @@ shape = SubResource("ConcavePolygonShape3D_qdutf")
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -422.93875, 39.497482, -270.05695)
 mesh = SubResource("BoxMesh_6vwi6")
 skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("23_ip1o4")
 
 [node name="CollisionShape3D17" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Exteriors"]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -422.93875, 39.497482, -270.05695)
@@ -1222,6 +1265,7 @@ shape = SubResource("ConcavePolygonShape3D_gamsr")
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -293.96045, 27.68765, -263.39468)
 mesh = SubResource("BoxMesh_vj8u6")
 skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("23_ip1o4")
 
 [node name="CollisionShape3D18" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Exteriors"]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -293.96045, 27.68765, -263.39468)
@@ -1231,6 +1275,7 @@ shape = SubResource("ConcavePolygonShape3D_ftvov")
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -293.7886, 52.755424, -272.61115)
 mesh = SubResource("BoxMesh_t5btl")
 skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("23_ip1o4")
 
 [node name="CollisionShape3D19" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Exteriors"]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -293.7886, 52.755424, -272.61115)
@@ -1240,6 +1285,7 @@ shape = SubResource("ConcavePolygonShape3D_g1bi8")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.6953125, 50.155174, -26.98962)
 mesh = SubResource("BoxMesh_textq")
 skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("23_ip1o4")
 
 [node name="CollisionShape3D20" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Exteriors"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.6953125, 50.155174, -26.98962)
@@ -1249,6 +1295,7 @@ shape = SubResource("ConcavePolygonShape3D_yp3g3")
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -416.64627, 5.5645294, 249.42072)
 mesh = SubResource("BoxMesh_o7pxb")
 skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("23_ip1o4")
 
 [node name="CollisionShape3D21" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Exteriors"]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -416.64627, 5.5645294, 249.42072)
@@ -1258,6 +1305,7 @@ shape = SubResource("ConcavePolygonShape3D_keab0")
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -316.94394, 5.5645294, 314.31146)
 mesh = SubResource("BoxMesh_af68g")
 skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("23_ip1o4")
 
 [node name="CollisionShape3D22" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Exteriors"]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -316.94394, 5.5645294, 314.31146)
@@ -1267,6 +1315,7 @@ shape = SubResource("ConcavePolygonShape3D_i3s4m")
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -301.70963, -16.066223, 198.67511)
 mesh = SubResource("BoxMesh_stypw")
 skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("23_ip1o4")
 
 [node name="CollisionShape3D23" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Exteriors"]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -301.70963, -16.066223, 198.67511)
@@ -1276,6 +1325,7 @@ shape = SubResource("ConcavePolygonShape3D_g7yph")
 transform = Transform3D(-4.3711385e-08, -0.99999994, 4.371139e-08, 0, -4.3711385e-08, -1, 0.99999994, -4.3711385e-08, 1.9106855e-15, -66.40201, 13.517609, 201.00249)
 mesh = SubResource("PrismMesh_vbp2c")
 skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("23_ip1o4")
 
 [node name="CollisionShape3D24" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Exteriors"]
 transform = Transform3D(-4.3711385e-08, -0.99999994, 4.371139e-08, 0, -4.3711385e-08, -1, 0.99999994, -4.3711385e-08, 1.9106855e-15, -66.40201, 13.517609, 201.00249)
@@ -1285,6 +1335,7 @@ shape = SubResource("ConcavePolygonShape3D_h44hj")
 transform = Transform3D(-4.371138e-08, 0.9999998, -4.371139e-08, 0, -4.371138e-08, -1, -0.9999998, -4.371138e-08, 1.9106855e-15, -121.857216, 13.517609, 201.00249)
 mesh = SubResource("PrismMesh_vbp2c")
 skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("23_ip1o4")
 
 [node name="CollisionShape3D25" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Exteriors"]
 transform = Transform3D(-4.371138e-08, 0.9999998, -4.371139e-08, 0, -4.371138e-08, -1, -0.9999998, -4.371138e-08, 1.9106855e-15, -121.857216, 13.517609, 201.00249)
@@ -1294,6 +1345,7 @@ shape = SubResource("ConcavePolygonShape3D_0p4fw")
 transform = Transform3D(-4.371138e-08, 0.9999998, -4.371139e-08, 0, -4.371138e-08, -1, -0.9999998, -4.371138e-08, 1.9106855e-15, 108.56771, 50.516777, 216.35435)
 mesh = SubResource("PrismMesh_r7ole")
 skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("23_ip1o4")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Exteriors"]
 transform = Transform3D(-4.371138e-08, 0.9999998, -4.371139e-08, 0, -4.371138e-08, -1, -0.9999998, -4.371138e-08, 1.9106855e-15, 108.56771, 50.516777, 216.35435)

@@ -127,8 +127,7 @@ func take_damage(amount: float, attacker: Node = null):
 		stats.take_damage(amount, attacker)
 
 func _on_death():
-	# --- CADEADO DUPLO DE SEGURANÇA ---
-	# Garante que ela só morre uma vez E que ainda existe no mundo
+	# CADEADO DUPLO: Garante que só morre uma vez
 	if is_dead or not is_inside_tree(): 
 		return
 	is_dead = true
@@ -138,18 +137,23 @@ func _on_death():
 	if drop_item_scene and drop_item_resource:
 		var drop = drop_item_scene.instantiate()
 		
-		# Agora é 100% seguro pegar a global_position
-		drop.global_position = self.global_position + Vector3(0, 0, 0)
+		# --- O SEGREDO DO GODOT 4 ---
+		# Usamos .position em vez de .global_position porque o "drop" 
+		# ainda é um órfão e não foi adicionado ao mundo!
+		drop.position = self.global_position + Vector3(0, 0, 0)
 		
-		if "item_data" in drop:
+		# Injeta o arquivo do loot de forma blindada
+		if "weapon_resource" in drop:
+			drop.weapon_resource = drop_item_resource
+		elif "item_data" in drop:
 			drop.item_data = drop_item_resource
 			
+		# Adiciona ao mundo com segurança no final do frame
 		get_tree().current_scene.call_deferred("add_child", drop)
 	else:
 		print("[Turret] Sem loot configurado para esta torre.")
 	
-	# --- A CORREÇÃO DA FÍSICA ---
-	# Usamos set_deferred para avisar o motor: "Desligue isso quando puder"
+	# Desliga a física do cadáver para não travar o carro
 	set_deferred("process_mode", Node.PROCESS_MODE_DISABLED)
 	visible = false
 	
