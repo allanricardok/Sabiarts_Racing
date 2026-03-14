@@ -35,9 +35,11 @@ var pode_mover : bool = true
 @export var speed_label: Label 
 
 # --- VARIÁVEIS INTERNAS ---
-var _active_gap_id : String = ""
 var teleport_material : StandardMaterial3D
 var _hit_cooldowns: Dictionary = {}
+
+# --- NOVO: Memória Multi-Gaps (Guarda o ID e o tempo restante de cada um) ---
+var _active_gaps : Dictionary = {}
 
 # --- INICIALIZAÇÃO ---
 
@@ -73,11 +75,23 @@ func _ready():
 
 # --- PROCESSAMENTO ---
 
-func _physics_process(_delta):
+func _physics_process(delta):
 	if not pode_mover:
 		engine_force = 0
 		brake = 100
 		return
+	
+	# --- NOVA: LÓGICA DO TEMPO PARA MÚLTIPLOS GAPS ---
+	var expired_gaps = []
+	for gap_id in _active_gaps.keys():
+		_active_gaps[gap_id] -= delta
+		if _active_gaps[gap_id] <= 0:
+			expired_gaps.append(gap_id)
+			
+	# Remove os gaps que o tempo estourou
+	for gap_id in expired_gaps:
+		print("[BaseVehicle] Tempo esgotado para o Gap: ", gap_id)
+		_active_gaps.erase(gap_id)
 	
 	if speed_label:
 		var kmh = linear_velocity.length() * 2
@@ -104,35 +118,34 @@ func _on_pousou(is_clean: bool):
 	var trick_manager = get_node_or_null("%TrickManager")
 	if trick_manager and trick_manager.has_method("check_landing"):
 		trick_manager.check_landing(is_clean)
-		
-	# CORREÇÃO DO BUG DO GAP:
-	# Se tocamos no chão e ainda existe um ID de gap ativo (ou seja, 
-	# pegamos o Start mas não pegamos o Finish a tempo), nós cancelamos ele!
-	if _active_gap_id != "":
-		print("[BaseVehicle] Pousou sem terminar o Gap: ", _active_gap_id, ". Cancelando sequência.")
-		_reset_gap_state()
+		# Carro livre para quicar no chão, o timer que decide quando o gap expira!
 
 func set_active_gap(id_gap: String):
-	_active_gap_id = id_gap
+	# Adiciona ou renova o gap específico no dicionário com 5 segundos!
+	_active_gaps[id_gap] = 5.0 
+	
 	var trick_manager = get_node_or_null("%TrickManager")
 	if trick_manager and trick_manager.has_method("iniciar_deteccao_gap"):
 		trick_manager.iniciar_deteccao_gap(id_gap)
 
 func set_gap_reached_end(id_gap: String, gap_name: String, points: int):
-	if _active_gap_id == id_gap:
-		_active_gap_id = "" 
+	# Confere se ESTE gap específico está na memória
+	if _active_gaps.has(id_gap):
+		_active_gaps.erase(id_gap) # Tira da lista, pois acabou de ser concluído
+		
 		var trick_manager = get_node_or_null("%TrickManager")
 		if trick_manager and trick_manager.has_method("marcar_gap_no_ar"):
 			trick_manager.marcar_gap_no_ar(id_gap, gap_name, points)
 
 func _reset_gap_state():
-	_active_gap_id = ""
+	_active_gaps.clear() # Limpa todos os gaps de uma vez
 	var trick_manager = get_node_or_null("%TrickManager")
 	if trick_manager and trick_manager.has_method("cancelar_gap"):
 		trick_manager.cancelar_gap()
 
-func get_active_gap() -> String:
-	return _active_gap_id
+# Substituímos a função antiga por essa que responde Sim/Não
+func has_active_gap(id_gap: String) -> bool:
+	return _active_gaps.has(id_gap)
 
 # --- SAÚDE E VISUAL ---
 

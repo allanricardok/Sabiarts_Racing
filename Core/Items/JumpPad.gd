@@ -1,7 +1,7 @@
 extends Area3D
 
-@export var jump_force: float = 35.0  # Força do pulo (vertical)
-@export var forward_kick: float = 10.0 # Empurrãozinho pra frente pra não subir reto
+@export var jump_force: float = 50  # Força do pulo (vertical)
+@export var forward_kick: float = 5.0 # Empurrãozinho pra frente pra não subir reto
 
 func _ready():
 	body_entered.connect(_on_body_entered)

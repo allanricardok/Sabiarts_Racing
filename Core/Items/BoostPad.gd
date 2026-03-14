@@ -1,6 +1,6 @@
 extends Area3D
 
-@export var boost_force: float = 50.0  # Força do empurrão
+@export var boost_force: float = 55.0  # Força do empurrão
 @export var extra_top_speed_time: float = 0.5 # Tempo que o carro ignora o limite de velocidade (opcional)
 
 func _ready():

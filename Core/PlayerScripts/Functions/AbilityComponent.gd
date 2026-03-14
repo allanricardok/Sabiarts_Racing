@@ -19,7 +19,7 @@ class_name AbilityComponent
 @export var COST_BOOST : float = 20.0
 
 @export_group("Cooldown")
-@export var SHARED_COOLDOWN_TIME : float = 1.5
+@export var SHARED_COOLDOWN_TIME : float = 1
 var current_cooldown : float = 0.0
 
 @export_group("UI")

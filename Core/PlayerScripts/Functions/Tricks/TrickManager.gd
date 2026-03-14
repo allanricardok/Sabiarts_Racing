@@ -28,33 +28,33 @@ var tricks_done : Array = []
 var points_per_trick : Array = []
 var tricks_colors : Array = []
 
-# --- VARIÁVEIS DE CONTROLE DE GAP ---
-var _active_gap_id : String = ""
-var _gap_completed_this_jump : bool = false
-var _gap_name_to_notify : String = ""
+# --- VARIÁVEIS DE CONTROLE DE GAP (MULTI-GAP) ---
+var _active_gaps_ids : Array = []
+var _gaps_completed_this_jump : Array = []
 
 var current_jump_uses = {}
 var jump_start_timestamp : int = 0
 var display_version : int = 0
 var is_showing_final_score := false
 
-# --- LOGICA DE GAPS INTEGRADA (MANTIDA) ---
+# --- LOGICA DE GAPS INTEGRADA (MÚLTIPLOS GAPS) ---
 
 func iniciar_deteccao_gap(gap_id: String):
-	_active_gap_id = gap_id
-	_gap_completed_this_jump = false
-	print("[TrickManager] Monitorando GAP: ", gap_id)
+	if not _active_gaps_ids.has(gap_id):
+		_active_gaps_ids.append(gap_id)
+		print("[TrickManager] Monitorando GAP: ", gap_id)
 
 func marcar_gap_no_ar(gap_id: String, gap_name: String, points: int):
-	if _active_gap_id == gap_id and not _gap_completed_this_jump:
-		_gap_completed_this_jump = true
-		_gap_name_to_notify = gap_id
+	# Se a gente estava monitorando esse gap e ainda não o completou neste pulo
+	if _active_gaps_ids.has(gap_id) and not _gaps_completed_this_jump.has(gap_id):
+		_gaps_completed_this_jump.append(gap_id)
+		
+		# A mágica acontece aqui: A gente injeta o gap na HUD como uma manobra normal!
 		add_external_action(gap_name, points, COLOR_GAP)
 
 func cancelar_gap():
-	_active_gap_id = ""
-	_gap_completed_this_jump = false
-	_gap_name_to_notify = ""
+	_active_gaps_ids.clear()
+	_gaps_completed_this_jump.clear()
 
 # --- FUNÇÕES DE REGISTRO E COMUNICAÇÃO ---
 
@@ -107,8 +107,8 @@ func _start_new_jump():
 	points_per_trick.clear()
 	tricks_colors.clear()
 	
-	if _active_gap_id == "":
-		_gap_completed_this_jump = false
+	if _active_gaps_ids.is_empty():
+		_gaps_completed_this_jump.clear()
 	
 	var ground_manager = car.get_node_or_null("%GroundTrickManager")
 	if ground_manager and ground_manager.tracking_combo:
@@ -173,9 +173,10 @@ func _finalize_score():
 	# --- MUDANÇA CRUCIAL: Passamos o ID do carro ---
 	ScoreManager.add_points(final_score, car.id)
 	
-	if _gap_completed_this_jump and _gap_name_to_notify != "":
-		if is_instance_valid(MissionManager) and not MissionManager.is_mission_completed(_gap_name_to_notify):
-			MissionManager.notify_progress(MissionItem.Type.GAP, 1.0, _gap_name_to_notify)
+	# Passa por todos os gaps concluídos no pulo
+	for completed_gap in _gaps_completed_this_jump:
+		if is_instance_valid(MissionManager) and not MissionManager.is_mission_completed(completed_gap):
+			MissionManager.notify_progress(MissionItem.Type.GAP, 1.0, completed_gap)
 
 	_reset_gap_state_internal()
 	_update_final_display(hud, final_score, mult)
@@ -235,8 +236,9 @@ func _update_final_display(hud, final_score, mult):
 	is_showing_final_score = false
 
 func _reset_gap_state_internal():
-	_gap_completed_this_jump = false
-	_gap_name_to_notify = ""
+	# Limpamos apenas a lista de completados. 
+	# Os IDs sendo monitorados continuam, pois o carro cuida do cronômetro deles!
+	_gaps_completed_this_jump.clear()
 
 func _get_dynamic_multiplier() -> float:
 	var mult = 1.0

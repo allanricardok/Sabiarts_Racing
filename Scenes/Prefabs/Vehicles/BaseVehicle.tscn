@@ -1739,6 +1739,7 @@ shield_bar = NodePath("../../HUD/UI_Base/shield_bar")
 [node name="AbilityComponent" type="Node" parent="Scripts" node_paths=PackedStringArray("energy_bar", "cooldown_bar")]
 unique_name_in_owner = true
 script = ExtResource("6_362yw")
+COST_SHIELD = 40.0
 energy_bar = NodePath("../../HUD/UI_Base/AbilityBar")
 cooldown_bar = NodePath("../../HUD/UI_Base/WeaponCooldown")
 JUMP_FORCE = 20.0
