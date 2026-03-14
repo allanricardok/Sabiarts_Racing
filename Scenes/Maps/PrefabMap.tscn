@@ -25,7 +25,7 @@
 [ext_resource type="PackedScene" uid="uid://o0rl3lkmd3ty" path="res://Scenes/UI/StartMenu.tscn" id="36_10q4e"]
 [ext_resource type="PackedScene" uid="uid://otkba37h2pp0" path="res://Scenes/UI/FinishMenu.tscn" id="37_b5hml"]
 [ext_resource type="Script" uid="uid://1qg3wklklqlt" path="res://Core/Objectives/LevelController.gd" id="38_xja8u"]
-[ext_resource type="Resource" uid="uid://7d4ald45sgah" path="res://Resources/TestMapMissions.tres" id="39_an8b3"]
+[ext_resource type="Resource" uid="uid://7d4ald45sgah" path="res://Resources/MapMissions/TestMapMissions.tres" id="39_an8b3"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_a70xh"]
 material = ExtResource("3_q5716")

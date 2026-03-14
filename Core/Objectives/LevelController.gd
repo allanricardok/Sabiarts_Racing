@@ -61,21 +61,36 @@ func _on_time_up():
 	encerrar_partida()
 
 # --- NOVA FUNÇÃO CENTRAL DE ENCERRAMENTO ---
+# --- NOVA FUNÇÃO CENTRAL DE ENCERRAMENTO ---
 func encerrar_partida():
-	if level_ended: return # Proteção para não rodar duas vezes
+	if level_ended: return 
 	
 	timer_active = false
 	level_ended = true
 	
 	print("LevelController: Encerrando partida! Chamando tela de resultados...")
 	
-	# Isso aqui vai procurar qualquer nó no grupo "FinishUI" e rodar a função
-	get_tree().call_group("FinishUI", "abrir_resultados")
+	# --- A MÁGICA DO HIGHSCORE (CORRIGIDA) ---
+	# Em vez de pegar o nome do Nó Raiz, pegamos o nome oficial dentro do Resource de Missões!
+	# Assim, é impossível os mapas se confundirem, mesmo se os nós tiverem o mesmo nome.
+	var mapa_atual = "MapaDesconhecido"
+	if map_missions and map_missions.map_name != "":
+		mapa_atual = map_missions.map_name
 	
-	# Limpa o HUD de todos os jogadores para não ficar texto sobrando
+	# Salva a pontuação do Player 1 (ID 0)
+	var pontuacao_p1 = ScoreManager.get_total_score(0)
+	if pontuacao_p1 > 0:
+		SaveManager.save_highscore(mapa_atual, pontuacao_p1, "Player 1")
+		
+	# BÔNUS: Split-Screen
+	for p_id in range(1, 4):
+		var pts = ScoreManager.get_total_score(p_id)
+		if pts > 0:
+			SaveManager.save_highscore(mapa_atual, pts, "Player " + str(p_id + 1))
+	
+	get_tree().call_group("FinishUI", "abrir_resultados")
 	get_tree().call_group("HUD", "clear_combo_display")
-	print("[LevelController] Solicitando limpeza de combo display para todos os jogadores.")
-
+	
 # --- LÓGICA DE MULTIPLAYER (LAST MAN STANDING) ---
 func registrar_morte_jogador():
 	if level_ended: return

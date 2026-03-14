@@ -1,77 +1,85 @@
-[gd_resource type="Resource" script_class="MapMissionData" load_steps=11 format=3 uid="uid://7d4ald45sgah"]
+[gd_resource type="Resource" script_class="MapMissionData" load_steps=12 format=3 uid="uid://twwvwp5k3okx"]
 
-[ext_resource type="Script" uid="uid://2oic07orss4" path="res://Core/Objectives/MissionItem.gd" id="1_vtej8"]
-[ext_resource type="Script" uid="uid://dqrmrnt7j5mxe" path="res://Core/Objectives/MapMissionData.gd" id="2_m10t6"]
+[ext_resource type="Script" uid="uid://2oic07orss4" path="res://Core/Objectives/MissionItem.gd" id="1_3kmgt"]
+[ext_resource type="Script" uid="uid://dqrmrnt7j5mxe" path="res://Core/Objectives/MapMissionData.gd" id="2_i00q1"]
 
 [sub_resource type="Resource" id="Resource_d3yxn"]
-script = ExtResource("1_vtej8")
-id = "01"
+script = ExtResource("1_3kmgt")
+id = "score_01_BA"
 description = "Cool Score 5.000 points"
 target_value = 5000.0
 metadata/_custom_type_script = "uid://2oic07orss4"
 
 [sub_resource type="Resource" id="Resource_cp5jd"]
-script = ExtResource("1_vtej8")
-id = "Score2"
+script = ExtResource("1_3kmgt")
+id = "Score_02_BA"
 description = "Awesome Score 20.000 points"
 target_value = 20000.0
 metadata/_custom_type_script = "uid://2oic07orss4"
 
 [sub_resource type="Resource" id="Resource_00uud"]
-script = ExtResource("1_vtej8")
-id = "radar_120"
-description = "Go through speed radar over 120km/h"
+script = ExtResource("1_3kmgt")
+id = "radar_140_BA"
+description = "Go through speed radar over 140km/h"
 type = 1
 target_value = 140.0
 metadata/_custom_type_script = "uid://2oic07orss4"
 
 [sub_resource type="Resource" id="Resource_qo7tj"]
-script = ExtResource("1_vtej8")
-id = "gap_balcony"
-description = "Gap trick over the Obelisc"
+script = ExtResource("1_3kmgt")
+id = "gap_balcony_BA"
+description = "Mall Balcony Gap"
 type = 4
 target_value = 1.0
 metadata/_custom_type_script = "uid://2oic07orss4"
 
 [sub_resource type="Resource" id="Resource_7nuau"]
-script = ExtResource("1_vtej8")
-id = "briefcase"
+script = ExtResource("1_3kmgt")
+id = "obakes_BA"
 description = "Collect 5 Obakes"
 type = 2
 target_value = 5.0
 metadata/_custom_type_script = "uid://2oic07orss4"
 
 [sub_resource type="Resource" id="Resource_vtej8"]
-script = ExtResource("1_vtej8")
-id = "barril"
+script = ExtResource("1_3kmgt")
+id = "barril_BA"
 description = "Destroy at least 8 barrels"
 type = 3
 target_value = 8.0
 metadata/_custom_type_script = "uid://2oic07orss4"
 
 [sub_resource type="Resource" id="Resource_m10t6"]
-script = ExtResource("1_vtej8")
-id = "secret"
+script = ExtResource("1_3kmgt")
+id = "secret_BA"
 description = "Find the secret area"
 type = 5
 target_value = 1.0
 metadata/_custom_type_script = "uid://2oic07orss4"
 
 [sub_resource type="Resource" id="Resource_t15lh"]
-script = ExtResource("1_vtej8")
-id = "secret_item"
+script = ExtResource("1_3kmgt")
+id = "secret_item_BA"
 description = "Find the secret item"
 type = 2
 target_value = 1.0
 metadata/_custom_type_script = "uid://2oic07orss4"
 
+[sub_resource type="Resource" id="Resource_64uib"]
+script = ExtResource("1_3kmgt")
+id = "gap_obelisc_BA"
+description = "Jump from the Obelisc"
+type = 4
+target_value = 1.0
+metadata/_custom_type_script = "uid://2oic07orss4"
+
 [resource]
-script = ExtResource("2_m10t6")
-map_name = "TestMap"
-time_limit = 280.0
-missions = Array[ExtResource("1_vtej8")]([SubResource("Resource_d3yxn"), SubResource("Resource_cp5jd"), SubResource("Resource_00uud"), SubResource("Resource_qo7tj"), SubResource("Resource_7nuau"), SubResource("Resource_vtej8"), SubResource("Resource_m10t6"), SubResource("Resource_t15lh")])
+script = ExtResource("2_i00q1")
+map_name = "BuenosAires-Block"
+time_limit = 300.0
+missions = Array[ExtResource("1_3kmgt")]([SubResource("Resource_d3yxn"), SubResource("Resource_cp5jd"), SubResource("Resource_00uud"), SubResource("Resource_qo7tj"), SubResource("Resource_7nuau"), SubResource("Resource_vtej8"), SubResource("Resource_m10t6"), SubResource("Resource_t15lh"), SubResource("Resource_64uib")])
 next_map_unlock_count = 6
-map_description = "Welcome to the test map!
+map_description = "Welcome to the Buenos Aires map!
 
 Tips:
 - Use the teleporters!
@@ -83,6 +91,5 @@ Tips:
 - Gap points are transparent blue
 - Speedtrap is transparent red
 
-- Circle + left or R is the Teleport function
 - Discover more functions using Circle"
 metadata/_custom_type_script = "uid://dqrmrnt7j5mxe"

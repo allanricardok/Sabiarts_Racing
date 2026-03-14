@@ -60,9 +60,6 @@ func abrir_resultados():
 		if total_kills_label:
 			total_kills_label.text = "x" + str(GameStats.total_pedestrians_killed) + " total since started"
 	
-	# 1. Salva o recorde atual usando a maior pontuação
-	SaveManager.save_highscore(map_name, highest_score, winner_name)
-	
 	# 2. Preenche as listas
 	_preencher_resumo_missoes()
 	_preencher_highscores(map_name, highest_score)
