@@ -1,4 +1,4 @@
-[gd_scene load_steps=229 format=3 uid="uid://d1rl8sskrmddj"]
+[gd_scene load_steps=231 format=3 uid="uid://d1rl8sskrmddj"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_u8o8m"]
 [ext_resource type="PackedScene" uid="uid://cw8ofahu5mqhn" path="res://Scenes/Prefabs/Vehicles/BaseVehicle.tscn" id="2_g1d4t"]
@@ -20,7 +20,9 @@
 [ext_resource type="PackedScene" uid="uid://d08nc5o3ey67t" path="res://Scenes/Prefabs/Enemies/EnemyTurret.tscn" id="16_af68g"]
 [ext_resource type="PackedScene" uid="uid://cdg3xi8hhsm0t" path="res://Scenes/Prefabs/Items/BoostPad.tscn" id="17_stypw"]
 [ext_resource type="PackedScene" uid="uid://dpjwvb143dxpb" path="res://Scenes/Prefabs/Items/JumpPad.tscn" id="18_r7ole"]
+[ext_resource type="Resource" uid="uid://dxe5me0wdtt06" path="res://Resources/Items/Shield.tres" id="18_vj8u6"]
 [ext_resource type="PackedScene" uid="uid://dadt551bspl1q" path="res://Scenes/Prefabs/Items/FloatingObject.tscn" id="19_6fv6f"]
+[ext_resource type="Resource" uid="uid://q47f11lrnubs" path="res://Resources/Items/SuperHealthItem.tres" id="19_t5btl"]
 [ext_resource type="PackedScene" uid="uid://dopugjiu2xcnc" path="res://Scenes/Prefabs/Enemies/PedestrianSpawner.tscn" id="20_4e1cd"]
 [ext_resource type="Texture2D" uid="uid://cy74dg4og5fwv" path="res://Assets/2D/skybox_test1.png" id="21_44s4c"]
 [ext_resource type="Material" uid="uid://cbslnqdpwr8nl" path="res://Assets/2D/grass_test.tres" id="21_g1d4t"]
@@ -847,27 +849,92 @@ transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 75.7
 [node name="Pickups" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
 
 [node name="ItemSpawner" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_haj77")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.822699, -0.11270952, 1.4090614)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.822699, -0.11270952, -25.90325)
 pickup_scene = ExtResource("9_kxusw")
 specific_item = ExtResource("10_75jtm")
 
 [node name="ItemSpawner2" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_haj77")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 282.31573, -0.11270952, -273.36325)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 314.56998, 18.951265, -248.79314)
 pickup_scene = ExtResource("9_kxusw")
 specific_item = ExtResource("10_75jtm")
 
 [node name="ItemSpawner3" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_haj77")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 271.0906, -0.11270952, -273.36325)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 205.31335, 30.84974, -240.68227)
 pickup_scene = ExtResource("9_kxusw")
-specific_item = ExtResource("11_oublg")
+specific_item = ExtResource("10_75jtm")
 
 [node name="ItemSpawner4" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_haj77")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 258.22476, -0.11270952, -273.36325)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 132.89594, 31.586323, -329.79034)
 pickup_scene = ExtResource("9_kxusw")
 specific_item = ExtResource("11_oublg")
 
 [node name="ItemSpawner5" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_haj77")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 244.95963, -0.11270952, -273.36325)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 285.09198, 9.204714, 16.351963)
+pickup_scene = ExtResource("9_kxusw")
+specific_item = ExtResource("12_ip1o4")
+
+[node name="ItemSpawner6" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.987497, 24.130468, -219.77412)
+pickup_scene = ExtResource("9_kxusw")
+specific_item = ExtResource("10_75jtm")
+
+[node name="ItemSpawner7" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -420.51868, 88.1878, -268.56897)
+pickup_scene = ExtResource("9_kxusw")
+specific_item = ExtResource("11_oublg")
+
+[node name="ItemSpawner8" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -61.636517, 3.401064, -139.74364)
+pickup_scene = ExtResource("9_kxusw")
+specific_item = ExtResource("12_ip1o4")
+
+[node name="ItemSpawner9" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -285.94138, 10.803788, -25.843185)
+pickup_scene = ExtResource("9_kxusw")
+specific_item = ExtResource("12_ip1o4")
+
+[node name="ItemSpawner10" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -363.34543, 18.12917, -25.843185)
+pickup_scene = ExtResource("9_kxusw")
+specific_item = ExtResource("11_oublg")
+
+[node name="ItemSpawner11" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -317.35156, 33.703953, 176.1388)
+pickup_scene = ExtResource("9_kxusw")
+specific_item = ExtResource("10_75jtm")
+
+[node name="ItemSpawner12" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -146.33746, 30.960995, 176.1388)
+pickup_scene = ExtResource("9_kxusw")
+specific_item = ExtResource("10_75jtm")
+
+[node name="ItemSpawner13" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -43.82872, 7.8781204, 311.73132)
+pickup_scene = ExtResource("9_kxusw")
+specific_item = ExtResource("10_75jtm")
+
+[node name="ItemSpawner14" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 83.51514, 10.573832, 250.32407)
+pickup_scene = ExtResource("9_kxusw")
+specific_item = ExtResource("10_75jtm")
+
+[node name="ItemSpawner15" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 344.33774, 7.915312, -75.32837)
+pickup_scene = ExtResource("9_kxusw")
+specific_item = ExtResource("10_75jtm")
+
+[node name="ItemSpawner16" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -149.59933, 20.90635, -247.90285)
+pickup_scene = ExtResource("9_kxusw")
+specific_item = ExtResource("12_ip1o4")
+
+[node name="ItemSpawner17" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -252.5827, 33.42488, -309.71533)
+pickup_scene = ExtResource("9_kxusw")
+specific_item = ExtResource("10_75jtm")
+
+[node name="ItemSpawner18" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Pickups" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -291.35428, 0.4205339, -304.69196)
 pickup_scene = ExtResource("9_kxusw")
 specific_item = ExtResource("12_ip1o4")
 
@@ -929,7 +996,7 @@ transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
 shape = SubResource("BoxShape3D_3i0df")
 
 [node name="Obake4" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 133.06598, 8.893858, 271.02408)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 139.08153, 8.893858, 263.32593)
 collision_layer = 4
 collision_mask = 15
 script = ExtResource("11_6vwi6")
@@ -1087,7 +1154,7 @@ skeleton = NodePath("")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.63427925, 0)
 
 [node name="ItemPickup" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems" instance=ExtResource("9_kxusw")]
-transform = Transform3D(0.98471665, 0, -0.18562213, 0, 1, 0, 0.18562213, 0, 0.98471665, 112.303314, 0.20363593, -1.7466412)
+transform = Transform3D(0.98471665, 0, -0.18562213, 0, 1, 0, 0.18562213, 0, 0.98471665, 178.51263, 15.000284, 23.683535)
 item_data = ExtResource("15_o7pxb")
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup"]
@@ -1095,6 +1162,122 @@ material_override = SubResource("StandardMaterial3D_lgb87")
 mesh = SubResource("PrismMesh_5twny")
 
 [node name="CollisionShape3D2" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup"]
+shape = SubResource("BoxShape3D_klx8g")
+
+[node name="ItemPickup2" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems" instance=ExtResource("9_kxusw")]
+transform = Transform3D(0.98471665, 0, -0.18562213, 0, 1, 0, 0.18562213, 0, 0.98471665, 401.52655, 53.797997, -346.2242)
+item_data = ExtResource("15_o7pxb")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup2"]
+material_override = SubResource("StandardMaterial3D_lgb87")
+mesh = SubResource("PrismMesh_5twny")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup2"]
+shape = SubResource("BoxShape3D_klx8g")
+
+[node name="ItemPickup3" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems" instance=ExtResource("9_kxusw")]
+transform = Transform3D(0.98471665, 0, -0.18562213, 0, 1, 0, 0.18562213, 0, 0.98471665, 86.97554, 12.734437, 299.9877)
+item_data = ExtResource("18_vj8u6")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup3"]
+material_override = SubResource("StandardMaterial3D_lgb87")
+mesh = SubResource("PrismMesh_5twny")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup3"]
+shape = SubResource("BoxShape3D_klx8g")
+
+[node name="ItemPickup4" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems" instance=ExtResource("9_kxusw")]
+transform = Transform3D(0.98471665, 0, -0.18562213, 0, 1, 0, 0.18562213, 0, 0.98471665, -32.374786, 15.00028, -92.9527)
+item_data = ExtResource("15_o7pxb")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup4"]
+material_override = SubResource("StandardMaterial3D_lgb87")
+mesh = SubResource("PrismMesh_5twny")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup4"]
+shape = SubResource("BoxShape3D_klx8g")
+
+[node name="ItemPickup5" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems" instance=ExtResource("9_kxusw")]
+transform = Transform3D(0.98471665, 0, -0.18562213, 0, 1, 0, 0.18562213, 0, 0.98471665, -269.90076, 15.000282, -0.46151543)
+item_data = ExtResource("15_o7pxb")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup5"]
+material_override = SubResource("StandardMaterial3D_lgb87")
+mesh = SubResource("PrismMesh_5twny")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup5"]
+shape = SubResource("BoxShape3D_klx8g")
+
+[node name="ItemPickup6" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems" instance=ExtResource("9_kxusw")]
+transform = Transform3D(0.98471665, 0, -0.18562213, 0, 1, 0, 0.18562213, 0, 0.98471665, -300.76202, 59.04509, -204.09152)
+item_data = ExtResource("19_t5btl")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup6"]
+visible = false
+material_override = SubResource("StandardMaterial3D_lgb87")
+mesh = SubResource("PrismMesh_5twny")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup6"]
+shape = SubResource("BoxShape3D_klx8g")
+
+[node name="ItemPickup7" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems" instance=ExtResource("9_kxusw")]
+transform = Transform3D(0.98471665, 0, -0.18562213, 0, 1, 0, 0.18562213, 0, 0.98471665, -83.05176, 82.78801, -263.191)
+item_data = ExtResource("19_t5btl")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup7"]
+visible = false
+material_override = SubResource("StandardMaterial3D_lgb87")
+mesh = SubResource("PrismMesh_5twny")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup7"]
+shape = SubResource("BoxShape3D_klx8g")
+
+[node name="ItemPickup8" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems" instance=ExtResource("9_kxusw")]
+transform = Transform3D(0.98471665, 0, -0.18562213, 0, 1, 0, 0.18562213, 0, 0.98471665, 61.734554, 32.472855, -300.72318)
+item_data = ExtResource("19_t5btl")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup8"]
+visible = false
+material_override = SubResource("StandardMaterial3D_lgb87")
+mesh = SubResource("PrismMesh_5twny")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup8"]
+shape = SubResource("BoxShape3D_klx8g")
+
+[node name="ItemPickup9" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems" instance=ExtResource("9_kxusw")]
+transform = Transform3D(0.98471665, 0, -0.18562213, 0, 1, 0, 0.18562213, 0, 0.98471665, 161.41293, 32.47285, -225.98315)
+item_data = ExtResource("18_vj8u6")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup9"]
+visible = false
+material_override = SubResource("StandardMaterial3D_lgb87")
+mesh = SubResource("PrismMesh_5twny")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup9"]
+shape = SubResource("BoxShape3D_klx8g")
+
+[node name="ItemPickup10" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems" instance=ExtResource("9_kxusw")]
+transform = Transform3D(0.98471665, 0, -0.18562213, 0, 1, 0, 0.18562213, 0, 0.98471665, 16.378143, 127.95861, -27.84953)
+item_data = ExtResource("19_t5btl")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup10"]
+visible = false
+material_override = SubResource("StandardMaterial3D_lgb87")
+mesh = SubResource("PrismMesh_5twny")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup10"]
+shape = SubResource("BoxShape3D_klx8g")
+
+[node name="ItemPickup11" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems" instance=ExtResource("9_kxusw")]
+transform = Transform3D(0.98471665, 0, -0.18562213, 0, 1, 0, 0.18562213, 0, 0.98471665, 176.01895, 7.8863573, -278.76486)
+item_data = ExtResource("18_vj8u6")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup11"]
+visible = false
+material_override = SubResource("StandardMaterial3D_lgb87")
+mesh = SubResource("PrismMesh_5twny")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/StatusItems/ItemPickup11"]
 shape = SubResource("BoxShape3D_klx8g")
 
 [node name="Enemies" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
@@ -1131,6 +1314,11 @@ drop_item_resource = ExtResource("10_75jtm")
 
 [node name="EnemyTurret7" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Enemies" instance=ExtResource("16_af68g")]
 transform = Transform3D(0.9096498, -0.14723182, -0.3884071, 0, 0.9350734, -0.35445425, 0.41537607, 0.32242924, 0.8505893, -109.684845, 52.989742, -200.63474)
+drop_item_scene = ExtResource("9_kxusw")
+drop_item_resource = ExtResource("10_75jtm")
+
+[node name="EnemyTurret8" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Enemies" instance=ExtResource("16_af68g")]
+transform = Transform3D(0.71920645, 0.24627352, 0.6496857, -1.3554838e-08, 0.9350734, -0.35445425, -0.6947965, 0.25492576, 0.67251074, 18.3152, 38.26361, -19.700027)
 drop_item_scene = ExtResource("9_kxusw")
 drop_item_resource = ExtResource("10_75jtm")
 
@@ -1184,7 +1372,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 314.4409, 42.805508, -358.422
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 417.00266, 43.195545, -289.37332)
 
 [node name="JumpPad6" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("18_r7ole")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 133.21455, -0.9382343, 270.81412)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 140.11316, -0.9382343, 260.4935)
 
 [node name="JumpPad7" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("18_r7ole")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -127.77203, 17.288275, -208.49994)
@@ -1231,10 +1419,107 @@ mission_id = "barril_BA"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -422.85498, 130.70345, 126.92351)
 mission_id = "barril_BA"
 
+[node name="FloatingObject9" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35.54092, 155.87563, 89.53139)
+mission_id = "barril_BA"
+
+[node name="FloatingObject10" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 440.45947, 130.70345, -146.06691)
+mission_id = "barril_BA"
+
+[node name="FloatingObject11" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 440.45947, 130.70345, -72.15721)
+mission_id = "barril_BA"
+
+[node name="FloatingObject12" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 440.45947, 130.70345, -14.522736)
+mission_id = "barril_BA"
+
+[node name="FloatingObject13" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 440.45947, 130.70345, 47.765034)
+mission_id = "barril_BA"
+
+[node name="FloatingObject14" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 440.45947, 130.70345, 126.92351)
+mission_id = "barril_BA"
+
 [node name="Pedestrians" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
 
 [node name="PedestrianSpawner" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.509514, -0.5100812, -144.41035)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.925915, -0.5101117, -230.6738)
+max_alive = 3
+
+[node name="PedestrianSpawner2" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -207.77788, -0.5100812, -217.15883)
+max_alive = 3
+
+[node name="PedestrianSpawner3" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 206.93549, -0.5100812, -308.69202)
+max_alive = 3
+
+[node name="PedestrianSpawner4" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 279.2085, -0.5100812, -225.83057)
+max_alive = 3
+
+[node name="PedestrianSpawner5" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 83.55318, -0.5100812, -59.187027)
+max_alive = 3
+
+[node name="PedestrianSpawner6" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.537281, -0.5100812, 10.977417)
+max_alive = 3
+
+[node name="PedestrianSpawner7" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -104.131836, -0.5100812, -33.492744)
+max_alive = 3
+
+[node name="PedestrianSpawner8" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 357.03494, -0.5100812, -43.165253)
+max_alive = 3
+
+[node name="PedestrianSpawner9" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 257.05658, -0.5100812, 140.98877)
+max_alive = 3
+
+[node name="PedestrianSpawner10" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 178.80461, -0.5100812, 298.03534)
+max_alive = 3
+
+[node name="PedestrianSpawner11" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 138.99338, -0.5100812, 329.7575)
+max_alive = 3
+
+[node name="PedestrianSpawner12" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -90.53902, -0.5100812, 321.65402)
+max_alive = 3
+
+[node name="PedestrianSpawner13" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -95.92966, -0.5100812, 211.03683)
+max_alive = 3
+
+[node name="PedestrianSpawner14" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -207.06955, -0.5100812, 100.834076)
+max_alive = 3
+
+[node name="PedestrianSpawner15" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -375.23862, -0.5101117, 136.98485)
+max_alive = 3
+
+[node name="PedestrianSpawner16" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -307.79852, -0.5100812, -41.935074)
+max_alive = 3
+
+[node name="PedestrianSpawner17" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -273.9405, -0.5100812, -145.16068)
+max_alive = 3
+
+[node name="PedestrianSpawner18" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -238.41238, -0.5100812, -313.3589)
+max_alive = 3
+
+[node name="PedestrianSpawner19" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -293.44943, 31.221945, -277.43512)
+max_alive = 3
 
 [node name="Buildings" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
 
@@ -1594,11 +1879,11 @@ transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -16.
 shape = SubResource("ConcavePolygonShape3D_q3ajq")
 
 [node name="MeshInstance3D34" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park1/ParkObjects"]
-transform = Transform3D(-0.99964565, 0, -0.026613116, 0, 1, 0, 0.026613116, 0, -0.99964565, -22.71379, -2.827364, 46.853455)
+transform = Transform3D(-0.99964565, 0, -0.026613116, 0, 1, 0, 0.026613116, 0, -0.99964565, -22.71379, -3.0071445, 46.853455)
 mesh = SubResource("BoxMesh_keab0")
 
 [node name="CollisionShape3D7" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park1/ParkObjects"]
-transform = Transform3D(-0.99964565, 0, -0.026613116, 0, 1, 0, 0.026613116, 0, -0.99964565, -22.71379, -2.827364, 46.853455)
+transform = Transform3D(-0.99964565, 0, -0.026613116, 0, 1, 0, 0.026613116, 0, -0.99964565, -22.71379, -3.0071445, 46.853455)
 shape = SubResource("ConcavePolygonShape3D_ulkw6")
 
 [node name="Tree1" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park1" instance=ExtResource("25_haj77")]
@@ -2550,6 +2835,9 @@ transform = Transform3D(-0.25881886, 0, 0.96592575, 0, 1, 0, -0.96592575, 0, -0.
 
 [node name="SmallRamp17" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Ramps1" instance=ExtResource("22_is8dr")]
 transform = Transform3D(0.09836455, 0, 0.9951503, 0, 1, 0, -0.9951503, 0, 0.09836455, -399.86816, 54.285553, 132.73518)
+
+[node name="SmallRamp18" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Ramps1" instance=ExtResource("22_is8dr")]
+transform = Transform3D(1.311341e-07, 0, -0.99999964, 0, 1, 0, 0.99999964, 0, 1.311341e-07, 433.9402, 54.094723, -202.50171)
 
 [node name="Ramps2" type="StaticBody3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects"]
 

@@ -11,5 +11,5 @@ script = ExtResource("1_1yjh2")
 item_name = "Shield"
 shield_amount = 25.0
 custom_mesh = SubResource("PrismMesh_1yjh2")
-item_color = Color(0.7176471, 0.827451, 0.78039217, 1)
+item_color = Color(1, 0.23921569, 0.17254902, 1)
 metadata/_custom_type_script = "uid://5wgfj8fmfmgf"

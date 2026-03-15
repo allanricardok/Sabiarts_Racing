@@ -20,12 +20,13 @@ var panic_timer: float = 0.0
 var spawn_position: Vector3 = Vector3.ZERO
 
 func _ready():
-	# Registra a casa dele!
+	# --- GARANTIA ABSOLUTA ---
+	add_to_group("pedestrians")
+	
 	spawn_position = global_position
 	
 	_pick_new_direction()
 	
-	# Garante que a animação esteja rodando
 	var anim = find_child("AnimatedSprite3D")
 	if anim: anim.play()
 
@@ -62,22 +63,17 @@ func _physics_process(delta):
 	move_and_slide()
 
 func _pick_new_direction():
-	# --- SISTEMA DE COLEIRA (TETHER) ---
-	# Pergunta: Eu estou muito longe de casa?
 	var dist_from_spawn = global_position.distance_to(spawn_position)
 	
 	if dist_from_spawn > max_wander_radius:
-		# Se sim, força a direção para apontar de volta para o Spawn
-		current_direction = (spawn_position - global_position).normalized()
-		# Adiciona uma levinha variação (ruído) para ele não andar numa linha perfeitamente reta como um robô
-		current_direction = current_direction.rotated(Vector3.UP, randf_range(-0.5, 0.5))
+		# Em vez de mirar no pixel central, mira num ponto aleatório perto do centro!
+		var random_center = spawn_position + Vector3(randf_range(-8.0, 8.0), 0, randf_range(-8.0, 8.0))
+		current_direction = (random_center - global_position).normalized()
 	else:
-		# Se estiver perto de casa, escolhe um ângulo aleatório em 360 graus
 		var random_angle = randf() * TAU 
 		current_direction = Vector3(cos(random_angle), 0, sin(random_angle)).normalized()
 		
-	# Corre nessa direção por 1 a 3 segundos
-	panic_timer = randf_range(1.0, 3.0)
+	panic_timer = randf_range(1.5, 4.0)
 
 func _on_hitbox_body_entered(body):
 	if body is VehicleBody3D or body.is_in_group("jogadores"):
@@ -86,22 +82,22 @@ func _on_hitbox_body_entered(body):
 
 func take_damage(amount: float, attacker: Node3D = null):
 	var attacker_name = attacker.name if is_instance_valid(attacker) else "Desconhecido"
-	
-	# NOVO LOG: O pedestre escutou a chamada de dano
 	print("[PEDESTRE DEBUG] O Pedestre ", self.name, " recebeu a chamada de dano do atacante: ", attacker_name)
 
-	# --- BLINDAGEM CONTRA METRALHADORA (MULTI-HITS) ---
 	if is_invincible or is_dead: 
 		print(" -> Mas o pedestre ignorou o tiro (Invencível ou já estava morto).")
 		return 
 	
-	is_dead = true # Morreu!
+	is_dead = true
 	
-	# --- A CURA DO ZUMBI (JOLT FIX) ---
-	# Desliga o pedestre da simulação física na mesma hora.
-	# Isso impede que o carro trombe na colisão invisível nos frames de atraso do queue_free().
 	process_mode = Node.PROCESS_MODE_DISABLED
 	visible = false
+	
+	# --- NOVO: O "PESO" DO ATROPELAMENTO ---
+	# Se quem bateu foi um carro, nós multiplicamos a velocidade dele por 0.9 (tira 10%)
+	if attacker is VehicleBody3D or attacker is RigidBody3D:
+		attacker.linear_velocity *= 0.7 
+		# Dica: Se quiser que ele perca mais, mude para 0.85 (15%) ou 0.8 (20%)
 	
 	var actual_shooter = attacker
 	if attacker and "shooter" in attacker and is_instance_valid(attacker.shooter):
@@ -119,5 +115,4 @@ func take_damage(amount: float, attacker: Node3D = null):
 	if GameStats:
 		GameStats.add_pedestrian_kill()
 		
-	# TODO: Instanciar VFX/SFX de morte (Sangue/Poeira/Explosão)
 	queue_free()

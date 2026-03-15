@@ -35,7 +35,7 @@ metadata/_custom_type_script = "uid://2oic07orss4"
 
 [sub_resource type="Resource" id="Resource_7nuau"]
 script = ExtResource("1_3kmgt")
-id = "obakes_BA"
+id = "obake_BA"
 description = "Collect 5 Obakes"
 type = 2
 target_value = 5.0

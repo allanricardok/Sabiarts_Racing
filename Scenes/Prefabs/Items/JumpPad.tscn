@@ -4,7 +4,7 @@
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wwxov"]
 transparency = 1
-albedo_color = Color(1.6061988, 1.0916034, 0.2838839, 0.5411765)
+albedo_color = Color(1.4687854, 0.9986648, 0.2566673, 0.101960786)
 
 [sub_resource type="BoxMesh" id="BoxMesh_idm0s"]
 material = SubResource("StandardMaterial3D_wwxov")
@@ -12,7 +12,7 @@ size = Vector3(6, 0.1, 10)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_63i7m"]
 transparency = 1
-albedo_color = Color(1, 0.84313726, 0, 0.23137255)
+albedo_color = Color(2.1074393, 1.7859169, 0, 0.3019608)
 
 [sub_resource type="PrismMesh" id="PrismMesh_yg7yn"]
 material = SubResource("StandardMaterial3D_63i7m")
@@ -33,15 +33,15 @@ transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 0, 0
 mesh = SubResource("BoxMesh_idm0s")
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="MeshInstance3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.47144407, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3912561, 0)
 mesh = SubResource("PrismMesh_yg7yn")
 
 [node name="MeshInstance3D3" type="MeshInstance3D" parent="MeshInstance3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.025797546, 3.3285275)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9456095, 3.3285275)
 mesh = SubResource("PrismMesh_yg7yn")
 
 [node name="MeshInstance3D4" type="MeshInstance3D" parent="MeshInstance3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.025797546, -3.358499)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9456095, -3.358499)
 mesh = SubResource("PrismMesh_yg7yn")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
