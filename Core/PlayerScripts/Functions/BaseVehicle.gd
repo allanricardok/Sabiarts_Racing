@@ -10,7 +10,7 @@ var pode_mover : bool = true
 # --- CONFIGURAÇÕES DE COMBATE (ATROPELAMENTO) ---
 @export_group("Combate: Atropelamento")
 @export var divisor_de_massa : float = 1000.0
-@export var multiplicador_dano : float = 1.0
+@export var multiplicador_dano : float = 1.5
 @export var dano_maximo_por_batida : float = 50.0
 @export var velocidade_minima_dano : float = 3.0
 
@@ -122,7 +122,7 @@ func _on_pousou(is_clean: bool):
 
 func set_active_gap(id_gap: String):
 	# Adiciona ou renova o gap específico no dicionário com 5 segundos!
-	_active_gaps[id_gap] = 5.0 
+	_active_gaps[id_gap] = 10.0 
 	
 	var trick_manager = get_node_or_null("%TrickManager")
 	if trick_manager and trick_manager.has_method("iniciar_deteccao_gap"):
