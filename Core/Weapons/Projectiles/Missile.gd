@@ -26,21 +26,31 @@ func _ready():
 
 func setup(dmg, shooter_vel, source_car, incoming_target = null):
 	damage = dmg
-	target = incoming_target
-	shooter = source_car
 	has_exploded = false # Garante que nasce destrancado
 	
-	var forward_dir = source_car.global_transform.basis.z 
-	
-	velocity = (forward_dir * speed) + shooter_vel
-	
-	if velocity.dot(forward_dir) < 5.0:
-		velocity = forward_dir * speed
-
-	var ignore_slowmo = source_car.is_in_group("jogadores")
-	get_tree().create_timer(5.0, false, false, ignore_slowmo).timeout.connect(_explode)
-
-	look_at(global_position + forward_dir, Vector3.UP)
+	# --- BLINDAGEM CONTRA ALVOS FANTASMAS ---
+	# Só guarda o alvo se ele realmente ainda existir no mundo!
+	if is_instance_valid(incoming_target) and not incoming_target.is_queued_for_deletion():
+		target = incoming_target
+	else:
+		target = null # Fica sem alvo e voa reto!
+		
+	# Mesma blindagem para o atirador (por precaução extrema)
+	if is_instance_valid(source_car):
+		shooter = source_car
+		var forward_dir = source_car.global_transform.basis.z 
+		velocity = (forward_dir * speed) + shooter_vel
+		
+		if velocity.dot(forward_dir) < 5.0:
+			velocity = forward_dir * speed
+			
+		look_at(global_position + forward_dir, Vector3.UP)
+		
+		var ignore_slowmo = source_car.is_in_group("jogadores")
+		get_tree().create_timer(5.0, false, false, ignore_slowmo).timeout.connect(_explode)
+	else:
+		# Se por algum milagre o carro sumir no exato frame do tiro, o míssil se destrói.
+		queue_free()
 
 func _physics_process(delta):
 	var real_delta = delta

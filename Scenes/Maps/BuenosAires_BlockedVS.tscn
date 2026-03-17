@@ -1,4 +1,4 @@
-[gd_scene load_steps=239 format=3 uid="uid://d1rl8sskrmddj"]
+[gd_scene load_steps=246 format=3 uid="uid://d1rl8sskrmddj"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_u8o8m"]
 [ext_resource type="PackedScene" uid="uid://cw8ofahu5mqhn" path="res://Scenes/Prefabs/Vehicles/BaseVehicle.tscn" id="2_g1d4t"]
@@ -142,13 +142,37 @@ size = Vector3(4.1835623, 24.414375, 68.40263)
 size = Vector3(4.1835623, 24.414375, 134.85019)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_neuqn"]
-size = Vector3(4.1835623, 26.067217, 20.139305)
+size = Vector3(22.499107, 1.5323071, 23.95371)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_qdutf"]
-size = Vector3(4.1835623, 20.042885, 28.318933)
+[sub_resource type="BoxShape3D" id="BoxShape3D_0p4fw"]
+size = Vector3(52.353962, 3.3269844, 35.279392)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_gamsr"]
 size = Vector3(4.1835623, 14.575708, 21.92301)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qdutf"]
+size = Vector3(124.03987, 3.3269844, 51.25642)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ftvov"]
+size = Vector3(4.1835623, 31.89738, 44.501953)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_g1bi8"]
+size = Vector3(1.789535, 22.970633, 13.226692)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_yp3g3"]
+size = Vector3(4.1835623, 17.35315, 16.781681)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_keab0"]
+size = Vector3(2.2709804, 32.156494, 20.322754)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_i3s4m"]
+size = Vector3(4.1835623, 41.81087, 169.69562)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_g7yph"]
+size = Vector3(4.1835623, 49.106514, 158.7731)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_h44hj"]
+size = Vector3(1.1650233, 18.979666, 13.019503)
 
 [sub_resource type="BoxMesh" id="BoxMesh_ynl81"]
 size = Vector3(38.255, 1, 159.06)
@@ -586,28 +610,25 @@ size = Vector3(10, 5, 130)
 data = PackedVector3Array(-5, 2.5, 65, 5, 2.5, 65, -5, -2.5, 65, 5, 2.5, 65, 5, -2.5, 65, -5, -2.5, 65, 5, 2.5, -65, -5, 2.5, -65, 5, -2.5, -65, -5, 2.5, -65, -5, -2.5, -65, 5, -2.5, -65, 5, 2.5, 65, 5, 2.5, -65, 5, -2.5, 65, 5, 2.5, -65, 5, -2.5, -65, 5, -2.5, 65, -5, 2.5, -65, -5, 2.5, 65, -5, -2.5, -65, -5, 2.5, 65, -5, -2.5, 65, -5, -2.5, -65, 5, 2.5, 65, -5, 2.5, 65, 5, 2.5, -65, -5, 2.5, 65, -5, 2.5, -65, 5, 2.5, -65, -5, -2.5, 65, 5, -2.5, 65, -5, -2.5, -65, 5, -2.5, 65, 5, -2.5, -65, -5, -2.5, -65)
 
 [sub_resource type="BoxMesh" id="BoxMesh_ornq2"]
-size = Vector3(10.945, 1.29, 34.76)
-
-[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_is8dr"]
-data = PackedVector3Array(-5.4725, 0.645, 17.38, 5.4725, 0.645, 17.38, -5.4725, -0.645, 17.38, 5.4725, 0.645, 17.38, 5.4725, -0.645, 17.38, -5.4725, -0.645, 17.38, 5.4725, 0.645, -17.38, -5.4725, 0.645, -17.38, 5.4725, -0.645, -17.38, -5.4725, 0.645, -17.38, -5.4725, -0.645, -17.38, 5.4725, -0.645, -17.38, 5.4725, 0.645, 17.38, 5.4725, 0.645, -17.38, 5.4725, -0.645, 17.38, 5.4725, 0.645, -17.38, 5.4725, -0.645, -17.38, 5.4725, -0.645, 17.38, -5.4725, 0.645, -17.38, -5.4725, 0.645, 17.38, -5.4725, -0.645, -17.38, -5.4725, 0.645, 17.38, -5.4725, -0.645, 17.38, -5.4725, -0.645, -17.38, 5.4725, 0.645, 17.38, -5.4725, 0.645, 17.38, 5.4725, 0.645, -17.38, -5.4725, 0.645, 17.38, -5.4725, 0.645, -17.38, 5.4725, 0.645, -17.38, -5.4725, -0.645, 17.38, 5.4725, -0.645, 17.38, -5.4725, -0.645, -17.38, 5.4725, -0.645, 17.38, 5.4725, -0.645, -17.38, -5.4725, -0.645, -17.38)
-
-[sub_resource type="BoxMesh" id="BoxMesh_8dycc"]
-size = Vector3(10.945, 23.69, 40)
+size = Vector3(10.945, 1.29, 30.305)
 
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_textq"]
-data = PackedVector3Array(-5.4725, 11.844999, 20, 5.4725, 11.844999, 20, -5.4725, -11.844999, 20, 5.4725, 11.844999, 20, 5.4725, -11.844999, 20, -5.4725, -11.844999, 20, 5.4725, 11.844999, -20, -5.4725, 11.844999, -20, 5.4725, -11.844999, -20, -5.4725, 11.844999, -20, -5.4725, -11.844999, -20, 5.4725, -11.844999, -20, 5.4725, 11.844999, 20, 5.4725, 11.844999, -20, 5.4725, -11.844999, 20, 5.4725, 11.844999, -20, 5.4725, -11.844999, -20, 5.4725, -11.844999, 20, -5.4725, 11.844999, -20, -5.4725, 11.844999, 20, -5.4725, -11.844999, -20, -5.4725, 11.844999, 20, -5.4725, -11.844999, 20, -5.4725, -11.844999, -20, 5.4725, 11.844999, 20, -5.4725, 11.844999, 20, 5.4725, 11.844999, -20, -5.4725, 11.844999, 20, -5.4725, 11.844999, -20, 5.4725, 11.844999, -20, -5.4725, -11.844999, 20, 5.4725, -11.844999, 20, -5.4725, -11.844999, -20, 5.4725, -11.844999, 20, 5.4725, -11.844999, -20, -5.4725, -11.844999, -20)
+data = PackedVector3Array(-5.4725, 0.645, 15.152499, 5.4725, 0.645, 15.152499, -5.4725, -0.645, 15.152499, 5.4725, 0.645, 15.152499, 5.4725, -0.645, 15.152499, -5.4725, -0.645, 15.152499, 5.4725, 0.645, -15.152499, -5.4725, 0.645, -15.152499, 5.4725, -0.645, -15.152499, -5.4725, 0.645, -15.152499, -5.4725, -0.645, -15.152499, 5.4725, -0.645, -15.152499, 5.4725, 0.645, 15.152499, 5.4725, 0.645, -15.152499, 5.4725, -0.645, 15.152499, 5.4725, 0.645, -15.152499, 5.4725, -0.645, -15.152499, 5.4725, -0.645, 15.152499, -5.4725, 0.645, -15.152499, -5.4725, 0.645, 15.152499, -5.4725, -0.645, -15.152499, -5.4725, 0.645, 15.152499, -5.4725, -0.645, 15.152499, -5.4725, -0.645, -15.152499, 5.4725, 0.645, 15.152499, -5.4725, 0.645, 15.152499, 5.4725, 0.645, -15.152499, -5.4725, 0.645, 15.152499, -5.4725, 0.645, -15.152499, 5.4725, 0.645, -15.152499, -5.4725, -0.645, 15.152499, 5.4725, -0.645, 15.152499, -5.4725, -0.645, -15.152499, 5.4725, -0.645, 15.152499, 5.4725, -0.645, -15.152499, -5.4725, -0.645, -15.152499)
 
-[sub_resource type="BoxMesh" id="BoxMesh_h3y5q"]
-size = Vector3(10.945, 11.263, 21.815)
+[sub_resource type="BoxMesh" id="BoxMesh_8dycc"]
+size = Vector3(10.945, 1.29, 8.66)
 
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_7fx2c"]
-data = PackedVector3Array(-5.4725, 5.6315, 10.907499, 5.4725, 5.6315, 10.907499, -5.4725, -5.6315, 10.907499, 5.4725, 5.6315, 10.907499, 5.4725, -5.6315, 10.907499, -5.4725, -5.6315, 10.907499, 5.4725, 5.6315, -10.907499, -5.4725, 5.6315, -10.907499, 5.4725, -5.6315, -10.907499, -5.4725, 5.6315, -10.907499, -5.4725, -5.6315, -10.907499, 5.4725, -5.6315, -10.907499, 5.4725, 5.6315, 10.907499, 5.4725, 5.6315, -10.907499, 5.4725, -5.6315, 10.907499, 5.4725, 5.6315, -10.907499, 5.4725, -5.6315, -10.907499, 5.4725, -5.6315, 10.907499, -5.4725, 5.6315, -10.907499, -5.4725, 5.6315, 10.907499, -5.4725, -5.6315, -10.907499, -5.4725, 5.6315, 10.907499, -5.4725, -5.6315, 10.907499, -5.4725, -5.6315, -10.907499, 5.4725, 5.6315, 10.907499, -5.4725, 5.6315, 10.907499, 5.4725, 5.6315, -10.907499, -5.4725, 5.6315, 10.907499, -5.4725, 5.6315, -10.907499, 5.4725, 5.6315, -10.907499, -5.4725, -5.6315, 10.907499, 5.4725, -5.6315, 10.907499, -5.4725, -5.6315, -10.907499, 5.4725, -5.6315, 10.907499, 5.4725, -5.6315, -10.907499, -5.4725, -5.6315, -10.907499)
-
-[sub_resource type="BoxMesh" id="BoxMesh_bq51w"]
-size = Vector3(10.945, 11.66, 8.615)
+data = PackedVector3Array(-5.4725, 0.645, 4.33, 5.4725, 0.645, 4.33, -5.4725, -0.645, 4.33, 5.4725, 0.645, 4.33, 5.4725, -0.645, 4.33, -5.4725, -0.645, 4.33, 5.4725, 0.645, -4.33, -5.4725, 0.645, -4.33, 5.4725, -0.645, -4.33, -5.4725, 0.645, -4.33, -5.4725, -0.645, -4.33, 5.4725, -0.645, -4.33, 5.4725, 0.645, 4.33, 5.4725, 0.645, -4.33, 5.4725, -0.645, 4.33, 5.4725, 0.645, -4.33, 5.4725, -0.645, -4.33, 5.4725, -0.645, 4.33, -5.4725, 0.645, -4.33, -5.4725, 0.645, 4.33, -5.4725, -0.645, -4.33, -5.4725, 0.645, 4.33, -5.4725, -0.645, 4.33, -5.4725, -0.645, -4.33, 5.4725, 0.645, 4.33, -5.4725, 0.645, 4.33, 5.4725, 0.645, -4.33, -5.4725, 0.645, 4.33, -5.4725, 0.645, -4.33, 5.4725, 0.645, -4.33, -5.4725, -0.645, 4.33, 5.4725, -0.645, 4.33, -5.4725, -0.645, -4.33, 5.4725, -0.645, 4.33, 5.4725, -0.645, -4.33, -5.4725, -0.645, -4.33)
 
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_kn4vw"]
-data = PackedVector3Array(-5.4725, 5.83, 4.3075, 5.4725, 5.83, 4.3075, -5.4725, -5.83, 4.3075, 5.4725, 5.83, 4.3075, 5.4725, -5.83, 4.3075, -5.4725, -5.83, 4.3075, 5.4725, 5.83, -4.3075, -5.4725, 5.83, -4.3075, 5.4725, -5.83, -4.3075, -5.4725, 5.83, -4.3075, -5.4725, -5.83, -4.3075, 5.4725, -5.83, -4.3075, 5.4725, 5.83, 4.3075, 5.4725, 5.83, -4.3075, 5.4725, -5.83, 4.3075, 5.4725, 5.83, -4.3075, 5.4725, -5.83, -4.3075, 5.4725, -5.83, 4.3075, -5.4725, 5.83, -4.3075, -5.4725, 5.83, 4.3075, -5.4725, -5.83, -4.3075, -5.4725, 5.83, 4.3075, -5.4725, -5.83, 4.3075, -5.4725, -5.83, -4.3075, 5.4725, 5.83, 4.3075, -5.4725, 5.83, 4.3075, 5.4725, 5.83, -4.3075, -5.4725, 5.83, 4.3075, -5.4725, 5.83, -4.3075, 5.4725, 5.83, -4.3075, -5.4725, -5.83, 4.3075, 5.4725, -5.83, 4.3075, -5.4725, -5.83, -4.3075, 5.4725, -5.83, 4.3075, 5.4725, -5.83, -4.3075, -5.4725, -5.83, -4.3075)
+data = PackedVector3Array(-5.4725, 0.645, 4.33, 5.4725, 0.645, 4.33, -5.4725, -0.645, 4.33, 5.4725, 0.645, 4.33, 5.4725, -0.645, 4.33, -5.4725, -0.645, 4.33, 5.4725, 0.645, -4.33, -5.4725, 0.645, -4.33, 5.4725, -0.645, -4.33, -5.4725, 0.645, -4.33, -5.4725, -0.645, -4.33, 5.4725, -0.645, -4.33, 5.4725, 0.645, 4.33, 5.4725, 0.645, -4.33, 5.4725, -0.645, 4.33, 5.4725, 0.645, -4.33, 5.4725, -0.645, -4.33, 5.4725, -0.645, 4.33, -5.4725, 0.645, -4.33, -5.4725, 0.645, 4.33, -5.4725, -0.645, -4.33, -5.4725, 0.645, 4.33, -5.4725, -0.645, 4.33, -5.4725, -0.645, -4.33, 5.4725, 0.645, 4.33, -5.4725, 0.645, 4.33, 5.4725, 0.645, -4.33, -5.4725, 0.645, 4.33, -5.4725, 0.645, -4.33, 5.4725, 0.645, -4.33, -5.4725, -0.645, 4.33, 5.4725, -0.645, 4.33, -5.4725, -0.645, -4.33, 5.4725, -0.645, 4.33, 5.4725, -0.645, -4.33, -5.4725, -0.645, -4.33)
+
+[sub_resource type="BoxMesh" id="BoxMesh_h3y5q"]
+size = Vector3(28.165, 1.29, 42.34)
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_ux27p"]
+data = PackedVector3Array(-14.0824995, 0.645, 21.17, 14.0824995, 0.645, 21.17, -14.0824995, -0.645, 21.17, 14.0824995, 0.645, 21.17, 14.0824995, -0.645, 21.17, -14.0824995, -0.645, 21.17, 14.0824995, 0.645, -21.17, -14.0824995, 0.645, -21.17, 14.0824995, -0.645, -21.17, -14.0824995, 0.645, -21.17, -14.0824995, -0.645, -21.17, 14.0824995, -0.645, -21.17, 14.0824995, 0.645, 21.17, 14.0824995, 0.645, -21.17, 14.0824995, -0.645, 21.17, 14.0824995, 0.645, -21.17, 14.0824995, -0.645, -21.17, 14.0824995, -0.645, 21.17, -14.0824995, 0.645, -21.17, -14.0824995, 0.645, 21.17, -14.0824995, -0.645, -21.17, -14.0824995, 0.645, 21.17, -14.0824995, -0.645, 21.17, -14.0824995, -0.645, -21.17, 14.0824995, 0.645, 21.17, -14.0824995, 0.645, 21.17, 14.0824995, 0.645, -21.17, -14.0824995, 0.645, 21.17, -14.0824995, 0.645, -21.17, 14.0824995, 0.645, -21.17, -14.0824995, -0.645, 21.17, 14.0824995, -0.645, 21.17, -14.0824995, -0.645, -21.17, 14.0824995, -0.645, 21.17, 14.0824995, -0.645, -21.17, -14.0824995, -0.645, -21.17)
 
 [sub_resource type="BoxMesh" id="BoxMesh_df2bx"]
 size = Vector3(32.985, 6, 7.515)
@@ -962,7 +983,7 @@ specific_item = ExtResource("12_ip1o4")
 [node name="Mission_Items" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
 
 [node name="SecretItem" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 77.06878, 106.30079, 164.41698)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70.90806, 106.30079, 229.96863)
 collision_layer = 4
 collision_mask = 15
 script = ExtResource("11_6vwi6")
@@ -1553,7 +1574,7 @@ gap_name = "Obvious Jump :)"
 gap_points = 100
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Rooftops3"]
-transform = Transform3D(0.06488076, 0, 0.9978938, 0, 1, 0, -0.9978938, 0, 0.06488076, -18.443802, 40.792084, -2.7931595)
+transform = Transform3D(0.06488076, 0, 0.9978938, 0, 1, 0, -0.9978938, 0, 0.06488076, -18.621353, 32.893196, -0.06263733)
 shape = SubResource("BoxShape3D_neuqn")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Rooftops3"]
@@ -1573,8 +1594,8 @@ gap_name = "Obvious Jump :)"
 gap_points = 100
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Rooftops3End"]
-transform = Transform3D(-0.008237034, -0.030862957, 0.9994906, -0.53084844, 0.84718704, 0.021785075, -0.8474285, -0.5303978, -0.023361951, -5.760254, -11.534851, -8.894775)
-shape = SubResource("BoxShape3D_qdutf")
+transform = Transform3D(-0.74251294, -0.04488822, 0.6683294, 0.025898915, -0.9989297, -0.03831953, 0.66933465, -0.011143912, 0.7428807, -10.719879, -19.699478, -23.518692)
+shape = SubResource("BoxShape3D_0p4fw")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Rooftops3End"]
 transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, 0, 13.628244, 0)
@@ -1616,6 +1637,476 @@ transform = Transform3D(-0.0082368255, -0.030862957, 0.99949026, -0.53084844, 0.
 shape = SubResource("BoxShape3D_qdutf")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Park1End"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, 0, 13.628244, 0)
+visible = false
+mesh = SubResource("BoxMesh_x31xc")
+skeleton = NodePath("")
+
+[node name="Gap Park2" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2"]
+transform = Transform3D(0.6594772, 0, -0.75172466, 0, 1, 0, 0.75172466, 0, 0.6594772, 90.8773, -20.009468, 276.04117)
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("14_textq")
+gap_id = "gap_Park2_BA"
+gap_name = "Ballzz 8==D"
+gap_points = 200
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Park2"]
+transform = Transform3D(0.06488079, 0, 0.9978938, 0, 1, 0, -0.9978938, 0, 0.06488079, 11.44043, 37.82299, -0.83231354)
+shape = SubResource("BoxShape3D_ftvov")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Park2"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, 0, 13.628244, 0)
+visible = false
+mesh = SubResource("BoxMesh_x31xc")
+skeleton = NodePath("")
+
+[node name="Gap Park2End" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2"]
+transform = Transform3D(0.35853103, 0, -0.9335179, 0, 1, 0, 0.9335179, 0, 0.35853103, 166.44421, 2.4866562, 227.70679)
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("14_textq")
+gap_id = "gap_Park2_BA"
+point_type = 1
+gap_name = "Ballzz 8==D"
+gap_points = 200
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Park2End"]
+transform = Transform3D(-0.3777547, -0.07388097, 0.9229544, -0.118245155, 0.9924986, 0.031051425, -0.918326, -0.0974052, -0.38365668, -7.493561, 12.636673, -3.6486893)
+shape = SubResource("BoxShape3D_ftvov")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Park2End"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, 0, 13.628244, 0)
+visible = false
+mesh = SubResource("BoxMesh_x31xc")
+skeleton = NodePath("")
+
+[node name="Gap Park2R" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2"]
+transform = Transform3D(0.6594772, 0, -0.75172466, 0, 1, 0, 0.75172466, 0, 0.6594772, 90.8773, -20.009468, 276.04117)
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("14_textq")
+gap_id = "gap_Park2R_BA"
+point_type = 1
+gap_name = "Ballzz 8==D"
+gap_points = 200
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Park2R"]
+transform = Transform3D(0.06488079, 0, 0.9978938, 0, 1, 0, -0.9978938, 0, 0.06488079, 11.44043, 38.741287, -0.83231354)
+shape = SubResource("BoxShape3D_ftvov")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Park2R"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, 0, 13.628244, 0)
+visible = false
+mesh = SubResource("BoxMesh_x31xc")
+skeleton = NodePath("")
+
+[node name="Gap Park2REnd" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2"]
+transform = Transform3D(0.35853103, 0, -0.9335179, 0, 1, 0, 0.9335179, 0, 0.35853103, 166.44421, 2.4866562, 227.70679)
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("14_textq")
+gap_id = "gap_Park2R_BA"
+gap_name = "Ballzz 8==D"
+gap_points = 200
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Park2REnd"]
+transform = Transform3D(-0.3777547, -0.07388097, 0.9229544, -0.118245155, 0.9924986, 0.031051425, -0.918326, -0.0974052, -0.38365668, -7.493561, 12.636673, -3.6486893)
+shape = SubResource("BoxShape3D_ftvov")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Park2REnd"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, 0, 13.628244, 0)
+visible = false
+mesh = SubResource("BoxMesh_x31xc")
+skeleton = NodePath("")
+
+[node name="Gap Park3" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2"]
+transform = Transform3D(0.6594772, 0, -0.75172466, 0, 1, 0, 0.75172466, 0, 0.6594772, 179.53122, -20.009468, 138.80518)
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("14_textq")
+gap_id = "gap_Park2R_BA"
+gap_name = "2 Da Balcony"
+gap_points = 100
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Park3"]
+transform = Transform3D(-0.12940076, 0, 0.9915929, 0, 1, 0, -0.9915929, 0, -0.12940076, 11.60083, 29.238874, -0.85326385)
+shape = SubResource("BoxShape3D_g1bi8")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Park3"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, 0, 13.628244, 0)
+visible = false
+mesh = SubResource("BoxMesh_x31xc")
+skeleton = NodePath("")
+
+[node name="Gap Park3End" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2"]
+transform = Transform3D(0.35853103, 0, -0.9335179, 0, 1, 0, 0.9335179, 0, 0.35853103, 169.06216, 2.4866543, 178.60661)
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("14_textq")
+gap_id = "gap_Park2R_BA"
+point_type = 1
+gap_name = "2 Da Balcony"
+gap_points = 100
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Park3End"]
+transform = Transform3D(-0.3777547, -0.07388097, 0.9229544, -0.118245155, 0.9924986, 0.031051425, -0.918326, -0.0974052, -0.38365668, -8.52272, 33.448845, 6.453804)
+shape = SubResource("BoxShape3D_g1bi8")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Park3End"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, 0, 13.628244, 0)
+visible = false
+mesh = SubResource("BoxMesh_x31xc")
+skeleton = NodePath("")
+
+[node name="Gap Building_Park" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2"]
+transform = Transform3D(0.9815272, 0, 0.19132319, 0, 1, 0, -0.19132319, 0, 0.9815272, 53.888245, 112.18746, 148.62415)
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("14_textq")
+gap_id = "gap_BuildingPark_BA"
+gap_name = "I can't believe you did this."
+gap_points = 1000
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Building_Park"]
+transform = Transform3D(-0.12940075, 0, 0.9915929, 0, 1, 0, -0.9915929, 0, -0.12940075, -3.481266, 7.714821, 4.1202393)
+shape = SubResource("BoxShape3D_yp3g3")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Building_Park"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, 0, 13.628244, 0)
+visible = false
+mesh = SubResource("BoxMesh_x31xc")
+skeleton = NodePath("")
+
+[node name="Gap Building_ParkEnd" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2"]
+transform = Transform3D(-0.9319952, 0, -0.36247063, 0, 1, 0, 0.36247063, 0, -0.9319952, 17.590927, 102.27221, -46.83258)
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("14_textq")
+gap_id = "gap_BuildingPark_BA"
+point_type = 1
+gap_name = "I can't believe you did this."
+gap_points = 1000
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Building_ParkEnd"]
+transform = Transform3D(0.061755404, -0.1000091, 0.9930689, 0.7585867, 0.65131325, 0.018417966, -0.6486412, 0.7521892, 0.11608769, 13.807356, 34.983894, -15.448833)
+shape = SubResource("BoxShape3D_keab0")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Building_ParkEnd"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, 0, 13.628244, 0)
+visible = false
+mesh = SubResource("BoxMesh_x31xc")
+skeleton = NodePath("")
+
+[node name="Gaps3" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map"]
+
+[node name="Gap Rooftops2" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3"]
+transform = Transform3D(-0.6695066, 0, -0.7428062, 0, 1, 0, 0.7428062, 0, -0.6695066, 104.19678, 50.096237, -288.94434)
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("14_textq")
+gap_id = "gap_Building3_BA"
+gap_name = "R U a Bunny?"
+gap_points = 100
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops2"]
+transform = Transform3D(0.06488076, 0, 0.9978938, 0, 1, 0, -0.9978938, 0, 0.06488076, -3.8480988, -8.611591, -37.566704)
+shape = SubResource("BoxShape3D_kq8oo")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops2"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, 0, 13.628244, 0)
+visible = false
+mesh = SubResource("BoxMesh_x31xc")
+skeleton = NodePath("")
+
+[node name="Gap Rooftops2End" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3"]
+transform = Transform3D(-0.6695066, 0, -0.7428062, 0, 1, 0, 0.7428062, 0, -0.6695066, 149.49908, 50.096237, -273.76782)
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("14_textq")
+gap_id = "gap_Building3_BA"
+point_type = 1
+gap_name = "R U a Bunny?"
+gap_points = 100
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops2End"]
+transform = Transform3D(0.06488076, 0, 0.9978938, 0, 1, 0, -0.9978938, 0, 0.06488076, -15.714767, -8.611591, -37.546333)
+shape = SubResource("BoxShape3D_kq8oo")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops2End"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, 0, 13.628244, 0)
+visible = false
+mesh = SubResource("BoxMesh_x31xc")
+skeleton = NodePath("")
+
+[node name="Gap Rooftops4End" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3"]
+transform = Transform3D(-0.6695066, 0, -0.7428062, 0, 1, 0, 0.7428062, 0, -0.6695066, 104.19678, 50.096237, -288.94434)
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("14_textq")
+gap_id = "gap_Building3_BA"
+point_type = 1
+gap_name = "R U a Bunny?"
+gap_points = 100
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops4End"]
+transform = Transform3D(0.06488076, 0, 0.9978938, 0, 1, 0, -0.9978938, 0, 0.06488076, -3.8480988, -8.611591, -37.566704)
+shape = SubResource("BoxShape3D_kq8oo")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops4End"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, 0, 13.628244, 0)
+visible = false
+mesh = SubResource("BoxMesh_x31xc")
+skeleton = NodePath("")
+
+[node name="Gap Rooftops4" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3"]
+transform = Transform3D(-0.6695066, 0, -0.7428062, 0, 1, 0, 0.7428062, 0, -0.6695066, 149.49908, 50.096237, -273.76782)
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("14_textq")
+gap_id = "gap_Building3_BA"
+gap_name = "R U a Bunny?"
+gap_points = 100
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops4"]
+transform = Transform3D(0.06488076, 0, 0.9978938, 0, 1, 0, -0.9978938, 0, 0.06488076, -15.714767, -8.611591, -37.546333)
+shape = SubResource("BoxShape3D_kq8oo")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops4"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, 0, 13.628244, 0)
+visible = false
+mesh = SubResource("BoxMesh_x31xc")
+skeleton = NodePath("")
+
+[node name="Gap Rooftops3" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3"]
+transform = Transform3D(-0.6695066, 0, -0.7428062, 0, 1, 0, 0.7428062, 0, -0.6695066, 158.71033, -20.00946, -269.76587)
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("14_textq")
+gap_id = "gap_Building4_BA"
+gap_name = "Obvious Jump :)"
+gap_points = 100
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops3"]
+transform = Transform3D(0.28145435, 0, 0.959576, 0, 1, 0, -0.959576, 0, 0.28145435, -24.727203, 32.929768, -6.8223877)
+shape = SubResource("BoxShape3D_neuqn")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops3"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, 0, 13.628244, 0)
+visible = false
+mesh = SubResource("BoxMesh_x31xc")
+skeleton = NodePath("")
+
+[node name="Gap Rooftops3End" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3"]
+transform = Transform3D(-0.6695066, 0, -0.7428062, 0, 1, 0, 0.7428062, 0, -0.6695066, 176.17915, 50.096237, -280.57867)
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("14_textq")
+gap_id = "gap_Building4_BA"
+point_type = 1
+gap_name = "Obvious Jump :)"
+gap_points = 100
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops3End"]
+transform = Transform3D(1.0000014, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000008, 2.338562, -19.124336, -1.3569946)
+shape = SubResource("BoxShape3D_qdutf")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops3End"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, 0, 13.628244, 0)
+visible = false
+mesh = SubResource("BoxMesh_x31xc")
+skeleton = NodePath("")
+
+[node name="Gap Rooftops5" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3"]
+transform = Transform3D(0.028776616, 0, -0.9995859, 0, 1, 0, 0.9995859, 0, 0.028776616, 323.9367, 50.096237, -223.47635)
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("14_textq")
+gap_id = "gap_Museum1_BA"
+gap_name = "Museum 2 building"
+gap_points = 100
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops5"]
+transform = Transform3D(0.06488076, 0, 0.9978986, 0, 1, 0, -0.9978986, 0, 0.06488076, -54.457794, 21.6734, 7.4648743)
+shape = SubResource("BoxShape3D_i3s4m")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops5"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, 0, 13.628244, 0)
+visible = false
+mesh = SubResource("BoxMesh_x31xc")
+skeleton = NodePath("")
+
+[node name="Gap Rooftops5End" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3"]
+transform = Transform3D(0.05183068, 0, -0.99865586, 0, 1, 0, 0.99865586, 0, 0.05183068, 243.46045, 50.096237, -273.76782)
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("14_textq")
+gap_id = "gap_Museum1_BA"
+point_type = 1
+gap_name = "Museum 2 building"
+gap_points = 100
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops5End"]
+transform = Transform3D(0.0648814, 0, 0.9979061, 0, 1, 0, -0.9979061, 0, 0.0648814, -16.741577, 3.734478, 5.088867)
+shape = SubResource("BoxShape3D_g7yph")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops5End"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, 0, 13.628244, 0)
+visible = false
+mesh = SubResource("BoxMesh_x31xc")
+skeleton = NodePath("")
+
+[node name="Gap Rooftops6" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3"]
+transform = Transform3D(-0.9986559, 0, -0.05183062, 0, 1, 0, 0.05183062, 0, -0.9986559, 370.54364, 71.8922, -360.7105)
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("14_textq")
+gap_id = "gap_Building3_BA"
+gap_name = "R U a Bunny?"
+gap_points = 100
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops6"]
+transform = Transform3D(0.06488076, 0, 0.9978938, 0, 1, 0, -0.9978938, 0, 0.06488076, -3.8480988, -8.611591, -37.566704)
+shape = SubResource("BoxShape3D_kq8oo")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops6"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, 0, 13.628244, 0)
+visible = false
+mesh = SubResource("BoxMesh_x31xc")
+skeleton = NodePath("")
+
+[node name="Gap Rooftops2End2" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3"]
+transform = Transform3D(-0.9986559, 0, -0.05183062, 0, 1, 0, 0.05183062, 0, -0.9986559, 373.59247, 71.8922, -317.9455)
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("14_textq")
+gap_id = "gap_Building3_BA"
+point_type = 1
+gap_name = "R U a Bunny?"
+gap_points = 100
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops2End2"]
+transform = Transform3D(0.06488076, 0, 0.9978938, 0, 1, 0, -0.9978938, 0, 0.06488076, -15.714767, -8.611591, -37.546333)
+shape = SubResource("BoxShape3D_kq8oo")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops2End2"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, 0, 13.628244, 0)
+visible = false
+mesh = SubResource("BoxMesh_x31xc")
+skeleton = NodePath("")
+
+[node name="Gap Rooftops4End2" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3"]
+transform = Transform3D(-0.9986559, 0, -0.05183062, 0, 1, 0, 0.05183062, 0, -0.9986559, 370.54364, 71.8922, -360.7105)
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("14_textq")
+gap_id = "gap_Building3_BA"
+point_type = 1
+gap_name = "R U a Bunny?"
+gap_points = 100
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops4End2"]
+transform = Transform3D(0.06488076, 0, 0.9978938, 0, 1, 0, -0.9978938, 0, 0.06488076, -3.8480988, -8.611591, -37.566704)
+shape = SubResource("BoxShape3D_kq8oo")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops4End2"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, 0, 13.628244, 0)
+visible = false
+mesh = SubResource("BoxMesh_x31xc")
+skeleton = NodePath("")
+
+[node name="Gap Rooftops7" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3"]
+transform = Transform3D(-0.9986559, 0, -0.05183062, 0, 1, 0, 0.05183062, 0, -0.9986559, 374.67932, 71.8922, -317.9455)
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("14_textq")
+gap_id = "gap_Building3_BA"
+gap_name = "R U a Bunny?"
+gap_points = 100
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops7"]
+transform = Transform3D(0.06488076, 0, 0.9978938, 0, 1, 0, -0.9978938, 0, 0.06488076, -15.714767, -8.611591, -37.546333)
+shape = SubResource("BoxShape3D_kq8oo")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops7"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, 0, 13.628244, 0)
+visible = false
+mesh = SubResource("BoxMesh_x31xc")
+skeleton = NodePath("")
+
+[node name="Gap BalconyMuseum" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3"]
+transform = Transform3D(0.99066246, 0, -0.1363379, 0, 1, 0, 0.1363379, 0, 0.99066246, 320.15256, -20.00946, -210.36368)
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("14_textq")
+gap_id = "gap_Museum2_BA"
+gap_name = "2 Da Balcony"
+gap_points = 100
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap BalconyMuseum"]
+transform = Transform3D(-0.12940076, 0, 0.9915929, 0, 1, 0, -0.9915929, 0, -0.12940076, -10.448212, 38.365387, 16.843094)
+shape = SubResource("BoxShape3D_h44hj")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap BalconyMuseum"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, 0, 13.628244, 0)
+visible = false
+mesh = SubResource("BoxMesh_x31xc")
+skeleton = NodePath("")
+
+[node name="Gap BalconyMuseumEnd" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3"]
+transform = Transform3D(0.8822421, 0, -0.4707962, 0, 1, 0, 0.4707962, 0, 0.8822421, 303.47006, 2.486662, -218.6538)
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("14_textq")
+gap_id = "gap_Museum2_BA"
+point_type = 1
+gap_name = "2 Da Balcony"
+gap_points = 100
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap BalconyMuseumEnd"]
+transform = Transform3D(-0.3777547, -0.07388097, 0.9229544, -0.118245155, 0.9924986, 0.031051425, -0.918326, -0.0974052, -0.38365668, 12.248642, 22.173904, 4.4348755)
+shape = SubResource("BoxShape3D_g1bi8")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap BalconyMuseumEnd"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, 0, 13.628244, 0)
+visible = false
+mesh = SubResource("BoxMesh_x31xc")
+skeleton = NodePath("")
+
+[node name="Gap BalconyMuseum2" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3"]
+transform = Transform3D(0.99066246, 0, -0.1363379, 0, 1, 0, 0.1363379, 0, 0.99066246, 320.15256, -20.00946, -274.10614)
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("14_textq")
+gap_id = "gap_museum3_BA"
+gap_name = "Balcony 2 Balcony"
+gap_points = 100
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap BalconyMuseum2"]
+transform = Transform3D(-0.12940076, 0, 0.9915929, 0, 1, 0, -0.9915929, 0, -0.12940076, -6.9198914, 50.25853, 5.196106)
+shape = SubResource("BoxShape3D_h44hj")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap BalconyMuseum2"]
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, 0, 13.628244, 0)
+visible = false
+mesh = SubResource("BoxMesh_x31xc")
+skeleton = NodePath("")
+
+[node name="Gap BalconyMuseumEnd2" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3"]
+transform = Transform3D(0.8822421, 0, -0.4707962, 0, 1, 0, 0.4707962, 0, 0.8822421, 303.47006, 2.486662, -328.5641)
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("14_textq")
+gap_id = "gap_museum3_BA"
+point_type = 1
+gap_name = "Balcony 2 Balcony"
+gap_points = 100
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap BalconyMuseumEnd2"]
+transform = Transform3D(-0.3777547, -0.07388097, 0.9229544, -0.118245155, 0.9924986, 0.031051425, -0.918326, -0.0974052, -0.38365668, 11.958939, 33.705444, 4.052826)
+shape = SubResource("BoxShape3D_g1bi8")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap BalconyMuseumEnd2"]
 transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, 0, 13.628244, 0)
 visible = false
 mesh = SubResource("BoxMesh_x31xc")
@@ -1774,16 +2265,16 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -371.89554, 1.0520811, 163.30
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -129.75156, -1.2499352, -24.18436)
 
 [node name="JumpPad" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("18_r7ole")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 295.6663, -1.1440246, -26.095373)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 281.55862, -1.1440246, -26.095373)
 
 [node name="JumpPad2" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("18_r7ole")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 314.4409, 21.304054, -334.52695)
+transform = Transform3D(0.51799715, 0, -0.8553823, 0, 1, 0, 0.8553823, 0, 0.51799715, 178.22163, 4.7455196, 23.295202)
 
 [node name="JumpPad3" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("18_r7ole")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 314.4409, 31.183077, -347.02832)
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -285.11685, 31.55789, 245.0772)
 
 [node name="JumpPad4" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("18_r7ole")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 314.4409, 42.805508, -358.4222)
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 313.8305, 36.592224, -359.65393)
 
 [node name="JumpPad5" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("18_r7ole")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 417.00266, 43.195545, -289.37332)
@@ -3156,40 +3647,13 @@ transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 359.
 shape = SubResource("ConcavePolygonShape3D_hekgo")
 
 [node name="MeshInstance3D9" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Ramps1/Platforms"]
-transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 315.24524, 33.792797, -362.41855)
+transform = Transform3D(1, 0, 0, 0, -0.8830459, 0.46928656, 0, -0.46928656, -0.8830459, 314.1007, 28.895378, -343.01923)
 mesh = SubResource("BoxMesh_ornq2")
 skeleton = NodePath("../..")
 
-[node name="CollisionShape3D9" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Ramps1/Platforms"]
-transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 315.24524, 33.792797, -362.41855)
-shape = SubResource("ConcavePolygonShape3D_is8dr")
-
-[node name="MeshInstance3D8" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Ramps1/Platforms"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 315.24524, 9.390087, -343.06436)
-mesh = SubResource("BoxMesh_8dycc")
-skeleton = NodePath("../..")
-
-[node name="CollisionShape3D8" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Ramps1/Platforms"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 315.24524, 9.390087, -343.06436)
-shape = SubResource("ConcavePolygonShape3D_textq")
-
-[node name="MeshInstance3D10" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Ramps1/Platforms"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 315.24524, 25.547306, -351.33615)
-mesh = SubResource("BoxMesh_h3y5q")
-skeleton = NodePath("../..")
-
 [node name="CollisionShape3D10" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Ramps1/Platforms"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 315.24524, 25.547306, -351.33615)
-shape = SubResource("ConcavePolygonShape3D_7fx2c")
-
-[node name="MeshInstance3D11" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Ramps1/Platforms"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 315.24524, 36.95003, -357.50208)
-mesh = SubResource("BoxMesh_bq51w")
-skeleton = NodePath("../..")
-
-[node name="CollisionShape3D11" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Ramps1/Platforms"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -360.403, 36.95003, -357.50208)
-shape = SubResource("ConcavePolygonShape3D_kn4vw")
+transform = Transform3D(1, 0, 0, 0, -0.8830459, 0.46928656, 0, -0.46928656, -0.8830459, 314.1007, 28.895378, -343.01923)
+shape = SubResource("ConcavePolygonShape3D_textq")
 
 [node name="MeshInstance3D12" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Ramps1/Platforms"]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, -360.403, 4.6812916, 228.55272)
@@ -3199,6 +3663,33 @@ skeleton = NodePath("../..")
 [node name="CollisionShape3D12" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Ramps1/Platforms"]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, -358.77765, 4.6812916, 228.55272)
 shape = SubResource("ConcavePolygonShape3D_75lyy")
+
+[node name="MeshInstance3D10" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Ramps1/Platforms"]
+transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 314.1007, 21.983198, -325.85828)
+mesh = SubResource("BoxMesh_8dycc")
+skeleton = NodePath("../..")
+
+[node name="CollisionShape3D11" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Ramps1/Platforms"]
+transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 314.1007, 21.983198, -325.85828)
+shape = SubResource("ConcavePolygonShape3D_7fx2c")
+
+[node name="MeshInstance3D11" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Ramps1/Platforms"]
+transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 314.1007, 35.861115, -360.3067)
+mesh = SubResource("BoxMesh_8dycc")
+skeleton = NodePath("../..")
+
+[node name="CollisionShape3D9" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Ramps1/Platforms"]
+transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 314.1007, 35.861115, -360.3067)
+shape = SubResource("ConcavePolygonShape3D_kn4vw")
+
+[node name="MeshInstance3D13" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Ramps1/Platforms"]
+transform = Transform3D(1, 0, 0, 0, -4.371138e-08, 0.9999999, 0, -0.9999999, -4.371138e-08, 322.50308, 56.063408, -365.0856)
+mesh = SubResource("BoxMesh_h3y5q")
+skeleton = NodePath("../..")
+
+[node name="CollisionShape3D8" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Ramps1/Platforms"]
+transform = Transform3D(1, 0, 0, 0, -4.371138e-08, 0.9999999, 0, -0.9999999, -4.371138e-08, 322.50308, 56.063408, -365.0856)
+shape = SubResource("ConcavePolygonShape3D_ux27p")
 
 [node name="SmallRamp3" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Ramps1" instance=ExtResource("22_is8dr")]
 transform = Transform3D(-4.3711385e-08, 0, -0.9999999, 0, 1, 0, 0.9999999, 0, -4.3711385e-08, -358.67352, 14.736851, 203.60326)
@@ -3219,7 +3710,7 @@ transform = Transform3D(-4.3711385e-08, 0, -0.9999999, 0, 1, 0, 0.9999999, 0, -4
 transform = Transform3D(0.77323174, 0, 0.63412327, 0, 1, 0, -0.63412327, 0, 0.77323174, -239.75098, 54.285553, 262.63977)
 
 [node name="SmallRamp9" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Ramps1" instance=ExtResource("22_is8dr")]
-transform = Transform3D(-4.371137e-08, 0, 0.99999964, 0, 1, 0, -0.99999964, 0, -4.371137e-08, 315.49014, 17.533203, -262.9159)
+transform = Transform3D(-4.371137e-08, 0, 0.99999964, 0, 1, 0, -0.99999964, 0, -4.371137e-08, 314.7687, 17.533203, -262.9159)
 
 [node name="SmallRamp10" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Ramps1" instance=ExtResource("22_is8dr")]
 transform = Transform3D(-4.3711374e-08, 0, 0.9999997, 0, 1, 0, -0.9999997, 0, -4.3711374e-08, -112.13914, -0.03302288, -275.3566)
@@ -4568,5 +5059,29 @@ map_missions = ExtResource("32_ip1o4")
 [connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Rooftops3End" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Rooftops3End" method="_on_body_entered"]
 [connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Park1" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Park1" method="_on_body_entered"]
 [connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Park1End" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Park1End" method="_on_body_entered"]
+[connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Park2" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Park2" method="_on_body_entered"]
+[connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Park2End" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Park2End" method="_on_body_entered"]
+[connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Park2R" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Park2R" method="_on_body_entered"]
+[connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Park2REnd" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Park2REnd" method="_on_body_entered"]
+[connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Park3" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Park3" method="_on_body_entered"]
+[connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Park3End" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Park3End" method="_on_body_entered"]
+[connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Building_Park" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Building_Park" method="_on_body_entered"]
+[connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Building_ParkEnd" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps2/Gap Building_ParkEnd" method="_on_body_entered"]
+[connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops2" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops2" method="_on_body_entered"]
+[connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops2End" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops2End" method="_on_body_entered"]
+[connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops4End" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops4End" method="_on_body_entered"]
+[connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops4" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops4" method="_on_body_entered"]
+[connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops3" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops3" method="_on_body_entered"]
+[connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops3End" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops3End" method="_on_body_entered"]
+[connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops5" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops5" method="_on_body_entered"]
+[connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops5End" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops5End" method="_on_body_entered"]
+[connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops6" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops6" method="_on_body_entered"]
+[connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops2End2" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops2End2" method="_on_body_entered"]
+[connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops4End2" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops4End2" method="_on_body_entered"]
+[connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops7" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap Rooftops7" method="_on_body_entered"]
+[connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap BalconyMuseum" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap BalconyMuseum" method="_on_body_entered"]
+[connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap BalconyMuseumEnd" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap BalconyMuseumEnd" method="_on_body_entered"]
+[connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap BalconyMuseum2" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap BalconyMuseum2" method="_on_body_entered"]
+[connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap BalconyMuseumEnd2" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps3/Gap BalconyMuseumEnd2" method="_on_body_entered"]
 
 [editable path="GridContainer/Cont_P1/View_P1/Map/V8Map/ExplorationArea"]
