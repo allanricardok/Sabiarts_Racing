@@ -20,8 +20,8 @@ const COLOR_GROUND = "#ff4444" # Vermelho
 
 const GROUND_DATA = {
 	"HIT_OBJECT": {"name": "Hit object", "points": 5},
-	"DESTROY_OBJECT": {"name": "Destroyed object", "points": 100},
-	"COMBAT_HIT": {"name": "Impact!", "points": 50}
+	"DESTROY_OBJECT": {"name": "Destroyed object", "points": 50},
+	"COMBAT_HIT": {"name": "Impact!", "points": 20}
 }
 
 var actions_done : Array = []

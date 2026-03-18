@@ -242,12 +242,24 @@ func _reset_gap_state_internal():
 
 func _get_dynamic_multiplier() -> float:
 	var mult = 1.0
-	var seen_in_this_jump = {}
+	var trick_counts = {}
+	
 	for t_name in tricks_done:
-		if seen_in_this_jump.has(t_name): mult += 0.5
-		else:
-			mult += 1.0
-			seen_in_this_jump[t_name] = true
+		# Inicializa a contagem dessa manobra específica se não existir
+		if not trick_counts.has(t_name):
+			trick_counts[t_name] = 0
+			
+		trick_counts[t_name] += 1
+		
+		# --- A TRAVA ANTI-SPAM ---
+		if trick_counts[t_name] == 1:
+			mult += 1.0 # 1ª vez: Manobra nova, ganha +1.0 inteiro
+		elif trick_counts[t_name] <= 5:
+			mult += 0.5 # 2ª até a 5ª vez: Repetição aceitável, ganha +0.5
+			
+		# Da 6ª repetição em diante, o jogo simplesmente ignora!
+		# O jogador ganha os pontos base, mas o multiplicador não sobe mais.
+
 	return mult
 
 # --- LOOP DE AR ---
