@@ -1,4 +1,4 @@
-[gd_scene load_steps=266 format=3 uid="uid://d1rl8sskrmddj"]
+[gd_scene load_steps=263 format=3 uid="uid://d1rl8sskrmddj"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_u8o8m"]
 [ext_resource type="PackedScene" uid="uid://cw8ofahu5mqhn" path="res://Scenes/Prefabs/Vehicles/BaseVehicle.tscn" id="2_g1d4t"]
@@ -24,7 +24,6 @@
 [ext_resource type="PackedScene" uid="uid://dadt551bspl1q" path="res://Scenes/Prefabs/Items/FloatingObject.tscn" id="19_6fv6f"]
 [ext_resource type="Resource" uid="uid://q47f11lrnubs" path="res://Resources/Items/SuperHealthItem.tres" id="19_t5btl"]
 [ext_resource type="PackedScene" uid="uid://dopugjiu2xcnc" path="res://Scenes/Prefabs/Enemies/PedestrianSpawner.tscn" id="20_4e1cd"]
-[ext_resource type="Texture2D" uid="uid://cy74dg4og5fwv" path="res://Assets/2D/skybox_test1.png" id="21_44s4c"]
 [ext_resource type="Material" uid="uid://cbslnqdpwr8nl" path="res://Assets/2D/grass_test.tres" id="21_g1d4t"]
 [ext_resource type="Script" uid="uid://dxwtvbecpphjn" path="res://Core/Destructibles/DestructibleProp.gd" id="21_pyjdw"]
 [ext_resource type="PackedScene" uid="uid://mvk1h22hqsq5" path="res://Scenes/Prefabs/MapObjects/small_ramp.tscn" id="22_is8dr"]
@@ -37,6 +36,7 @@
 [ext_resource type="PackedScene" uid="uid://bj8bsud4h6u06" path="res://Scenes/Prefabs/MapObjects/Tree2.tscn" id="26_75jtm"]
 [ext_resource type="PackedScene" uid="uid://cj77r4qvb36bc" path="res://Scenes/Prefabs/MapObjects/Bush1.tscn" id="27_6vwi6"]
 [ext_resource type="Resource" uid="uid://twwvwp5k3okx" path="res://Resources/MapMissions/BA-block.tres" id="32_ip1o4"]
+[ext_resource type="PackedScene" uid="uid://cgs7fx75kuj8v" path="res://Scenes/Maps/world_environment_test.tscn" id="32_vj8u6"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_a70xh"]
 material = ExtResource("3_is8dr")
@@ -748,23 +748,6 @@ data = PackedVector3Array(-6.1425, 1.8475, 2.8975, 6.1425, 1.8475, 2.8975, -6.14
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_yrhsj"]
 size = Vector3(12.478851, 3.2165527, 5.956909)
-
-[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_oublg"]
-panorama = ExtResource("21_44s4c")
-energy_multiplier = 0.5
-
-[sub_resource type="Sky" id="Sky_umdbu"]
-sky_material = SubResource("PanoramaSkyMaterial_oublg")
-radiance_size = 4
-
-[sub_resource type="Environment" id="Environment_ip1o4"]
-background_mode = 2
-background_energy_multiplier = 1.65
-sky = SubResource("Sky_umdbu")
-sky_custom_fov = 106.5
-ambient_light_source = 2
-ambient_light_color = Color(0.7016299, 0.7016299, 0.6706925, 1)
-ambient_light_energy = 1.71
 
 [node name="BA-block" type="Node3D"]
 script = ExtResource("1_u8o8m")
@@ -5586,19 +5569,7 @@ shape = SubResource("BoxShape3D_yrhsj")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.062233925, 0)
 mesh = SubResource("BoxMesh_h16if")
 
-[node name="WorldEnvironment2" type="WorldEnvironment" parent="GridContainer/Cont_P1/View_P1"]
-environment = SubResource("Environment_ip1o4")
-
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="GridContainer/Cont_P1/View_P1/WorldEnvironment2"]
-transform = Transform3D(1, 0, 0, 0, 0.21643965, 0.976296, 0, -0.976296, 0.21643965, 0, 30.937544, 0)
-light_color = Color(1.8922116, 1.8922116, 1.8922116, 1)
-light_energy = 0.1
-light_indirect_energy = 1.449
-light_volumetric_fog_energy = 1.797
-light_angular_distance = 32.83
-light_specular = 0.341
-light_bake_mode = 0
-directional_shadow_mode = 0
+[node name="WorldEnvironment2" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Cars" instance=ExtResource("32_vj8u6")]
 
 [node name="Cont_P2" type="SubViewportContainer" parent="GridContainer"]
 visible = false

@@ -1,0 +1,45 @@
+[gd_scene load_steps=5 format=3 uid="uid://35j5q5su4p4c"]
+
+[ext_resource type="Texture2D" uid="uid://cy74dg4og5fwv" path="res://Assets/2D/skybox_test1.png" id="1_tuqds"]
+
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_oublg"]
+panorama = ExtResource("1_tuqds")
+energy_multiplier = 0.5
+
+[sub_resource type="Sky" id="Sky_umdbu"]
+sky_material = SubResource("PanoramaSkyMaterial_oublg")
+radiance_size = 4
+
+[sub_resource type="Environment" id="Environment_ip1o4"]
+background_mode = 2
+background_energy_multiplier = 1.65
+sky = SubResource("Sky_umdbu")
+sky_custom_fov = 106.5
+ambient_light_source = 2
+ambient_light_color = Color(0.7016299, 0.7016299, 0.6706925, 1)
+ambient_light_energy = 1.71
+fog_enabled = true
+fog_mode = 1
+fog_light_color = Color(0.91764706, 0.85490197, 0.827451, 1)
+fog_light_energy = 0.39
+fog_density = 1.0
+fog_aerial_perspective = 0.49
+fog_sky_affect = 0.0
+fog_depth_curve = 4.756827
+fog_depth_begin = 0.0
+fog_depth_end = 382.2
+adjustment_enabled = true
+
+[node name="WorldEnvironment2" type="WorldEnvironment"]
+environment = SubResource("Environment_ip1o4")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.21643965, 0.976296, 0, -0.976296, 0.21643965, 0, 30.937544, 0)
+light_color = Color(1.8922116, 1.8922116, 1.8922116, 1)
+light_energy = 0.1
+light_indirect_energy = 1.449
+light_volumetric_fog_energy = 1.797
+light_angular_distance = 32.83
+light_specular = 0.341
+light_bake_mode = 0
+directional_shadow_mode = 0

@@ -11,7 +11,8 @@ var active_targets_sorted : Array = []
 ## Distância máxima (em metros) que o radar consegue enxergar
 @export var radar_range : float = 350.0 
 var radar_update_timer : float = 0.0
-const RADAR_UPDATE_INTERVAL : float = 1/24 # Atualiza a cada 0.1s (10 FPS)
+# --- A CORREÇÃO DE PERFORMANCE ---
+const RADAR_UPDATE_INTERVAL : float = 0.2 # Atualiza 5 vezes por segundo (Chega de Lambdas spammando!)
 
 # --- CONFIGURAÇÕES ---
 @export_group("Armas")
@@ -31,23 +32,21 @@ const RADAR_UPDATE_INTERVAL : float = 1/24 # Atualiza a cada 0.1s (10 FPS)
 }
 
 # --- ESTADO INTERNO (INVENTÁRIO) ---
-var weapon_pool : Array[WeaponResource] = [] # Nossa lista de armas
-var current_weapon_index : int = -1 # -1 significa nenhuma arma especial
+var weapon_pool : Array[WeaponResource] = [] 
+var current_weapon_index : int = -1 
 var current_target: Node3D = null
 var basic_cooldown : float = 0.0
 var special_cooldowns : Dictionary = {}
 
 # --- VARIÁVEL DE MULTIPLAYER ---
-var player_suffix : String = "" # Definido via setup_multiplayer
+var player_suffix : String = "" 
 
 func _ready():
 	_reset_weapon_visibility()
 	if weapon_nodes.has("MachineGun"):
 		weapon_nodes["MachineGun"].visible = true
-	# O primeiro update pode falhar se o setup do carro ainda não ocorreu
 	_atualizar_interface()
 
-# Chamado pelo BaseVehicle.gd no _ready para vincular a identidade
 func setup_multiplayer(suffix: String):
 	player_suffix = suffix
 	print("[WeaponManager] Vinculado ao sufixo: ", player_suffix)
@@ -55,17 +54,13 @@ func setup_multiplayer(suffix: String):
 	call_deferred("_validate_initial_category")
 
 func _process(delta):
-	# --- ANTI SLOW-MOTION ---
 	var real_delta = delta
-	# O WeaponManager vive no carro, então testamos o dono dele
 	if is_instance_valid(car) and car.is_in_group("jogadores"):
 		real_delta = delta / Engine.time_scale
 
-	# Recarrega a arma base na velocidade normal
 	if basic_cooldown > 0:
 		basic_cooldown -= real_delta
 	
-	# Recarrega as armas especiais na velocidade normal
 	for weapon_name in special_cooldowns.keys():
 		if special_cooldowns[weapon_name] > 0:
 			special_cooldowns[weapon_name] -= real_delta
@@ -98,14 +93,15 @@ func _process(delta):
 	if Input.is_action_just_pressed("target_down" + input.suffix):
 		_cycle_target(1)
 
-	# 5. RADAR E LOCK-ON (Atualiza o radar rápido durante o slow-mo)
+	# 5. RADAR E LOCK-ON OTIMIZADO (Roda apenas a cada 0.2s)
 	radar_update_timer -= real_delta
 	if radar_update_timer <= 0:
 		radar_update_timer = RADAR_UPDATE_INTERVAL
 		_update_radar_and_lockon()
 		
-	# 6. ATUALIZAÇÃO DO RETÍCULO
+	# 6. ATUALIZAÇÃO DO RETÍCULO (Visualização precisa rodar todo frame para ser suave)
 	_atualizar_posicao_reticulo()
+
 # --- GESTÃO DO INVENTÁRIO (POOL) ---
 
 func get_active_special() -> WeaponResource:
@@ -114,7 +110,6 @@ func get_active_special() -> WeaponResource:
 	return null
 
 func equip_special_weapon(new_weapon_res: WeaponResource):
-	# 1. Verifica se já temos essa arma no pool para somar munição
 	for i in range(weapon_pool.size()):
 		var w = weapon_pool[i]
 		if w.nome == new_weapon_res.nome:
@@ -126,14 +121,11 @@ func equip_special_weapon(new_weapon_res: WeaponResource):
 			_atualizar_interface()
 			return
 
-	# 2. Se não temos, tentamos adicionar ao pool
 	if weapon_pool.size() < MAX_POOL_SIZE:
 		var dup = new_weapon_res.duplicate()
 		weapon_pool.append(dup)
-		
 		current_weapon_index = weapon_pool.size() - 1
 		_update_visual_selection()
-			
 		print("Nova arma adicionada ao pool: ", dup.nome)
 	else:
 		print("Pool cheio! Não é possível carregar mais armas.")
@@ -145,7 +137,6 @@ func _switch_weapon(direction: int):
 	
 	current_weapon_index += direction
 	
-	# Loop infinito no inventário
 	if current_weapon_index >= weapon_pool.size():
 		current_weapon_index = 0
 	elif current_weapon_index < 0:
@@ -202,15 +193,12 @@ func _remove_current_weapon():
 	_atualizar_interface()
 
 func _spawn_projectile(res: WeaponResource, node_name: String):
-# Pedimos a bala pro Autoload
 	var proj = ProjectilePool.get_projectile(res.projectile_scene)
 	var muzzle = weapon_nodes[node_name].find_child("Muzzle", true, false)
 	
 	if muzzle:
 		proj.global_transform = muzzle.global_transform
 	
-	# NÃO TEM MAIS add_child AQUI! O Pool já toma conta disso!	
-	# Passamos o carro atirador (shooter) para o projétil lidar com colisões e dano
 	if proj.has_method("setup"):
 		if node_name == "HomingMissile" or node_name == "GrapplingMissile":
 			proj.setup(res.dano, car.linear_velocity, car, current_target)
@@ -226,7 +214,6 @@ func _muzzle_flash_effect(node_name: String):
 # --- ATUALIZAÇÃO DE INTERFACE MULTIPLAYER ---
 
 func _atualizar_interface():
-	# Crucial: Buscamos o HUD que pertence ao grupo específico deste jogador
 	var target_group = "HUD" + player_suffix
 	var hud = get_tree().get_first_node_in_group(target_group)
 	
@@ -238,28 +225,21 @@ func _atualizar_interface():
 			hud.atualizar_arma("None", 0)
 
 func _cycle_category(direction: int):
-	# Tenta pular para a próxima categoria. Se estiver vazia, tenta a próxima de novo.
-	# O loop roda no máximo 3 vezes (pois temos 3 categorias) para evitar loop infinito.
-	for i in range(4): # Agora são 4 categorias (0, 1, 2, 3)
+	for i in range(4): 
 		current_category_index += direction
 		if current_category_index > 3: current_category_index = 0
 		elif current_category_index < 0: current_category_index = 3
 		
-		# Se achou uma categoria que tem pelo menos 1 alvo, para de procurar!
 		if _get_category_count(current_category_index) > 0:
 			break
 	
-	manual_target_index = 0 # Reseta o alvo ao trocar de categoria
-	_update_radar_and_lockon() # Força atualização imediata
+	manual_target_index = 0 
+	_update_radar_and_lockon() 
 	print("[Targeting] Categoria alterada para: ", target_categories[current_category_index])
 
-# --- FUNÇÕES AUXILIARES DE CATEGORIA ---
-
-# Conta quantos alvos válidos existem na categoria solicitada
 func _get_category_count(index: int) -> int:
 	var count = 0
 	if index == 0:
-		# ALL TARGETS: Se tiver qualquer coisa no mapa, essa categoria é válida
 		return 1 
 	elif index == 1:
 		for p in get_tree().get_nodes_in_group("jogadores"):
@@ -274,8 +254,6 @@ func _get_category_count(index: int) -> int:
 	return count
 
 func _validate_initial_category():
-	# Se a categoria que o jogo começou (0) estiver vazia, 
-	# simulamos um toque pro lado para ele achar a primeira categoria cheia.
 	if _get_category_count(current_category_index) == 0:
 		_cycle_category(1)
 
@@ -286,12 +264,11 @@ func _cycle_target(direction: int):
 	if manual_target_index >= active_targets_sorted.size(): manual_target_index = 0
 	elif manual_target_index < 0: manual_target_index = active_targets_sorted.size() - 1
 	
-	_update_radar_and_lockon() # Força atualização imediata
+	_update_radar_and_lockon()
 
 func _update_radar_and_lockon():
 	if not is_instance_valid(car): return
 	
-	# Pega todos os possíveis alvos no mapa
 	var all_players = get_tree().get_nodes_in_group("jogadores")
 	var all_turrets = get_tree().get_nodes_in_group("inimigos")
 	var all_props = get_tree().get_nodes_in_group("destructibles")
@@ -307,34 +284,34 @@ func _update_radar_and_lockon():
 	for t in all_targets:
 		if not is_instance_valid(t) or t == car: continue
 		
-		# --- IGNORA PEDESTRES INVENCÍVEIS ---
 		if t.is_in_group("pedestrians") and "is_invincible" in t and t.is_invincible:
 			continue
 			
 		var dist = car_pos.distance_to(t.global_position)
 		
-		# 1. Popula o radar global (apenas se estiver no range e NÃO for pedestre)
 		if dist <= radar_range:
 			if not t.is_in_group("pedestrians"): 
 				radar_data.append(t)
 			
-		# 2. Separa o alvo se ele pertencer à categoria selecionada
 		if current_category_index == 0: 
-			category_bucket.append(t) # ALL TARGETS
+			category_bucket.append(t)
 		elif current_category_index == 1 and t.is_in_group("jogadores"): 
 			category_bucket.append(t)
 		elif current_category_index == 2 and t.is_in_group("inimigos"): 
 			category_bucket.append(t)
 		elif current_category_index == 3 and (t.is_in_group("destructibles") or t.is_in_group("pedestrians")): 
-			category_bucket.append(t) # ENVIRONMENT
+			category_bucket.append(t)
 
-	# 3. Ordena o balde atual pelo "Score" (Mais perto e mais centralizado)
+	# --- MATEMÁTICA OTIMIZADA NO LAMBDA ---
 	category_bucket.sort_custom(func(a, b):
-		var dir_a = (a.global_position - car_pos).normalized()
-		var score_a = rad_to_deg(car_forward.angle_to(dir_a)) + (car_pos.distance_to(a.global_position) * 0.1)
+		var pos_a = a.global_position
+		var pos_b = b.global_position
 		
-		var dir_b = (b.global_position - car_pos).normalized()
-		var score_b = rad_to_deg(car_forward.angle_to(dir_b)) + (car_pos.distance_to(b.global_position) * 0.1)
+		var dir_a = (pos_a - car_pos).normalized()
+		var score_a = rad_to_deg(car_forward.angle_to(dir_a)) + (car_pos.distance_to(pos_a) * 0.1)
+		
+		var dir_b = (pos_b - car_pos).normalized()
+		var score_b = rad_to_deg(car_forward.angle_to(dir_b)) + (car_pos.distance_to(pos_b) * 0.1)
 		
 		return score_a < score_b
 	)
@@ -342,12 +319,10 @@ func _update_radar_and_lockon():
 	active_targets_sorted = category_bucket
 	var closest_radar_target = null
 	
-	# 4. Trava o alvo perpétuo baseado no índice manual
 	if not active_targets_sorted.is_empty():
 		manual_target_index = clampi(manual_target_index, 0, active_targets_sorted.size() - 1)
 		closest_radar_target = active_targets_sorted[manual_target_index]
 		
-	# 5. Lógica restrita do Retículo (Armas de mira limitadas por distância e ângulo)
 	current_target = null
 	var active = get_active_special()
 	
@@ -355,12 +330,9 @@ func _update_radar_and_lockon():
 		var dist = car_pos.distance_to(closest_radar_target.global_position)
 		var angle = rad_to_deg(car_forward.angle_to((closest_radar_target.global_position - car_pos).normalized()))
 		
-		# --- CORREÇÃO: Pega o range dinamicamente do .tres ---
-		# Usamos o 'lockon_range' do Resource, e mantemos os 45 graus de cone frontal
 		if dist <= active.lockon_range and angle <= 45.0:
 			current_target = closest_radar_target 
 
-	# 6. Envia para a HUD
 	var target_group = "HUD" + player_suffix
 	var hud = get_tree().get_first_node_in_group(target_group)
 	if hud and hud.has_method("update_radar_data"):
@@ -369,28 +341,20 @@ func _update_radar_and_lockon():
 
 func _atualizar_posicao_reticulo():
 	var active = get_active_special()
-	# Busca o HUD específico pelo grupo (HUD_K1, HUD_J1...)
 	var target_group = "HUD" + player_suffix
 	var hud = get_tree().get_first_node_in_group(target_group)
 	
 	if not hud: return
 	
-	# Procuramos o retículo dentro do HUD
 	var reticle = hud.find_child("Reticle", true, false)
 	if not reticle: return
 
-	# Condição para mostrar: arma certa + ter alvo + alvo ser válido
 	if active and (active.nome == "HomingMissile" or active.nome == "GrapplingMissile") and is_instance_valid(current_target):
-		
-		# IMPORTANTE: Pegar a câmera que está renderizando este carro
 		var camera = get_viewport().get_camera_3d()
 		
 		if camera and not camera.is_position_behind(current_target.global_position):
-			# Converte a posição 3D do alvo para a posição 2D da tela do Viewport
 			var screen_pos = camera.unproject_position(current_target.global_position)
-			
 			reticle.visible = true
-			# Usamos global_position para evitar problemas se o Reticle for filho de outros Containers
 			reticle.global_position = hud.get_viewport().get_screen_transform() * screen_pos
 		else:
 			reticle.visible = false

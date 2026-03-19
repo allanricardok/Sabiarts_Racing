@@ -1172,6 +1172,7 @@ top_level = true
 current = true
 fov = 92.0
 near = 0.392
+far = 400.0
 script = ExtResource("2_8gjg4")
 follow_speed_lateral = 6.0
 follow_speed_depth = 35.0
