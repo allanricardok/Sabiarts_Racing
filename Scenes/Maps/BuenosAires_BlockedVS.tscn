@@ -98,7 +98,7 @@ material = SubResource("StandardMaterial3D_li3u3")
 size = Vector3(57.975, 17.77, 177.492)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_vj8u6"]
-size = Vector3(17.868647, 27.548504, 121.45319)
+size = Vector3(7.1276827, 51.125896, 121.45319)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_t5btl"]
 size = Vector3(84.68108, 26.372753, 231.95721)
@@ -1179,10 +1179,10 @@ collision_mask = 15
 script = ExtResource("14_textq")
 gap_id = "gap_balcony2_BA"
 gap_name = "Mall Balcony 2 BUS STOP!"
-gap_points = 1000
+gap_points = 300
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps1/Gap Balcony2"]
-transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, -1.8887634, 42.281425, 2.0694122)
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, -2.0396423, 30.492727, 21.746124)
 shape = SubResource("BoxShape3D_vj8u6")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps1/Gap Balcony2"]
@@ -1198,7 +1198,7 @@ script = ExtResource("14_textq")
 gap_id = "gap_balcony2_BA"
 point_type = 1
 gap_name = "Mall Balcony 2 BUS STOP!"
-gap_points = 1000
+gap_points = 300
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps1/Gap BalconyEnd2"]
 transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, -34.784943, 7.946108, 20.311975)
@@ -1311,7 +1311,7 @@ script = ExtResource("14_textq")
 gap_id = "gap_Mall_BA"
 point_type = 1
 gap_name = "2 the Mall "
-gap_points = 100
+gap_points = 200
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps1/2TheMallEnd2"]
 transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, -5.358612, 38.29043, 40.810257)

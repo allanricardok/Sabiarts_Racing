@@ -37,7 +37,7 @@ var shield_material : StandardMaterial3D
 var _was_attribute_pressed : bool = false
 var tap_count : int = 0
 var sequence_timer : float = 0.0
-const SEQUENCE_WINDOW : float = 0.45 # Exatos 450ms, igual ao seu TrickBuilder!
+const SEQUENCE_WINDOW : float = 0.45 
 
 var spawn_transform : Transform3D
 
@@ -56,49 +56,41 @@ func _ready():
 		cooldown_bar.max_value = SHARED_COOLDOWN_TIME
 
 func _process(delta):
-	# 1. Recuperação e Cooldown
 	if current_energy < MAX_ENERGY:
 		current_energy = move_toward(current_energy, MAX_ENERGY, REGEN_RATE * delta)
 	if current_cooldown > 0:
 		current_cooldown -= delta
 		
-	# 2. Timer da janela de Combo
 	if sequence_timer > 0:
 		sequence_timer -= delta
 		
-	# --- ATUALIZAÇÃO DAS BARRAS ---
 	if energy_bar: energy_bar.value = current_energy
 	if cooldown_bar: cooldown_bar.value = current_cooldown
 	
 	if not car.pode_mover: return
 
-	# --- 3. LÓGICA DE TAP (TOQUES) ---
 	var attribute_just_pressed = input.is_attribute_pressed and not _was_attribute_pressed
 	
 	if attribute_just_pressed:
 		if sequence_timer <= 0:
-			tap_count = 1 # Primeiro toque
+			tap_count = 1 
 		else:
-			tap_count += 1 # Segundo toque (ou mais)
-		sequence_timer = SEQUENCE_WINDOW # Renova a janela de tempo
+			tap_count += 1 
+		sequence_timer = SEQUENCE_WINDOW 
 		
-	# Se o jogador soltou o botão e o tempo expirou, zera a contagem
 	if not input.is_attribute_pressed and sequence_timer <= 0:
 		tap_count = 0
 
-	# --- 4. EXECUÇÃO ENQUANTO MANTÉM PRESSIONADO ---
 	if input.is_attribute_pressed and current_cooldown <= 0:
 		_checar_combos_habilidade()
 
 	_was_attribute_pressed = input.is_attribute_pressed
 
 func _checar_combos_habilidade():
-	# TELEPORTE: Exige tap_count >= 2 (Toque duplo + Segurar) e Esquerda!
 	if input.ability_left and tap_count >= 2:
 		if current_energy >= COST_TELEPORT: _execute_teleport()
 		else: _erro_falta_energia()
 		
-	# As outras podem ser ativadas segurando no primeiro toque normal
 	elif input.ability_up:
 		if current_energy >= COST_BOOST: _execute_boost()
 		else: _erro_falta_energia()
@@ -136,7 +128,6 @@ func _execute_boost():
 	_start_cooldown()
 
 func _execute_teleport():
-	# Puxa os pontos de teleporte e acha o mais próximo que seja válido (> 20m)
 	var teleport_markers = get_tree().get_nodes_in_group("AbilityTeleport")
 	
 	if teleport_markers.is_empty():
@@ -156,6 +147,13 @@ func _execute_teleport():
 		car.global_transform = closest_marker.global_transform
 		car.linear_velocity = Vector3.ZERO
 		car.angular_velocity = Vector3.ZERO
+		
+		# --- PUNIÇÃO DE TELEPORTE CORRIGIDA ---
+		var trick_manager = car.get_node_or_null("%TrickManager")
+		if trick_manager and trick_manager.has_method("reset_trick"):
+			# Chama a função certa que limpa as listas e a UI
+			trick_manager.reset_trick()
+			print("[Abilities] Teleporte ativado! Pontos de manobra cancelados.")
 			
 		_start_cooldown()
 	else:

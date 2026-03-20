@@ -30,7 +30,7 @@ var air_mode_weight : float = 0.0
 
 @onready var target_node = $"../CameraTarget"
 @onready var car = $".."
-@onready var input = car.get_node("%InputComponent") # CORREÇÃO: Pegando a referência do Input
+@onready var input = car.get_node("%InputComponent")
 @onready var trick_manager = car.get_node("%TrickManager")
 
 var air_move : Node = null
@@ -49,22 +49,17 @@ func _physics_process(delta):
 	var is_actually_in_air = not air_move.check_grounded()
 	var current_air_time = trick_manager.air_time
 	var is_stunting = air_move.is_doing_stunt 
-	# CORREÇÃO: Agora usa a variável dinâmica do InputComponent em vez de hardcode J1
 	var is_looking_back = input.is_look_behind_pressed 
 
 	var target_weight = 0.0
 	var current_transition = transition_speed
 
-	# INSTANTÂNEO: Se olhar para trás, o peso vira 1.0 na hora
-	if is_looking_back:
-		air_mode_weight = 1.0
-	else:
-		# Se não estiver olhando para trás, mantém a suavização normal (ar/chão)
-		if is_actually_in_air:
-			if is_stunting or current_air_time > air_delay_threshold:
-				target_weight = 1.0
-				if is_stunting: current_transition = 15.0 
-		air_mode_weight = lerp(air_mode_weight, target_weight, delta * current_transition)
+	if is_actually_in_air:
+		if is_stunting or current_air_time > air_delay_threshold:
+			target_weight = 1.0
+			if is_stunting: current_transition = 15.0 
+			
+	air_mode_weight = lerp(air_mode_weight, target_weight, delta * current_transition)
 
 	# --- 2. BASES E DIREÇÕES ---
 	var ground_fwd = -car.global_transform.basis.z
@@ -76,9 +71,7 @@ func _physics_process(delta):
 	
 	var blended_fwd = ground_fwd.lerp(air_fwd.normalized(), air_mode_weight)
 	
-	if is_looking_back:
-		blended_fwd = -blended_fwd
-
+	# Removido a inversão do blended_fwd aqui para não conflitar com eixos invertidos.
 	var current_basis = Basis.looking_at(blended_fwd.normalized(), Vector3.UP)
 
 	# --- 3. CÁLCULO DE POSIÇÃO LOCAL ---
@@ -88,14 +81,14 @@ func _physics_process(delta):
 	var current_local_pos = current_basis.inverse() * (global_position - car.global_position)
 	var target_local_pos = current_basis.inverse() * (final_target_pos - car.global_position)
 
+	# --- O TRUQUE DO RETROVISOR ---
 	if is_looking_back:
-		target_local_pos.z *= look_back_distance_multiplier
+		# Invertemos o Z (jogando a câmera pra frente do carro) em vez de girar a base
+		target_local_pos.z = -target_local_pos.z * look_back_distance_multiplier
 		target_local_pos.y += look_back_height_offset
 
-	# CORREÇÃO: Lê o look_vector unificado (Mouse + Joy) do InputComponent
 	var look_dir = input.look_vector
 	
-	# Aplica as sensibilidades normais
 	target_local_pos.x += look_dir.x * stick_sensitivity_x
 	var offset_y = -look_dir.y * stick_sensitivity_y
 	target_local_pos.y += clamp(offset_y, min_local_y, max_local_y)
@@ -103,7 +96,6 @@ func _physics_process(delta):
 	
 	var final_local_pos : Vector3
 	
-	# INSTANTÂNEO: Se olhar para trás, a posição local não faz lerp, ela "snapa"
 	if is_looking_back:
 		final_local_pos = target_local_pos
 	else:

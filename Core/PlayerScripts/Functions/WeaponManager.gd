@@ -14,6 +14,9 @@ var radar_update_timer : float = 0.0
 # --- A CORREÇÃO DE PERFORMANCE ---
 const RADAR_UPDATE_INTERVAL : float = 0.1
 
+@export_group("Configurações de Visão (LoS)")
+@export_flags_3d_physics var los_collision_mask = 1 # Máscara do cenário (Mude se necessário)
+
 # --- CONFIGURAÇÕES ---
 @export_group("Armas")
 @export var basic_weapon_resource: WeaponResource 
@@ -266,6 +269,21 @@ func _cycle_target(direction: int):
 	
 	_update_radar_and_lockon()
 
+# --- FUNÇÃO AUXILIAR DE VISÃO (LoS) ---
+func _has_line_of_sight(target: Node3D) -> bool:
+	var space_state = car.get_world_3d().direct_space_state
+	# Dispara um raio do teto do carro até o alvo
+	var origin = car.global_position + Vector3.UP * 1.5
+	var destination = target.global_position + Vector3.UP * 1.0 # Mira no centro da massa
+	
+	var query = PhysicsRayQueryParameters3D.create(origin, destination, los_collision_mask)
+	query.exclude = [car.get_rid(), target.get_rid()] # Ignora o próprio carro e o alvo
+	
+	var result = space_state.intersect_ray(query)
+	
+	# Se bateu em algo (que não seja o próprio alvo), significa que não tem visão
+	return result.is_empty()
+
 func _update_radar_and_lockon():
 	if not is_instance_valid(car): return
 	
@@ -290,19 +308,21 @@ func _update_radar_and_lockon():
 		var dist = car_pos.distance_to(t.global_position)
 		
 		if dist <= radar_range:
+			# SEMPRE adiciona no radar (Minimapa) se não for pedestre invencível
 			if not t.is_in_group("pedestrians"): 
 				radar_data.append(t)
 			
-		if current_category_index == 0: 
-			category_bucket.append(t)
-		elif current_category_index == 1 and t.is_in_group("jogadores"): 
-			category_bucket.append(t)
-		elif current_category_index == 2 and t.is_in_group("inimigos"): 
-			category_bucket.append(t)
-		elif current_category_index == 3 and (t.is_in_group("destructibles") or t.is_in_group("pedestrians")): 
-			category_bucket.append(t)
+			# SÓ adiciona na lista de MIRA se tiver visão livre!
+			if _has_line_of_sight(t):
+				if current_category_index == 0: 
+					category_bucket.append(t)
+				elif current_category_index == 1 and t.is_in_group("jogadores"): 
+					category_bucket.append(t)
+				elif current_category_index == 2 and t.is_in_group("inimigos"): 
+					category_bucket.append(t)
+				elif current_category_index == 3 and (t.is_in_group("destructibles") or t.is_in_group("pedestrians")): 
+					category_bucket.append(t)
 
-	# --- MATEMÁTICA OTIMIZADA NO LAMBDA ---
 	category_bucket.sort_custom(func(a, b):
 		var pos_a = a.global_position
 		var pos_b = b.global_position
