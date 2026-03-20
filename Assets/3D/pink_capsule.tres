@@ -2,6 +2,9 @@
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_y2t1g"]
 albedo_color = Color(0.9640824, 0.26778197, 0.603195, 1)
+distance_fade_mode = 2
+distance_fade_min_distance = 400.0
+distance_fade_max_distance = 300.0
 
 [resource]
 material = SubResource("StandardMaterial3D_y2t1g")

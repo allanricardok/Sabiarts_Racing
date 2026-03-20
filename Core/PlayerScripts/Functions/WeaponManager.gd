@@ -12,7 +12,7 @@ var active_targets_sorted : Array = []
 @export var radar_range : float = 350.0 
 var radar_update_timer : float = 0.0
 # --- A CORREÇÃO DE PERFORMANCE ---
-const RADAR_UPDATE_INTERVAL : float = 0.2 # Atualiza 5 vezes por segundo (Chega de Lambdas spammando!)
+const RADAR_UPDATE_INTERVAL : float = 0.1
 
 # --- CONFIGURAÇÕES ---
 @export_group("Armas")

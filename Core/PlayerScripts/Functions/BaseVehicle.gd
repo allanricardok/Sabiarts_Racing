@@ -12,7 +12,7 @@ var pode_mover : bool = true
 @export var divisor_de_massa : float = 1000.0
 @export var multiplicador_dano : float = 1.5
 @export var dano_maximo_por_batida : float = 50.0
-@export var velocidade_minima_dano : float = 3.0
+@export var velocidade_minima_dano : float = 1.0
 
 # --- NOVO: Variáveis de Combate Dinâmico ---
 @export var hit_weight : float = 5
@@ -204,14 +204,14 @@ func _on_impacto_corpo(body: Node):
 		return
 	
 	# --- LÓGICA DE DANO ASSIMÉTRICO (Bullying Automotivo) ---
-	var dano_gerado = hit_constant + ((my_speed*1.4) * hit_weight * 0.01)
+	var dano_gerado = hit_constant + ((my_speed) * hit_weight * 0.03)
 	
 	if body is BaseVehicle:
 		var my_force = my_speed * hit_weight
 		var enemy_force = target_speed * body.hit_weight
 		
 		if my_force > enemy_force:
-			var dano_final = min(dano_gerado, dano_maximo_por_batida)
+			var dano_final = min((dano_gerado*0.8), dano_maximo_por_batida)
 			
 			# LÓGICA DE DEBUG PARA BALANCEAMENTO:
 			print("=========================================")

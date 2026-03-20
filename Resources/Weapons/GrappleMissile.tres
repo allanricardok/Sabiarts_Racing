@@ -10,6 +10,7 @@ nome = "GrapplingMissile"
 projectile_scene = ExtResource("1_fhn1e")
 dano = 3.0
 fire_rate = 0.8
+lockon_range = 80.0
 custom_mesh = ExtResource("1_kwvig")
 item_color = Color(0.65034926, 0, 0.5664494, 1)
 metadata/_custom_type_script = "uid://5wgfj8fmfmgf"

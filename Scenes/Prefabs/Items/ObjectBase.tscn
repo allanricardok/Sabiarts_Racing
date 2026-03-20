@@ -5,6 +5,9 @@
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_or50q"]
 albedo_color = Color(0.95686275, 0.33333334, 0.28627452, 1)
 metallic = 0.53
+distance_fade_mode = 2
+distance_fade_min_distance = 400.0
+distance_fade_max_distance = 300.0
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_0e0mj"]
 material = SubResource("StandardMaterial3D_or50q")
@@ -21,7 +24,7 @@ collision_mask = 15
 mass = 100.0
 gravity_scale = 1.806
 script = ExtResource("1_0e0mj")
-max_health = 3.5
+max_health = 2.0
 energy_on_destroy = 5.0
 energy_on_hit = 0.5
 

@@ -6,3 +6,6 @@
 albedo_texture = ExtResource("1_1mrrw")
 uv1_scale = Vector3(0.035, 0.035, 0.035)
 uv1_triplanar = true
+distance_fade_mode = 2
+distance_fade_min_distance = 400.0
+distance_fade_max_distance = 300.0

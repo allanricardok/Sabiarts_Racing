@@ -22,7 +22,7 @@ collision_mask = 15
 mass = 300.0
 gravity_scale = 1.806
 script = ExtResource("1_8vci2")
-max_health = 8.0
+max_health = 4.0
 energy_on_destroy = 8.0
 energy_on_hit = 0.5
 
