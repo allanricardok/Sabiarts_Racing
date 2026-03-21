@@ -4,19 +4,21 @@ enum State { JOINING, SELECTING_MAP }
 var current_state = State.JOINING
 
 # --- CONFIGURAÇÃO ---
-# No topo do lobby.gd, substitua a const MAPAS por isso:
 @export var nomes_dos_mapas: Array[String] = ["Official_Test_Map"]
 @export var cenas_dos_mapas: Array[PackedScene]
 
-var selected_map_index = 0
+# NOVO: Indíce unificado do menu (0 = Mapa 1, 1 = Mapa 2, 2 = Clear Data, 3 = Clear Scores)
+var menu_index = 0
 
 # Referências de UI
 @onready var join_panel = $JoinPanel
 @onready var map_panel = $MapPanel
 @onready var label_mapa_1 = $MapPanel/VBoxContainer/LabelMapa1
 @onready var label_mapa_2 = $MapPanel/VBoxContainer/LabelMapa2
-# NOVO: Referência para o botão de zerar dados
-@onready var clear_data_button = get_node_or_null("ClearDataButton")
+
+# Usando find_child para achar os botões em qualquer lugar da árvore de forma segura
+@onready var clear_data_button = find_child("ClearDataButton", true, false)
+@onready var clear_scores_button = find_child("ClearScoresButton", true, false) # Confirme se o nome é esse!
 
 # --- LÓGICA DE JOGADORES ---
 var esquemas_disponiveis = ["K1", "J1", "J2", "J3", "J4"]
@@ -30,81 +32,113 @@ const ICON_JOYSTICK = preload("res://Assets/2D/explosion.png")
 func _ready():
 	join_panel.show()
 	map_panel.hide()
-	_atualizar_visual_mapa()
 	
-	# NOVO: Conexão do sinal do botão de zerar dados
-	if clear_data_button:
-		if not clear_data_button.pressed.is_connected(_on_clear_data_pressed):
-			clear_data_button.pressed.connect(_on_clear_data_pressed)
-		print("[Lobby] Botão ClearDataButton conectado.")
-	else:
-		print("[Lobby] AVISO: Nó 'ClearDataButton' não encontrado na cena.")
+	# MATANDO O FOCO NATIVO PARA O MOUSE NÃO INTERFERIR COM O JOYSTICK
+	if clear_data_button: clear_data_button.focus_mode = Control.FOCUS_NONE
+	if clear_scores_button: clear_scores_button.focus_mode = Control.FOCUS_NONE
+	
+	_atualizar_visual_mapa()
 
 func _process(_delta):
 	if current_state == State.JOINING:
-		# Se alguém apertar Start/Pause e houver jogadores, vai para o mapa
 		if Input.is_action_just_pressed("Pause") and _get_contagem_jogadores() > 0:
 			_mudar_para_selecao_mapa()
-	
 	elif current_state == State.SELECTING_MAP:
 		_processar_navegacao_mapa()
 
 func _input(_event):
 	if current_state == State.JOINING:
 		for esquema in esquemas_disponiveis:
-			if esquema in jogadores_ativos: continue
+			if esquema in jogadores_ativos: 
+				if Input.is_action_just_pressed("Stunt_" + esquema):
+					_remover_jogador(esquema)
+				continue
+				
 			if Input.is_action_just_pressed("Fire_" + esquema) or Input.is_action_just_pressed("Action_" + esquema):
 				_adicionar_jogador(esquema)
 
 func _processar_navegacao_mapa():
-	# 1. Confirmação Global (Botão START / PAUSE)
-	# Qualquer um que apertar Start inicia a corrida
+	# 1. Start global
 	if Input.is_action_just_pressed("Pause"):
 		_iniciar_corrida()
 		return
 
-	# 2. Navegação GLOBAL (FORA DO LOOP)
-	# Verificamos apenas UMA vez por frame. Isso evita o bug de alternar 2x.
-	if Input.is_action_just_pressed("ui_up") or Input.is_action_just_pressed("ui_down"):
-		selected_map_index = 1 - selected_map_index
+	# 2. Navegação GLOBAL (UP / DOWN) por 4 opções agora!
+	if Input.is_action_just_pressed("ui_up"):
+		menu_index -= 1
+		if menu_index < 0: menu_index = 3 # Volta pro último
 		_atualizar_visual_mapa()
-		# Opcional: toque um som de 'tick' de menu aqui!
+		return
+		
+	if Input.is_action_just_pressed("ui_down"):
+		menu_index += 1
+		if menu_index > 3: menu_index = 0 # Volta pro primeiro
+		_atualizar_visual_mapa()
 		return
 
-	# 3. Confirmação Individual (Botão X / JUMP)
-	# Aqui sim usamos o loop, pois cada jogador tem seu próprio botão de pulo mapeado
+	# 3. Confirmação (Action) e Voltar (Trick)
 	for esquema in jogadores_ativos:
 		if esquema == null: continue
+		
 		if Input.is_action_just_pressed("Action_" + esquema):
-			_iniciar_corrida()
-			break # Sai do loop assim que o primeiro confirmar
+			_confirmar_selecao()
+			return 
+			
+		if Input.is_action_just_pressed("Stunt_" + esquema):
+			_voltar_para_lobby()
+			return 
 	
 func _atualizar_visual_mapa():
-	# Atualiza os textos se você quiser que eles mudem conforme a lista do Inspetor
-	label_mapa_1.text = nomes_dos_mapas[0]
+	label_mapa_1.text = nomes_dos_mapas[0] if nomes_dos_mapas.size() > 0 else "Map 1"
 	
-	# Efeito de cor (Sua lógica original)
-	label_mapa_1.modulate = Color(1, 1, 1) if selected_map_index == 0 else Color(0.3, 0.3, 0.3)
+	# Desmarca todo mundo
+	label_mapa_1.modulate = Color(0.3, 0.3, 0.3)
+	if label_mapa_2: label_mapa_2.modulate = Color(0.3, 0.3, 0.3)
+	if clear_data_button: clear_data_button.modulate = Color(0.3, 0.3, 0.3)
+	if clear_scores_button: clear_scores_button.modulate = Color(0.3, 0.3, 0.3)
+	
+	# Acende só o que está selecionado
+	match menu_index:
+		0: label_mapa_1.modulate = Color(1, 1, 1)
+		1: if label_mapa_2: label_mapa_2.modulate = Color(1, 1, 1)
+		2: if clear_data_button: clear_data_button.modulate = Color(1, 1, 1)
+		3: if clear_scores_button: clear_scores_button.modulate = Color(1, 1, 1)
+
+func _confirmar_selecao():
+	match menu_index:
+		0:
+			# Inicia Mapa 1
+			_iniciar_corrida(0)
+		1:
+			# Inicia Mapa 2 (Se existir)
+			if cenas_dos_mapas.size() > 1:
+				_iniciar_corrida(1)
+		2:
+			# Aciona Reset de Dados
+			_on_clear_data_pressed()
+		3:
+			# Aciona Reset de Scores
+			_on_botao_apagar_scores_pressed()
 
 func _mudar_para_selecao_mapa():
 	current_state = State.SELECTING_MAP
+	menu_index = 0 # Reseta o cursor pro primeiro mapa sempre que abrir
+	_atualizar_visual_mapa()
 	join_panel.hide()
 	map_panel.show()
-	print("Entrando na seleção de mapa...")
 
-func _iniciar_corrida():
-	# 1. Envia os dados para o Global (Sua lógica original)
+func _voltar_para_lobby():
+	current_state = State.JOINING
+	map_panel.hide()
+	join_panel.show()
+
+func _iniciar_corrida(mapa_id: int = 0):
 	Global.dados_jogadores = jogadores_ativos
-	
-	# 2. Pega a cena que você arrastou no slot correspondente
-	var mapa_para_carregar = cenas_dos_mapas[selected_map_index]
-	
-	if mapa_para_carregar:
-		print("Iniciando mapa: ", nomes_dos_mapas[selected_map_index])
-		# Como é uma PackedScene (arrastada), usamos change_scene_to_packed
-		get_tree().change_scene_to_packed(mapa_para_carregar)
+	if mapa_id < cenas_dos_mapas.size() and cenas_dos_mapas[mapa_id]:
+		print("Iniciando mapa: ", nomes_dos_mapas[mapa_id])
+		get_tree().change_scene_to_packed(cenas_dos_mapas[mapa_id])
 	else:
-		print("ERRO: Você esqueceu de arrastar a cena para o slot no Inspetor!")
+		print("ERRO: Cena não encontrada ou não assinada no Inspetor!")
 
 # --- AUXILIARES ---
 func _get_contagem_jogadores():
@@ -117,6 +151,13 @@ func _adicionar_jogador(esquema):
 		if jogadores_ativos[i] == null:
 			jogadores_ativos[i] = esquema
 			_atualizar_ui_slot(i, esquema)
+			break
+
+func _remover_jogador(esquema):
+	for i in range(4):
+		if jogadores_ativos[i] == esquema:
+			jogadores_ativos[i] = null
+			_resetar_ui_slot(i)
 			break
 
 func _atualizar_ui_slot(index, esquema):
@@ -132,24 +173,34 @@ func _atualizar_ui_slot(index, esquema):
 		icon_rect.texture = ICON_KEYBOARD if esquema.begins_with("K") else ICON_JOYSTICK
 	slot.modulate = Color(1, 1, 1, 1)
 
-# NOVO: Função para limpar os dados via botão no Lobby
+func _resetar_ui_slot(index):
+	var slot = slots_ui[index]
+	var label_press = slot.find_child("Label")
+	if label_press: label_press.show()
+	var label_controle = slot.find_child("Controller")
+	if label_controle: label_controle.hide()
+	var icon_rect = slot.find_child("ControllerIcon")
+	if icon_rect: icon_rect.texture = null
+
 func _on_clear_data_pressed():
-	print("[Lobby] Botão de zerar dados pressionado. Limpando persistência...")
-	
-	# 1. Apaga o arquivo físico do disco
+	print("[Lobby] Limpando persistência...")
 	SaveManager.clear_data()
-	
-	# 2. Limpa o estado atual do MissionManager em memória
-	if MissionManager:
+	if is_instance_valid(MissionManager):
 		MissionManager.completed_mission_ids.clear()
 		MissionManager.collection_progress.clear()
 		MissionManager.completed_count = 0
 		if MissionManager.current_map_data:
 			for m in MissionManager.current_map_data.missions:
 				m.is_completed = false
-				
-	print("[Lobby] Dados resetados com sucesso.")
+	
+	# Efeito visual para mostrar que apertou o botão!
+	if clear_data_button: clear_data_button.modulate = Color(1, 0, 0) # Pisca vermelho
+	get_tree().create_timer(0.2).timeout.connect(_atualizar_visual_mapa)
 
 func _on_botao_apagar_scores_pressed():
+	print("[Lobby] Limpando Highscores...")
 	SaveManager.clear_highscores()
-	# Aqui pode adicionar lógica extra, como atualizar a interface ou mostrar um aviso de sucesso.
+	
+	# Efeito visual para mostrar que apertou o botão!
+	if clear_scores_button: clear_scores_button.modulate = Color(1, 0, 0)
+	get_tree().create_timer(0.2).timeout.connect(_atualizar_visual_mapa)

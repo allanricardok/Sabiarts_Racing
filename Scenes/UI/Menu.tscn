@@ -382,7 +382,7 @@ theme_override_colors/font_color = Color(0.8745098, 0.28235295, 0, 1)
 theme_override_font_sizes/font_size = 22
 text = "Reset Scores"
 
-[connection signal="pressed" from="ClearDataButton" to="." method="_on_clear_data_button_pressed"]
 [connection signal="pressed" from="ClearDataButton" to="." method="_on_clear_data_pressed"]
-[connection signal="pressed" from="ClearScoresButton" to="." method="_on_clear_scores_button_pressed"]
+[connection signal="pressed" from="ClearDataButton" to="." method="_on_clear_data_button_pressed"]
 [connection signal="pressed" from="ClearScoresButton" to="." method="_on_botao_apagar_scores_pressed"]
+[connection signal="pressed" from="ClearScoresButton" to="." method="_on_clear_scores_button_pressed"]
