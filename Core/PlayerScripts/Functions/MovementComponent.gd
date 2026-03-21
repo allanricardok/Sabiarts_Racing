@@ -78,21 +78,20 @@ func _physics_process(delta):
 func _handle_engine_and_steering(delta, is_on_ground, speed_mps):
 	var up_dot = car.global_transform.basis.y.dot(Vector3.UP)
 	
+	var rage = car.get_node_or_null("%RageComponent")
+	var rage_speed_mult = rage.get_speed_mult() if rage else 1.0
+	
 	if abs(input.steering) > 0.05:
 		_steering_hold_time += delta
 	else:
 		_steering_hold_time = 0.0
 		
-	# --- ESTABILIZADOR VERTICAL (O SEGREDO DA PRECISÃO NAS RAMPAS) ---
-	# Lê a velocidade vertical (subindo ou descendo irregularidades)
 	var vertical_speed = abs(car.linear_velocity.y)
-	# Se a suspensão estiver trabalhando pesado (ex: pulando a 25 m/s), reduz o ângulo da roda em até 50%
 	var vertical_dampening = clamp(1.0 - (vertical_speed / 25.0), 0.5, 1.0)
 		
 	var aim_precision_ramp = clamp(_steering_hold_time / 0.4, 0.2, 1.0)
 	var steer_speed = lerp(3.0, 10.0, aim_precision_ramp)
 	
-	# O limite de curva agora é endurecido pela estabilidade vertical
 	var max_steer_dynamic = MAX_STEER * vertical_dampening
 	car.steering = move_toward(car.steering, input.steering * max_steer_dynamic, delta * steer_speed)
 	
@@ -103,20 +102,15 @@ func _handle_engine_and_steering(delta, is_on_ground, speed_mps):
 	if is_on_ground:
 		var is_braking_hard = (forward_velocity > 2.0 and input.throttle < -0.1)
 		
-		# --- LEITURA DE CONTATO DAS RODAS ---
 		var contact_ratio = _get_grounded_ratio()
-		# Elevamos ao cubo (ex: 0.5 * 0.5 * 0.5 = 0.125). 
-		# Isso significa que se faltarem 2 rodas no chão, o torque de assistência morre para 12%, impedindo o "peão" nas rampas.
 		var torque_contact_multiplier = pow(contact_ratio, 3)
 
-		# 1. GIRO EM BAIXA VELOCIDADE
 		if up_dot > 0.7 and speed_kmh < SPEED_MIN_ASSIST and abs(input.steering) > 0.1 and not is_braking_hard and _drift_cooldown <= 0:
 			if forward_velocity < -0.1: turn_dir = -input.steering
 			
 			var final_turn_speed = STATIONARY_TURN_SPEED * aim_precision_ramp * torque_contact_multiplier
 			car.apply_torque(car.global_transform.basis.y * turn_dir * final_turn_speed * car.mass)	
 			
-		# 2. ASSISTÊNCIA DE CURVA EM ALTA VELOCIDADE
 		if speed_kmh >= SPEED_MIN_ASSIST and abs(input.steering) > 0.88:
 			var speed_factor = clamp(speed_kmh, SPEED_MIN_ASSIST, SPEED_MAX_ASSIST)
 			var dynamic_torque = remap(speed_factor, SPEED_MIN_ASSIST, SPEED_MAX_ASSIST, STEER_TORQUE_START, STEER_TORQUE_END)
@@ -126,7 +120,6 @@ func _handle_engine_and_steering(delta, is_on_ground, speed_mps):
 			
 			car.apply_torque(car.global_transform.basis.y * high_speed_turn_dir * dynamic_torque * torque_contact_multiplier * car.mass)
 			
-		# 3. ACELERAÇÃO E FREIO
 		car.brake = 0.0
 		var braking_forward = (forward_velocity > 0.5 and input.throttle < -0.1)
 		var braking_reverse = (forward_velocity < -0.5 and input.throttle > 0.1)
@@ -152,8 +145,10 @@ func _handle_engine_and_steering(delta, is_on_ground, speed_mps):
 			var final_throttle = input.throttle
 			if _drift_cooldown > 0 and final_throttle < 0:
 				final_throttle = 0.0 
-				
-			car.engine_force = final_throttle * (ENGINE_POWER * speed_mult) * boost_factor
+			
+			# --- A MÁGICA DO MOTOR ACONTECE AQUI ---
+			var current_engine_power = ENGINE_POWER * rage_speed_mult
+			car.engine_force = final_throttle * (current_engine_power * speed_mult) * boost_factor
 	else:
 		car.engine_force = 0.0
 		car.brake = 0.0
@@ -236,5 +231,19 @@ func _reset_car_orientation():
 
 func _apply_drag(delta):
 	if car.linear_velocity.length() < 0.1: return
-	var drag = -car.linear_velocity.normalized() * car.linear_velocity.length_squared() * AIR_RESISTANCE
+	
+	# --- RAGE QUEBRA A BARREIRA DO AR ---
+	var drag_multiplier = 1.0
+	var rage = car.get_node_or_null("%RageComponent")
+	
+	if rage:
+		var speed_buff = rage.get_speed_mult()
+		if speed_buff > 1.0:
+			# Se o Rage estiver dando +40% de velocidade (1.4x),
+			# nós reduzimos a resistência do ar em 60% (drag fica 0.4)
+			# Isso permite que o carro acelere muito além do limite normal!
+			drag_multiplier = 0.6 
+			
+	var current_resistance = AIR_RESISTANCE * drag_multiplier
+	var drag = -car.linear_velocity.normalized() * car.linear_velocity.length_squared() * current_resistance
 	car.apply_central_force(drag * car.mass * delta)

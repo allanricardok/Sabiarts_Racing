@@ -1,4 +1,4 @@
-[gd_scene load_steps=111 format=4 uid="uid://cw8ofahu5mqhn"]
+[gd_scene load_steps=113 format=4 uid="uid://cw8ofahu5mqhn"]
 
 [ext_resource type="Script" uid="uid://b0i2wvnkcrknc" path="res://Core/PlayerScripts/Functions/BaseVehicle.gd" id="1_m0ew1"]
 [ext_resource type="Script" uid="uid://cjnmai87rc2f8" path="res://Core/camera_test_3.gd" id="2_8gjg4"]
@@ -24,6 +24,7 @@
 [ext_resource type="Texture2D" uid="uid://dn4gu5ika00yt" path="res://Assets/3D/vigilante_v8_2nd_offence_obakes_tsunami_14.png" id="16_apvhh"]
 [ext_resource type="Script" uid="uid://ca80dhy7dchio" path="res://Core/PlayerScripts/UI/hud.gd" id="18_krxcx"]
 [ext_resource type="Script" uid="uid://f41hkh6xnfgv" path="res://Core/PlayerScripts/UI/MinimapDraw.gd" id="19_cj7ej"]
+[ext_resource type="Script" uid="uid://b5mtjc65y3mxc" path="res://Core/PlayerScripts/UI/RageUI.gd" id="19_hxqm3"]
 [ext_resource type="Script" uid="uid://y3uxucxf1qqt" path="res://Core/PlayerScripts/UI/recticle.gd" id="19_u5777"]
 [ext_resource type="Script" uid="uid://17v2oug1wdmr" path="res://Core/PlayerScripts/Functions/VehicleHitbox.gd" id="20_3a0p2"]
 [ext_resource type="Texture2D" uid="uid://bkmid1n6i7ij6" path="res://Assets/2D/Test_Texture.jpg" id="20_7n43q"]
@@ -33,6 +34,7 @@
 [ext_resource type="Script" uid="uid://o8qqxsyxuixf" path="res://Core/PlayerScripts/Functions/Tricks/StuntProcessor.gd" id="25_w2sg6"]
 [ext_resource type="Script" uid="uid://di8qqp2x2hico" path="res://Core/PlayerScripts/Functions/Tricks/GroundTrickManager.gd" id="26_x2n00"]
 [ext_resource type="Script" uid="uid://dtphvnh83nbxl" path="res://Core/PlayerScripts/Functions/Tricks/TrickBuilder.gd" id="27_1js6p"]
+[ext_resource type="Script" uid="uid://bftaf7rlmwtx" path="res://Core/PlayerScripts/Functions/RageComponent.gd" id="31_y07ny"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_625mm"]
 friction = 0.01
@@ -1269,6 +1271,89 @@ billboard = 1
 [node name="HUD" type="CanvasLayer" parent="."]
 script = ExtResource("18_krxcx")
 
+[node name="RageUI" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("19_hxqm3")
+
+[node name="Vignette" type="ColorRect" parent="HUD/RageUI"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.011764706, 0.011764706, 0.011764706, 0)
+
+[node name="ColorRect6" type="ColorRect" parent="HUD/RageUI"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -108.0
+offset_top = 85.0
+offset_bottom = 208.0
+grow_horizontal = 0
+color = Color(0.011764706, 0.011764706, 0.011764706, 0.16078432)
+
+[node name="Title" type="Label" parent="HUD/RageUI"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -94.0
+offset_top = 114.0
+offset_right = -52.0
+offset_bottom = 137.0
+grow_horizontal = 0
+text = "RAGE"
+
+[node name="Multiplier" type="Label" parent="HUD/RageUI"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -96.0
+offset_top = 135.0
+offset_right = -54.0
+offset_bottom = 180.0
+grow_horizontal = 0
+theme_override_font_sizes/font_size = 32
+text = "0X"
+horizontal_alignment = 1
+
+[node name="Seconds" type="Label" parent="HUD/RageUI"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -95.0
+offset_top = 173.0
+offset_right = -53.0
+offset_bottom = 192.0
+grow_horizontal = 0
+theme_override_font_sizes/font_size = 12
+text = "10s"
+horizontal_alignment = 1
+
+[node name="Bar" type="ProgressBar" parent="HUD/RageUI"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -41.0
+offset_top = 95.0
+offset_right = -7.0
+offset_bottom = 199.0
+grow_horizontal = 0
+max_value = 300.0
+rounded = true
+fill_mode = 3
+
 [node name="UI_Base" type="Control" parent="HUD"]
 clip_contents = true
 layout_mode = 3
@@ -1709,6 +1794,10 @@ volume_db = -8.62
 max_polyphony = 5
 
 [node name="Scripts" type="Node" parent="."]
+
+[node name="RageComponent" type="Node" parent="Scripts"]
+unique_name_in_owner = true
+script = ExtResource("31_y07ny")
 
 [node name="InputComponent" type="Node" parent="Scripts"]
 unique_name_in_owner = true

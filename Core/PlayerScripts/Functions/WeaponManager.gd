@@ -163,8 +163,17 @@ func _reset_weapon_visibility():
 
 func fire_basic_weapon():
 	if not basic_weapon_resource: return
-	basic_cooldown = fire_rate_basic 
+	
+	# --- INTEGRAÇÃO COM RAGE (Básico) ---
+	var rage = car.get_node_or_null("%RageComponent")
+	var rate_mult = rage.get_fire_rate_mult() if rage else 1.0
+	
+	# Aplica o buff de velocidade (cooldown menor = atira mais rápido)
+	basic_cooldown = fire_rate_basic / rate_mult 
+	
 	_muzzle_flash_effect("MachineGun")
+	
+	# Repassamos o nó do car (que contém o RageComponent) para o projétil aplicar o buff de dano no impacto
 	_spawn_projectile(basic_weapon_resource, "MachineGun")
 
 func fire_special_weapon():
@@ -173,7 +182,11 @@ func fire_special_weapon():
 		
 	if special_cooldowns.get(active.nome, 0.0) > 0: return
 	
-	special_cooldowns[active.nome] = active.fire_rate
+	# --- INTEGRAÇÃO COM RAGE (Especial) ---
+	var rage = car.get_node_or_null("%RageComponent")
+	var rate_mult = rage.get_fire_rate_mult() if rage else 1.0
+	
+	special_cooldowns[active.nome] = active.fire_rate / rate_mult
 	_muzzle_flash_effect(active.nome)
 	_spawn_projectile(active, active.nome)
 	

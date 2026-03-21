@@ -67,6 +67,13 @@ func _on_impact(target_node):
 	
 	if actual_target.has_method("take_damage"):
 		actual_target.take_damage(damage, self) 
+		
+		# --- INTEGRAÇÃO DO RAGE COMPONENT ATUALIZADA ---
+		if is_instance_valid(shooter):
+			var rage = shooter.get_node_or_null("%RageComponent")
+			if rage and rage.has_method("add_hit"):
+				# Passamos o alvo para o RageComponent calcular a penalidade!
+				rage.add_hit(actual_target)
 	
 	_play_impact_vfx()
 

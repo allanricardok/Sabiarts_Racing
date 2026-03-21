@@ -97,6 +97,9 @@ func register_builder_trick(id: String, trick_name: String, base_pts: int):
 	current_jump_uses[id] = j_count + 1
 	global_stunt_uses[id] = g_count + 1
 	_update_live_display()
+	var rage = car.get_node_or_null("%RageComponent")
+	if rage:
+		rage.add_trick(1) # Ganha 1 ponto (que vira 2 se tiver abaixo de 100)
 
 func _start_new_jump():
 	tracking_jump = true

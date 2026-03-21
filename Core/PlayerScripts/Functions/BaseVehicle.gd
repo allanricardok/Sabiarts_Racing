@@ -103,14 +103,29 @@ func _physics_process(delta):
 
 func _setup_multiplayer_links():
 	var suffix = "_" + input_source
-	var my_hud = get_viewport().find_child("HUD", true, false)
 	
+	# Mantém a configuração original da HUD (caso ela precise se renomear)
+	var my_hud = get_viewport().find_child("HUD", true, false)
 	if my_hud and my_hud.has_method("setup_hud"):
 		my_hud.setup_hud(suffix, self.id)
 		print("[BaseVehicle] Player ", id + 1, " configurado com dispositivo ", input_source)
 	
 	if weapons and weapons.has_method("setup_multiplayer"):
 		weapons.setup_multiplayer(suffix)
+		
+	# --- A GRANDE CORREÇÃO DA UI ZERADA ---
+	# Busca a HUD correta pelo Grupo (evita que Inimigos sequestrem a sua tela!)
+	var hud_correta = get_tree().get_first_node_in_group("HUD" + suffix)
+	
+	var rage_comp = get_node_or_null("%RageComponent")
+	var rage_ui = hud_correta.find_child("RageUI", true, false) if hud_correta else null
+	
+	if rage_comp and rage_ui:
+		if not rage_comp.rage_updated.is_connected(rage_ui._on_rage_updated):
+			rage_comp.rage_updated.connect(rage_ui._on_rage_updated)
+			print("[RAGE SETUP] Sinal conectado com sucesso à HUD do Player ", id + 1)
+	else:
+		print("[RAGE ERROR] Faltou o RageComponent no carro OU o RageUI na HUD para: ", suffix)
 
 # --- LÓGICA DE GAPS E MANOBRAS ---
 
@@ -118,10 +133,8 @@ func _on_pousou(is_clean: bool):
 	var trick_manager = get_node_or_null("%TrickManager")
 	if trick_manager and trick_manager.has_method("check_landing"):
 		trick_manager.check_landing(is_clean)
-		# Carro livre para quicar no chão, o timer que decide quando o gap expira!
 
 func set_active_gap(id_gap: String):
-	# Adiciona ou renova o gap específico no dicionário com 5 segundos!
 	_active_gaps[id_gap] = 10.0 
 	
 	var trick_manager = get_node_or_null("%TrickManager")
@@ -129,21 +142,19 @@ func set_active_gap(id_gap: String):
 		trick_manager.iniciar_deteccao_gap(id_gap)
 
 func set_gap_reached_end(id_gap: String, gap_name: String, points: int):
-	# Confere se ESTE gap específico está na memória
 	if _active_gaps.has(id_gap):
-		_active_gaps.erase(id_gap) # Tira da lista, pois acabou de ser concluído
+		_active_gaps.erase(id_gap)
 		
 		var trick_manager = get_node_or_null("%TrickManager")
 		if trick_manager and trick_manager.has_method("marcar_gap_no_ar"):
 			trick_manager.marcar_gap_no_ar(id_gap, gap_name, points)
 
 func _reset_gap_state():
-	_active_gaps.clear() # Limpa todos os gaps de uma vez
+	_active_gaps.clear()
 	var trick_manager = get_node_or_null("%TrickManager")
 	if trick_manager and trick_manager.has_method("cancelar_gap"):
 		trick_manager.cancelar_gap()
 
-# Substituímos a função antiga por essa que responde Sim/Não
 func has_active_gap(id_gap: String) -> bool:
 	return _active_gaps.has(id_gap)
 
@@ -195,7 +206,6 @@ func _on_impacto_corpo(body: Node):
 	if body is RigidBody3D or body is VehicleBody3D:
 		target_speed = body.linear_velocity.length() * 2.0
 	
-	# Mudança: Contra objetos não-carros, consideramos a nossa própria velocidade como relativa
 	var relative_speed = abs(my_speed - target_speed)
 	if not (body is BaseVehicle):
 		relative_speed = my_speed
@@ -203,7 +213,7 @@ func _on_impacto_corpo(body: Node):
 	if relative_speed < velocidade_minima_dano:
 		return
 	
-	# --- LÓGICA DE DANO ASSIMÉTRICO (Bullying Automotivo) ---
+	# LÓGICA DE DANO E RAGE
 	var dano_gerado = hit_constant + ((my_speed) * hit_weight * 0.03)
 	
 	if body is BaseVehicle:
@@ -213,40 +223,36 @@ func _on_impacto_corpo(body: Node):
 		if my_force > enemy_force:
 			var dano_final = min((dano_gerado*0.8), dano_maximo_por_batida)
 			
-			# LÓGICA DE DEBUG PARA BALANCEAMENTO:
 			print("=========================================")
 			print("[COMBATE] BATEU! Agressor: Player ", self.id + 1, " | Vítima: Player ", body.id + 1)
-			print(" -> Força Agressor: ", int(my_force), " (Velocidade ", int(my_speed), " x Peso ", hit_weight, ")")
-			print(" -> Força Vítima:   ", int(enemy_force), " (Velocidade ", int(target_speed), " x Peso ", body.hit_weight, ")")
 			print(" -> Dano aplicado na vítima: ", dano_final)
 			print("=========================================")
 			
-			# Inimigo toma o dano e NÓS recebemos os pontos (self = source)
 			body.take_damage(dano_final, self)
-			
-			# MUDANÇA SÊNIOR: Nós tomamos um arranhão de leve, 
-			# mas passamos "null" para que a vítima NÃO receba bônus de combo!
 			self.take_damage(hit_constant, null)
+			
+			# --- SOMA RAGE AO BATER EM OUTRO CARRO ---
+			var rage = get_node_or_null("%RageComponent")
+			if rage:
+				rage.add_collision_damage(dano_final)
 		else:
-			# Se formos mais fracos, apenas aguardamos o script do inimigo resolver a colisão.
 			pass
 			
 	elif body.has_method("take_damage"):
-		# Atropelamento de objetos estáticos destrutíveis (caixas, etc)
 		var dano_final = min(dano_gerado, dano_maximo_por_batida)
-		print("[COMBATE] Player ", self.id + 1, " atropelou objeto: ", body.name, " | Dano: ", dano_final)
 		body.take_damage(dano_final, self)
+		
+		# --- SOMA RAGE AO DESTRUIR UM OBJETO DO CENÁRIO ---
+		var rage = get_node_or_null("%RageComponent")
+		if rage:
+			rage.add_collision_damage(dano_final)
 
 # --- MORTE E DESTRUIÇÃO ---
 func _on_vehicle_destroyed():
 	print("[BaseVehicle] Veículo destruído: Player ", id + 1)
 	
-	# Avisa o LevelController que alguém morreu para checar o Last-Man-Standing
 	var controller = get_tree().get_first_node_in_group("LevelController")
 	if controller and controller.has_method("registrar_morte_jogador"):
 		controller.registrar_morte_jogador()
 		
-	# TODO: Instanciar uma explosão GIGANTE de carro aqui
-	
-	# Some com o carro
 	queue_free()
