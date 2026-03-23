@@ -56,8 +56,14 @@ func _ready():
 		cooldown_bar.max_value = SHARED_COOLDOWN_TIME
 
 func _process(delta):
+	# --- INTEGRAÇÃO COM RAGE PARA ACELERAR A RECARGA ---
+	var rage = car.get_node_or_null("%RageComponent")
+	var regen_mult = rage.get_ability_recovery_mult() if rage else 1.0
+
 	if current_energy < MAX_ENERGY:
-		current_energy = move_toward(current_energy, MAX_ENERGY, REGEN_RATE * delta)
+		# Multiplicamos a taxa de regeneração base pelo multiplicador do Rage!
+		current_energy = move_toward(current_energy, MAX_ENERGY, (REGEN_RATE * regen_mult) * delta)
+		
 	if current_cooldown > 0:
 		current_cooldown -= delta
 		

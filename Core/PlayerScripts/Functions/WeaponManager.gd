@@ -11,7 +11,7 @@ class_name WeaponManager
 # --- REFERÊNCIAS ---
 @onready var car = owner
 @onready var input = %InputComponent
-@onready var targeting = %TargetingComponent # <-- Ligação com o novo cérebro!
+@onready var targeting = %TargetingComponent
 
 @onready var weapon_nodes = {
 	"MachineGun": %MachineGun,
@@ -26,10 +26,13 @@ var current_weapon_index : int = -1
 var basic_cooldown : float = 0.0
 var special_cooldowns : Dictionary = {}
 var player_suffix : String = "" 
+
+# --- VISUAL E DESTAQUE ---
+var highlight_material : StandardMaterial3D
+
 # --- PONTE PARA A HUD NÃO QUEBRAR ---
 var current_target: Node3D:
 	get:
-		# Checa se o Targeting existe E se o alvo dele ainda está vivo na cena
 		if is_instance_valid(targeting) and is_instance_valid(targeting.current_target):
 			return targeting.current_target
 		return null
@@ -41,9 +44,14 @@ var _is_recovering : bool = false
 var _was_firing : bool = false
 
 func _ready():
-	_reset_weapon_visibility()
-	if weapon_nodes.has("MachineGun"):
-		weapon_nodes["MachineGun"].visible = true
+	# Cria o material de brilho amarelado
+	highlight_material = StandardMaterial3D.new()
+	highlight_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	highlight_material.albedo_color = Color(1.0, 0.8, 0.0, 0.4) # Amarelo Dourado
+	highlight_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	highlight_material.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	
+	_update_visual_selection()
 
 func setup_multiplayer(suffix: String):
 	player_suffix = suffix
@@ -60,23 +68,19 @@ func _process(delta):
 		
 	if not car.pode_mover: return
 
-	# LÓGICA DE TIRO BÁSICO E SUPERAQUECIMENTO
 	var is_doing_ability = (input.ability_up or input.ability_down or input.ability_left or input.ability_right)
 	var is_firing = input.is_action_pressed and not is_doing_ability
 
-	# Soltou o botão? Inicia a recuperação paralela!
 	if not is_firing and _was_firing:
 		_is_recovering = true
 		_recovery_timer = 0.0
 
-	# O timer roda independente de estar atirando de novo ou não
 	if _is_recovering:
 		_recovery_timer += real_delta
 		if _recovery_timer >= 2.0:
 			_basic_fire_time = 0.0
 			_is_recovering = false
 
-	# Aplica o tempo de tiro (aquece a arma)
 	if is_firing:
 		_basic_fire_time += real_delta
 		if basic_cooldown <= 0:
@@ -84,7 +88,6 @@ func _process(delta):
 
 	_was_firing = is_firing
 
-	# TROCA E TIRO ESPECIAL
 	if Input.is_action_just_pressed("prev_weapon" + input.suffix): _switch_weapon(-1)
 	if Input.is_action_just_pressed("next_weapon" + input.suffix): _switch_weapon(1)
 	if Input.is_action_just_pressed("Fire" + input.suffix): fire_special_weapon()
@@ -125,14 +128,37 @@ func _switch_weapon(direction: int):
 	_atualizar_interface()
 
 func _update_visual_selection():
-	_reset_weapon_visibility()
+	# 1. Esconde as armas especiais e tira o brilho de tudo
+	for key in weapon_nodes:
+		if key != "MachineGun":
+			weapon_nodes[key].visible = false
+		_set_weapon_highlight(key, false)
+		
+	# A metralhadora básica sempre fica visível
+	if weapon_nodes.has("MachineGun"):
+		weapon_nodes["MachineGun"].visible = true
+
+	# 2. Mostra todas as armas que o jogador tem no inventário
+	for w in weapon_pool:
+		if weapon_nodes.has(w.nome):
+			weapon_nodes[w.nome].visible = true
+
+	# 3. Aplica o brilho APENAS na arma selecionada
 	var active = get_active_special()
 	if active and weapon_nodes.has(active.nome):
-		weapon_nodes[active.nome].visible = true
+		_set_weapon_highlight(active.nome, true)
 
-func _reset_weapon_visibility():
-	for key in weapon_nodes:
-		if key != "MachineGun": weapon_nodes[key].visible = false
+func _set_weapon_highlight(weapon_name: String, is_active: bool):
+	var node = weapon_nodes.get(weapon_name)
+	if not is_instance_valid(node): return
+	
+	# Busca todos os meshes dentro dessa arma para acender ou apagar
+	var meshes = node.find_children("*", "MeshInstance3D", true)
+	for mesh in meshes:
+		if is_active:
+			mesh.material_overlay = highlight_material
+		else:
+			mesh.material_overlay = null
 
 # --- LÓGICA DE TIRO ---
 
@@ -171,10 +197,10 @@ func _remove_current_weapon():
 	weapon_pool.remove_at(current_weapon_index)
 	if weapon_pool.size() == 0:
 		current_weapon_index = -1
-		_reset_weapon_visibility()
 	else:
 		current_weapon_index = clamp(current_weapon_index - 1, 0, weapon_pool.size() - 1)
-		_update_visual_selection()
+	
+	_update_visual_selection()
 	_atualizar_interface()
 
 func _spawn_projectile(res: WeaponResource, node_name: String):
@@ -183,9 +209,11 @@ func _spawn_projectile(res: WeaponResource, node_name: String):
 	
 	if muzzle: proj.global_transform = muzzle.global_transform
 	
+	if "is_special_weapon" in proj:
+		proj.is_special_weapon = (node_name != "MachineGun")
+	
 	if proj.has_method("setup"):
 		if node_name == "HomingMissile" or node_name == "GrapplingMissile":
-			# Puxa o alvo atual do script auxiliar de Targeting
 			var target = targeting.current_target if is_instance_valid(targeting) else null
 			proj.setup(res.dano, car.linear_velocity, car, target)
 		else:

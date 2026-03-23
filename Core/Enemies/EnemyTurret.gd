@@ -128,33 +128,66 @@ func take_damage(amount: float, attacker: Node = null):
 
 func _on_death():
 	# CADEADO DUPLO: Garante que só morre uma vez
-	if is_dead or not is_inside_tree(): 
-		return
+	if is_dead: return
 	is_dead = true
 	
-	print("[Turret] Torre destruída! Gerando Loot...")
+	# Salva a posição exata de onde morreu antes da engine se perder
+	var death_pos = self.global_position
 	
+	# Desliga a torre imediatamente (Fica invisível e intocável)
+	set_deferred("process_mode", Node.PROCESS_MODE_DISABLED)
+	visible = false
+	
+	# AGENDAMENTO: Pede pro Godot gerar o loot assim que for seguro (fim do frame)
+	call_deferred("_spawn_loot_safely", death_pos)
+
+# --- NOVA FUNÇÃO SEGURA PARA O LOOT ---
+func _spawn_loot_safely(origin_pos: Vector3):
 	if drop_item_scene and drop_item_resource:
+		print("[Turret] Torre destruída! Gerando Loot...")
+		
+		var space_state = get_world_3d().direct_space_state
+		var destination = origin_pos + (Vector3.DOWN * 100.0)
+		
+		# Não precisamos mais ignorar a torre, pois ela já está desativada!
+		var query = PhysicsRayQueryParameters3D.create(origin_pos, destination)
+		
+		var result = space_state.intersect_ray(query)
+		var final_pos = origin_pos 
+		
+		if result:
+			final_pos = result.position + Vector3(0, 1.5, 0)
+			
+		# Cria o elevador fantasma para cair
+		var drop_carrier = Node3D.new()
+		drop_carrier.global_position = origin_pos
+		get_tree().current_scene.add_child(drop_carrier)
+		
 		var drop = drop_item_scene.instantiate()
+		drop.position = Vector3.ZERO 
 		
-		# --- O SEGREDO DO GODOT 4 ---
-		# Usamos .position em vez de .global_position porque o "drop" 
-		# ainda é um órfão e não foi adicionado ao mundo!
-		drop.position = self.global_position + Vector3(0, 0, 0)
-		
-		# Injeta o arquivo do loot de forma blindada
 		if "weapon_resource" in drop:
 			drop.weapon_resource = drop_item_resource
 		elif "item_data" in drop:
 			drop.item_data = drop_item_resource
 			
-		# Adiciona ao mundo com segurança no final do frame
-		get_tree().current_scene.call_deferred("add_child", drop)
+		drop_carrier.add_child(drop)
+		
+		# Auto-destruição do elevador quando a caixa for coletada
+		drop.tree_exited.connect(func():
+			if is_instance_valid(drop_carrier):
+				drop_carrier.queue_free()
+		)
+		
+		# Animação de queda pesada
+		var distance = origin_pos.distance_to(final_pos)
+		if distance > 0.1:
+			var fall_time = sqrt((2.0 * distance) / 50.0)
+			var tween = get_tree().create_tween()
+			tween.tween_property(drop_carrier, "global_position", final_pos, fall_time).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+			
 	else:
 		print("[Turret] Sem loot configurado para esta torre.")
 	
-	# Desliga a física do cadáver para não travar o carro
-	set_deferred("process_mode", Node.PROCESS_MODE_DISABLED)
-	visible = false
-	
+	# Agora que o loot nasceu em segurança, podemos jogar o cadáver no lixo de vez!
 	queue_free()

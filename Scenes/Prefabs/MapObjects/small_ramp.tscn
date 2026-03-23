@@ -26,31 +26,33 @@ disable_mode = 1
 collision_mask = 11
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1.695, 0, 0, 0)
 mesh = SubResource("PrismMesh_g1d4t")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1.695, 0, 0, 0)
 shape = SubResource("ConvexPolygonShape3D_is8dr")
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
-transform = Transform3D(0.99319303, -0.11648007, 0, 0.11648007, 0.99319303, 0, 0, 0, 1, 0.083099365, 0, 0)
+transform = Transform3D(0.99319303, -0.11648007, 0, 0.11648007, 0.99319303, 0, 0, 0, 1.695, 0.083099365, 0, 0)
 mesh = SubResource("PrismMesh_g1d4t")
 
 [node name="CollisionShape3D2" type="CollisionShape3D" parent="."]
-transform = Transform3D(0.99319303, -0.11648007, 0, 0.11648007, 0.99319303, 0, 0, 0, 1, 0.083099365, 0, 0)
+transform = Transform3D(0.99319303, -0.11648007, 0, 0.11648007, 0.99319303, 0, 0, 0, 1.695, 0.083099365, 0, 0)
 shape = SubResource("ConvexPolygonShape3D_pyjdw")
 
 [node name="MeshInstance3D3" type="MeshInstance3D" parent="."]
-transform = Transform3D(0.9762204, -0.21678041, 0, 0.21678041, 0.9762204, 0, 0, 0, 1, 0.82684326, 0, 0)
+transform = Transform3D(0.97622037, -0.21678041, 0, 0.21678041, 0.97622037, 0, 0, 0, 1.695, 0.82684326, 0, 0)
 mesh = SubResource("PrismMesh_g1d4t")
 
 [node name="CollisionShape3D3" type="CollisionShape3D" parent="."]
-transform = Transform3D(0.9762204, -0.21678041, 0, 0.21678041, 0.9762204, 0, 0, 0, 1, 0.82684326, 0, 0)
+transform = Transform3D(0.97622037, -0.21678041, 0, 0.21678041, 0.97622037, 0, 0, 0, 1.695, 0.82684326, 0, 0)
 shape = SubResource("ConvexPolygonShape3D_vbp2c")
 
 [node name="MeshInstance3D4" type="MeshInstance3D" parent="."]
-transform = Transform3D(0.9762204, -0.21678041, 0, 0.21678041, 0.9762204, 0, 0, 0, 1, 5.0876465, 0, 0)
+transform = Transform3D(0.97622037, -0.21678041, 0, 0.21678041, 0.97622037, 0, 0, 0, 1.695, 5.0876465, 0, 0)
 mesh = SubResource("PrismMesh_ip1o4")
 
 [node name="CollisionShape3D4" type="CollisionShape3D" parent="."]
-transform = Transform3D(0.9762204, -0.21678041, 0, 0.21678041, 0.9762204, 0, 0, 0, 1, 5.0876465, 0, 0)
+transform = Transform3D(0.97622037, -0.21678041, 0, 0.21678041, 0.97622037, 0, 0, 0, 1.695, 5.0876465, 0, 0)
 shape = SubResource("ConvexPolygonShape3D_haj77")

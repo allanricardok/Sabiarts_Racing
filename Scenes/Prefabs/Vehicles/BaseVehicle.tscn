@@ -1,4 +1,4 @@
-[gd_scene load_steps=114 format=4 uid="uid://cw8ofahu5mqhn"]
+[gd_scene load_steps=116 format=4 uid="uid://cw8ofahu5mqhn"]
 
 [ext_resource type="Script" uid="uid://b0i2wvnkcrknc" path="res://Core/PlayerScripts/Functions/BaseVehicle.gd" id="1_m0ew1"]
 [ext_resource type="Script" uid="uid://cjnmai87rc2f8" path="res://Core/camera_test_3.gd" id="2_8gjg4"]
@@ -1014,15 +1014,21 @@ size = Vector3(3, 2.4401855, 5)
 [sub_resource type="BoxMesh" id="BoxMesh_625mm"]
 size = Vector3(0.1, 0.1, 0.5)
 
-[sub_resource type="BoxMesh" id="BoxMesh_krxcx"]
-size = Vector3(0.2, 0.2, 0.6)
+[sub_resource type="BoxMesh" id="BoxMesh_a2eke"]
+size = Vector3(0.3, 0.2, 0.6)
+
+[sub_resource type="BoxMesh" id="BoxMesh_apvhh"]
+size = Vector3(0.3, 0.26, 0.8)
+
+[sub_resource type="BoxMesh" id="BoxMesh_e558v"]
+size = Vector3(0.2, 0.3, 0.7)
 
 [node name="BaseVehicle" type="VehicleBody3D" node_paths=PackedStringArray("mesh_new", "mesh_damaged", "mesh_skeleton", "speed_label") groups=["Jogadores", "jogadores"]]
 collision_layer = 2
 collision_mask = 15
 mass = 300.0
 physics_material_override = SubResource("PhysicsMaterial_625mm")
-gravity_scale = 1.4
+gravity_scale = 1.33
 center_of_mass_mode = 1
 center_of_mass = Vector3(0, -0.3, 0.1)
 continuous_cd = true
@@ -1909,11 +1915,11 @@ light_color = Color(3.3529627, 2.9095888, 1.6301379, 1)
 unique_name_in_owner = true
 
 [node name="Gun" type="MeshInstance3D" parent="Guns/BigSlow"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.88322675, 0.83795565, 1.293292)
-mesh = SubResource("BoxMesh_krxcx")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.88322675, 0.83795565, 1.2292895)
+mesh = SubResource("BoxMesh_a2eke")
 
 [node name="Muzzle" type="Node3D" parent="Guns/BigSlow"]
-transform = Transform3D(-0.99978435, 0.00036245174, 0.020764848, 0, 0.9998477, -0.017452406, -0.020768011, -0.017448641, -0.9996321, 0.89359033, 0.9219358, 1.6704452)
+transform = Transform3D(-0.99978435, 0.00036245174, 0.020764848, 0, 0.9998477, -0.017452406, -0.020768011, -0.017448641, -0.9996321, 0.89359033, 0.9219358, 1.6064427)
 
 [node name="OmniLight3D" type="OmniLight3D" parent="Guns/BigSlow/Muzzle"]
 transform = Transform3D(-1, 0, 8.742277e-08, 0, 1, 0, -8.742278e-08, 0, -1, -2.3841858e-07, 0.05218804, -0.2682413)
@@ -1930,7 +1936,7 @@ unique_name_in_owner = true
 
 [node name="Gun" type="MeshInstance3D" parent="Guns/HomingMissile"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.024612546, 1.4624507, 0.1738528)
-mesh = SubResource("BoxMesh_krxcx")
+mesh = SubResource("BoxMesh_apvhh")
 
 [node name="Muzzle" type="Node3D" parent="Guns/HomingMissile"]
 transform = Transform3D(-0.99978435, 0.00036245174, 0.020764848, 0, 0.9998477, -0.017452406, -0.020768011, -0.017448641, -0.9996321, -0.014248967, 1.5464308, 0.55100596)
@@ -1947,10 +1953,11 @@ light_specular = 3.398
 
 [node name="GrapplingMissile" type="Node3D" parent="Guns"]
 unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.34825826, 0, 0.21112192)
 
 [node name="Gun" type="MeshInstance3D" parent="Guns/GrapplingMissile"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2385242, 0.7855307, 1.7817372)
-mesh = SubResource("BoxMesh_krxcx")
+mesh = SubResource("BoxMesh_e558v")
 
 [node name="Muzzle" type="Node3D" parent="Guns/GrapplingMissile"]
 transform = Transform3D(-0.99978435, 0.00036245174, 0.020764848, 0, 0.9998477, -0.017452406, -0.020768011, -0.017448641, -0.9996321, -0.22816062, 0.86951077, 2.1588902)
@@ -1964,5 +1971,27 @@ light_indirect_energy = 6.909
 light_volumetric_fog_energy = 2.643
 light_size = 0.681
 light_specular = 8.466
+
+[node name="NEWSLOT" type="Node3D" parent="Guns"]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.7482179, 0, 0)
+visible = false
+
+[node name="Gun" type="MeshInstance3D" parent="Guns/NEWSLOT"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.88322675, 0.83795565, 1.2292895)
+mesh = SubResource("BoxMesh_a2eke")
+
+[node name="Muzzle" type="Node3D" parent="Guns/NEWSLOT"]
+transform = Transform3D(-0.99978435, 0.00036245174, 0.020764848, 0, 0.9998477, -0.017452406, -0.020768011, -0.017448641, -0.9996321, 0.89359033, 0.9219358, 1.6064427)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Guns/NEWSLOT/Muzzle"]
+transform = Transform3D(-1, 0, 8.742277e-08, 0, 1, 0, -8.742278e-08, 0, -1, -2.3841858e-07, 0.05218804, -0.2682413)
+visible = false
+light_color = Color(1.8247963, 1.1120775, 0.8745043, 1)
+light_energy = 7.803
+light_indirect_energy = 7.803
+light_volumetric_fog_energy = 1.252
+light_size = 0.52
+light_specular = 3.398
 
 [connection signal="body_entered" from="." to="Scripts/MovementComponent" method="_on_base_vehicle_body_entered"]

@@ -13,6 +13,7 @@ var velocity: Vector3 = Vector3.ZERO
 # Variáveis do Pool
 var pool_key: String = ""
 var life_timer: float = 0.0
+var is_special_weapon: bool = false
 
 # Setup é chamado toda vez que a bala "nasce" (ou renasce do Pool)
 func setup(dmg_value: float, car_velocity: Vector3, source_car: Node3D, propulsion_speed: float = 50.0):
@@ -68,12 +69,12 @@ func _on_impact(target_node):
 	if actual_target.has_method("take_damage"):
 		actual_target.take_damage(damage, self) 
 		
-		# --- INTEGRAÇÃO DO RAGE COMPONENT ATUALIZADA ---
+# --- INTEGRAÇÃO DO RAGE COMPONENT ---
 		if is_instance_valid(shooter):
 			var rage = shooter.get_node_or_null("%RageComponent")
 			if rage and rage.has_method("add_hit"):
-				# Passamos o alvo para o RageComponent calcular a penalidade!
-				rage.add_hit(actual_target)
+				# Agora passamos o alvo, o dano, e se é arma especial!
+				rage.add_hit(actual_target, damage, is_special_weapon)
 	
 	_play_impact_vfx()
 
@@ -90,7 +91,7 @@ func _deactivate_and_pool():
 	set_deferred("monitoring", false)
 	visible = false
 	velocity = Vector3.ZERO
-	
+	is_special_weapon = false
 	# Devolve a bala pro almoxarifado em vez de jogar no lixo!
 	if ProjectilePool.has_method("return_projectile"):
 		ProjectilePool.return_projectile(self)

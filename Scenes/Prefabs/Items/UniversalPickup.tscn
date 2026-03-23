@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://cjj6dvautg8bu" path="res://Core/Items/UniversalPickup.gd" id="1_spuik"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_aowhd"]
-size = Vector3(5, 5, 5)
+size = Vector3(8, 8, 8)
 
 [node name="UniversalPickup" type="Area3D"]
 collision_layer = 4

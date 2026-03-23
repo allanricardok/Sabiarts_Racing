@@ -31,25 +31,28 @@ func _process(delta):
 
 # --- FUNÇÕES DE GANHO DE RAGE ---
 
-func add_hit(target: Node = null):
+# NOVO: Agora recebe dano e se é arma especial
+func add_hit(target: Node = null, damage_dealt: float = 0.0, is_special: bool = false):
 	var hit_value = 1.0
 	
 	if is_instance_valid(target):
+		if target.is_in_group("jogadores") or target.is_in_group("inimigos"):
+			hit_value = 3.0
+			
 		if target == _last_hit_target:
 			_consecutive_hits += 1
 		else:
 			_last_hit_target = target
 			_consecutive_hits = 0
 			
-		# Calcula a penalidade de 10% (0.1) por acerto consecutivo. 
-		# O max(0.1, ...) garante que o valor nunca caia pra zero ou negativo.
 		var decay_multiplier = max(0.1, 1.0 - (_consecutive_hits * 0.05))
 		hit_value *= decay_multiplier
 		
-		# (Opcional) Descomente a linha abaixo se quiser ver a matemática no Output
-		# print("[RAGE ANTI-SPAM] Acerto no mesmo alvo: ", _consecutive_hits, " | Valor ganho: ", hit_value)
+		# NOVO: Soma o bônus de dano se for arma especial!
+		if is_special:
+			hit_value += (damage_dealt * 0.8)
+			
 	else:
-		# Se por acaso a função for chamada sem alvo, reseta a memória
 		_last_hit_target = null
 		_consecutive_hits = 0
 		
@@ -63,7 +66,7 @@ func add_trick(count: int):
 
 func _add_rage(base_amount: float):
 	if current_tier == 3:
-		tier3_timer = 5.0 
+		tier3_timer = 8.0 
 		return
 		
 	var multiplier = 1.0
@@ -74,7 +77,7 @@ func _add_rage(base_amount: float):
 	
 	if current_rage >= 300:
 		current_rage = 300
-		tier3_timer = 5.0 
+		tier3_timer = 8.0 
 		
 	_update_tier()
 
@@ -119,3 +122,10 @@ func get_impact_mult() -> float:
 
 func get_fire_rate_mult() -> float:
 	return 1.5 if current_tier == 3 else 1.0
+
+# NOVO: Getter para o AbilityComponent
+func get_ability_recovery_mult() -> float:
+	match current_tier:
+		2: return 1.2
+		3: return 1.5
+		_: return 1.0
