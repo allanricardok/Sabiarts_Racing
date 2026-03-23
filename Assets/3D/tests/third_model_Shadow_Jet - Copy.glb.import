@@ -1,0 +1,95 @@
+[remap]
+
+importer="scene"
+importer_version=1
+type="PackedScene"
+uid="uid://cegldy7thdubv"
+path="res://.godot/imported/third_model_Shadow_Jet - Copy.glb-954b10634320aa5448b0979f6d7611f1.scn"
+
+[deps]
+
+source_file="res://Assets/3D/tests/third_model_Shadow_Jet - Copy.glb"
+dest_files=["res://.godot/imported/third_model_Shadow_Jet - Copy.glb-954b10634320aa5448b0979f6d7611f1.scn"]
+
+[params]
+
+nodes/root_type=""
+nodes/root_name=""
+nodes/root_script=null
+nodes/apply_root_scale=true
+nodes/root_scale=1.0
+nodes/import_as_skeleton_bones=false
+nodes/use_name_suffixes=true
+nodes/use_node_type_suffixes=true
+meshes/ensure_tangents=true
+meshes/generate_lods=true
+meshes/create_shadow_meshes=true
+meshes/light_baking=1
+meshes/lightmap_texel_size=0.2
+meshes/force_disable_compression=false
+skins/use_named_skins=true
+animation/import=true
+animation/fps=30
+animation/trimming=false
+animation/remove_immutable_tracks=true
+animation/import_rest_as_RESET=false
+import_script/path=""
+materials/extract=0
+materials/extract_format=2
+materials/extract_path="res://Assets/3D/tests"
+_subresources={
+"materials": {
+"Material.002": {
+"use_external/enabled": true,
+"use_external/fallback_path": "res://Assets/3D/tests/Material.002.tres",
+"use_external/path": "uid://dehhqn28qfanh"
+},
+"Material.003": {
+"use_external/enabled": true,
+"use_external/fallback_path": "res://Assets/3D/tests/Material.003.tres",
+"use_external/path": "uid://bm18uj2x8wy00"
+},
+"Material.004": {
+"use_external/enabled": true,
+"use_external/fallback_path": "res://Assets/3D/tests/Material.004.tres",
+"use_external/path": "uid://qa1n08nnxkay"
+},
+"Material.007": {
+"use_external/enabled": true,
+"use_external/fallback_path": "res://Assets/3D/tests/Material.007.tres",
+"use_external/path": "uid://dcgsh3x23sqol"
+},
+"Material.008": {
+"use_external/enabled": true,
+"use_external/fallback_path": "res://Assets/3D/tests/Material.008.tres",
+"use_external/path": "uid://beshuc130xcev"
+},
+"Material.009": {
+"use_external/enabled": true,
+"use_external/fallback_path": "res://Assets/3D/tests/Material.009.tres",
+"use_external/path": "uid://brl1bmhfc11ab"
+}
+},
+"meshes": {
+"third_model_Shadow_Jet - Copy_Cube_001": {
+"generate/lightmap_uv": 0,
+"generate/lods": 0,
+"generate/shadow_meshes": 0,
+"lods/normal_merge_angle": 18.0,
+"save_to_file/enabled": true,
+"save_to_file/fallback_path": "res://Assets/3D/tests/SJChassis.mesh",
+"save_to_file/path": "uid://d22tey1t2w883"
+},
+"third_model_Shadow_Jet - Copy_Cylinder_001": {
+"generate/lightmap_uv": 0,
+"generate/lods": 0,
+"generate/shadow_meshes": 0,
+"lods/normal_merge_angle": 20.0,
+"save_to_file/enabled": true,
+"save_to_file/fallback_path": "res://Assets/3D/tests/SJWheel.mesh",
+"save_to_file/path": "uid://ciegfxeu72p1q"
+}
+}
+}
+gltf/naming_version=2
+gltf/embedded_image_handling=1

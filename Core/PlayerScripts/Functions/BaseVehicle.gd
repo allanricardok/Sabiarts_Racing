@@ -46,10 +46,18 @@ var _active_gaps : Dictionary = {}
 func _ready():
 	add_to_group("jogadores")
 	
+	# --- CORREÇÃO DO TIPO DE DADO (STRING vs DICTIONARY) ---
 	if Global.dados_jogadores.size() > id and Global.dados_jogadores[id] != null:
-		input_source = Global.dados_jogadores[id]
+		var data = Global.dados_jogadores[id]
+		# Checa se é o novo sistema de dicionário ou um teste antigo passando string
+		if data is Dictionary:
+			input_source = data["esquema"]
+		else:
+			input_source = data
 	else:
-		input_source = "K1"
+		# Se não tiver input_source definido, garante o K1
+		if input_source == "": 
+			input_source = "K1"
 	
 	input.setup(input_source)
 	

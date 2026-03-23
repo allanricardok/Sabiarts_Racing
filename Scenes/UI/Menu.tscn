@@ -1,8 +1,11 @@
-[gd_scene load_steps=5 format=3 uid="uid://ce2gdvomfunn8"]
+[gd_scene load_steps=8 format=3 uid="uid://ce2gdvomfunn8"]
 
 [ext_resource type="Script" uid="uid://dsev4t7ikm1du" path="res://Core/Menus/lobby.gd" id="1_qyifk"]
 [ext_resource type="PackedScene" uid="uid://d2rblk8h626kc" path="res://Scenes/Maps/Official_Test_Map.tscn" id="2_353f8"]
 [ext_resource type="PackedScene" uid="uid://d1rl8sskrmddj" path="res://Scenes/Maps/BuenosAires_BlockedVS.tscn" id="3_6jtbh"]
+[ext_resource type="PackedScene" uid="uid://d1q613pnimt40" path="res://Scenes/Prefabs/Vehicles/BrasiliaTest.tscn" id="4_s6sq0"]
+[ext_resource type="PackedScene" uid="uid://cmcbewlv3y7he" path="res://Scenes/Prefabs/Vehicles/ShadowJetTest.tscn" id="5_6487p"]
+[ext_resource type="PackedScene" uid="uid://cxnfwc3ovajua" path="res://Scenes/Prefabs/Vehicles/LakesterTest.tscn" id="6_v3kjt"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jrgwx"]
 content_margin_left = 25.0
@@ -21,7 +24,7 @@ corner_radius_bottom_left = 20
 shadow_color = Color(0, 0, 0, 0.17254902)
 shadow_size = 50
 
-[node name="Lobby" type="Control"]
+[node name="MainMenu" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -32,6 +35,7 @@ grow_vertical = 2
 script = ExtResource("1_qyifk")
 nomes_dos_mapas = Array[String](["Official_Test_Map", "BA"])
 cenas_dos_mapas = Array[PackedScene]([ExtResource("2_353f8"), ExtResource("3_6jtbh")])
+carros_disponiveis = Array[PackedScene]([ExtResource("4_s6sq0"), ExtResource("5_6487p"), ExtResource("6_v3kjt")])
 
 [node name="ColorRect" type="ColorRect" parent="."]
 layout_mode = 1
@@ -46,7 +50,7 @@ color = Color(0.011764706, 0.105882354, 0.2509804, 1)
 volume_db = -18.683
 autoplay = true
 
-[node name="JoinPanel" type="Control" parent="."]
+[node name="Screen_Root" type="Control" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -54,7 +58,236 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="JoinPanel"]
+[node name="ColorRect2" type="ColorRect" parent="Screen_Root"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.012617188, 0.012617188, 0.012617188, 0.5254902)
+
+[node name="ColorRect" type="ColorRect" parent="Screen_Root"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -100.0
+offset_right = 200.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.012617188, 0.012617188, 0.012617188, 0.79607844)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Screen_Root"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -42.0
+offset_top = -25.0
+offset_right = 42.0
+offset_bottom = 25.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Quick Play" type="Label" parent="Screen_Root/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Quick Play"
+
+[node name="Settings" type="Label" parent="Screen_Root/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Settings"
+
+[node name="Screen_QuickPlay" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect2" type="ColorRect" parent="Screen_QuickPlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.012617188, 0.012617188, 0.012617188, 0.5254902)
+
+[node name="ColorRect" type="ColorRect" parent="Screen_QuickPlay"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -100.0
+offset_right = 200.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.012617188, 0.012617188, 0.012617188, 0.79607844)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Screen_QuickPlay"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -42.0
+offset_top = -25.0
+offset_right = 42.0
+offset_bottom = 25.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Single Player" type="Label" parent="Screen_QuickPlay/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Single Player"
+
+[node name="Multiplayer" type="Label" parent="Screen_QuickPlay/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Multiplayer"
+
+[node name="Screen_SinglePlayer" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect2" type="ColorRect" parent="Screen_SinglePlayer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.012617188, 0.012617188, 0.012617188, 0.5254902)
+
+[node name="ColorRect" type="ColorRect" parent="Screen_SinglePlayer"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -100.0
+offset_right = 200.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.012617188, 0.012617188, 0.012617188, 0.79607844)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Screen_SinglePlayer"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -42.0
+offset_top = -25.0
+offset_right = 42.0
+offset_bottom = 25.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Free Roam" type="Label" parent="Screen_SinglePlayer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Free Roam"
+
+[node name="Combat" type="Label" parent="Screen_SinglePlayer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Combat"
+
+[node name="Screen_Multiplayer" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect2" type="ColorRect" parent="Screen_Multiplayer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.012617188, 0.012617188, 0.012617188, 0.5254902)
+
+[node name="ColorRect" type="ColorRect" parent="Screen_Multiplayer"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -100.0
+offset_right = 200.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.012617188, 0.012617188, 0.012617188, 0.79607844)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Screen_Multiplayer"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -42.0
+offset_top = -25.0
+offset_right = 42.0
+offset_bottom = 25.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Co-op" type="Label" parent="Screen_Multiplayer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "PvP"
+
+[node name="PvP" type="Label" parent="Screen_Multiplayer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Combat"
+
+[node name="Screen_JoinAndVehicle" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Screen_JoinAndVehicle"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -70,19 +303,19 @@ grow_vertical = 2
 theme_override_constants/separation = 20
 alignment = 1
 
-[node name="PanelContainer" type="PanelContainer" parent="JoinPanel/HBoxContainer"]
+[node name="PanelContainer" type="PanelContainer" parent="Screen_JoinAndVehicle/HBoxContainer"]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_jrgwx")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="JoinPanel/HBoxContainer/PanelContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer"]
 layout_mode = 2
 
-[node name="Player" type="Label" parent="JoinPanel/HBoxContainer/PanelContainer/VBoxContainer"]
+[node name="Player" type="Label" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 48
 text = "Player 1"
 
-[node name="press" type="Label" parent="JoinPanel/HBoxContainer/PanelContainer/VBoxContainer"]
+[node name="press" type="Label" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 2
@@ -90,11 +323,11 @@ theme_override_font_sizes/font_size = 24
 text = "Press Machine Gun"
 horizontal_alignment = 1
 
-[node name="ControllerIcon" type="TextureRect" parent="JoinPanel/HBoxContainer/PanelContainer/VBoxContainer"]
+[node name="ControllerIcon" type="TextureRect" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 expand_mode = 4
 
-[node name="Controller" type="Label" parent="JoinPanel/HBoxContainer/PanelContainer/VBoxContainer"]
+[node name="Controller" type="Label" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer/VBoxContainer"]
 visible = false
 layout_mode = 2
 theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
@@ -103,19 +336,19 @@ theme_override_font_sizes/font_size = 24
 text = "Keyboard 1"
 horizontal_alignment = 1
 
-[node name="PanelContainer2" type="PanelContainer" parent="JoinPanel/HBoxContainer"]
+[node name="PanelContainer2" type="PanelContainer" parent="Screen_JoinAndVehicle/HBoxContainer"]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_jrgwx")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="JoinPanel/HBoxContainer/PanelContainer2"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer2"]
 layout_mode = 2
 
-[node name="Player" type="Label" parent="JoinPanel/HBoxContainer/PanelContainer2/VBoxContainer"]
+[node name="Player" type="Label" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer2/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 48
 text = "Player 2"
 
-[node name="press" type="Label" parent="JoinPanel/HBoxContainer/PanelContainer2/VBoxContainer"]
+[node name="press" type="Label" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer2/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 2
@@ -123,11 +356,11 @@ theme_override_font_sizes/font_size = 24
 text = "Press Machine Gun"
 horizontal_alignment = 1
 
-[node name="ControllerIcon" type="TextureRect" parent="JoinPanel/HBoxContainer/PanelContainer2/VBoxContainer"]
+[node name="ControllerIcon" type="TextureRect" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer2/VBoxContainer"]
 layout_mode = 2
 expand_mode = 4
 
-[node name="Controller" type="Label" parent="JoinPanel/HBoxContainer/PanelContainer2/VBoxContainer"]
+[node name="Controller" type="Label" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer2/VBoxContainer"]
 visible = false
 layout_mode = 2
 theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
@@ -136,19 +369,19 @@ theme_override_font_sizes/font_size = 24
 text = "Keyboard 1"
 horizontal_alignment = 1
 
-[node name="PanelContainer3" type="PanelContainer" parent="JoinPanel/HBoxContainer"]
+[node name="PanelContainer3" type="PanelContainer" parent="Screen_JoinAndVehicle/HBoxContainer"]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_jrgwx")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="JoinPanel/HBoxContainer/PanelContainer3"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer3"]
 layout_mode = 2
 
-[node name="Player" type="Label" parent="JoinPanel/HBoxContainer/PanelContainer3/VBoxContainer"]
+[node name="Player" type="Label" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer3/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 48
 text = "Player 3"
 
-[node name="press" type="Label" parent="JoinPanel/HBoxContainer/PanelContainer3/VBoxContainer"]
+[node name="press" type="Label" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer3/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 2
@@ -156,11 +389,11 @@ theme_override_font_sizes/font_size = 24
 text = "Press Machine Gun"
 horizontal_alignment = 1
 
-[node name="ControllerIcon" type="TextureRect" parent="JoinPanel/HBoxContainer/PanelContainer3/VBoxContainer"]
+[node name="ControllerIcon" type="TextureRect" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer3/VBoxContainer"]
 layout_mode = 2
 expand_mode = 4
 
-[node name="Controller" type="Label" parent="JoinPanel/HBoxContainer/PanelContainer3/VBoxContainer"]
+[node name="Controller" type="Label" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer3/VBoxContainer"]
 visible = false
 layout_mode = 2
 theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
@@ -169,19 +402,19 @@ theme_override_font_sizes/font_size = 24
 text = "Keyboard 1"
 horizontal_alignment = 1
 
-[node name="PanelContainer4" type="PanelContainer" parent="JoinPanel/HBoxContainer"]
+[node name="PanelContainer4" type="PanelContainer" parent="Screen_JoinAndVehicle/HBoxContainer"]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_jrgwx")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="JoinPanel/HBoxContainer/PanelContainer4"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer4"]
 layout_mode = 2
 
-[node name="Player" type="Label" parent="JoinPanel/HBoxContainer/PanelContainer4/VBoxContainer"]
+[node name="Player" type="Label" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer4/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 48
 text = "Player 4"
 
-[node name="press" type="Label" parent="JoinPanel/HBoxContainer/PanelContainer4/VBoxContainer"]
+[node name="press" type="Label" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer4/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 2
@@ -189,11 +422,11 @@ theme_override_font_sizes/font_size = 24
 text = "Press Machine Gun"
 horizontal_alignment = 1
 
-[node name="ControllerIcon" type="TextureRect" parent="JoinPanel/HBoxContainer/PanelContainer4/VBoxContainer"]
+[node name="ControllerIcon" type="TextureRect" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer4/VBoxContainer"]
 layout_mode = 2
 expand_mode = 4
 
-[node name="Controller" type="Label" parent="JoinPanel/HBoxContainer/PanelContainer4/VBoxContainer"]
+[node name="Controller" type="Label" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer4/VBoxContainer"]
 visible = false
 layout_mode = 2
 theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
@@ -202,7 +435,7 @@ theme_override_font_sizes/font_size = 24
 text = "Keyboard 1"
 horizontal_alignment = 1
 
-[node name="Instrucoes" type="Label" parent="JoinPanel"]
+[node name="Instrucoes" type="Label" parent="Screen_JoinAndVehicle"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -223,7 +456,7 @@ Shift = Tricks                          E = Boost
 Space = Jump                        Q = Shield
 "
 
-[node name="Instrucoes2" type="Label" parent="JoinPanel"]
+[node name="Instrucoes2" type="Label" parent="Screen_JoinAndVehicle"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -245,7 +478,7 @@ Circle + Left Joy = Jump, boost, shield, teleport
 Right Joy = Camera
 "
 
-[node name="LabelMapa2" type="Label" parent="JoinPanel"]
+[node name="LabelMapa2" type="Label" parent="Screen_JoinAndVehicle"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -263,7 +496,7 @@ text = "Press Start / Enter
 to start"
 horizontal_alignment = 1
 
-[node name="Logo" type="TextureRect" parent="JoinPanel"]
+[node name="Logo" type="TextureRect" parent="Screen_JoinAndVehicle"]
 layout_mode = 0
 offset_left = 12.0
 offset_top = 10.0
@@ -272,7 +505,7 @@ offset_bottom = 244.0
 expand_mode = 1
 stretch_mode = 4
 
-[node name="Control" type="TextureRect" parent="JoinPanel"]
+[node name="Control" type="TextureRect" parent="Screen_JoinAndVehicle"]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
@@ -285,7 +518,8 @@ grow_horizontal = 0
 expand_mode = 1
 stretch_mode = 4
 
-[node name="MapPanel" type="Control" parent="."]
+[node name="Screen_MapSelect" type="Control" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -293,7 +527,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="ColorRect2" type="ColorRect" parent="MapPanel"]
+[node name="ColorRect2" type="ColorRect" parent="Screen_MapSelect"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -302,7 +536,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.012617188, 0.012617188, 0.012617188, 0.5254902)
 
-[node name="ColorRect" type="ColorRect" parent="MapPanel"]
+[node name="ColorRect" type="ColorRect" parent="Screen_MapSelect"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -317,7 +551,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.012617188, 0.012617188, 0.012617188, 0.79607844)
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MapPanel"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Screen_MapSelect"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -331,17 +565,17 @@ offset_bottom = 25.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="LabelMapa1" type="Label" parent="MapPanel/VBoxContainer"]
+[node name="LabelMapa1" type="Label" parent="Screen_MapSelect/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "Official_Test_Map"
 
-[node name="LabelMapa2" type="Label" parent="MapPanel/VBoxContainer"]
+[node name="LabelMapa2" type="Label" parent="Screen_MapSelect/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "BA"
 
-[node name="LabelMapa2" type="Label" parent="MapPanel"]
+[node name="LabelMapa2" type="Label" parent="Screen_MapSelect"]
 layout_mode = 0
 offset_left = 778.0
 offset_top = 680.0
@@ -352,7 +586,25 @@ text = "Press Start / Enter
 to start"
 horizontal_alignment = 1
 
-[node name="ClearDataButton" type="Button" parent="."]
+[node name="Screen_Settings" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect2" type="ColorRect" parent="Screen_Settings"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.012617188, 0.012617188, 0.012617188, 0.5254902)
+
+[node name="ClearDataButton" type="Button" parent="Screen_Settings"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 1
@@ -367,13 +619,13 @@ theme_override_colors/font_color = Color(0.8745098, 0.28235295, 0, 1)
 theme_override_font_sizes/font_size = 32
 text = "Reset Data"
 
-[node name="ClearScoresButton" type="Button" parent="."]
+[node name="ClearScoresButton" type="Button" parent="Screen_Settings"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -168.0
+offset_left = -187.0
 offset_top = 92.0
 offset_right = -45.0
 offset_bottom = 131.0
@@ -382,7 +634,7 @@ theme_override_colors/font_color = Color(0.8745098, 0.28235295, 0, 1)
 theme_override_font_sizes/font_size = 22
 text = "Reset Scores"
 
-[connection signal="pressed" from="ClearDataButton" to="." method="_on_clear_data_pressed"]
-[connection signal="pressed" from="ClearDataButton" to="." method="_on_clear_data_button_pressed"]
-[connection signal="pressed" from="ClearScoresButton" to="." method="_on_botao_apagar_scores_pressed"]
-[connection signal="pressed" from="ClearScoresButton" to="." method="_on_clear_scores_button_pressed"]
+[connection signal="pressed" from="Screen_Settings/ClearDataButton" to="." method="_on_clear_data_button_pressed"]
+[connection signal="pressed" from="Screen_Settings/ClearDataButton" to="." method="_on_clear_data_pressed"]
+[connection signal="pressed" from="Screen_Settings/ClearScoresButton" to="." method="_on_clear_scores_button_pressed"]
+[connection signal="pressed" from="Screen_Settings/ClearScoresButton" to="." method="_on_botao_apagar_scores_pressed"]

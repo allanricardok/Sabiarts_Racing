@@ -12,6 +12,6 @@ dano = 5.0
 fire_rate = 0.8
 lockon_range = 80.0
 custom_mesh = ExtResource("1_8chqf")
-mesh_scale = Vector3(1.4, 1.4, 1.4)
+mesh_scale = Vector3(1.4, 1, 1)
 item_color = Color(0, 0.33968204, 0.8151441, 1)
 metadata/_custom_type_script = "uid://5wgfj8fmfmgf"

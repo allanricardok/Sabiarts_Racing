@@ -2,20 +2,20 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cfp5ywfxf1ocv"
-path.s3tc="res://.godot/imported/vigilante_v8_2nd_offence_obakes_tsunami_11.png-d854d68b13a224948f5b3cc5931e8bdd.s3tc.ctex"
+uid="uid://tumxeupghlgl"
+path.s3tc="res://.godot/imported/vigilante_v8_2nd_offence_obakes_tsunami_8.png-3187724d4d22bd6b50a5f90caa4482af.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
 }
 generator_parameters={
-"md5": "379d7afbcc64581db650ed12c0604bf6"
+"md5": "5c7a7aebbab84e2f1bf4039ca1829c5b"
 }
 
 [deps]
 
-source_file="res://Assets/3D/vigilante_v8_2nd_offence_obakes_tsunami_11.png"
-dest_files=["res://.godot/imported/vigilante_v8_2nd_offence_obakes_tsunami_11.png-d854d68b13a224948f5b3cc5931e8bdd.s3tc.ctex"]
+source_file="res://Assets/3D/Obake/vigilante_v8_2nd_offence_obakes_tsunami_8.png"
+dest_files=["res://.godot/imported/vigilante_v8_2nd_offence_obakes_tsunami_8.png-3187724d4d22bd6b50a5f90caa4482af.s3tc.ctex"]
 
 [params]
 

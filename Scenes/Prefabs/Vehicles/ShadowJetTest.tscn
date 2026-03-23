@@ -1,0 +1,124 @@
+[gd_scene load_steps=8 format=3 uid="uid://cmcbewlv3y7he"]
+
+[ext_resource type="PackedScene" uid="uid://ry75iugdg8sl" path="res://Scenes/Prefabs/Vehicles/CarZero.tscn" id="1_rdnk8"]
+[ext_resource type="ArrayMesh" uid="uid://cs2yjwhn6epni" path="res://Assets/3D/tests/SJChassis.mesh" id="2_hfoht"]
+[ext_resource type="ArrayMesh" uid="uid://bmc3u311vkflp" path="res://Assets/3D/tests/SJWheel.mesh" id="3_lm3y0"]
+
+[sub_resource type="Animation" id="Animation_qcxwf"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(1, 1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_57xsf"]
+resource_name = "bounce"
+length = 0.5
+loop_mode = 1
+step = 0.01
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(-0.010000005, 0.17, 0.5),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(0.84, 1.285, 0.825), Vector3(1.335, 0.865, 1.09), Vector3(0.84, 1.285, 0.825)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_2puwf"]
+_data = {
+&"RESET": SubResource("Animation_qcxwf"),
+&"bounce": SubResource("Animation_57xsf")
+}
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_72bta"]
+animation = &"bounce"
+advance_on_start = true
+
+[node name="BaseVehicle" instance=ExtResource("1_rdnk8")]
+
+[node name="Visual" parent="." index="0"]
+transform = Transform3D(0.58, 0, 0, 0, 0.58, 0, 0, 0, 0.58, 0, 0, 0)
+
+[node name="New" type="MeshInstance3D" parent="Visual" index="0"]
+transform = Transform3D(1, 1.509958e-07, -1.509958e-07, 1.509958e-07, -1, 0, -1.509958e-07, -2.2799733e-14, -1, 0, 1.1292051, -0.369408)
+layers = 2
+mesh = ExtResource("2_hfoht")
+skeleton = NodePath("")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Visual/New" index="0"]
+physics_interpolation_mode = 1
+libraries = {
+&"": SubResource("AnimationLibrary_2puwf")
+}
+
+[node name="AnimationTree" type="AnimationTree" parent="Visual/New" index="1"]
+active = false
+tree_root = SubResource("AnimationNodeAnimation_72bta")
+anim_player = NodePath("../AnimationPlayer")
+
+[node name="TrasEsq" parent="." index="4"]
+transform = Transform3D(1.2, 0, 0, 0, 1, 0, 0, 0, 1, 0.945, 0.379, -1.252819)
+wheel_radius = 0.6
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="TrasEsq" index="0"]
+transform = Transform3D(-1.9582702e-08, 0.22299999, 0, -0.44799998, -9.74764e-09, 0, 0, 0, 0.44799995, 0, 0, 0)
+layers = 2
+mesh = ExtResource("3_lm3y0")
+
+[node name="TrasDir" parent="." index="5"]
+transform = Transform3D(1.2, 0, 0, 0, 1, 0, 0, 0, 1, -0.9450669, 0.37945455, -1.2532673)
+wheel_radius = 0.6
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="TrasDir" index="0"]
+transform = Transform3D(-1.9582696e-08, -0.22299998, 0, 0.44799986, -9.747638e-09, 0, 0, 0, 0.44799992, 0, 0, 0)
+layers = 2
+mesh = ExtResource("3_lm3y0")
+
+[node name="FreDir" parent="." index="6"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7, 0.29, 1.93)
+wheel_radius = 0.6
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="FreDir" index="0"]
+transform = Transform3D(-1.65229e-08, -0.16999999, 0, 0.3779999, -7.430936e-09, 0, 0, 0, 0.378, 0, 0, 0)
+layers = 2
+mesh = ExtResource("3_lm3y0")
+
+[node name="FreEsq" parent="." index="7"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, 0.29, 1.93)
+wheel_radius = 0.6
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="FreEsq" index="0"]
+transform = Transform3D(-1.6522904e-08, 0.17, 0, -0.378, -7.430936e-09, 0, 0, 0, 0.378, 0, 0, 0)
+layers = 2
+mesh = ExtResource("3_lm3y0")
+
+[node name="MachineGun" parent="Guns" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.11721933, 0.3684014)
+
+[node name="BigSlow" parent="Guns" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4064658, 0, -0.6826676)
+
+[node name="Gun" parent="Guns/BigSlow" index="0"]
+transform = Transform3D(0.99852437, 0, -0.05430537, 0, 1, 0, 0.05430537, 0, 0.99852437, 0.88322675, 0.83795565, 1.2292895)
+
+[node name="HomingMissile" parent="Guns" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.29973388, -1.1157894)
+
+[node name="GrapplingMissile" parent="Guns" index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.21632987, 0.17956758, -1.5787826)
+
+[node name="Gun" parent="Guns/GrapplingMissile" index="0"]
+transform = Transform3D(0.99930125, 0, 0.037376247, 0, 1, 0, -0.037376247, 0, 0.99930125, -0.2385242, 0.7855307, 1.7817372)

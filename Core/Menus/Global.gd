@@ -1,14 +1,18 @@
 # Global.gd
 extends Node
 
+# Guarda o modo de jogo atual ("Free Roam", "Combat", "Co-op", "PvP")
+var game_mode : String = ""
+
+# Agora cada jogador é um Dicionário: {"esquema": "J1", "carro_cena": PackedScene}
 var dados_jogadores = [null, null, null, null]
 
-# Função para criar um jogador fantasma para testes
-func clonar_jogador_teste(slot_index: int = 0):
+# Função para criar um jogador fantasma para testes direto do mapa
+func clonar_jogador_teste(slot_index: int = 0, carro_fallback: PackedScene = null):
 	if dados_jogadores[slot_index] == null:
 		dados_jogadores[slot_index] = {
-			"id_input": slot_index,
-			"nome_carro": "Brasília de Teste",
+			"esquema": "K1", # Controle padrão do teste
+			"carro_cena": carro_fallback, 
 			"stats": { "health": 100, "speed": 8, "weight": 5 },
 			"equipe": "Chosen Ones",
 			"is_debug": true

@@ -1,7 +1,6 @@
-[gd_scene load_steps=268 format=3 uid="uid://d1rl8sskrmddj"]
+[gd_scene load_steps=267 format=3 uid="uid://d1rl8sskrmddj"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_u8o8m"]
-[ext_resource type="PackedScene" uid="uid://cw8ofahu5mqhn" path="res://Scenes/Prefabs/Vehicles/BaseVehicle.tscn" id="2_g1d4t"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="3_is8dr"]
 [ext_resource type="PackedScene" uid="uid://cd7vj18kiokji" path="res://Scenes/Prefabs/Triggers/Speedtrap.tscn" id="4_pyjdw"]
 [ext_resource type="Texture2D" uid="uid://bwpxnucjbgwg4" path="res://Assets/2D/2026-03-08 22_40_26-Maps Layout - Google Planilhas.png" id="5_u8o8m"]
@@ -13,7 +12,7 @@
 [ext_resource type="Script" uid="uid://s5ljh6h40llv" path="res://Core/Objectives/CollectibleItem.gd" id="11_6vwi6"]
 [ext_resource type="Resource" uid="uid://nthc58owrale" path="res://Resources/Weapons/GrappleMissile.tres" id="11_oublg"]
 [ext_resource type="Resource" uid="uid://daftw5fiqy8a5" path="res://Resources/Weapons/BigSlow.tres" id="12_ip1o4"]
-[ext_resource type="PackedScene" uid="uid://8xllk2f6a63v" path="res://Assets/3D/vigilante_v8_2nd_offence_obakes_tsunami.glb" id="12_vj8u6"]
+[ext_resource type="PackedScene" uid="uid://8xllk2f6a63v" path="res://Assets/3D/Obake/vigilante_v8_2nd_offence_obakes_tsunami.glb" id="12_vj8u6"]
 [ext_resource type="PackedScene" uid="uid://b2k5h2ktecs3c" path="res://Scenes/Prefabs/Triggers/ExplorationArea.tscn" id="13_t5btl"]
 [ext_resource type="Script" uid="uid://srf4jbjqbkxl" path="res://Core/Objectives/GapPoint.gd" id="14_textq"]
 [ext_resource type="Resource" uid="uid://hv86l3gypxgx" path="res://Resources/Items/HealthItem.tres" id="15_o7pxb"]
@@ -766,7 +765,6 @@ size = Vector3(12.478851, 3.2165527, 5.956909)
 
 [node name="BA-block" type="Node3D"]
 script = ExtResource("1_u8o8m")
-carro_cena = ExtResource("2_g1d4t")
 
 [node name="GridContainer" type="GridContainer" parent="."]
 anchors_preset = 15
@@ -2766,7 +2764,7 @@ respawn_time = 60.0
 specific_item = ExtResource("15_o7pxb")
 
 [node name="ItemSpawner12" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/StatusItems" instance=ExtResource("8_haj77")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -269.90076, 15.000282, -0.46151543)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -256.5948, 15.000282, -0.07910442)
 pickup_scene = ExtResource("9_kxusw")
 respawn_time = 60.0
 specific_item = ExtResource("15_o7pxb")

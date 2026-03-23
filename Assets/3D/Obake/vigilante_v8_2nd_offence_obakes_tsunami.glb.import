@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://8xllk2f6a63v"
-path="res://.godot/imported/vigilante_v8_2nd_offence_obakes_tsunami.glb-35fa84dab6ec53c957dcc77f2d5a161f.scn"
+path="res://.godot/imported/vigilante_v8_2nd_offence_obakes_tsunami.glb-840c10510bece430cfc42d9d2d53063f.scn"
 
 [deps]
 
-source_file="res://Assets/3D/vigilante_v8_2nd_offence_obakes_tsunami.glb"
-dest_files=["res://.godot/imported/vigilante_v8_2nd_offence_obakes_tsunami.glb-35fa84dab6ec53c957dcc77f2d5a161f.scn"]
+source_file="res://Assets/3D/Obake/vigilante_v8_2nd_offence_obakes_tsunami.glb"
+dest_files=["res://.godot/imported/vigilante_v8_2nd_offence_obakes_tsunami.glb-840c10510bece430cfc42d9d2d53063f.scn"]
 
 [params]
 
