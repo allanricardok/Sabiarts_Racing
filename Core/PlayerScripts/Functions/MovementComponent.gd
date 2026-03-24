@@ -28,6 +28,8 @@ var _was_on_ground: bool = true
 @export var friction_rear_max := 3.0
 @export var friction_front_min := 3.3
 @export var friction_front_max := 3.8
+# NOVO: Velocidade mínima para o cavalo de pau (em metros por segundo. 30 = ~108 km/h)
+@export var MIN_DRIFT_SPEED := 30.0 
 
 @export_group("Rodas")
 @export var wheel_rear_left: VehicleWheel3D
@@ -45,6 +47,7 @@ var _was_on_ground: bool = true
 @export_group("Recuperação")
 @export var FALL_FORCE_BUFFER_DISTANCE = 1.5 
 @export var REVERSE_DELAY := 0.2
+@export var EXTRA_FALL_GRAVITY : float = 25.0
 
 var flipped_timer = 0.0
 var _reverse_timer := 0.0
@@ -72,6 +75,7 @@ func _physics_process(delta):
 	_apply_dynamic_friction(speed_kmh)
 	_handle_auto_flip(delta, speed_kmh)
 	_apply_drag(delta)
+	_apply_extra_gravity(is_on_ground)
 
 # --- FUNÇÕES DE MOVIMENTAÇÃO ---
 
@@ -146,7 +150,6 @@ func _handle_engine_and_steering(delta, is_on_ground, speed_mps):
 			if _drift_cooldown > 0 and final_throttle < 0:
 				final_throttle = 0.0 
 			
-			# --- A MÁGICA DO MOTOR ACONTECE AQUI ---
 			var current_engine_power = ENGINE_POWER * rage_speed_mult
 			car.engine_force = final_throttle * (current_engine_power * speed_mult) * boost_factor
 	else:
@@ -160,7 +163,8 @@ func _apply_dynamic_friction(speed_kmh):
 	
 	var forward_speed = car.linear_velocity.dot(car.global_transform.basis.z)
 	
-	if forward_speed > 30.0 and input.throttle < -0.8 and abs(input.steering) > 0.8 and _drift_cooldown <= 0.0:
+	# AGORA USANDO A VARIÁVEL MIN_DRIFT_SPEED
+	if forward_speed > MIN_DRIFT_SPEED and input.throttle < -0.8 and abs(input.steering) > 0.8 and _drift_cooldown <= 0.0:
 		_drift_cooldown = 1.5 
 		_drift_dir = sign(input.steering) 
 		
@@ -232,18 +236,18 @@ func _reset_car_orientation():
 func _apply_drag(delta):
 	if car.linear_velocity.length() < 0.1: return
 	
-	# --- RAGE QUEBRA A BARREIRA DO AR ---
 	var drag_multiplier = 1.0
 	var rage = car.get_node_or_null("%RageComponent")
 	
 	if rage:
 		var speed_buff = rage.get_speed_mult()
 		if speed_buff > 1.0:
-			# Se o Rage estiver dando +40% de velocidade (1.4x),
-			# nós reduzimos a resistência do ar em 60% (drag fica 0.4)
-			# Isso permite que o carro acelere muito além do limite normal!
 			drag_multiplier = 0.6 
 			
 	var current_resistance = AIR_RESISTANCE * drag_multiplier
 	var drag = -car.linear_velocity.normalized() * car.linear_velocity.length_squared() * current_resistance
 	car.apply_central_force(drag * car.mass * delta)
+
+func _apply_extra_gravity(is_on_ground: bool):
+	if not is_on_ground:
+		car.apply_central_force(Vector3.DOWN * EXTRA_FALL_GRAVITY * car.mass)

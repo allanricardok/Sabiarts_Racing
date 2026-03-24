@@ -48,6 +48,8 @@ animation = &"bounce"
 advance_on_start = true
 
 [node name="BaseVehicle" instance=ExtResource("1_rdnk8")]
+transform = Transform3D(1, 0, 0, 0, 0.99896896, -0.04539786, 0, 0.04539786, 0.99896896, 0, 0, 0)
+mass = 310.0
 
 [node name="Visual" parent="." index="0"]
 transform = Transform3D(0.58, 0, 0, 0, 0.58, 0, 0, 0, 0.58, 0, 0, 0)
@@ -88,7 +90,7 @@ layers = 2
 mesh = ExtResource("3_lm3y0")
 
 [node name="FreDir" parent="." index="6"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7, 0.29, 1.93)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7, 0.36259285, 1.93)
 wheel_radius = 0.6
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="FreDir" index="0"]
@@ -97,13 +99,20 @@ layers = 2
 mesh = ExtResource("3_lm3y0")
 
 [node name="FreEsq" parent="." index="7"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, 0.29, 1.93)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, 0.36259285, 1.93)
 wheel_radius = 0.6
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="FreEsq" index="0"]
 transform = Transform3D(-1.6522904e-08, 0.17, 0, -0.378, -7.430936e-09, 0, 0, 0, 0.378, 0, 0, 0)
 layers = 2
 mesh = ExtResource("3_lm3y0")
+
+[node name="MovementComponent" parent="Scripts" index="2"]
+EXTRA_FALL_GRAVITY = 1.0
+
+[node name="StatsComponent" parent="Scripts" index="3"]
+max_health = 90.0
+max_shield = 40.0
 
 [node name="MachineGun" parent="Guns" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.11721933, 0.3684014)

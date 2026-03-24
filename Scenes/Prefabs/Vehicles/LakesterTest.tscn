@@ -48,6 +48,10 @@ animation = &"bounce"
 advance_on_start = true
 
 [node name="BaseVehicle" instance=ExtResource("1_lhwup")]
+mass = 250.0
+gravity_scale = 1.32
+divisor_de_massa = 800.0
+multiplicador_dano = 1.4
 
 [node name="Visual" parent="." index="0"]
 transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, 0, 0, 0)
@@ -104,6 +108,21 @@ wheel_radius = 0.52
 transform = Transform3D(-3.14722e-08, 0.15, 0, -0.72, -6.5567085e-09, 0, 0, 0, 0.72, 0, 0, 0)
 layers = 2
 mesh = ExtResource("3_nospx")
+
+[node name="MovementComponent" parent="Scripts" index="2"]
+ENGINE_POWER = 2300.0
+BRAKE_POWER = 30.0
+BOOST_LIMIT_SPEED = 20.0
+AIR_RESISTANCE = 0.08
+EXTRA_FALL_GRAVITY = 1.0
+
+[node name="StatsComponent" parent="Scripts" index="3"]
+max_health = 70.0
+max_shield = 40.0
+
+[node name="AirMovementComponent" parent="Scripts" index="5"]
+AIR_CONTROL_FORCE = 16.0
+AIR_TORQUE_FORCE = 30.0
 
 [node name="MachineGun" parent="Guns" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.32013983, 0.4221766)

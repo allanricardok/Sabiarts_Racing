@@ -59,10 +59,10 @@ func add_hit(target: Node = null, damage_dealt: float = 0.0, is_special: bool = 
 	_add_rage(hit_value)
 
 func add_collision_damage(amount: float):
-	_add_rage(amount * 0.5)
+	_add_rage(amount * 0.6)
 
 func add_trick(count: int):
-	_add_rage(float(count))
+	_add_rage(float(count)*2)
 
 func _add_rage(base_amount: float):
 	if current_tier == 3:

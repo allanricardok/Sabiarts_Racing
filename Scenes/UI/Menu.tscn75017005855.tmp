@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://ce2gdvomfunn8"]
+[gd_scene load_steps=8 format=3 uid="uid://ce2gdvomfunn8"]
 
 [ext_resource type="Script" uid="uid://dsev4t7ikm1du" path="res://Core/Menus/lobby.gd" id="1_qyifk"]
 [ext_resource type="PackedScene" uid="uid://d2rblk8h626kc" path="res://Scenes/Maps/Official_Test_Map.tscn" id="2_353f8"]
@@ -6,7 +6,6 @@
 [ext_resource type="PackedScene" uid="uid://d1q613pnimt40" path="res://Scenes/Prefabs/Vehicles/BrasiliaTest.tscn" id="4_s6sq0"]
 [ext_resource type="PackedScene" uid="uid://cmcbewlv3y7he" path="res://Scenes/Prefabs/Vehicles/ShadowJetTest.tscn" id="5_6487p"]
 [ext_resource type="PackedScene" uid="uid://cxnfwc3ovajua" path="res://Scenes/Prefabs/Vehicles/LakesterTest.tscn" id="6_v3kjt"]
-[ext_resource type="Script" uid="uid://trjeds0uu4yu" path="res://Scenes/UI/RotateCarMenu.gd" id="7_6487p"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jrgwx"]
 content_margin_left = 25.0
@@ -24,13 +23,6 @@ corner_radius_bottom_right = 20
 corner_radius_bottom_left = 20
 shadow_color = Color(0, 0, 0, 0.17254902)
 shadow_size = 50
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6487p"]
-albedo_color = Color(0.003921569, 0, 0.16078432, 1)
-
-[sub_resource type="QuadMesh" id="QuadMesh_v3kjt"]
-material = SubResource("StandardMaterial3D_6487p")
-size = Vector2(60.835, 46.21)
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -59,7 +51,6 @@ volume_db = -18.683
 autoplay = true
 
 [node name="Screen_Root" type="Control" parent="."]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -106,7 +97,7 @@ offset_bottom = 25.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="QuickPlay" type="Label" parent="Screen_Root/VBoxContainer"]
+[node name="Quick Play" type="Label" parent="Screen_Root/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "Quick Play"
@@ -126,7 +117,6 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="ColorRect2" type="ColorRect" parent="Screen_QuickPlay"]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -164,7 +154,7 @@ offset_bottom = 25.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="SinglePlayer" type="Label" parent="Screen_QuickPlay/VBoxContainer"]
+[node name="Single Player" type="Label" parent="Screen_QuickPlay/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "Single Player"
@@ -184,7 +174,6 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="ColorRect2" type="ColorRect" parent="Screen_SinglePlayer"]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -222,7 +211,7 @@ offset_bottom = 25.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="FreeRoam" type="Label" parent="Screen_SinglePlayer/VBoxContainer"]
+[node name="Free Roam" type="Label" parent="Screen_SinglePlayer/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "Free Roam"
@@ -242,7 +231,6 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="ColorRect2" type="ColorRect" parent="Screen_Multiplayer"]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -280,7 +268,7 @@ offset_bottom = 25.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Coop" type="Label" parent="Screen_Multiplayer/VBoxContainer"]
+[node name="Co-op" type="Label" parent="Screen_Multiplayer/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "PvP"
@@ -291,6 +279,7 @@ theme_override_font_sizes/font_size = 32
 text = "Combat"
 
 [node name="Screen_JoinAndVehicle" type="Control" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -305,9 +294,9 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -824.5
-offset_top = -426.0
-offset_right = 815.5
+offset_left = -540.5
+offset_top = -37.0
+offset_right = 531.5
 offset_bottom = 323.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -334,30 +323,9 @@ theme_override_font_sizes/font_size = 24
 text = "Press Machine Gun"
 horizontal_alignment = 1
 
-[node name="SubViewportContainer" type="SubViewportContainer" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer/VBoxContainer"]
-custom_minimum_size = Vector2(333, 400)
+[node name="ControllerIcon" type="TextureRect" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 6
-
-[node name="SubViewport" type="SubViewport" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer/VBoxContainer/SubViewportContainer"]
-size = Vector2i(333, 400)
-
-[node name="Camera3D" type="Camera3D" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer/VBoxContainer/SubViewportContainer/SubViewport"]
-transform = Transform3D(1, 0, 0, 0, 0.9752575, 0.22107193, 0, -0.22107193, 0.9752575, 0, 0.67775106, 0.31646228)
-
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer/VBoxContainer/SubViewportContainer/SubViewport"]
-transform = Transform3D(1, 0, 0, 0, 0.8622751, 0.50644016, 0, -0.50644016, 0.8622751, 0, 3.2707703, 0)
-light_color = Color(1, 1, 0.91764706, 1)
-light_energy = 0.6
-
-[node name="CarSpawnPoint" type="Node3D" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer/VBoxContainer/SubViewportContainer/SubViewport"]
-transform = Transform3D(0.7160096, 0, -0.69809043, 0, 1, 0, 0.69809043, 0, 0.7160096, 0, -1.4302936, -6.3828063)
-script = ExtResource("7_6487p")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer/VBoxContainer/SubViewportContainer/SubViewport"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.5056587, -12.1251545)
-mesh = SubResource("QuadMesh_v3kjt")
+expand_mode = 4
 
 [node name="Controller" type="Label" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer/VBoxContainer"]
 visible = false
@@ -388,32 +356,9 @@ theme_override_font_sizes/font_size = 24
 text = "Press Machine Gun"
 horizontal_alignment = 1
 
-[node name="SubViewportContainer" type="SubViewportContainer" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer2/VBoxContainer"]
-custom_minimum_size = Vector2(333, 400)
+[node name="ControllerIcon" type="TextureRect" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer2/VBoxContainer"]
 layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 6
-
-[node name="SubViewport" type="SubViewport" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer2/VBoxContainer/SubViewportContainer"]
-handle_input_locally = false
-size = Vector2i(333, 400)
-render_target_update_mode = 4
-
-[node name="Camera3D" type="Camera3D" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer2/VBoxContainer/SubViewportContainer/SubViewport"]
-transform = Transform3D(1, 0, 0, 0, 0.9752575, 0.22107193, 0, -0.22107193, 0.9752575, 22.574999, 0.67775106, 0.31646228)
-
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer2/VBoxContainer/SubViewportContainer/SubViewport"]
-transform = Transform3D(1, 0, 0, 0, 0.8622751, 0.50644016, 0, -0.50644016, 0.8622751, 22.574999, 3.2707703, 0)
-light_color = Color(1, 1, 0.91764706, 1)
-light_energy = 0.6
-
-[node name="CarSpawnPoint" type="Node3D" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer2/VBoxContainer/SubViewportContainer/SubViewport"]
-transform = Transform3D(0.7160096, 0, -0.69809043, 0, 1, 0, 0.69809043, 0, 0.7160096, 22.574999, -1.4302936, -6.3828063)
-script = ExtResource("7_6487p")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer2/VBoxContainer/SubViewportContainer/SubViewport"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22.574999, -1.5056587, -12.1251545)
-mesh = SubResource("QuadMesh_v3kjt")
+expand_mode = 4
 
 [node name="Controller" type="Label" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer2/VBoxContainer"]
 visible = false
@@ -444,32 +389,9 @@ theme_override_font_sizes/font_size = 24
 text = "Press Machine Gun"
 horizontal_alignment = 1
 
-[node name="SubViewportContainer" type="SubViewportContainer" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer3/VBoxContainer"]
-custom_minimum_size = Vector2(333, 400)
+[node name="ControllerIcon" type="TextureRect" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer3/VBoxContainer"]
 layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 6
-
-[node name="SubViewport" type="SubViewport" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer3/VBoxContainer/SubViewportContainer"]
-handle_input_locally = false
-size = Vector2i(333, 400)
-render_target_update_mode = 4
-
-[node name="Camera3D" type="Camera3D" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer3/VBoxContainer/SubViewportContainer/SubViewport"]
-transform = Transform3D(1, 0, 0, 0, 0.9752575, 0.22107193, 0, -0.22107193, 0.9752575, 47.04523, 0.67775106, 0.31646228)
-
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer3/VBoxContainer/SubViewportContainer/SubViewport"]
-transform = Transform3D(1, 0, 0, 0, 0.8622751, 0.50644016, 0, -0.50644016, 0.8622751, 47.04523, 3.2707703, 0)
-light_color = Color(1, 1, 0.91764706, 1)
-light_energy = 0.6
-
-[node name="CarSpawnPoint" type="Node3D" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer3/VBoxContainer/SubViewportContainer/SubViewport"]
-transform = Transform3D(0.7160096, 0, -0.69809043, 0, 1, 0, 0.69809043, 0, 0.7160096, 47.04523, -1.4302936, -6.3828063)
-script = ExtResource("7_6487p")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer3/VBoxContainer/SubViewportContainer/SubViewport"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.04523, -1.5056587, -12.1251545)
-mesh = SubResource("QuadMesh_v3kjt")
+expand_mode = 4
 
 [node name="Controller" type="Label" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer3/VBoxContainer"]
 visible = false
@@ -500,32 +422,9 @@ theme_override_font_sizes/font_size = 24
 text = "Press Machine Gun"
 horizontal_alignment = 1
 
-[node name="SubViewportContainer" type="SubViewportContainer" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer4/VBoxContainer"]
-custom_minimum_size = Vector2(333, 400)
+[node name="ControllerIcon" type="TextureRect" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer4/VBoxContainer"]
 layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 6
-
-[node name="SubViewport" type="SubViewport" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer4/VBoxContainer/SubViewportContainer"]
-handle_input_locally = false
-size = Vector2i(333, 400)
-render_target_update_mode = 4
-
-[node name="Camera3D" type="Camera3D" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer4/VBoxContainer/SubViewportContainer/SubViewport"]
-transform = Transform3D(1, 0, 0, 0, 0.9752575, 0.22107193, 0, -0.22107193, 0.9752575, 80.41115, 0.67775106, 0.31646228)
-
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer4/VBoxContainer/SubViewportContainer/SubViewport"]
-transform = Transform3D(1, 0, 0, 0, 0.8622751, 0.50644016, 0, -0.50644016, 0.8622751, 80.41115, 3.2707703, 0)
-light_color = Color(1, 1, 0.91764706, 1)
-light_energy = 0.6
-
-[node name="CarSpawnPoint" type="Node3D" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer4/VBoxContainer/SubViewportContainer/SubViewport"]
-transform = Transform3D(0.7160096, 0, -0.69809043, 0, 1, 0, 0.69809043, 0, 0.7160096, 80.41115, -1.4302936, -6.3828063)
-script = ExtResource("7_6487p")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer4/VBoxContainer/SubViewportContainer/SubViewport"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80.41115, -1.5056587, -12.1251545)
-mesh = SubResource("QuadMesh_v3kjt")
+expand_mode = 4
 
 [node name="Controller" type="Label" parent="Screen_JoinAndVehicle/HBoxContainer/PanelContainer4/VBoxContainer"]
 visible = false
@@ -536,7 +435,50 @@ theme_override_font_sizes/font_size = 24
 text = "Keyboard 1"
 horizontal_alignment = 1
 
-[node name="LabelStart" type="Label" parent="Screen_JoinAndVehicle"]
+[node name="Instrucoes" type="Label" parent="Screen_JoinAndVehicle"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -520.5
+offset_top = 34.0
+offset_right = -75.5
+offset_bottom = 292.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 18
+text = "Keyboard:
+WASD = Car Movement
+Mouse = Air movement + Camera
+Left Click = Machine Gun
+Right Click = Special Gun
+Mouse Wheel = weapon select (scroll) SloMo (press)
+Shift = Tricks                          E = Boost
+Space = Jump                        Q = Shield
+"
+
+[node name="Instrucoes2" type="Label" parent="Screen_JoinAndVehicle"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = 72.5
+offset_top = 32.0
+offset_right = 517.5
+offset_bottom = 290.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 18
+text = "Joystick (Sony Layout):
+R2 L2 = Accelerate Brake
+Left Joy = Land + Air movement
+X = Machine Gun
+Square = Special Gun
+R1 or L1 = weapon select 
+Triangle = Tricks                   L3 = SloMo (press)
+Circle + Left Joy = Jump, boost, shield, teleport
+Right Joy = Camera
+"
+
+[node name="LabelMapa2" type="Label" parent="Screen_JoinAndVehicle"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -586,7 +528,6 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="ColorRect2" type="ColorRect" parent="Screen_MapSelect"]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -634,7 +575,7 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "BA"
 
-[node name="Instruction" type="Label" parent="Screen_MapSelect"]
+[node name="LabelMapa2" type="Label" parent="Screen_MapSelect"]
 layout_mode = 0
 offset_left = 778.0
 offset_top = 680.0
@@ -644,49 +585,6 @@ theme_override_font_sizes/font_size = 32
 text = "Press Start / Enter
 to start"
 horizontal_alignment = 1
-
-[node name="Instrucoes" type="Label" parent="Screen_MapSelect"]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -520.5
-offset_top = 34.0
-offset_right = -75.5
-offset_bottom = 292.0
-grow_horizontal = 2
-theme_override_font_sizes/font_size = 18
-text = "Keyboard:
-WASD = Car Movement
-Mouse = Air movement + Camera
-Left Click = Machine Gun
-Right Click = Special Gun
-Mouse Wheel = weapon select (scroll) SloMo (press)
-Shift = Tricks                          E = Boost
-Space = Jump                        Q = Shield
-"
-
-[node name="Instrucoes2" type="Label" parent="Screen_MapSelect"]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = 72.5
-offset_top = 32.0
-offset_right = 517.5
-offset_bottom = 290.0
-grow_horizontal = 2
-theme_override_font_sizes/font_size = 18
-text = "Joystick (Sony Layout):
-R2 L2 = Accelerate Brake
-Left Joy = Land + Air movement
-X = Machine Gun
-Square = Special Gun
-R1 or L1 = weapon select 
-Triangle = Tricks                   L3 = SloMo (press)
-Circle + Left Joy = Jump, boost, shield, teleport
-Right Joy = Camera
-"
 
 [node name="Screen_Settings" type="Control" parent="."]
 visible = false

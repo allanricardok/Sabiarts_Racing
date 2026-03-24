@@ -124,6 +124,10 @@ albedo_color = Color(0.012617188, 0.012617188, 0.012617188, 1)
 material = SubResource("StandardMaterial3D_tk6n2")
 
 [node name="BaseVehicle" instance=ExtResource("1_a8bp4")]
+mass = 420.0
+gravity_scale = 1.34
+divisor_de_massa = 1100.0
+multiplicador_dano = 1.6
 
 [node name="New" type="MeshInstance3D" parent="Visual" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.67588377, 0)
@@ -161,3 +165,21 @@ mesh = SubResource("CylinderMesh_v71gj")
 transform = Transform3D(-3.4969112e-08, -0.15, 0, 0.8, -6.5567085e-09, 0, 0, 0, 0.8, 0, 0, 0)
 layers = 2
 mesh = SubResource("CylinderMesh_v71gj")
+
+[node name="MovementComponent" parent="Scripts" index="2"]
+ENGINE_POWER = 1900.0
+BRAKE_POWER = 30.0
+START_BOOST = 4.5
+BOOST_LIMIT_SPEED = 30.0
+AIR_RESISTANCE = 0.102
+MIN_DRIFT_SPEED = 20.0
+FALL_FORCE_BUFFER_DISTANCE = 2.0
+EXTRA_FALL_GRAVITY = 4.0
+
+[node name="StatsComponent" parent="Scripts" index="3"]
+jump_multiplier = 0.8
+max_health = 110.0
+
+[node name="AirMovementComponent" parent="Scripts" index="5"]
+AIR_CONTROL_FORCE = 12.0
+AIR_TORQUE_FORCE = 25.0
