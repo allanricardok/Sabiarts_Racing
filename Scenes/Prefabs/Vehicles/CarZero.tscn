@@ -72,7 +72,7 @@ size = Vector3(0.3, 0.26, 0.8)
 [sub_resource type="BoxMesh" id="BoxMesh_e558v"]
 size = Vector3(0.2, 0.3, 0.7)
 
-[node name="BaseVehicle" type="VehicleBody3D" node_paths=PackedStringArray("mesh_new", "mesh_damaged", "mesh_skeleton", "speed_label") groups=["Jogadores", "jogadores"]]
+[node name="BaseVehicle" type="VehicleBody3D" node_paths=PackedStringArray("speed_label") groups=["Jogadores", "jogadores"]]
 collision_layer = 2
 collision_mask = 15
 mass = 300.0
@@ -87,10 +87,7 @@ angular_damp = 8.0
 engine_force = 1.0
 brake = 1.0
 script = ExtResource("1_drg00")
-velocidade_minima_dano = 10.0
-mesh_new = NodePath("")
-mesh_damaged = NodePath("")
-mesh_skeleton = NodePath("")
+velocidade_minima_dano = 4.0
 speed_label = NodePath("HUD/UI_Base/SpeedLabel")
 
 [node name="Visual" type="Node3D" parent="."]

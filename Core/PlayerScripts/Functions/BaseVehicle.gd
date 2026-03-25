@@ -13,6 +13,7 @@ var pode_mover : bool = true
 @export var multiplicador_dano : float = 1.5
 @export var dano_maximo_por_batida : float = 50.0
 @export var velocidade_minima_dano : float = 1.0
+@export var cooldown_batida_ms : int = 400 # Tempo de invencibilidade após bater (em milissegundos)
 
 # --- NOVO: Variáveis de Combate Dinâmico ---
 @export var hit_weight : float = 5
@@ -37,6 +38,7 @@ var pode_mover : bool = true
 # --- VARIÁVEIS INTERNAS ---
 var teleport_material : StandardMaterial3D
 var _hit_cooldowns: Dictionary = {}
+var velocidade_de_impacto : float = 0.0 # <--- NOVA MEMÓRIA DE IMPACTO
 
 # --- NOVO: Memória Multi-Gaps (Guarda o ID e o tempo restante de cada um) ---
 var _active_gaps : Dictionary = {}
@@ -89,14 +91,13 @@ func _physics_process(delta):
 		brake = 100
 		return
 	
-	# --- NOVA: LÓGICA DO TEMPO PARA MÚLTIPLOS GAPS ---
+	# --- LÓGICA DO TEMPO PARA MÚLTIPLOS GAPS ---
 	var expired_gaps = []
 	for gap_id in _active_gaps.keys():
 		_active_gaps[gap_id] -= delta
 		if _active_gaps[gap_id] <= 0:
 			expired_gaps.append(gap_id)
 			
-	# Remove os gaps que o tempo estourou
 	for gap_id in expired_gaps:
 		print("[BaseVehicle] Tempo esgotado para o Gap: ", gap_id)
 		_active_gaps.erase(gap_id)
@@ -106,13 +107,20 @@ func _physics_process(delta):
 		speed_label.text = str(int(kmh))
 	
 	brake = 0
+	
+	# --- NOVA MEMÓRIA DE IMPACTO ---
+	# Salva a velocidade de forma inteligente para que raspões no chão não "cancelem" a batida frontal!
+	var vel_atual = linear_velocity.length() * 2.0
+	if vel_atual > velocidade_de_impacto:
+		velocidade_de_impacto = vel_atual
+	else:
+		velocidade_de_impacto = lerp(velocidade_de_impacto, vel_atual, delta * 8.0)
 
 # --- SETUP DE MULTIPLAYER ---
 
 func _setup_multiplayer_links():
 	var suffix = "_" + input_source
 	
-	# Mantém a configuração original da HUD (caso ela precise se renomear)
 	var my_hud = get_viewport().find_child("HUD", true, false)
 	if my_hud and my_hud.has_method("setup_hud"):
 		my_hud.setup_hud(suffix, self.id)
@@ -121,10 +129,7 @@ func _setup_multiplayer_links():
 	if weapons and weapons.has_method("setup_multiplayer"):
 		weapons.setup_multiplayer(suffix)
 		
-	# --- A GRANDE CORREÇÃO DA UI ZERADA ---
-	# Busca a HUD correta pelo Grupo (evita que Inimigos sequestrem a sua tela!)
 	var hud_correta = get_tree().get_first_node_in_group("HUD" + suffix)
-	
 	var rage_comp = get_node_or_null("%RageComponent")
 	var rage_ui = hud_correta.find_child("RageUI", true, false) if hud_correta else null
 	
@@ -144,7 +149,6 @@ func _on_pousou(is_clean: bool):
 
 func set_active_gap(id_gap: String):
 	_active_gaps[id_gap] = 10.0 
-	
 	var trick_manager = get_node_or_null("%TrickManager")
 	if trick_manager and trick_manager.has_method("iniciar_deteccao_gap"):
 		trick_manager.iniciar_deteccao_gap(id_gap)
@@ -152,7 +156,6 @@ func set_active_gap(id_gap: String):
 func set_gap_reached_end(id_gap: String, gap_name: String, points: int):
 	if _active_gaps.has(id_gap):
 		_active_gaps.erase(id_gap)
-		
 		var trick_manager = get_node_or_null("%TrickManager")
 		if trick_manager and trick_manager.has_method("marcar_gap_no_ar"):
 			trick_manager.marcar_gap_no_ar(id_gap, gap_name, points)
@@ -201,24 +204,35 @@ func teleport_to(target_transform : Transform3D):
 # --- COLISÕES E IMPACTO ---
 
 func _on_impacto_corpo(body: Node):
+	# 1. FILTRO DE CHÃO (Ignora o mapa estático para não estragar o cálculo)
+	if body is GridMap or "Floor" in body.name or "Exteriors" in body.name:
+		return
+		
 	var now = Time.get_ticks_msec()
 	var body_id = body.get_instance_id()
 	
-	if _hit_cooldowns.has(body_id) and (now - _hit_cooldowns[body_id] < 1000):
+	if _hit_cooldowns.has(body_id) and (now - _hit_cooldowns[body_id] < cooldown_batida_ms):
 		return
 	_hit_cooldowns[body_id] = now
 	
-	var my_speed = linear_velocity.length() * 2.0
+	# 2. USA A NOSSA NOVA MEMÓRIA DE VELOCIDADE
+	var my_speed = velocidade_de_impacto
 	var target_speed = 0.0
 	
-	if body is RigidBody3D or body is VehicleBody3D:
+	if body is BaseVehicle:
+		target_speed = body.velocidade_de_impacto # Usa a memória do inimigo também!
+	elif body is RigidBody3D or body is VehicleBody3D:
 		target_speed = body.linear_velocity.length() * 2.0
 	
 	var relative_speed = abs(my_speed - target_speed)
 	if not (body is BaseVehicle):
 		relative_speed = my_speed
 	
+	# --- DEBUG LOG: INÍCIO DO IMPACTO ---
+	print("\n[DEBUG IMPACTO] 💥 Bateu em: ", body.name, " | Vel. Carro (Memória): ", int(my_speed), " | Vel. Relativa: ", int(relative_speed))
+	
 	if relative_speed < velocidade_minima_dano:
+		print(" -> [IGNORADO] Batida muito fraca (Abaixo de ", velocidade_minima_dano, ")")
 		return
 	
 	# LÓGICA DE DANO E RAGE
@@ -231,29 +245,27 @@ func _on_impacto_corpo(body: Node):
 		if my_force > enemy_force:
 			var dano_final = min((dano_gerado*0.8), dano_maximo_por_batida)
 			
-			print("=========================================")
-			print("[COMBATE] BATEU! Agressor: Player ", self.id + 1, " | Vítima: Player ", body.id + 1)
-			print(" -> Dano aplicado na vítima: ", dano_final)
-			print("=========================================")
-			
+			print(" -> [DANO PVP] Amassou o Player ", body.id + 1, "! Dano: ", int(dano_final))
 			body.take_damage(dano_final, self)
 			self.take_damage(hit_constant, null)
 			
-			# --- SOMA RAGE AO BATER EM OUTRO CARRO ---
 			var rage = get_node_or_null("%RageComponent")
-			if rage:
-				rage.add_collision_damage(dano_final)
-		else:
-			pass
+			if rage: rage.add_collision_damage(dano_final)
 			
 	elif body.has_method("take_damage"):
 		var dano_final = min(dano_gerado, dano_maximo_por_batida)
+		
+		# --- DEBUG LOG: SUCESSO NO DANO PVE ---
+		print(" -> [DANO PVE] Causou ", int(dano_final), " de dano no objeto ", body.name)
+		
 		body.take_damage(dano_final, self)
 		
-		# --- SOMA RAGE AO DESTRUIR UM OBJETO DO CENÁRIO ---
 		var rage = get_node_or_null("%RageComponent")
-		if rage:
-			rage.add_collision_damage(dano_final)
+		if rage: rage.add_collision_damage(dano_final)
+		
+	else:
+		# --- DEBUG LOG: O GRANDE REVELADOR DE BUGS ---
+		print(" -> [FALHA] O objeto '", body.name, "' NÃO TEM a função take_damage() ou o script está no nó errado!")
 
 # --- MORTE E DESTRUIÇÃO ---
 func _on_vehicle_destroyed():

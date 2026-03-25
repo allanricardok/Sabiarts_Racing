@@ -175,6 +175,11 @@ func _process_impact(target_node):
 	if not is_instance_valid(target_node): return
 	if target_node.is_queued_for_deletion(): return
 
+	# --- NOVO: REPELENTE DE HOLOGRAMA ---
+	# Se o objeto atingido tiver essa tag (que colocamos na HoloWall), o gancho desiste e passa reto!
+	if target_node.is_in_group("ignorar_gancho"):
+		return
+
 	var actual_target = target_node
 	if target_node is Area3D:
 		var dono = null

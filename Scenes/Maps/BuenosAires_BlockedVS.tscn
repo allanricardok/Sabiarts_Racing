@@ -1,4 +1,4 @@
-[gd_scene load_steps=267 format=3 uid="uid://d1rl8sskrmddj"]
+[gd_scene load_steps=268 format=3 uid="uid://d1rl8sskrmddj"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_u8o8m"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="3_is8dr"]
@@ -24,7 +24,8 @@
 [ext_resource type="Resource" uid="uid://q47f11lrnubs" path="res://Resources/Items/SuperHealthItem.tres" id="19_t5btl"]
 [ext_resource type="PackedScene" uid="uid://dopugjiu2xcnc" path="res://Scenes/Prefabs/Enemies/PedestrianSpawner.tscn" id="20_4e1cd"]
 [ext_resource type="Material" uid="uid://cbslnqdpwr8nl" path="res://Assets/2D/grass_test.tres" id="21_g1d4t"]
-[ext_resource type="Script" uid="uid://dxwtvbecpphjn" path="res://Core/Destructibles/DestructibleProp.gd" id="21_pyjdw"]
+[ext_resource type="Script" uid="uid://dxwtvbecpphjn" path="res://Core/GeneralObjects/DestructibleProp.gd" id="21_pyjdw"]
+[ext_resource type="PackedScene" uid="uid://w0qrun8qo6o1" path="res://Scenes/Prefabs/MapObjects/HoloWall.tscn" id="21_vj8u6"]
 [ext_resource type="PackedScene" uid="uid://mvk1h22hqsq5" path="res://Scenes/Prefabs/MapObjects/small_ramp.tscn" id="22_is8dr"]
 [ext_resource type="PackedScene" uid="uid://do7x7c5gyyp8g" path="res://Scenes/UI/PauseMenu.tscn" id="22_jtjsh"]
 [ext_resource type="Material" uid="uid://cudmfnfmgghum" path="res://Assets/3D/test_material.tres" id="23_ip1o4"]
@@ -126,7 +127,7 @@ size = Vector3(203.86229, 48.18235, 7.3697357)
 size = Vector3(7.6380997, 31.195744, 136.63806)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_6fv6f"]
-size = Vector3(7.6380997, 97.07573, 93.18758)
+size = Vector3(7.6380997, 97.07573, 126.90031)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_4e1cd"]
 size = Vector3(4.1835623, 19.37001, 43.776794)
@@ -1332,7 +1333,7 @@ gap_id = "gap_AcrossStreet1_BA"
 gap_name = "Across Da Street"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Gaps1/AcrossDaStreet"]
-transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, -41.43701, 82.75669, 41.402527)
+transform = Transform3D(-4.377216e-08, 0, 1, 0, 1, 0, -1, 0, -4.377216e-08, -24.580566, 82.7567, 41.402542)
 shape = SubResource("BoxShape3D_6fv6f")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Gaps1/AcrossDaStreet"]
@@ -2865,6 +2866,25 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -384.61935, 1.0520811, -141.4
 [node name="Marker3D9" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/AbilityTeleportMarkers" groups=["AbilityTeleport"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -371.89554, 1.0520811, 163.30798)
 
+[node name="HoloWalls" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap"]
+metadata/_edit_lock_ = true
+
+[node name="HoloWall" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/HoloWalls" instance=ExtResource("21_vj8u6")]
+transform = Transform3D(2, 0, 0, 0, 6, 0, 0, 0, 1, -0.40774536, 78.408325, -365.05695)
+metadata/_edit_lock_ = true
+
+[node name="HoloWall2" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/HoloWalls" instance=ExtResource("21_vj8u6")]
+transform = Transform3D(2, 0, 0, 0, 6, 0, 0, 0, 1, 0, 78.87985, 372.93854)
+metadata/_edit_lock_ = true
+
+[node name="HoloWall3" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/HoloWalls" instance=ExtResource("21_vj8u6")]
+transform = Transform3D(-8.742278e-08, 0, 1, 0, 6, 0, -2, 0, -4.371139e-08, 444.31802, 78.87985, 28.000122)
+metadata/_edit_lock_ = true
+
+[node name="HoloWall4" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/HoloWalls" instance=ExtResource("21_vj8u6")]
+transform = Transform3D(-8.742278e-08, 0, 1, 0, 6, 0, -2, 0, -4.371139e-08, -448.24918, 78.87985, 28.000122)
+metadata/_edit_lock_ = true
+
 [node name="Pads" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
 
 [node name="BoostPad" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("17_stypw")]
@@ -2909,7 +2929,7 @@ transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 343.
 [node name="Flying enemies" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
 
 [node name="FloatingObject2" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -422.85498, 130.70345, -128.97119)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -397.05716, 130.70345, -128.97119)
 mission_id = "barril_BA"
 
 [node name="FloatingObject3" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
@@ -2921,15 +2941,15 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -102.70453, 92.3004, -207.838
 mission_id = "barril_BA"
 
 [node name="FloatingObject6" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -422.85498, 126.62793, -51.571766)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -397.05716, 126.62793, -51.571766)
 mission_id = "barril_BA"
 
 [node name="FloatingObject7" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -422.85498, 121.17143, 24.709354)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -397.05716, 121.17143, 24.709354)
 mission_id = "barril_BA"
 
 [node name="FloatingObject8" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -422.85498, 110.025955, 99.11748)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -397.05716, 110.025955, 99.11748)
 mission_id = "barril_BA"
 
 [node name="FloatingObject9" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
@@ -2937,19 +2957,19 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35.54092, 155.87563, 81.02447
 mission_id = "barril_BA"
 
 [node name="FloatingObject10" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 440.45947, 109.58498, -146.06691)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 409.65503, 109.58498, -146.06691)
 mission_id = "barril_BA"
 
 [node name="FloatingObject11" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 440.45947, 119.5363, -49.4093)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 409.65503, 119.5363, -49.4093)
 mission_id = "barril_BA"
 
 [node name="FloatingObject13" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 440.45947, 130.70345, 30.899921)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 409.65503, 130.70345, 30.899921)
 mission_id = "barril_BA"
 
 [node name="FloatingObject14" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 440.45947, 117.946106, 126.92351)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 409.65503, 117.946106, 126.92351)
 mission_id = "barril_BA"
 
 [node name="Pedestrians" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
@@ -4410,7 +4430,7 @@ transform = Transform3D(-0.25881886, 0, 0.96592575, 0, 1, 0, -0.96592575, 0, -0.
 transform = Transform3D(0.09836455, 0, 0.9951503, 0, 1, 0, -0.9951503, 0, 0.09836455, -399.86816, 54.285553, 132.73518)
 
 [node name="SmallRamp18" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Ramps1" instance=ExtResource("22_is8dr")]
-transform = Transform3D(1.311341e-07, 0, -0.99999964, 0, 1, 0, 0.99999964, 0, 1.311341e-07, 433.9402, 54.094723, -202.50171)
+transform = Transform3D(1.311341e-07, 0, -0.99999964, 0, 1, 0, 0.99999964, 0, 1.311341e-07, 412.6158, 54.094723, -199.91312)
 
 [node name="Ramps2" type="StaticBody3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects"]
 

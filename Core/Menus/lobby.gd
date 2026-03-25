@@ -111,15 +111,15 @@ func _input(_event):
 					if _get_contagem_jogadores() == 0: 
 						_voltar_menu_anterior()
 			
-# Movimentação Horizontal e Confirmação (Apenas se não estiver Pronto)
+			# Movimentação Horizontal e Confirmação (Apenas se não estiver Pronto)
 			if not p_data.pronto:
-				# USANDO AS SUAS AÇÕES JÁ EXISTENTES: "Left_" e "Right_" + esquema
-				if Input.is_action_just_pressed("Left_" + esquema):
+				# USANDO AS SUAS AÇÕES JÁ EXISTENTES + AS NOVAS AÇÕES "cat_"
+				if Input.is_action_just_pressed("Left_" + esquema) or Input.is_action_just_pressed("cat_left_" + esquema):
 					p_data.carro_idx -= 1
 					if p_data.carro_idx < 0: p_data.carro_idx = carros_disponiveis.size() - 1
 					_atualizar_ui_slot(idx_jogador)
 					
-				elif Input.is_action_just_pressed("Right_" + esquema):
+				elif Input.is_action_just_pressed("Right_" + esquema) or Input.is_action_just_pressed("cat_right_" + esquema):
 					p_data.carro_idx += 1
 					if p_data.carro_idx >= carros_disponiveis.size(): p_data.carro_idx = 0
 					_atualizar_ui_slot(idx_jogador)

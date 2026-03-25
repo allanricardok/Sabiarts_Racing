@@ -1,0 +1,27 @@
+[gd_scene load_steps=6 format=3 uid="uid://w0qrun8qo6o1"]
+
+[ext_resource type="Script" uid="uid://uacqxwc54p58" path="res://Core/GeneralObjects/HoloWall.gd" id="1_a4dkk"]
+[ext_resource type="Shader" uid="uid://t04eyi1mmkys" path="res://Scenes/Prefabs/MapObjects/HoloWall.gdshader" id="1_vuyf5"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_uoma7"]
+size = Vector3(500, 50, 5)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_a4dkk"]
+render_priority = 0
+shader = ExtResource("1_vuyf5")
+shader_parameter/glow_color = Color(1, 0.8, 0, 1)
+shader_parameter/intensity = 0.0
+shader_parameter/stripe_scale = 10.0
+
+[sub_resource type="QuadMesh" id="QuadMesh_vuyf5"]
+size = Vector2(500, 50)
+
+[node name="HoloWall" type="StaticBody3D"]
+script = ExtResource("1_a4dkk")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_uoma7")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+material_override = SubResource("ShaderMaterial_a4dkk")
+mesh = SubResource("QuadMesh_vuyf5")
