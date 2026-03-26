@@ -33,6 +33,13 @@ func _process(delta):
 
 # NOVO: Agora recebe dano e se é arma especial
 func add_hit(target: Node = null, damage_dealt: float = 0.0, is_special: bool = false):
+	
+	# --- O BLOQUEIO UNIVERSAL DE PROJÉTEIS ---
+	# Se a arma bateu na parede neon (ou em qualquer cenário com essa tag), 
+	# cancela a função inteira e não dá Rage nenhum!
+	if is_instance_valid(target) and target.is_in_group("ignorar_rage"):
+		return
+		
 	var hit_value = 1.0
 	
 	if is_instance_valid(target):

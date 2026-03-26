@@ -14,7 +14,7 @@ var _radar_targets : Array = []
 var _radar_current_target : Node3D = null
 var _radar_player_pos : Vector3 = Vector3.ZERO
 var _radar_player_fwd : Vector3 = Vector3.FORWARD
-var _radar_range : float = 150.0
+var _radar_range : float = 180.0
 
 # --- REFERÊNCIAS DE UI ---
 @onready var ui_base = $UI_Base

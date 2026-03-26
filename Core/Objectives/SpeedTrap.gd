@@ -23,7 +23,7 @@ func _on_area_entered(area):
 
 func _process_radar(car: BaseVehicle):
 	# Pegamos a velocidade em KM/H
-	var speed_kmh = car.linear_velocity.length() * 2
+	var speed_kmh = car.linear_velocity.length() * 2.3
 	
 	print("Radar: ", car.name, " passou a ", int(speed_kmh), " km/h")
 	

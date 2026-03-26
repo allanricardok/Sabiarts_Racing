@@ -6,9 +6,9 @@ var parent : AirMovementComponent
 var car : VehicleBody3D
 
 @export_group("Multiplicadores de Manobra")
-@export var STUNT_IMPULSE_POWER : float = 6.0
-@export var ROLL_POWER_MULT : float = 1.0
-@export var FLIP_POWER_MULT : float = 1.9 
+@export var STUNT_IMPULSE_POWER : float = 16.0
+@export var ROLL_POWER_MULT : float = 1.2
+@export var FLIP_POWER_MULT : float = 1.8 
 @export var SPECIAL_POWER_MULT : float = 3.0
 
 @export_group("Energia de Habilidade")

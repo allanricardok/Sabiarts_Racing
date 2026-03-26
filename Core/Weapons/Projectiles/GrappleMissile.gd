@@ -242,7 +242,7 @@ func _cleanup_visuals():
 
 func _finish_grapple():
 	if is_tethered and is_instance_valid(shooter):
-		var jump_dir = (Vector3.UP * 25 + shooter.global_transform.basis.z * 0.5).normalized()
+		var jump_dir = (Vector3.UP * 15 + shooter.global_transform.basis.z * 0.5).normalized()
 		shooter.apply_central_impulse(jump_dir * finish_boost_force * shooter.mass)
 		
 		if not target_is_static and is_instance_valid(target):

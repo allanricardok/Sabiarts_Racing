@@ -265,7 +265,8 @@ func _gerar_modelo_de_exibicao(cena_original: PackedScene) -> Node3D:
 		if filho.get_script() != null:
 			filho.set_script(null)
 
-		if filho is Camera3D or filho is Control or filho is CollisionShape3D or filho is AudioStreamPlayer3D or filho is Light3D:
+# Se for Câmera, UI, Colisão, Som, Luz OU NAMETAG, entra pra lista de exclusão
+		if filho is Camera3D or filho is Control or filho is CollisionShape3D or filho is AudioStreamPlayer3D or filho is Light3D or filho is Label3D:
 			lixo.append(filho)
 		elif "Component" in filho.name or "Manager" in filho.name or filho is RayCast3D:
 			lixo.append(filho)

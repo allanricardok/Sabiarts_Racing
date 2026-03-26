@@ -56,7 +56,11 @@ func _cycle_category(direction: int):
 	manual_target_index = 0 
 	_update_radar_and_lockon() 
 	print("[Targeting] Categoria alterada para: ", target_categories[current_category_index])
-
+	
+	# --- NOVO: AVISA O CARRO QUE A CATEGORIA MUDOU ---
+	if car.has_method("atualizar_visao_nametags"):
+		car.atualizar_visao_nametags(current_category_index)
+		
 func _get_category_count(index: int) -> int:
 	var count = 0
 	if index == 0: return 1 
@@ -74,6 +78,10 @@ func _get_category_count(index: int) -> int:
 func _validate_initial_category():
 	if _get_category_count(current_category_index) == 0:
 		_cycle_category(1)
+	else:
+		# --- NOVO: Garante que o jogo já comece com a visibilidade certa ---
+		if car.has_method("atualizar_visao_nametags"):
+			car.atualizar_visao_nametags(current_category_index)
 
 func _cycle_target(direction: int):
 	if active_targets_sorted.is_empty(): return

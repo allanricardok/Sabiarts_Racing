@@ -49,10 +49,10 @@ advance_on_start = true
 
 [node name="BaseVehicle" instance=ExtResource("1_rdnk8")]
 transform = Transform3D(1, 0, 0, 0, 0.99896896, -0.04539786, 0, 0.04539786, 0.99896896, 0, 0, 0)
-mass = 310.0
+mass = 330.0
 
 [node name="Visual" parent="." index="0"]
-transform = Transform3D(0.58, 0, 0, 0, 0.58, 0, 0, 0, 0.58, 0, 0, 0)
+transform = Transform3D(0.58, 0, 0, 0, 0.58000004, -1.8626451e-09, 0, 1.8626451e-09, 0.58000004, 0, -0.01208591, -0.26594755)
 
 [node name="New" type="MeshInstance3D" parent="Visual" index="0"]
 transform = Transform3D(1, 1.509958e-07, -1.509958e-07, 1.509958e-07, -1, 0, -1.509958e-07, -2.2799733e-14, -1, 0, 1.1292051, -0.369408)
@@ -71,8 +71,14 @@ active = false
 tree_root = SubResource("AnimationNodeAnimation_72bta")
 anim_player = NodePath("../AnimationPlayer")
 
+[node name="Camera3D" parent="." index="1"]
+transform = Transform3D(-1, 2.526796e-08, -8.3691525e-08, -5.432975e-09, 0.9375069, 0.34796667, 8.7253795e-08, 0.34796667, -0.9375069, 0.020254374, 3.0508494, -3.6664786)
+
+[node name="BlocoColisao" parent="." index="3"]
+transform = Transform3D(2.0000002, 0, 0, 7.874141e-10, 1.9993128, 0.052842464, 2.9792082e-08, -0.052842464, 1.9993128, 0, 1.0266337, -0.05705855)
+
 [node name="TrasEsq" parent="." index="4"]
-transform = Transform3D(1.2, 0, 0, 0, 1, 0, 0, 0, 1, 0.945, 0.379, -1.252819)
+transform = Transform3D(1.2, 0, 0, 0, 1.0000001, -3.7252903e-09, 0, 3.7252903e-09, 1.0000001, 0.945, 0.36691412, -1.5187664)
 wheel_radius = 0.6
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="TrasEsq" index="0"]
@@ -81,7 +87,7 @@ layers = 2
 mesh = ExtResource("3_lm3y0")
 
 [node name="TrasDir" parent="." index="5"]
-transform = Transform3D(1.2, 0, 0, 0, 1, 0, 0, 0, 1, -0.9450669, 0.37945455, -1.2532673)
+transform = Transform3D(1.2, 0, 0, 0, 1.0000001, -3.7252903e-09, 0, 3.7252903e-09, 1.0000001, -0.9450669, 0.36736864, -1.5192149)
 wheel_radius = 0.6
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="TrasDir" index="0"]
@@ -90,7 +96,7 @@ layers = 2
 mesh = ExtResource("3_lm3y0")
 
 [node name="FreDir" parent="." index="6"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7, 0.36259285, 1.93)
+transform = Transform3D(1, 0, 0, 0, 1.0000002, -3.7252903e-09, 0, 3.7252903e-09, 1.0000002, -0.7, 0.40460926, 1.661594)
 wheel_radius = 0.6
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="FreDir" index="0"]
@@ -99,7 +105,7 @@ layers = 2
 mesh = ExtResource("3_lm3y0")
 
 [node name="FreEsq" parent="." index="7"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, 0.36259285, 1.93)
+transform = Transform3D(1, 0, 0, 0, 1.0000002, -3.7252903e-09, 0, 3.7252903e-09, 1.0000002, 0.7, 0.40460926, 1.661594)
 wheel_radius = 0.6
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="FreEsq" index="0"]
@@ -107,15 +113,25 @@ transform = Transform3D(-1.6522904e-08, 0.17, 0, -0.378, -7.430936e-09, 0, 0, 0,
 layers = 2
 mesh = ExtResource("3_lm3y0")
 
+[node name="NameTag" parent="." index="8"]
+transform = Transform3D(1, 0, 0, 0, 1.0000005, -7.450581e-09, 0, 7.450581e-09, 1.0000005, 0, 3.182291, -0.008696511)
+
 [node name="MovementComponent" parent="Scripts" index="2"]
+ENGINE_POWER = 2000.0
+MAX_STEER = 0.44
+START_BOOST = 3.0
+BOOST_LIMIT_SPEED = 30.0
 EXTRA_FALL_GRAVITY = 1.0
 
 [node name="StatsComponent" parent="Scripts" index="3"]
 max_health = 90.0
 max_shield = 40.0
 
+[node name="AirMovementComponent" parent="Scripts" index="5"]
+AIR_TORQUE_FORCE = 40.0
+
 [node name="MachineGun" parent="Guns" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.11721933, 0.3684014)
+transform = Transform3D(1, 0, 0, 0, 1.0000001, -3.7252903e-09, 0, 3.7252903e-09, 1.0000001, 0, -0.10668734, 0.6001557)
 
 [node name="BigSlow" parent="Guns" index="1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4064658, 0, -0.6826676)
@@ -124,10 +140,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4064658, 0, -0.6826676)
 transform = Transform3D(0.99852437, 0, -0.05430537, 0, 1, 0, 0.05430537, 0, 0.99852437, 0.88322675, 0.83795565, 1.2292895)
 
 [node name="HomingMissile" parent="Guns" index="2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.29973388, -1.1157894)
+transform = Transform3D(1, 0, 0, 0, 1.0000004, -7.450581e-09, 0, 7.450581e-09, 1.0000004, 0.52294886, -0.29828897, -1.0839932)
 
 [node name="GrapplingMissile" parent="Guns" index="3"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.21632987, 0.17956758, -1.5787826)
+transform = Transform3D(1, 0, 0, 0, 1.0000001, -3.7252903e-09, 0, 3.7252903e-09, 1.0000001, -0.26746374, 0.17956758, -1.5787826)
 
 [node name="Gun" parent="Guns/GrapplingMissile" index="0"]
 transform = Transform3D(0.99930125, 0, 0.037376247, 0, 1, 0, -0.037376247, 0, 0.99930125, -0.2385242, 0.7855307, 1.7817372)

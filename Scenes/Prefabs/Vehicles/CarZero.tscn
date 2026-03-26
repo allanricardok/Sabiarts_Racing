@@ -1,8 +1,7 @@
-[gd_scene load_steps=33 format=3 uid="uid://ry75iugdg8sl"]
+[gd_scene load_steps=32 format=3 uid="uid://ry75iugdg8sl"]
 
 [ext_resource type="Script" uid="uid://b0i2wvnkcrknc" path="res://Core/PlayerScripts/Functions/BaseVehicle.gd" id="1_drg00"]
 [ext_resource type="Script" uid="uid://cjnmai87rc2f8" path="res://Core/camera_test_3.gd" id="2_37r4d"]
-[ext_resource type="Texture2D" uid="uid://itxgl5vm2rvl" path="res://Assets/3D/trees/Tree.png" id="3_4a360"]
 [ext_resource type="Script" uid="uid://ca80dhy7dchio" path="res://Core/PlayerScripts/UI/hud.gd" id="4_dtqej"]
 [ext_resource type="Script" uid="uid://b5mtjc65y3mxc" path="res://Core/PlayerScripts/UI/RageUI.gd" id="5_mafvn"]
 [ext_resource type="Script" uid="uid://f41hkh6xnfgv" path="res://Core/PlayerScripts/UI/MinimapDraw.gd" id="6_70m6l"]
@@ -29,7 +28,10 @@ bounce = 0.21
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_og6km"]
 custom_solver_bias = 0.045
-size = Vector3(0.895, 0.089, 1.934)
+size = Vector3(1.1523438, 0.38419932, 1.934)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bjxsa"]
+size = Vector3(3, 2.4401855, 5)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m0ew1"]
 content_margin_left = 2.0
@@ -56,9 +58,6 @@ corner_radius_bottom_left = 6
 corner_detail = 6
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_cj7ej"]
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_bjxsa"]
-size = Vector3(3, 2.4401855, 5)
 
 [sub_resource type="BoxMesh" id="BoxMesh_625mm"]
 size = Vector3(0.1, 0.1, 0.5)
@@ -98,7 +97,7 @@ top_level = true
 current = true
 fov = 92.0
 near = 0.392
-far = 400.0
+far = 480.0
 script = ExtResource("2_37r4d")
 follow_speed_lateral = 6.0
 follow_speed_depth = 35.0
@@ -108,7 +107,7 @@ follow_speed_vertical = 35.0
 transform = Transform3D(-1, 2.4330802e-08, -1.3690442e-07, -3.6662744e-08, 0.9078141, 0.4193729, 1.3364479e-07, 0.4193729, -0.9078141, 0.008372307, 2.5322375, -3.9419403)
 
 [node name="BlocoColisao" type="CollisionShape3D" parent="."]
-transform = Transform3D(2.0000002, 0, 0, 0, 2, 0, 2.9802322e-08, 0, 2, 0, 0.2712533, -0.05666256)
+transform = Transform3D(2.0000002, 0, 0, 0, 2, 0, 2.9802322e-08, 0, 2, 0, 1.0795968, -0.057)
 shape = SubResource("BoxShape3D_og6km")
 
 [node name="TrasEsq" type="VehicleWheel3D" parent="."]
@@ -167,12 +166,24 @@ suspension_max_force = 60000.0
 damping_compression = 0.95
 damping_relaxation = 5.0
 
-[node name="BillboardPlayer" type="Sprite3D" parent="."]
-transform = Transform3D(1, 0, 1.1641533e-09, 0, 1, 0, -1.1641533e-09, 0, 1, -0.008831024, 3.5330145, -0.20755601)
-visible = false
-modulate = Color(1, 1, 1, 0.5764706)
+[node name="NameTag" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.9909248, 0)
+pixel_size = 0.01
 billboard = 1
-texture = ExtResource("3_4a360")
+double_sided = false
+no_depth_test = true
+text = "Player 1"
+font_size = 120
+outline_size = 18
+
+[node name="Hitbox" type="Area3D" parent="."]
+collision_layer = 6
+collision_mask = 15
+script = ExtResource("9_yo5km")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hitbox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, -4.656613e-10, 0, 1, 0, 1.0761455, 0)
+shape = SubResource("BoxShape3D_bjxsa")
 
 [node name="HUD" type="CanvasLayer" parent="."]
 script = ExtResource("4_dtqej")
@@ -685,15 +696,6 @@ offset_top = -159.0
 offset_right = 540.0
 offset_bottom = -108.0
 grow_vertical = 0
-
-[node name="Hitbox" type="Area3D" parent="."]
-collision_layer = 6
-collision_mask = 15
-script = ExtResource("9_yo5km")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Hitbox"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -4.656613e-10, 0, 1, 0, 1.0761455, 0)
-shape = SubResource("BoxShape3D_bjxsa")
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 volume_db = -8.62

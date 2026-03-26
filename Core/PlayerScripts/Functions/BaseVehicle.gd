@@ -34,6 +34,7 @@ var pode_mover : bool = true
 # --- INTERFACE ---
 @export_group("Interface")
 @export var speed_label: Label 
+@onready var name_tag = $NameTag
 
 # --- VARIÁVEIS INTERNAS ---
 var teleport_material : StandardMaterial3D
@@ -103,14 +104,14 @@ func _physics_process(delta):
 		_active_gaps.erase(gap_id)
 	
 	if speed_label:
-		var kmh = linear_velocity.length() * 2
+		var kmh = linear_velocity.length() * 2.3
 		speed_label.text = str(int(kmh))
 	
 	brake = 0
 	
 	# --- NOVA MEMÓRIA DE IMPACTO ---
 	# Salva a velocidade de forma inteligente para que raspões no chão não "cancelem" a batida frontal!
-	var vel_atual = linear_velocity.length() * 2.0
+	var vel_atual = linear_velocity.length() * 2.3
 	if vel_atual > velocidade_de_impacto:
 		velocidade_de_impacto = vel_atual
 	else:
@@ -139,6 +140,24 @@ func _setup_multiplayer_links():
 			print("[RAGE SETUP] Sinal conectado com sucesso à HUD do Player ", id + 1)
 	else:
 		print("[RAGE ERROR] Faltou o RageComponent no carro OU o RageUI na HUD para: ", suffix)
+		# --- MÁGICA DA NAMETAG (Label3D) ---
+	if name_tag:
+		# 1. Define o texto correto (ex: "Player 1")
+		name_tag.text = "Player " + str(id + 1)
+		
+		# 2. O Truque da Camada Visual (Cull Mask)
+		# Vamos usar as camadas de renderização 11, 12, 13 e 14 para os jogadores 1, 2, 3 e 4.
+		var layer_bit = 10 + id 
+		
+		# Coloca a Nametag DESTE carro APENAS na camada específica dele
+		name_tag.layers = (1 << layer_bit)
+		
+		# Pega a câmera DESTE jogador e manda ela fechar os olhos para a PRÓPRIA camada!
+		# Assim, ele vê os adversários (que estão nas outras camadas), mas fica cego para o próprio nome.
+		var my_camera = find_child("Camera3D", true, false)
+		if my_camera:
+			my_camera.cull_mask &= ~(1 << layer_bit)
+
 
 # --- LÓGICA DE GAPS E MANOBRAS ---
 
@@ -260,8 +279,10 @@ func _on_impacto_corpo(body: Node):
 		
 		body.take_damage(dano_final, self)
 		
-		var rage = get_node_or_null("%RageComponent")
-		if rage: rage.add_collision_damage(dano_final)
+# O carro só ganha Rage se o objeto NÃO for uma parede do cenário!
+		if not body.is_in_group("ignorar_rage"):
+			var rage = get_node_or_null("%RageComponent")
+			if rage: rage.add_collision_damage(dano_final)
 		
 	else:
 		# --- DEBUG LOG: O GRANDE REVELADOR DE BUGS ---
@@ -276,3 +297,21 @@ func _on_vehicle_destroyed():
 		controller.registrar_morte_jogador()
 		
 	queue_free()
+
+# --- CONTROLE DE VISIBILIDADE DO NAMETAG ---
+func atualizar_visao_nametags(categoria_index: int):
+	var my_camera = find_child("Camera3D", true, false)
+	if not my_camera: return
+
+	# 1. Fechamos os olhos para TODAS as nametags (Camadas 11 a 14) primeiro
+	for i in range(4):
+		var layer_bit = 10 + i
+		my_camera.cull_mask &= ~(1 << layer_bit)
+
+	# 2. Se a categoria for 0 (All Targets) ou 1 (Adversaries), abrimos os olhos!
+	if categoria_index == 0 or categoria_index == 1:
+		for i in range(4):
+			# Nunca olhar para a PRÓPRIA nametag (evita ver o próprio nome)
+			if i != self.id: 
+				var layer_bit = 10 + i
+				my_camera.cull_mask |= (1 << layer_bit)

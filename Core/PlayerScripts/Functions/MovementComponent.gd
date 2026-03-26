@@ -29,7 +29,7 @@ var _was_on_ground: bool = true
 @export var friction_front_min := 3.3
 @export var friction_front_max := 3.8
 # NOVO: Velocidade mínima para o cavalo de pau (em metros por segundo. 30 = ~108 km/h)
-@export var MIN_DRIFT_SPEED := 30.0 
+@export var MIN_DRIFT_SPEED := 20.0 
 
 @export_group("Rodas")
 @export var wheel_rear_left: VehicleWheel3D
@@ -242,7 +242,7 @@ func _apply_drag(delta):
 	if rage:
 		var speed_buff = rage.get_speed_mult()
 		if speed_buff > 1.0:
-			drag_multiplier = 0.6 
+			drag_multiplier = 5 
 			
 	var current_resistance = AIR_RESISTANCE * drag_multiplier
 	var drag = -car.linear_velocity.normalized() * car.linear_velocity.length_squared() * current_resistance

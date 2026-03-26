@@ -96,7 +96,7 @@ func take_damage(amount: float, attacker: Node3D = null):
 	# --- NOVO: O "PESO" DO ATROPELAMENTO ---
 	# Se quem bateu foi um carro, nós multiplicamos a velocidade dele por 0.9 (tira 10%)
 	if attacker is VehicleBody3D or attacker is RigidBody3D:
-		attacker.linear_velocity *= 0.7 
+		attacker.linear_velocity *= 0.88 
 		# Dica: Se quiser que ele perca mais, mude para 0.85 (15%) ou 0.8 (20%)
 	
 	var actual_shooter = attacker
