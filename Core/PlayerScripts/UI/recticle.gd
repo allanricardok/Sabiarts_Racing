@@ -1,11 +1,27 @@
 extends Control
 
-@onready var lockon_rect = $LockOnRect # Um TextureRect ou Panel com borda vermelha
+@onready var lockon_rect = $LockOnRect # Mantemos para não quebrar a sua cena
 
-func _process(_delta):
+# --- PARÂMETROS DO RETÍCULO PROCEDURAL ---
+# MODIFICADO: Voltamos para o Vermelho, agora com 65% de opacidade (Alpha = 0.65)
+@export var reticle_color : Color = Color(1.0, 0.0, 0.0, 0.65) 
+@export var radius : float = 20.0
+@export var line_width : float = 3.0
+@export var rotation_speed : float = 3.0 # Velocidade do giro da mira
+
+# Variáveis internas para a animação
+var current_rotation : float = 0.0
+var is_locked : bool = false
+var target_screen_pos : Vector2 = Vector2.ZERO
+
+func _ready():
+	# Mantemos a opacidade do fundo/quadrado em 25% conforme pedido anterior
+	if lockon_rect:
+		lockon_rect.modulate.a = 0.25
+
+func _process(delta):
 	# --- SOLUÇÃO MULTIPLAYER (SPLIT-SCREEN) ---
-	# Em vez de pegar o primeiro carro geral, procuramos o carro 
-	# que está renderizando dentro do MESMO Viewport que este retículo.
+	# Procura o carro que está renderizando neste Viewport específico
 	var car = null
 	var todos_jogadores = get_tree().get_nodes_in_group("jogadores")
 	
@@ -14,32 +30,78 @@ func _process(_delta):
 			car = c
 			break
 	
-	# Se não achou um carro neste viewport, esconde o retículo e aborta
 	if not car: 
-		lockon_rect.visible = false
+		_set_locked(false)
 		return
 	
-	var weapon_manager = car.find_child("WeaponManager")
+	# Procura o WeaponManager no carro (usando wildcard * caso o nome varie ligeiramente)
+	var weapon_manager = car.find_child("WeaponManager*", true, false)
 	if not weapon_manager:
-		lockon_rect.visible = false
+		_set_locked(false)
 		return
 		
+	# Pega o alvo atual do sistema de armas
 	var target = weapon_manager.current_target
 	
 	if target and is_instance_valid(target):
-		# Transforma a posição 3D do inimigo em posição 2D na sua tela
 		var cam = get_viewport().get_camera_3d()
 		
 		if cam:
+			# Transforma a posição 3D do alvo em coordenadas 2D da tela
 			var screen_pos = cam.unproject_position(target.global_position)
 			
-			# Se o alvo estiver na frente da câmera (não atrás)
+			# Verifica se o alvo está na frente da câmera
 			if not cam.is_position_behind(target.global_position):
-				lockon_rect.visible = true
+				_set_locked(true, screen_pos)
+				# Move o lockon_rect original para a posição (para lógica interna se houver)
 				lockon_rect.position = screen_pos - (lockon_rect.size / 2)
 			else:
-				lockon_rect.visible = false
+				_set_locked(false)
 		else:
-			lockon_rect.visible = false
+			_set_locked(false)
 	else:
-		lockon_rect.visible = false
+		_set_locked(false)
+
+	# Se estiver travado, atualiza a rotação e solicita o redesenho (_draw)
+	if is_locked:
+		current_rotation += rotation_speed * delta
+		queue_redraw()
+
+# Função auxiliar para gerenciar o estado do lock e visibilidade
+func _set_locked(locked: bool, pos: Vector2 = Vector2.ZERO):
+	if is_locked != locked or pos != target_screen_pos:
+		is_locked = locked
+		target_screen_pos = pos
+		if lockon_rect: lockon_rect.visible = locked
+		if not locked: queue_redraw() # Garante que apaga o desenho se perder o lock
+
+func _draw():
+	# Só desenha o retículo procedural se tivermos um alvo travado na frente
+	if not is_locked: return
+
+	# --- MÁGICA PROCEDURAL DO GIRO ---
+	# Transformamos o espaço de desenho para centralizar no inimigo e rotacionar
+	draw_set_transform(target_screen_pos, current_rotation, Vector2.ONE)
+
+	# Usamos a reticle_color configurada (Vermelho @ 65%) para todos os desenhos abaixo:
+
+	# 1. Desenha o círculo principal vazado
+	draw_arc(Vector2.ZERO, radius, 0, TAU, 32, reticle_color, line_width, true)
+
+	# 2. Desenha o pontinho minúsculo central
+	draw_circle(Vector2.ZERO, 3.0, reticle_color)
+
+	# 3. Desenha as 4 "perninhas" (ticks) cardeais apontando para fora
+	var tick_length = 12.0
+	
+	# Direita
+	draw_line(Vector2(radius, 0), Vector2(radius + tick_length, 0), reticle_color, line_width, true)
+	# Esquerda
+	draw_line(Vector2(-radius, 0), Vector2(-radius - tick_length, 0), reticle_color, line_width, true)
+	# Baixo
+	draw_line(Vector2(0, radius), Vector2(0, radius + tick_length), reticle_color, line_width, true)
+	# Cima
+	draw_line(Vector2(0, -radius), Vector2(0, -radius - tick_length), reticle_color, line_width, true)
+
+	# Reseta a transformação para não afetar outros desenhos da HUD
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=268 format=3 uid="uid://d1rl8sskrmddj"]
+[gd_scene load_steps=269 format=3 uid="uid://d1rl8sskrmddj"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_u8o8m"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="3_is8dr"]
@@ -14,6 +14,7 @@
 [ext_resource type="Resource" uid="uid://daftw5fiqy8a5" path="res://Resources/Weapons/BigSlow.tres" id="12_ip1o4"]
 [ext_resource type="PackedScene" uid="uid://8xllk2f6a63v" path="res://Assets/3D/Obake/vigilante_v8_2nd_offence_obakes_tsunami.glb" id="12_vj8u6"]
 [ext_resource type="PackedScene" uid="uid://b2k5h2ktecs3c" path="res://Scenes/Prefabs/Triggers/ExplorationArea.tscn" id="13_t5btl"]
+[ext_resource type="Resource" uid="uid://dc3tjey7savae" path="res://Resources/Weapons/FreezingMissile.tres" id="13_textq"]
 [ext_resource type="Script" uid="uid://srf4jbjqbkxl" path="res://Core/Objectives/GapPoint.gd" id="14_textq"]
 [ext_resource type="Resource" uid="uid://hv86l3gypxgx" path="res://Resources/Items/HealthItem.tres" id="15_o7pxb"]
 [ext_resource type="PackedScene" uid="uid://d08nc5o3ey67t" path="res://Scenes/Prefabs/Enemies/EnemyTurret.tscn" id="16_af68g"]
@@ -1038,6 +1039,16 @@ specific_item = ExtResource("10_75jtm")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -291.35428, 0.4205339, -304.69196)
 pickup_scene = ExtResource("9_kxusw")
 specific_item = ExtResource("12_ip1o4")
+
+[node name="ItemSpawner19" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Pickups" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 284.9401, 8.341446, -132.734)
+pickup_scene = ExtResource("9_kxusw")
+specific_item = ExtResource("13_textq")
+
+[node name="ItemSpawner20" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Pickups" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 253.76178, 1.1229267, -132.734)
+pickup_scene = ExtResource("9_kxusw")
+specific_item = ExtResource("13_textq")
 
 [node name="Mission_Items" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap"]
 

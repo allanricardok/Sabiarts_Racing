@@ -24,6 +24,7 @@ var pode_mover : bool = true
 @onready var input = %InputComponent
 @onready var movement = %MovementComponent
 @onready var weapons = %WeaponManager
+@onready var effects = %VehicleEffects
 
 # --- REFERÊNCIAS DE VISUAL DAMAGE ---
 @export_group("Visual Damage")
@@ -315,3 +316,11 @@ func atualizar_visao_nametags(categoria_index: int):
 			if i != self.id: 
 				var layer_bit = 10 + i
 				my_camera.cull_mask |= (1 << layer_bit)
+
+# --- EFEITOS DE STATUS ---
+func aplicar_congelamento(tempo: float = 3.0):
+	if effects:
+		effects.aplicar_congelamento(tempo)
+
+func is_frozen() -> bool:
+	return effects.is_frozen if effects else false

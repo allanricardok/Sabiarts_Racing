@@ -1,0 +1,29 @@
+[gd_scene load_steps=5 format=3 uid="uid://b0cmiue1364dp"]
+
+[ext_resource type="Script" uid="uid://ca8o6dd15ia5x" path="res://Core/Weapons/Projectiles/FreezingMissile.gd" id="1_n5kv7"]
+[ext_resource type="Material" uid="uid://d1cmr5tbax2qv" path="res://Scenes/Prefabs/Weapons/Projectiles/BlueFreezeMaterial.tres" id="2_s5vxi"]
+
+[sub_resource type="TorusMesh" id="TorusMesh_ojkcs"]
+material = ExtResource("2_s5vxi")
+inner_radius = 0.2
+outer_radius = 0.8
+rings = 12
+ring_segments = 8
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_mkbs4"]
+points = PackedVector3Array(0.25, 0.25, 0.65, 0.25, -0.25, 0.65, 0.25, 0.25, -0.65, -0.25, 0.25, 0.65, -0.25, -0.25, 0.65, 0.25, -0.25, -0.65, -0.25, 0.25, -0.65, -0.25, -0.25, -0.65)
+
+[node name="FreezingMissileTracer" type="Area3D"]
+collision_layer = 8
+collision_mask = 7
+script = ExtResource("1_n5kv7")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0)
+mesh = SubResource("TorusMesh_ojkcs")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("ConvexPolygonShape3D_mkbs4")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="body_shape_entered" from="." to="." method="_on_body_shape_entered"]

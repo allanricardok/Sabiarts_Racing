@@ -133,6 +133,9 @@ AIR_TORQUE_FORCE = 40.0
 [node name="MachineGun" parent="Guns" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1.0000001, -3.7252903e-09, 0, 3.7252903e-09, 1.0000001, 0, -0.10668734, 0.6001557)
 
+[node name="Gun" parent="Guns/MachineGun" index="0"]
+transform = Transform3D(1, 0, 0, 0, 0.9999999, 0, 0, 0, 0.9999999, -0.0003567934, 0.6980798, 2.043489)
+
 [node name="BigSlow" parent="Guns" index="1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4064658, 0, -0.6826676)
 
@@ -143,7 +146,10 @@ transform = Transform3D(0.99852437, 0, -0.05430537, 0, 1, 0, 0.05430537, 0, 0.99
 transform = Transform3D(1, 0, 0, 0, 1.0000004, -7.450581e-09, 0, 7.450581e-09, 1.0000004, 0.52294886, -0.29828897, -1.0839932)
 
 [node name="GrapplingMissile" parent="Guns" index="3"]
-transform = Transform3D(1, 0, 0, 0, 1.0000001, -3.7252903e-09, 0, 3.7252903e-09, 1.0000001, -0.26746374, 0.17956758, -1.5787826)
+transform = Transform3D(1, 0, 0, 0, 1.0000006, -1.1175871e-08, 0, 1.1175871e-08, 1.0000006, -0.33894342, 0.30320963, -2.233675)
 
 [node name="Gun" parent="Guns/GrapplingMissile" index="0"]
 transform = Transform3D(0.99930125, 0, 0.037376247, 0, 1, 0, -0.037376247, 0, 0.99930125, -0.2385242, 0.7855307, 1.7817372)
+
+[node name="FreezingMissile" parent="Guns" index="4"]
+transform = Transform3D(0.9996802, 0.0011479822, 0.025261063, -0.0011479821, 1.0000001, -1.4513731e-05, -0.025261065, -1.4480203e-05, 0.9996816, -1.4105316, 0.048233535, -0.43305707)

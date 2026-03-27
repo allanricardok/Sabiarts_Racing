@@ -82,6 +82,13 @@ func _physics_process(delta):
 func _handle_engine_and_steering(delta, is_on_ground, speed_mps):
 	var up_dot = car.global_transform.basis.y.dot(Vector3.UP)
 	
+# --- BLOQUEIO DE CONGELAMENTO ---
+	if car.has_method("is_frozen") and car.is_frozen():
+		car.engine_force = 0.0
+		car.brake = BRAKE_POWER # FREIO TOTAL (Trava as rodas)
+		car.steering = 0.0 # Trava a direção
+		return # Corta os comandos do jogador!
+	
 	var rage = car.get_node_or_null("%RageComponent")
 	var rage_speed_mult = rage.get_speed_mult() if rage else 1.0
 	
@@ -157,6 +164,15 @@ func _handle_engine_and_steering(delta, is_on_ground, speed_mps):
 		car.brake = 0.0
 
 func _apply_dynamic_friction(speed_kmh):
+
+# --- FÍSICA DE PNEU NO GELO ---
+	if car.has_method("is_frozen") and car.is_frozen():
+		var wheels = [wheel_rear_left, wheel_rear_right, wheel_front_left, wheel_front_right]
+		for wheel in wheels:
+			if is_instance_valid(wheel):
+				wheel.wheel_friction_slip = 0.1 # Deixa os pneus extremamente lisos (Derrapa até parar)
+		return # Ignora a fricção normal
+
 	var speed_clamp = clamp(speed_kmh, 0, speed_max_friction)
 	var f_rear = remap(speed_clamp, 0, speed_max_friction, friction_rear_min, friction_rear_max)
 	var f_front = remap(speed_clamp, 0, speed_max_friction, friction_front_max, friction_front_min)
@@ -241,10 +257,14 @@ func _apply_drag(delta):
 	
 	if rage:
 		var speed_buff = rage.get_speed_mult()
+		# Se ele tem buff de velocidade (Tier 2 ou 3), nós REDUZIMOS a resistência do ar
+		# Dividir por speed_buff significa que se o buff for 1.4, a resistência cai para ~70%
 		if speed_buff > 1.0:
-			drag_multiplier = 5 
+			drag_multiplier = 1.0 / speed_buff 
 			
 	var current_resistance = AIR_RESISTANCE * drag_multiplier
+	# O drag padrão do VehicleBody3D do Godot já aplica arrasto. 
+	# Adicionamos o nosso drag customizado com moderação para não matar a física.
 	var drag = -car.linear_velocity.normalized() * car.linear_velocity.length_squared() * current_resistance
 	car.apply_central_force(drag * car.mass * delta)
 

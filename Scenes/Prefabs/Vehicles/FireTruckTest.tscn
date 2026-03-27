@@ -1,7 +1,7 @@
 [gd_scene load_steps=11 format=3 uid="uid://oqlfy56yme5y"]
 
 [ext_resource type="PackedScene" uid="uid://ry75iugdg8sl" path="res://Scenes/Prefabs/Vehicles/CarZero.tscn" id="1_65t5h"]
-[ext_resource type="ArrayMesh" uid="uid://c2sk52gfca3mq" path="res://Assets/3D/tests/FireTruckTest.mesh.res" id="2_pp07j"]
+[ext_resource type="ArrayMesh" uid="uid://dvwwo1v4r4qat" path="res://Assets/3D/tests/FireTruckTest.mesh.res" id="2_pp07j"]
 
 [sub_resource type="Animation" id="Animation_qcxwf"]
 length = 0.001
@@ -171,4 +171,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4886458, -0.33145475, 1.710
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1226187, 2.823515)
 
 [node name="GrapplingMissile" parent="Guns" index="3"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8713889, 1.7088087, 1.1102785)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.63967574, 1.7088087, 1.1102785)
+
+[node name="FreezingMissile" parent="Guns" index="4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.1211176, 1.4850965, 1.7486391)

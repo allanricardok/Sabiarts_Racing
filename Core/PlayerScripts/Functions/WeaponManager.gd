@@ -13,11 +13,13 @@ class_name WeaponManager
 @onready var input = %InputComponent
 @onready var targeting = %TargetingComponent
 
+# --- NOVO: FreezingMissile adicionado ao dicionário! ---
 @onready var weapon_nodes = {
 	"MachineGun": %MachineGun,
 	"BigSlow": %BigSlow,
 	"HomingMissile": %HomingMissile,
-	"GrapplingMissile": %GrapplingMissile 
+	"GrapplingMissile": %GrapplingMissile,
+	"FreezingMissile": %FreezingMissile 
 }
 
 # --- ESTADO INTERNO ---
@@ -62,11 +64,18 @@ func setup_multiplayer(suffix: String):
 func _process(delta):
 	var real_delta = delta / Engine.time_scale if is_instance_valid(car) and car.is_in_group("jogadores") else delta
 
+# (Código anterior do _process continua igual...)
 	if basic_cooldown > 0: basic_cooldown -= real_delta
 	for w in special_cooldowns.keys():
 		if special_cooldowns[w] > 0: special_cooldowns[w] -= real_delta
 		
 	if not car.pode_mover: return
+	
+	# --- NOVO: CADEADO DO GELO ---
+	# Impede de atirar ou trocar de arma enquanto estiver congelado
+	if car.has_method("is_frozen") and car.is_frozen(): 
+		_was_firing = false # Reseta o gatilho para ele não atirar sozinho quando descongelar
+		return 
 
 	var is_doing_ability = (input.ability_up or input.ability_down or input.ability_left or input.ability_right)
 	var is_firing = input.is_action_pressed and not is_doing_ability
@@ -152,7 +161,6 @@ func _set_weapon_highlight(weapon_name: String, is_active: bool):
 	var node = weapon_nodes.get(weapon_name)
 	if not is_instance_valid(node): return
 	
-	# Busca todos os meshes dentro dessa arma para acender ou apagar
 	var meshes = node.find_children("*", "MeshInstance3D", true)
 	for mesh in meshes:
 		if is_active:
@@ -213,7 +221,8 @@ func _spawn_projectile(res: WeaponResource, node_name: String):
 		proj.is_special_weapon = (node_name != "MachineGun")
 	
 	if proj.has_method("setup"):
-		if node_name == "HomingMissile" or node_name == "GrapplingMissile":
+		# --- NOVO: FreezingMissile adicionado ao grupo que busca alvos ---
+		if node_name == "HomingMissile" or node_name == "GrapplingMissile" or node_name == "FreezingMissile":
 			var target = targeting.current_target if is_instance_valid(targeting) else null
 			proj.setup(res.dano, car.linear_velocity, car, target)
 		else:

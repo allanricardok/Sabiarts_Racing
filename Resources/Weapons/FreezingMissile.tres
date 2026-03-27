@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="WeaponResource" load_steps=4 format=3 uid="uid://dc3tjey7savae"]
+
+[ext_resource type="CapsuleMesh" uid="uid://bxy5ey4x44ega" path="res://Assets/3D/blue_capsule.tres" id="1_2w62i"]
+[ext_resource type="PackedScene" uid="uid://b0cmiue1364dp" path="res://Scenes/Prefabs/Weapons/Projectiles/FreezingMissileTracer.tscn" id="2_2w62i"]
+[ext_resource type="Script" uid="uid://5wgfj8fmfmgf" path="res://Core/Weapons/WeaponItems/WeaponResource.gd" id="3_4qat7"]
+
+[resource]
+script = ExtResource("3_4qat7")
+nome = "FreezingMissile"
+projectile_scene = ExtResource("2_2w62i")
+dano = 0.1
+fire_rate = 3.5
+ammo = 3
+custom_mesh = ExtResource("1_2w62i")
+mesh_scale = Vector3(1.4, 1, 1)
+item_color = Color(0.678, 1.859, 3.04, 1)
+metadata/_custom_type_script = "uid://5wgfj8fmfmgf"

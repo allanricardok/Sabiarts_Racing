@@ -185,3 +185,9 @@ max_health = 110.0
 [node name="AirMovementComponent" parent="Scripts" index="5"]
 AIR_CONTROL_FORCE = 16.0
 AIR_TORQUE_FORCE = 34.0
+
+[node name="GrapplingMissile" parent="Guns" index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2062447, 0, 0.29715776)
+
+[node name="FreezingMissile" parent="Guns" index="4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.8354658, 0, 0.070715785)

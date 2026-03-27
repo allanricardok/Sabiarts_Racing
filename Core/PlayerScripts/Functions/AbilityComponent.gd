@@ -56,6 +56,9 @@ func _ready():
 		cooldown_bar.max_value = SHARED_COOLDOWN_TIME
 
 func _process(delta):
+	# Se o carro estiver congelado, não deixa usar NENHUMA habilidade
+	if car.has_method("is_frozen") and car.is_frozen(): 
+		return
 	# --- INTEGRAÇÃO COM RAGE PARA ACELERAR A RECARGA ---
 	var rage = car.get_node_or_null("%RageComponent")
 	var regen_mult = rage.get_ability_recovery_mult() if rage else 1.0

@@ -150,7 +150,10 @@ transform = Transform3D(0.99852437, 0, -0.05430537, 0, 1, 0, 0.05430537, 0, 0.99
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.022404552, -0.29973388, 0.5761467)
 
 [node name="GrapplingMissile" parent="Guns" index="3"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.18338186, 0.04614246, -0.17685294)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.13861364, -0.05189526, 0.16859269)
 
 [node name="Gun" parent="Guns/GrapplingMissile" index="0"]
 transform = Transform3D(0.99930125, 0, 0.037376247, 0, 1, 0, -0.037376247, 0, 0.99930125, -0.2385242, 0.7855307, 1.7817372)
+
+[node name="FreezingMissile" parent="Guns" index="4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.3633502, 0.19778156, -0.13620901)
