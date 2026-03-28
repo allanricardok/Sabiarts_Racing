@@ -7,17 +7,27 @@ var id : int = 0
 var pode_mover : bool = true
 @export var input_source : String = "K1"
 
+# --- DROPS E RECOMPENSAS (BOTS) ---
+@export_group("Recompensas do Bot")
+@export var pontos_por_morte : int = 1000
+## Arraste a cena "UniversalPickup.tscn" aqui
+@export var drop_item_scene : PackedScene
+## Arraste o arquivo .tres (Ex: Vida.tres)
+@export var drop_item_resource_1 : Resource
+## Arraste outro arquivo .tres (Ex: Míssil.tres)
+@export var drop_item_resource_2 : Resource
+
 # --- CONFIGURAÇÕES DE COMBATE (ATROPELAMENTO) ---
 @export_group("Combate: Atropelamento")
 @export var divisor_de_massa : float = 1000.0
 @export var multiplicador_dano : float = 1.5
 @export var dano_maximo_por_batida : float = 50.0
 @export var velocidade_minima_dano : float = 1.0
-@export var cooldown_batida_ms : int = 400 # Tempo de invencibilidade após bater (em milissegundos)
+@export var cooldown_batida_ms : int = 400 
 
 # --- NOVO: Variáveis de Combate Dinâmico ---
 @export var hit_weight : float = 5
-@export var hit_constant : float = 2 # Dano base mínimo sofrido por quem "ganha" a colisão
+@export var hit_constant : float = 2 
 
 # --- COMPONENTES ---
 @onready var stats = %StatsComponent
@@ -40,9 +50,7 @@ var pode_mover : bool = true
 # --- VARIÁVEIS INTERNAS ---
 var teleport_material : StandardMaterial3D
 var _hit_cooldowns: Dictionary = {}
-var velocidade_de_impacto : float = 0.0 # <--- NOVA MEMÓRIA DE IMPACTO
-
-# --- NOVO: Memória Multi-Gaps (Guarda o ID e o tempo restante de cada um) ---
+var velocidade_de_impacto : float = 0.0 
 var _active_gaps : Dictionary = {}
 
 # --- INICIALIZAÇÃO ---
@@ -50,16 +58,13 @@ var _active_gaps : Dictionary = {}
 func _ready():
 	add_to_group("jogadores")
 	
-	# --- CORREÇÃO DO TIPO DE DADO (STRING vs DICTIONARY) ---
 	if Global.dados_jogadores.size() > id and Global.dados_jogadores[id] != null:
 		var data = Global.dados_jogadores[id]
-		# Checa se é o novo sistema de dicionário ou um teste antigo passando string
 		if data is Dictionary:
 			input_source = data["esquema"]
 		else:
 			input_source = data
 	else:
-		# Se não tiver input_source definido, garante o K1
 		if input_source == "": 
 			input_source = "K1"
 	
@@ -93,7 +98,6 @@ func _physics_process(delta):
 		brake = 100
 		return
 	
-	# --- LÓGICA DO TEMPO PARA MÚLTIPLOS GAPS ---
 	var expired_gaps = []
 	for gap_id in _active_gaps.keys():
 		_active_gaps[gap_id] -= delta
@@ -101,7 +105,6 @@ func _physics_process(delta):
 			expired_gaps.append(gap_id)
 			
 	for gap_id in expired_gaps:
-		print("[BaseVehicle] Tempo esgotado para o Gap: ", gap_id)
 		_active_gaps.erase(gap_id)
 	
 	if speed_label:
@@ -110,54 +113,54 @@ func _physics_process(delta):
 	
 	brake = 0
 	
-	# --- NOVA MEMÓRIA DE IMPACTO ---
-	# Salva a velocidade de forma inteligente para que raspões no chão não "cancelem" a batida frontal!
 	var vel_atual = linear_velocity.length() * 2.3
 	if vel_atual > velocidade_de_impacto:
 		velocidade_de_impacto = vel_atual
 	else:
 		velocidade_de_impacto = lerp(velocidade_de_impacto, vel_atual, delta * 8.0)
 
-# --- SETUP DE MULTIPLAYER ---
+# --- SETUP DE MULTIPLAYER (CORRIGIDO E BLINDADO) ---
 
 func _setup_multiplayer_links():
+	# Verifica imediatamente se somos um Bot
+	var is_bot = false
+	if input and "is_bot" in input:
+		is_bot = input.is_bot
+
+	# --- MÁGICA DA NAMETAG (Label3D) ---
+	if name_tag:
+		name_tag.text = "Player " + str(id + 1)
+		var layer_bit = 10 + id 
+		name_tag.layers = (1 << layer_bit)
+		
+		var my_camera = find_child("Camera3D", true, false)
+		if my_camera:
+			my_camera.cull_mask &= ~(1 << layer_bit)
+
+	# --- FIM DA LINHA PARA OS BOTS ---
+	# Se for um bot, ele não precisa e não deve tocar em nenhuma HUD!
+	if is_bot: 
+		return 
+
 	var suffix = "_" + input_source
 	
-	var my_hud = get_viewport().find_child("HUD", true, false)
+	# Usamos find_child("*HUD*") direto no carro, garantindo que ele só ache a PRÓPRIA interface
+	var my_hud = find_child("*HUD*", true, false)
 	if my_hud and my_hud.has_method("setup_hud"):
 		my_hud.setup_hud(suffix, self.id)
-		print("[BaseVehicle] Player ", id + 1, " configurado com dispositivo ", input_source)
+		print("[BaseVehicle] Player ", id + 1, " conectou à própria HUD!")
 	
 	if weapons and weapons.has_method("setup_multiplayer"):
 		weapons.setup_multiplayer(suffix)
 		
-	var hud_correta = get_tree().get_first_node_in_group("HUD" + suffix)
-	var rage_comp = get_node_or_null("%RageComponent")
-	var rage_ui = hud_correta.find_child("RageUI", true, false) if hud_correta else null
-	
-	if rage_comp and rage_ui:
-		if not rage_comp.rage_updated.is_connected(rage_ui._on_rage_updated):
-			rage_comp.rage_updated.connect(rage_ui._on_rage_updated)
-			print("[RAGE SETUP] Sinal conectado com sucesso à HUD do Player ", id + 1)
-	else:
-		print("[RAGE ERROR] Faltou o RageComponent no carro OU o RageUI na HUD para: ", suffix)
-		# --- MÁGICA DA NAMETAG (Label3D) ---
-	if name_tag:
-		# 1. Define o texto correto (ex: "Player 1")
-		name_tag.text = "Player " + str(id + 1)
+	# Conexão direta do Rage na própria HUD para evitar cruzamento de dados
+	if my_hud:
+		var rage_comp = get_node_or_null("%RageComponent")
+		var rage_ui = my_hud.find_child("RageUI", true, false)
 		
-		# 2. O Truque da Camada Visual (Cull Mask)
-		# Vamos usar as camadas de renderização 11, 12, 13 e 14 para os jogadores 1, 2, 3 e 4.
-		var layer_bit = 10 + id 
-		
-		# Coloca a Nametag DESTE carro APENAS na camada específica dele
-		name_tag.layers = (1 << layer_bit)
-		
-		# Pega a câmera DESTE jogador e manda ela fechar os olhos para a PRÓPRIA camada!
-		# Assim, ele vê os adversários (que estão nas outras camadas), mas fica cego para o próprio nome.
-		var my_camera = find_child("Camera3D", true, false)
-		if my_camera:
-			my_camera.cull_mask &= ~(1 << layer_bit)
+		if rage_comp and rage_ui:
+			if not rage_comp.rage_updated.is_connected(rage_ui._on_rage_updated):
+				rage_comp.rage_updated.connect(rage_ui._on_rage_updated)
 
 
 # --- LÓGICA DE GAPS E MANOBRAS ---
@@ -224,7 +227,6 @@ func teleport_to(target_transform : Transform3D):
 # --- COLISÕES E IMPACTO ---
 
 func _on_impacto_corpo(body: Node):
-	# 1. FILTRO DE CHÃO (Ignora o mapa estático para não estragar o cálculo)
 	if body is GridMap or "Floor" in body.name or "Exteriors" in body.name:
 		return
 		
@@ -235,12 +237,11 @@ func _on_impacto_corpo(body: Node):
 		return
 	_hit_cooldowns[body_id] = now
 	
-	# 2. USA A NOSSA NOVA MEMÓRIA DE VELOCIDADE
 	var my_speed = velocidade_de_impacto
 	var target_speed = 0.0
 	
 	if body is BaseVehicle:
-		target_speed = body.velocidade_de_impacto # Usa a memória do inimigo também!
+		target_speed = body.velocidade_de_impacto 
 	elif body is RigidBody3D or body is VehicleBody3D:
 		target_speed = body.linear_velocity.length() * 2.0
 	
@@ -248,14 +249,9 @@ func _on_impacto_corpo(body: Node):
 	if not (body is BaseVehicle):
 		relative_speed = my_speed
 	
-	# --- DEBUG LOG: INÍCIO DO IMPACTO ---
-	print("\n[DEBUG IMPACTO] 💥 Bateu em: ", body.name, " | Vel. Carro (Memória): ", int(my_speed), " | Vel. Relativa: ", int(relative_speed))
-	
 	if relative_speed < velocidade_minima_dano:
-		print(" -> [IGNORADO] Batida muito fraca (Abaixo de ", velocidade_minima_dano, ")")
 		return
 	
-	# LÓGICA DE DANO E RAGE
 	var dano_gerado = hit_constant + ((my_speed) * hit_weight * 0.03)
 	
 	if body is BaseVehicle:
@@ -264,8 +260,6 @@ func _on_impacto_corpo(body: Node):
 		
 		if my_force > enemy_force:
 			var dano_final = min((dano_gerado*0.8), dano_maximo_por_batida)
-			
-			print(" -> [DANO PVP] Amassou o Player ", body.id + 1, "! Dano: ", int(dano_final))
 			body.take_damage(dano_final, self)
 			self.take_damage(hit_constant, null)
 			
@@ -274,45 +268,116 @@ func _on_impacto_corpo(body: Node):
 			
 	elif body.has_method("take_damage"):
 		var dano_final = min(dano_gerado, dano_maximo_por_batida)
-		
-		# --- DEBUG LOG: SUCESSO NO DANO PVE ---
-		print(" -> [DANO PVE] Causou ", int(dano_final), " de dano no objeto ", body.name)
-		
 		body.take_damage(dano_final, self)
 		
-# O carro só ganha Rage se o objeto NÃO for uma parede do cenário!
 		if not body.is_in_group("ignorar_rage"):
 			var rage = get_node_or_null("%RageComponent")
 			if rage: rage.add_collision_damage(dano_final)
-		
-	else:
-		# --- DEBUG LOG: O GRANDE REVELADOR DE BUGS ---
-		print(" -> [FALHA] O objeto '", body.name, "' NÃO TEM a função take_damage() ou o script está no nó errado!")
 
-# --- MORTE E DESTRUIÇÃO ---
-func _on_vehicle_destroyed():
-	print("[BaseVehicle] Veículo destruído: Player ", id + 1)
+# --- SISTEMA DE MORTE E DESTRUIÇÃO ---
+var _is_dead : bool = false
+
+func _on_vehicle_destroyed(attacker: Node = null):
+	if _is_dead: return
+	_is_dead = true
 	
-	var controller = get_tree().get_first_node_in_group("LevelController")
-	if controller and controller.has_method("registrar_morte_jogador"):
-		controller.registrar_morte_jogador()
+	var is_bot = false
+	if input and "is_bot" in input:
+		is_bot = input.is_bot
 		
-	queue_free()
+	if not is_bot:
+		# --- MORTE DE JOGADOR REAL ---
+		var controller = get_tree().get_first_node_in_group("LevelController")
+		if controller and controller.has_method("registrar_morte_jogador"):
+			controller.registrar_morte_jogador()
+			
+		visible = false
+		pode_mover = false
+		collision_layer = 0
+		collision_mask = 0
+		set_physics_process(false)
+	else:
+		# --- MORTE DO BOT ---
+		# 1. Dá os pontos NA TELA DE COMBO do Atirador!
+		if is_instance_valid(attacker) and attacker.is_in_group("jogadores"):
+			var g_manager = attacker.get_node_or_null("%GroundTrickManager")
+			if g_manager and g_manager.has_method("add_custom_action"):
+				g_manager.add_custom_action("Bot Destroyed!", pontos_por_morte)
+		
+		# 2. Desliga a colisão para não interferir no drop
+		visible = false
+		collision_layer = 0
+		collision_mask = 0
+		
+		# 3. Spawna o loot IMEDIATAMENTE antes do carro sumir (Sem o call_deferred)
+		_spawn_loot_safely(self.global_position)
+		
+		# 4. Agora sim, joga no lixo com segurança!
+		queue_free()
+
+# --- SISTEMA DE DROPS SEGURO ---
+func _spawn_loot_safely(origin_pos: Vector3):
+	if drop_item_scene:
+		var left_pos = origin_pos + (global_transform.basis.x * -2.5) + Vector3(0, 1.0, 0)
+		var right_pos = origin_pos + (global_transform.basis.x * 2.5) + Vector3(0, 1.0, 0)
+		
+		if drop_item_resource_1: _create_drop_carrier(left_pos, drop_item_resource_1)
+		if drop_item_resource_2: _create_drop_carrier(right_pos, drop_item_resource_2)
+
+func _create_drop_carrier(start_pos: Vector3, resource_to_drop: Resource):
+	# Proteção máxima
+	if not is_inside_tree(): return 
+	
+	var space_state = get_world_3d().direct_space_state
+	var destination = start_pos + (Vector3.DOWN * 100.0)
+	var query = PhysicsRayQueryParameters3D.create(start_pos, destination)
+	
+	# CRUCIAL: Manda o Raycast ignorar o próprio carro morto
+	query.exclude = [self.get_rid()] 
+	
+	var result = space_state.intersect_ray(query)
+	var final_pos = start_pos 
+	
+	if result:
+		final_pos = result.position + Vector3(0, 1.5, 0)
+		
+	var drop_carrier = Node3D.new()
+	drop_carrier.global_position = start_pos
+	get_tree().current_scene.add_child(drop_carrier)
+	
+	var drop = drop_item_scene.instantiate()
+	drop.position = Vector3.ZERO 
+	
+	if "weapon_resource" in drop:
+		drop.weapon_resource = resource_to_drop
+	elif "item_data" in drop:
+		drop.item_data = resource_to_drop
+		
+	drop_carrier.add_child(drop)
+	
+	drop.tree_exited.connect(func():
+		if is_instance_valid(drop_carrier):
+			drop_carrier.queue_free()
+	)
+	
+	var distance = start_pos.distance_to(final_pos)
+	if distance > 0.1:
+		var fall_time = sqrt((2.0 * distance) / 50.0)
+		var tween = get_tree().create_tween()
+		tween.tween_property(drop_carrier, "global_position", final_pos, fall_time).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 
 # --- CONTROLE DE VISIBILIDADE DO NAMETAG ---
 func atualizar_visao_nametags(categoria_index: int):
 	var my_camera = find_child("Camera3D", true, false)
 	if not my_camera: return
 
-	# 1. Fechamos os olhos para TODAS as nametags (Camadas 11 a 14) primeiro
-	for i in range(4):
+	# Fechamos os olhos para TODAS as nametags (Camadas 10 até 19, para suportar mais bots)
+	for i in range(10):
 		var layer_bit = 10 + i
 		my_camera.cull_mask &= ~(1 << layer_bit)
 
-	# 2. Se a categoria for 0 (All Targets) ou 1 (Adversaries), abrimos os olhos!
 	if categoria_index == 0 or categoria_index == 1:
-		for i in range(4):
-			# Nunca olhar para a PRÓPRIA nametag (evita ver o próprio nome)
+		for i in range(10):
 			if i != self.id: 
 				var layer_bit = 10 + i
 				my_camera.cull_mask |= (1 << layer_bit)

@@ -4,7 +4,8 @@ class_name TargetingComponent
 
 # --- SISTEMA DE ALVOS TÁTICO ---
 var target_categories = ["All Targets", "Adversaries", "Fuckers", "Environment"]
-var current_category_index : int = 0
+# MODIFICADO: Agora começa direto no índice 1 (Adversaries) em vez de 0.
+var current_category_index : int = 1 
 var manual_target_index : int = 0
 var active_targets_sorted : Array = []
 
@@ -30,19 +31,16 @@ func _process(delta):
 	
 	var real_delta = delta / Engine.time_scale if car.is_in_group("jogadores") else delta
 	
-	# NAVEGAÇÃO DE ALVOS E CATEGORIAS
 	if Input.is_action_just_pressed("cat_left" + input.suffix): _cycle_category(-1)
 	if Input.is_action_just_pressed("cat_right" + input.suffix): _cycle_category(1)
 	if Input.is_action_just_pressed("target_up" + input.suffix): _cycle_target(-1)
 	if Input.is_action_just_pressed("target_down" + input.suffix): _cycle_target(1)
 
-	# RADAR E LOCK-ON
 	radar_update_timer -= real_delta
 	if radar_update_timer <= 0:
 		radar_update_timer = RADAR_UPDATE_INTERVAL
 		_update_radar_and_lockon()
 		
-	# ATUALIZAÇÃO DO RETÍCULO
 	_atualizar_posicao_reticulo()
 
 func _cycle_category(direction: int):
@@ -115,17 +113,13 @@ func _update_radar_and_lockon():
 			
 		var dist = car_pos.distance_to(t.global_position)
 		
-		# Rastreamos os alvos no radar se estiverem perto, OU se forem jogadores/inimigos (para mostrar no infinito)
 		if dist <= radar_range or t.is_in_group("jogadores") or t.is_in_group("inimigos"):
 			if not t.is_in_group("pedestrians"): radar_data.append(t)
 			
 			if _has_line_of_sight(t):
 				if current_category_index == 0: category_bucket.append(t)
-				# ABA 1 (ADVERSARIES): Só os Jogadores/Bots
 				elif current_category_index == 1 and t.is_in_group("jogadores"): category_bucket.append(t)
-				# ABA 2 (FUCKERS): Só os Inimigos/Torretas
 				elif current_category_index == 2 and t.is_in_group("inimigos"): category_bucket.append(t)
-				# ABA 3 (ENVIRONMENT): Destrutíveis e Pedestres
 				elif current_category_index == 3 and (t.is_in_group("destructibles") or t.is_in_group("pedestrians")): category_bucket.append(t)
 
 	category_bucket.sort_custom(func(a, b):
@@ -148,7 +142,6 @@ func _update_radar_and_lockon():
 	current_target = null
 	var active = weapons.get_active_special() if is_instance_valid(weapons) else null
 	
-	# --- NOVO: Adicionado FreezingMissile ---
 	if is_instance_valid(closest_radar_target) and active and (active.nome == "HomingMissile" or active.nome == "GrapplingMissile" or active.nome == "FreezingMissile"):
 		var dist = car_pos.distance_to(closest_radar_target.global_position)
 		var angle = rad_to_deg(car_forward.angle_to((closest_radar_target.global_position - car_pos).normalized()))
@@ -168,7 +161,6 @@ func _atualizar_posicao_reticulo():
 	var reticle = hud.find_child("Reticle", true, false)
 	if not reticle: return
 
-	# --- NOVO: Adicionado FreezingMissile ---
 	if active and (active.nome == "HomingMissile" or active.nome == "GrapplingMissile" or active.nome == "FreezingMissile") and is_instance_valid(current_target):
 		var camera = get_viewport().get_camera_3d()
 		if camera and not camera.is_position_behind(current_target.global_position):

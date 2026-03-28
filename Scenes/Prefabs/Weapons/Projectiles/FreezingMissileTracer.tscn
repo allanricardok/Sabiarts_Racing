@@ -5,13 +5,13 @@
 
 [sub_resource type="TorusMesh" id="TorusMesh_ojkcs"]
 material = ExtResource("2_s5vxi")
-inner_radius = 0.2
-outer_radius = 0.8
+inner_radius = 0.131
+outer_radius = 0.57
 rings = 12
 ring_segments = 8
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_mkbs4"]
-points = PackedVector3Array(0.25, 0.25, 0.65, 0.25, -0.25, 0.65, 0.25, 0.25, -0.65, -0.25, 0.25, 0.65, -0.25, -0.25, 0.65, 0.25, -0.25, -0.65, -0.25, 0.25, -0.65, -0.25, -0.25, -0.65)
+[sub_resource type="BoxShape3D" id="BoxShape3D_s5vxi"]
+size = Vector3(1, 0.6642456, 1)
 
 [node name="FreezingMissileTracer" type="Area3D"]
 collision_layer = 8
@@ -19,11 +19,12 @@ collision_mask = 7
 script = ExtResource("1_n5kv7")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0)
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0.1711868, 0)
 mesh = SubResource("TorusMesh_ojkcs")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-shape = SubResource("ConvexPolygonShape3D_mkbs4")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.65237427, 0)
+shape = SubResource("BoxShape3D_s5vxi")
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
 [connection signal="body_shape_entered" from="." to="." method="_on_body_shape_entered"]

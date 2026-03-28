@@ -1,8 +1,11 @@
-[gd_scene load_steps=34 format=3 uid="uid://ry75iugdg8sl"]
+[gd_scene load_steps=37 format=3 uid="uid://ry75iugdg8sl"]
 
 [ext_resource type="Script" uid="uid://b0i2wvnkcrknc" path="res://Core/PlayerScripts/Functions/BaseVehicle.gd" id="1_drg00"]
+[ext_resource type="PackedScene" uid="uid://bp4khshtfj0rp" path="res://Scenes/Prefabs/Items/UniversalPickup.tscn" id="2_4a360"]
 [ext_resource type="Script" uid="uid://cjnmai87rc2f8" path="res://Core/camera_test_3.gd" id="2_37r4d"]
+[ext_resource type="Resource" uid="uid://hv86l3gypxgx" path="res://Resources/Items/HealthItem.tres" id="3_dtqej"]
 [ext_resource type="Script" uid="uid://ca80dhy7dchio" path="res://Core/PlayerScripts/UI/hud.gd" id="4_dtqej"]
+[ext_resource type="Resource" uid="uid://b4n2n37tjg3ed" path="res://Resources/Weapons/HomingMissile.tres" id="4_mafvn"]
 [ext_resource type="Script" uid="uid://b5mtjc65y3mxc" path="res://Core/PlayerScripts/UI/RageUI.gd" id="5_mafvn"]
 [ext_resource type="Script" uid="uid://f41hkh6xnfgv" path="res://Core/PlayerScripts/UI/MinimapDraw.gd" id="6_70m6l"]
 [ext_resource type="Texture2D" uid="uid://bkmid1n6i7ij6" path="res://Assets/2D/Test_Texture.jpg" id="7_66ub0"]
@@ -99,6 +102,9 @@ angular_damp = 8.0
 engine_force = 1.0
 brake = 1.0
 script = ExtResource("1_drg00")
+drop_item_scene = ExtResource("2_4a360")
+drop_item_resource_1 = ExtResource("3_dtqej")
+drop_item_resource_2 = ExtResource("4_mafvn")
 velocidade_minima_dano = 4.0
 speed_label = NodePath("HUD/UI_Base/SpeedLabel")
 

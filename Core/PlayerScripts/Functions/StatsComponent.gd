@@ -5,7 +5,8 @@ class_name StatsComponent
 @export var jump_multiplier: float = 1.0 
 var is_invulnerable: bool = false
 
-signal health_depleted
+# --- CORREÇÃO: O sinal agora exige que informem quem foi o atirador! ---
+signal health_depleted(attacker: Node)
 signal shield_broken
 signal stats_changed
 
@@ -139,7 +140,8 @@ func take_damage(amount: float, source: Node = null):
 	if current_health <= 0:
 		current_health = 0 
 		_on_death() 
-		health_depleted.emit()
+		# --- CORREÇÃO: Envia a identidade do atirador no sinal ---
+		health_depleted.emit(attacker_node)
 
 func _process_scoring(source: Node):
 	var attacker = source
@@ -151,7 +153,14 @@ func _process_scoring(source: Node):
 	if g_manager and g_manager.has_method("add_ground_action"):
 		g_manager.add_ground_action("HIT_OBJECT")
 		if current_health <= 0:
-			g_manager.add_ground_action("DESTROY_OBJECT")
+			# --- NOVO FILTRO: Só mostra a mensagem de "Objeto" se NÃO for um bot
+			var is_bot = false
+			if is_instance_valid(owner) and owner.has_node("%InputComponent"):
+				var ic = owner.get_node("%InputComponent")
+				if "is_bot" in ic and ic.is_bot: is_bot = true
+				
+			if not is_bot:
+				g_manager.add_ground_action("DESTROY_OBJECT")
 
 func _check_damage_state():
 	var parent = get_parent()

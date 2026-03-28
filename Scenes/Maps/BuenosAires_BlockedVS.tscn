@@ -1,4 +1,4 @@
-[gd_scene load_steps=269 format=3 uid="uid://d1rl8sskrmddj"]
+[gd_scene load_steps=274 format=3 uid="uid://d1rl8sskrmddj"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_u8o8m"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="3_is8dr"]
@@ -38,6 +38,11 @@
 [ext_resource type="PackedScene" uid="uid://cj77r4qvb36bc" path="res://Scenes/Prefabs/MapObjects/Bush1.tscn" id="27_6vwi6"]
 [ext_resource type="Resource" uid="uid://twwvwp5k3okx" path="res://Resources/MapMissions/BA-block.tres" id="32_ip1o4"]
 [ext_resource type="PackedScene" uid="uid://cgs7fx75kuj8v" path="res://Scenes/Maps/world_environment_test.tscn" id="32_vj8u6"]
+[ext_resource type="Script" uid="uid://eka4dkq4ub66" path="res://Core/Enemies/BotSpawner.gd" id="34_r7ole"]
+[ext_resource type="PackedScene" uid="uid://d1q613pnimt40" path="res://Scenes/Prefabs/Vehicles/BrasiliaTest.tscn" id="35_6fv6f"]
+[ext_resource type="PackedScene" uid="uid://oqlfy56yme5y" path="res://Scenes/Prefabs/Vehicles/FireTruckTest.tscn" id="36_4e1cd"]
+[ext_resource type="PackedScene" uid="uid://cxnfwc3ovajua" path="res://Scenes/Prefabs/Vehicles/LakesterTest.tscn" id="37_44s4c"]
+[ext_resource type="PackedScene" uid="uid://cmcbewlv3y7he" path="res://Scenes/Prefabs/Vehicles/ShadowJetTest.tscn" id="38_jtjsh"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_a70xh"]
 material = ExtResource("3_is8dr")
@@ -5697,6 +5702,23 @@ shape = SubResource("BoxShape3D_yrhsj")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Cars/BrokenCar20"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.062233925, 0)
 mesh = SubResource("BoxMesh_h16if")
+
+[node name="BotSpawner" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map" node_paths=PackedStringArray("spawn_points")]
+script = ExtResource("34_r7ole")
+car_prefabs = Array[PackedScene]([ExtResource("35_6fv6f"), ExtResource("36_4e1cd"), ExtResource("37_44s4c"), ExtResource("38_jtjsh")])
+spawn_points = [NodePath("Marker3D"), NodePath("Marker3D2"), NodePath("Marker3D3"), NodePath("Marker3D4")]
+
+[node name="Marker3D" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/BotSpawner"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.0657039, 80.86475)
+
+[node name="Marker3D2" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/BotSpawner"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -294.83176, 2.0657039, -189.97795)
+
+[node name="Marker3D3" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/BotSpawner"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -256.54572, 2.0657039, -36.06125)
+
+[node name="Marker3D4" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/BotSpawner"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -35.117577, 2.0657039, 268.90598)
 
 [node name="Cont_P2" type="SubViewportContainer" parent="GridContainer"]
 visible = false

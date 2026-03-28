@@ -27,8 +27,11 @@ func _process(delta):
 	
 	for c in todos_jogadores:
 		if c.get_viewport() == get_viewport():
-			car = c
-			break
+			# --- CORREÇÃO: Ignora o carro se ele for um Bot! ---
+			var input_comp = c.get_node_or_null("%InputComponent")
+			if input_comp and not input_comp.is_bot:
+				car = c
+				break
 	
 	if not car: 
 		_set_locked(false)

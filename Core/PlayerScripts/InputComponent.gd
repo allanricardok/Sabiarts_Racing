@@ -4,6 +4,10 @@ class_name InputComponent
 
 var suffix : String = ""
 
+# --- NOVO: CHAVE DO PILOTO AUTOMÁTICO ---
+# Quando true, ignora o teclado/mouse e obedece ao BotBrain
+var is_bot : bool = false 
+
 # --- EIXOS DE MOVIMENTO ---
 var throttle : float = 0.0
 var steering : float = 0.0
@@ -18,7 +22,6 @@ var mouse_look : Vector2 = Vector2.ZERO
 @export var camera_sensitivity : float = 0.000005 
 @export var air_camera_multiplier : float = 0.2   
 @export var mouse_return_speed : float = 5.0    
-# NOVO: Define a força mínima do empurrão do mouse para gerar a manobra
 @export var mouse_maneuver_threshold : float = 1000.0 
 
 # --- BOTÕES E ESTADOS ---
@@ -42,6 +45,11 @@ func setup(input_source: String):
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
 func _process(delta):
+	# --- BARREIRA DO BOT ---
+	# Se for um Bot, cancela a leitura do teclado! 
+	# As variáveis (throttle, steering, etc.) serão alteradas diretamente pelo BotBrain.
+	if is_bot: return 
+	
 	if suffix == "": return
 	
 	is_grounded = true
@@ -108,7 +116,6 @@ func _handle_global_mouse(delta):
 	if not is_grounded:
 		current_cam_sens *= air_camera_multiplier
 	
-	# Usamos uma fração do threshold para a câmera continuar registrando movimentos leves
 	if mouse_vel.length() > (mouse_maneuver_threshold * 0.2): 
 		
 		look_vector.x += mouse_vel.x * current_cam_sens
@@ -116,7 +123,6 @@ func _handle_global_mouse(delta):
 		look_vector.x = clamp(look_vector.x, -1.0, 1.0)
 		look_vector.y = clamp(look_vector.y, -1.0, 1.0)
 
-		# MUDANÇA: Agora usa a variável exposta no Inspetor
 		if abs(mouse_vel.x) > mouse_maneuver_threshold:
 			mouse_look.x = sign(mouse_vel.x)
 		else:

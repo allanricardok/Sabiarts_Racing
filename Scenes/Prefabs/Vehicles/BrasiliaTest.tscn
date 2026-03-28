@@ -182,6 +182,9 @@ EXTRA_FALL_GRAVITY = 4.0
 jump_multiplier = 0.8
 max_health = 110.0
 
+[node name="AbilityComponent" parent="Scripts" index="4"]
+JUMP_FORCE = 25.0
+
 [node name="AirMovementComponent" parent="Scripts" index="5"]
 AIR_CONTROL_FORCE = 16.0
 AIR_TORQUE_FORCE = 34.0

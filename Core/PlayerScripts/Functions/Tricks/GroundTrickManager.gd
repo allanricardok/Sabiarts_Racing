@@ -6,16 +6,12 @@ class_name GroundTrickManager
 
 # --- VARIÁVEIS DE BALANCEAMENTO ---
 @export_group("Timing")
-## Tempo de inatividade (segundos) para fechar o combo no chão
 @export var COMBO_TIMEOUT : float = 3.0
-## Tempo que o resultado final do combo de solo fica na tela
 @export var DISPLAY_STAY_TIME : float = 3.0
 
 @export_group("Limites")
-## Multiplicador máximo que o jogador pode alcançar no chão
 @export var MAX_COMBO_MULTIPLIER : float = 5.0
 
-# Cor padrão para ações de combate/chão
 const COLOR_GROUND = "#ff4444" # Vermelho
 
 const GROUND_DATA = {
@@ -33,17 +29,28 @@ var display_version : int = 0
 func add_ground_action(id: String):
 	if not GROUND_DATA.has(id): return
 	
-	# Se o carro estiver no ar, envia a ação para o TrickManager (Combo Aéreo)
-	# Passamos o nome, os pontos e a cor VERMELHA
 	var air_tricks = car.get_node_or_null("%TrickManager") as TrickManager
 	if air_tricks and air_tricks.tracking_jump:
 		air_tricks.add_external_action(GROUND_DATA[id].name, GROUND_DATA[id].points, COLOR_GROUND)
 		return
 		
-	# Inicia combo de solo se não estiver ativo
 	if not tracking_combo: _start_combo()
 	
 	_register_action_logic(id)
+	_restart_inactivity_timer()
+
+func add_custom_action(custom_name: String, points: int):
+	var air_tricks = car.get_node_or_null("%TrickManager") as TrickManager
+	if air_tricks and air_tricks.tracking_jump:
+		air_tricks.add_external_action(custom_name, points, COLOR_GROUND)
+		return
+		
+	if not tracking_combo: _start_combo()
+	
+	actions_done.append(custom_name)
+	points_per_action.append(points)
+	
+	_update_live_display()
 	_restart_inactivity_timer()
 
 func _start_combo():
@@ -58,7 +65,6 @@ func _register_action_logic(id: String):
 	points_per_action.append(data.points)
 	_update_live_display()
 
-# --- MULTIPLICADOR DINÂMICO ---
 func _get_dynamic_multiplier() -> float:
 	if actions_done.size() == 0: return 1.0
 	
@@ -77,20 +83,23 @@ func _get_dynamic_multiplier() -> float:
 			mult += 1.0 
 			seen_in_this_combo[a_name] = true
 			
-	# MUDANÇA SÊNIOR: Retorna o multiplicador ou o limite máximo (o que for menor)
 	return min(mult, MAX_COMBO_MULTIPLIER)
 
-# --- Função auxiliar para encontrar a HUD correta do Split-Screen ---
+# --- CORREÇÃO: Filtro Anti-Bot ---
 func _get_local_hud() -> Node:
+	# Se for um bot, NÃO retorna HUD nenhuma. O combo acontece silenciosamente no background.
+	var input_comp = car.get_node_or_null("%InputComponent")
+	if input_comp and "is_bot" in input_comp and input_comp.is_bot:
+		return null
+		
 	for hud in get_tree().get_nodes_in_group("HUD"):
 		if hud.get_viewport() == car.get_viewport():
 			return hud
 	return null
 
-# --- EXIBIÇÃO COM BBCODE ---
 func _update_live_display():
 	var hud = _get_local_hud()
-	if not hud: return
+	if not hud: return # Se for o Bot, ele para a função de UI aqui!
 	
 	var grouped = {}
 	var order = []
@@ -120,24 +129,25 @@ func _update_live_display():
 	if pts_text.ends_with(" + "): pts_text = pts_text.left(-3)
 
 	var current_mult = _get_dynamic_multiplier()
-	# Envia a string formatada para o HUD
 	var info = names_bbcode + "\n" + str(current_mult) + "x " + pts_text
 	
 	hud.update_combo_live(info)
 
 func _finalize_ground_score():
-	var hud = _get_local_hud()
-	if not hud: return
-	
 	var total_base = 0
 	for p in points_per_action: total_base += p
 	var mult = _get_dynamic_multiplier()
 	var final_score = int(total_base * mult)
 	
-	# Usamos a lógica de Multiplayer do ScoreManager (passando o ID do carro que pontuou)
+	# Os pontos são salvos normalmente no backend (para players e bots)
 	ScoreManager.add_points(final_score, car.id)
 	
-	# --- RECONSTRUÇÃO DA STRING DETALHADA ---
+	# Tenta pegar a HUD. Se for Bot, ele vai retornar nulo e cortar a função visual.
+	var hud = _get_local_hud()
+	if not hud: 
+		tracking_combo = false
+		return 
+	
 	var grouped = {}
 	var order = []
 	for i in range(actions_done.size()):
@@ -166,10 +176,7 @@ func _finalize_ground_score():
 	var info = names_bbcode + "\n" + str(mult) + "x " + pts_text
 	
 	var msg = "Cool combo!" if mult > 1.5 else "Nice hit!"
-	
-	# Se o jogador bateu no teto de multiplicador, damos um feedback visual diferente!
-	if mult >= MAX_COMBO_MULTIPLIER:
-		msg = "MAX COMBO!"
+	if mult >= MAX_COMBO_MULTIPLIER: msg = "MAX COMBO!"
 		
 	var result = msg + "\n" + ScoreManager.format_score_with_dots(final_score) + " points"
 	

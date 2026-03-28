@@ -17,8 +17,6 @@ const COLOR_GAP = "#00aaff"    # Azul
 const COLOR_TIME = "#ffffff"   # Branco
 const COLOR_SPECIAL = "#ffd700" # Dourado / Amarelo Escuro (Especiais)
 
-# O dicionário TRICK_DATA foi movido para o TrickBuilder.gd
-
 var global_stunt_uses = {}
 var air_time := 0.0
 var tracking_jump := false
@@ -45,11 +43,8 @@ func iniciar_deteccao_gap(gap_id: String):
 		print("[TrickManager] Monitorando GAP: ", gap_id)
 
 func marcar_gap_no_ar(gap_id: String, gap_name: String, points: int):
-	# Se a gente estava monitorando esse gap e ainda não o completou neste pulo
 	if _active_gaps_ids.has(gap_id) and not _gaps_completed_this_jump.has(gap_id):
 		_gaps_completed_this_jump.append(gap_id)
-		
-		# A mágica acontece aqui: A gente injeta o gap na HUD como uma manobra normal!
 		add_external_action(gap_name, points, COLOR_GAP)
 
 func cancelar_gap():
@@ -76,7 +71,6 @@ func add_trick_manually(id: String):
 func register_builder_trick(id: String, trick_name: String, base_pts: int):
 	if not tracking_jump: _start_new_jump()
 	
-	# Lógica de multiplicadores original
 	var g_count = global_stunt_uses.get(id, 0)
 	var g_mult = max(0.1, 1.0 - (g_count * 0.05))
 	var j_count = current_jump_uses.get(id, 0)
@@ -86,8 +80,6 @@ func register_builder_trick(id: String, trick_name: String, base_pts: int):
 	tricks_done.append(trick_name)
 	points_per_trick.append(final_pts)
 	
-	# --- LÓGICA DE COR DIFERENCIADA ---
-	# Identifica se a manobra é uma "Especial" (Fireball, Shockwave, Shield, Emote)
 	var special_ids = ["FIREBALL", "SHOCKWAVE", "SHIELD_SPIN", "EMOTE"]
 	if id in special_ids:
 		tricks_colors.append(COLOR_SPECIAL)
@@ -99,7 +91,7 @@ func register_builder_trick(id: String, trick_name: String, base_pts: int):
 	_update_live_display()
 	var rage = car.get_node_or_null("%RageComponent")
 	if rage:
-		rage.add_trick(1) # Ganha 1 ponto (que vira 2 se tiver abaixo de 100)
+		rage.add_trick(1) 
 
 func _start_new_jump():
 	tracking_jump = true
@@ -126,12 +118,23 @@ func _start_new_jump():
 	var builder = car.get_node_or_null("%TrickBuilder")
 	if builder: builder.reset_builder_logic()
 
+# --- CORREÇÃO: FILTRO DE HUD PARA BOTS ---
+func _get_local_hud() -> Node:
+	if not is_instance_valid(car) or not is_instance_valid(car.input): return null
+	
+	if "is_bot" in car.input and car.input.is_bot:
+		return null
+		
+	return get_tree().get_first_node_in_group("HUD" + car.input.suffix)
+
+
 # --- EXIBIÇÃO E FINALIZAÇÃO ---
 
 func _update_live_display():
 	if is_showing_final_score: return
-	# Agora ele procura o HUD específico do seu carro!
-	var hud = get_tree().get_first_node_in_group("HUD" + car.input.suffix)
+	
+	# Passa pelo filtro Anti-Bot
+	var hud = _get_local_hud()
 	if not hud: return
 	
 	var grouped_tricks = {} 
@@ -162,10 +165,6 @@ func _update_live_display():
 	hud.update_combo_live(info)
 
 func _finalize_score():
-	# Busca o HUD específico deste carro para não exibir na tela errada
-	var hud = get_tree().get_first_node_in_group("HUD" + car.input.suffix)
-	if not hud: return
-	
 	is_showing_final_score = true 
 	
 	var total_base = int(air_time * AIR_TIME_POINTS_MULT)
@@ -173,15 +172,24 @@ func _finalize_score():
 	var mult = _get_dynamic_multiplier()
 	var final_score = int(total_base * mult)
 	
-	# --- MUDANÇA CRUCIAL: Passamos o ID do carro ---
+	# Salva a pontuação na Global (Funciona para Bots e Players)
 	ScoreManager.add_points(final_score, car.id)
 	
-	# Passa por todos os gaps concluídos no pulo
-	for completed_gap in _gaps_completed_this_jump:
-		if is_instance_valid(MissionManager) and not MissionManager.is_mission_completed(completed_gap):
-			MissionManager.notify_progress(MissionItem.Type.GAP, 1.0, completed_gap)
+	# Avisa o gerente de missões (Apenas para Players)
+	var is_bot = (car.input and "is_bot" in car.input and car.input.is_bot)
+	if not is_bot:
+		for completed_gap in _gaps_completed_this_jump:
+			if is_instance_valid(MissionManager) and not MissionManager.is_mission_completed(completed_gap):
+				MissionManager.notify_progress(MissionItem.Type.GAP, 1.0, completed_gap)
 
 	_reset_gap_state_internal()
+	
+	# Se for bot, encerra a função visual aqui!
+	var hud = _get_local_hud()
+	if not hud:
+		is_showing_final_score = false
+		return
+		
 	_update_final_display(hud, final_score, mult)
 
 # --- CORREÇÃO NO RESET ---
@@ -192,10 +200,8 @@ func reset_trick():
 	if is_showing_final_score: return
 	display_version += 1
 	
-	# Busca o HUD específico deste carro para limpar
-	var hud = get_tree().get_first_node_in_group("HUD" + car.input.suffix)
+	var hud = _get_local_hud()
 	if hud:
-		# Se o seu HUD tiver uma função de limpar, use-a, senão esconda os labels
 		if hud.has_method("clear_combo_display"):
 			hud.clear_combo_display()
 		else:
@@ -239,8 +245,6 @@ func _update_final_display(hud, final_score, mult):
 	is_showing_final_score = false
 
 func _reset_gap_state_internal():
-	# Limpamos apenas a lista de completados. 
-	# Os IDs sendo monitorados continuam, pois o carro cuida do cronômetro deles!
 	_gaps_completed_this_jump.clear()
 
 func _get_dynamic_multiplier() -> float:
@@ -248,20 +252,13 @@ func _get_dynamic_multiplier() -> float:
 	var trick_counts = {}
 	
 	for t_name in tricks_done:
-		# Inicializa a contagem dessa manobra específica se não existir
 		if not trick_counts.has(t_name):
 			trick_counts[t_name] = 0
 			
 		trick_counts[t_name] += 1
 		
-		# --- A TRAVA ANTI-SPAM ---
-		if trick_counts[t_name] == 1:
-			mult += 1.0 # 1ª vez: Manobra nova, ganha +1.0 inteiro
-		elif trick_counts[t_name] <= 5:
-			mult += 0.5 # 2ª até a 5ª vez: Repetição aceitável, ganha +0.5
-			
-		# Da 6ª repetição em diante, o jogo simplesmente ignora!
-		# O jogador ganha os pontos base, mas o multiplicador não sobe mais.
+		if trick_counts[t_name] == 1: mult += 1.0 
+		elif trick_counts[t_name] <= 5: mult += 0.5 
 
 	return mult
 
