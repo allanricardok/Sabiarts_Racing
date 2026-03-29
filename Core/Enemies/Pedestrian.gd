@@ -82,10 +82,8 @@ func _on_hitbox_body_entered(body):
 
 func take_damage(amount: float, attacker: Node3D = null):
 	var attacker_name = attacker.name if is_instance_valid(attacker) else "Desconhecido"
-	print("[PEDESTRE DEBUG] O Pedestre ", self.name, " recebeu a chamada de dano do atacante: ", attacker_name)
 
 	if is_invincible or is_dead: 
-		print(" -> Mas o pedestre ignorou o tiro (Invencível ou já estava morto).")
 		return 
 	
 	is_dead = true

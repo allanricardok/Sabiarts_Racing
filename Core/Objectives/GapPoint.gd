@@ -27,12 +27,10 @@ func _on_body_entered(body):
 func _on_body_exited(body):
 	if body is BaseVehicle and point_type == PointType.START:
 		_start_gap(body)
-		print("[Gap] START RENOVADO: ", gap_id, " (Carro saiu da área)")
 
 func _start_gap(player):
 	if player.has_method("set_active_gap"):
 		player.set_active_gap(gap_id)
-		print("[Gap] Validado Início: ", gap_id)
 
 func _complete_gap(player):
 	# --- NOVA VERIFICAÇÃO MULTI-GAPS ---
@@ -43,6 +41,3 @@ func _complete_gap(player):
 		if is_air:
 			if player.has_method("set_gap_reached_end"):
 				player.set_gap_reached_end(gap_id, gap_name, gap_points)
-				print("[Gap] COMPLETADO NO AR: ", gap_name)
-		else:
-			print("[Gap] Falhou: Cruzou o END mas estava no chão.")

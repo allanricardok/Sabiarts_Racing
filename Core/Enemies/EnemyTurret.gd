@@ -126,7 +126,7 @@ func take_damage(amount: float, attacker: Node = null):
 	if stats:
 		stats.take_damage(amount, attacker)
 
-func _on_death():
+func _on_death(attacker: Node = null):
 	# CADEADO DUPLO: Garante que só morre uma vez
 	if is_dead: return
 	is_dead = true

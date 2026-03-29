@@ -59,7 +59,6 @@ func _morrer(actual_shooter: Node3D):
 		# 2. Registra a destruição para pontos
 		var gtm = actual_shooter.get_node_or_null("%GroundTrickManager")
 		if gtm:
-			print("[Prop] Destruído por: ", actual_shooter.name, " +", energy_on_destroy, " energia")
 			gtm.add_ground_action("DESTROY_OBJECT")
 			
 			# 3. Notifica o MissionManager se houver ID

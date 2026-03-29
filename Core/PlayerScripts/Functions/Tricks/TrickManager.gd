@@ -40,7 +40,6 @@ var is_showing_final_score := false
 func iniciar_deteccao_gap(gap_id: String):
 	if not _active_gaps_ids.has(gap_id):
 		_active_gaps_ids.append(gap_id)
-		print("[TrickManager] Monitorando GAP: ", gap_id)
 
 func marcar_gap_no_ar(gap_id: String, gap_name: String, points: int):
 	if _active_gaps_ids.has(gap_id) and not _gaps_completed_this_jump.has(gap_id):

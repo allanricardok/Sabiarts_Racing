@@ -13,7 +13,7 @@ class_name WeaponManager
 @onready var input = %InputComponent
 @onready var targeting = %TargetingComponent
 
-# --- NOVO: FreezingMissile adicionado ao dicionário! ---
+# --- DICIONÁRIO DE ARMAS ---
 @onready var weapon_nodes = {
 	"MachineGun": %MachineGun,
 	"BigSlow": %BigSlow,
@@ -46,10 +46,9 @@ var _is_recovering : bool = false
 var _was_firing : bool = false
 
 func _ready():
-	# Cria o material de brilho amarelado
 	highlight_material = StandardMaterial3D.new()
 	highlight_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	highlight_material.albedo_color = Color(1.0, 0.8, 0.0, 0.4) # Amarelo Dourado
+	highlight_material.albedo_color = Color(1.0, 0.8, 0.0, 0.4)
 	highlight_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	highlight_material.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
 	
@@ -62,23 +61,34 @@ func setup_multiplayer(suffix: String):
 	_atualizar_interface()
 
 func _process(delta):
-	var real_delta = delta / Engine.time_scale if is_instance_valid(car) and car.is_in_group("jogadores") else delta
+	var is_bot = (input and "is_bot" in input and input.is_bot)
+	var real_delta = delta / Engine.time_scale if is_instance_valid(car) and car.is_in_group("jogadores") and not is_bot else delta
 
-# (Código anterior do _process continua igual...)
 	if basic_cooldown > 0: basic_cooldown -= real_delta
 	for w in special_cooldowns.keys():
 		if special_cooldowns[w] > 0: special_cooldowns[w] -= real_delta
 		
 	if not car.pode_mover: return
 	
-	# --- NOVO: CADEADO DO GELO ---
-	# Impede de atirar ou trocar de arma enquanto estiver congelado
+	# CADEADO DO GELO
 	if car.has_method("is_frozen") and car.is_frozen(): 
-		_was_firing = false # Reseta o gatilho para ele não atirar sozinho quando descongelar
+		_was_firing = false 
 		return 
 
-	var is_doing_ability = (input.ability_up or input.ability_down or input.ability_left or input.ability_right)
-	var is_firing = input.is_action_pressed and not is_doing_ability
+	# --- CORREÇÃO DO INPUT COMPARTILHADO ---
+	var is_firing = false
+	
+	if is_bot:
+		# Se for Bot, ele só atira quando o Cérebro mandar!
+		is_firing = input.is_action_pressed 
+	else:
+		# Se for Player, ele lê os botões reais
+		var is_doing_ability = (input.ability_up or input.ability_down or input.ability_left or input.ability_right)
+		is_firing = input.is_action_pressed and not is_doing_ability
+
+		if Input.is_action_just_pressed("prev_weapon" + input.suffix): _switch_weapon(-1)
+		if Input.is_action_just_pressed("next_weapon" + input.suffix): _switch_weapon(1)
+		if Input.is_action_just_pressed("Fire" + input.suffix): fire_special_weapon()
 
 	if not is_firing and _was_firing:
 		_is_recovering = true
@@ -96,11 +106,6 @@ func _process(delta):
 			fire_basic_weapon()
 
 	_was_firing = is_firing
-
-	if Input.is_action_just_pressed("prev_weapon" + input.suffix): _switch_weapon(-1)
-	if Input.is_action_just_pressed("next_weapon" + input.suffix): _switch_weapon(1)
-	if Input.is_action_just_pressed("Fire" + input.suffix): fire_special_weapon()
-
 
 # --- GESTÃO DO INVENTÁRIO (POOL) ---
 
@@ -137,36 +142,25 @@ func _switch_weapon(direction: int):
 	_atualizar_interface()
 
 func _update_visual_selection():
-	# 1. Esconde as armas especiais e tira o brilho de tudo
 	for key in weapon_nodes:
-		if key != "MachineGun":
-			weapon_nodes[key].visible = false
+		if key != "MachineGun": weapon_nodes[key].visible = false
 		_set_weapon_highlight(key, false)
 		
-	# A metralhadora básica sempre fica visível
-	if weapon_nodes.has("MachineGun"):
-		weapon_nodes["MachineGun"].visible = true
+	if weapon_nodes.has("MachineGun"): weapon_nodes["MachineGun"].visible = true
 
-	# 2. Mostra todas as armas que o jogador tem no inventário
 	for w in weapon_pool:
-		if weapon_nodes.has(w.nome):
-			weapon_nodes[w.nome].visible = true
+		if weapon_nodes.has(w.nome): weapon_nodes[w.nome].visible = true
 
-	# 3. Aplica o brilho APENAS na arma selecionada
 	var active = get_active_special()
-	if active and weapon_nodes.has(active.nome):
-		_set_weapon_highlight(active.nome, true)
+	if active and weapon_nodes.has(active.nome): _set_weapon_highlight(active.nome, true)
 
 func _set_weapon_highlight(weapon_name: String, is_active: bool):
 	var node = weapon_nodes.get(weapon_name)
 	if not is_instance_valid(node): return
-	
 	var meshes = node.find_children("*", "MeshInstance3D", true)
 	for mesh in meshes:
-		if is_active:
-			mesh.material_overlay = highlight_material
-		else:
-			mesh.material_overlay = null
+		if is_active: mesh.material_overlay = highlight_material
+		else: mesh.material_overlay = null
 
 # --- LÓGICA DE TIRO ---
 
@@ -217,11 +211,9 @@ func _spawn_projectile(res: WeaponResource, node_name: String):
 	
 	if muzzle: proj.global_transform = muzzle.global_transform
 	
-	if "is_special_weapon" in proj:
-		proj.is_special_weapon = (node_name != "MachineGun")
+	if "is_special_weapon" in proj: proj.is_special_weapon = (node_name != "MachineGun")
 	
 	if proj.has_method("setup"):
-		# --- NOVO: FreezingMissile adicionado ao grupo que busca alvos ---
 		if node_name == "HomingMissile" or node_name == "GrapplingMissile" or node_name == "FreezingMissile":
 			var target = targeting.current_target if is_instance_valid(targeting) else null
 			proj.setup(res.dano, car.linear_velocity, car, target)
@@ -235,6 +227,10 @@ func _muzzle_flash_effect(node_name: String):
 		get_tree().create_timer(0.05).timeout.connect(func(): light.visible = false)
 
 func _atualizar_interface():
+	# --- CORREÇÃO DA UI COMPARTILHADA ---
+	if input and "is_bot" in input and input.is_bot: 
+		return # Bot não tem HUD para atualizar!
+		
 	var hud = get_tree().get_first_node_in_group("HUD" + player_suffix)
 	if hud and hud.has_method("atualizar_arma"):
 		var active = get_active_special()
