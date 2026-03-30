@@ -14,23 +14,7 @@ func _ready():
 # --- NOVA FUNÇÃO AUTOMÁTICA ---
 func _auto_categorizar_objetos():
 	print("[Mapa] Iniciando Auto-Categorização para os Bots...")
-	var count_armas = 0
-	var count_vida = 0
 	var count_rampas = 0
-	
-	# 1. Tagueando Armas (Pega todos os filhos de "Pickups")
-	var node_pickups = find_child("Pickups", true, false)
-	if node_pickups:
-		for arma in node_pickups.get_children():
-			arma.add_to_group("weapon_pickups")
-			count_armas += 1
-			
-	# 2. Tagueando Vida/Status (Pega todos os filhos de "StatusItems")
-	var node_status = find_child("StatusItems", true, false)
-	if node_status:
-		for item in node_status.get_children():
-			item.add_to_group("health_pickups")
-			count_vida += 1
 
 	# 3. Tagueando Rampas 
 	# (Procura na árvore inteira por qualquer nó que tenha "Ramp" no nome)
@@ -38,8 +22,6 @@ func _auto_categorizar_objetos():
 	for rampa in todos_os_nos:
 		rampa.add_to_group("rampas")
 		count_rampas += 1
-
-	print("[Mapa] Categorização concluída! Armas: ", count_armas, " | Vida: ", count_vida, " | Rampas: ", count_rampas)
 
 func _configurar_tela_e_spawn():
 	var jogadores_logados = []

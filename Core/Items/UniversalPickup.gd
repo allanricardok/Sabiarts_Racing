@@ -21,6 +21,9 @@ var _start_y : float
 func _ready():
 	_start_y = position.y
 	_update_visuals()
+	# AUTO-TAGUEAMENTO DINÂMICO
+	# Esperamos o final do frame só para garantir que o Spawner já injetou o .tres nela
+	call_deferred("_definir_grupo_por_recurso")
 	
 	if not Engine.is_editor_hint():
 		if not body_entered.is_connected(_on_body_entered):
@@ -88,3 +91,18 @@ func _on_body_entered(body):
 func _collect_effect():
 	# TODO: Instanciar som e partículas
 	queue_free()
+
+func _definir_grupo_por_recurso():
+	if not item_data: 
+		return # Previne erros se a caixa nascer vazia
+		
+	# --- É UMA ARMA? ---
+	# Usa a mesma checagem inteligente que você fez no _on_body_entered
+	if item_data is WeaponResource or "weapon_name" in item_data:
+		add_to_group("weapon_pickups")
+		print("[Pickup] Nasceu uma ARMA! Adicionada ao grupo weapon_pickups.")
+		
+	# --- É UM STATUS (Vida)? ---
+	elif item_data is StatusResource or "health_amount" in item_data:
+		add_to_group("health_pickups")
+		print("[Pickup] Nasceu uma VIDA! Adicionada ao grupo health_pickups.")
