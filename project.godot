@@ -47,6 +47,7 @@ inimigos=""
 destructibles=""
 pedestrians=""
 AbilityTeleport=""
+projetil=""
 
 [input]
 

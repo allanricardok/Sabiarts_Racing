@@ -15,6 +15,11 @@ class_name ItemSpawner
 var current_pickup : Node3D = null
 var timer : float = 0.0
 
+func _ready():
+	# Deleta o fantasma assim que o jogo começa, para não aparecer na gameplay
+	if has_node("DebugMesh"):
+		$DebugMesh.queue_free()
+
 func _process(delta):
 	if not pickup_scene: return
 	

@@ -19,7 +19,7 @@ collision_mask = 7
 script = ExtResource("1_vuh8p")
 knockback_force = 3000.0
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." groups=["projetil"]]
 mesh = SubResource("BoxMesh_vuh8p")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]

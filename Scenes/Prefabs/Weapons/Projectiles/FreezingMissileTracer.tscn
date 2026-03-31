@@ -22,7 +22,7 @@ script = ExtResource("1_n5kv7")
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0.1711868, 0)
 mesh = SubResource("TorusMesh_ojkcs")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." groups=["projetil"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.65237427, 0)
 shape = SubResource("BoxShape3D_s5vxi")
 

@@ -38,7 +38,7 @@
 [ext_resource type="PackedScene" uid="uid://cj77r4qvb36bc" path="res://Scenes/Prefabs/MapObjects/Bush1.tscn" id="27_6vwi6"]
 [ext_resource type="Resource" uid="uid://twwvwp5k3okx" path="res://Resources/MapMissions/BA-block.tres" id="32_ip1o4"]
 [ext_resource type="PackedScene" uid="uid://cgs7fx75kuj8v" path="res://Scenes/Maps/world_environment_test.tscn" id="32_vj8u6"]
-[ext_resource type="Script" uid="uid://eka4dkq4ub66" path="res://Core/Enemies/BotSpawner.gd" id="34_r7ole"]
+[ext_resource type="Script" uid="uid://eka4dkq4ub66" path="res://Core/Enemies/Bots/BotSpawner.gd" id="34_r7ole"]
 [ext_resource type="PackedScene" uid="uid://d1q613pnimt40" path="res://Scenes/Prefabs/Vehicles/BrasiliaTest.tscn" id="35_6fv6f"]
 [ext_resource type="PackedScene" uid="uid://oqlfy56yme5y" path="res://Scenes/Prefabs/Vehicles/FireTruckTest.tscn" id="36_4e1cd"]
 [ext_resource type="PackedScene" uid="uid://cxnfwc3ovajua" path="res://Scenes/Prefabs/Vehicles/LakesterTest.tscn" id="37_44s4c"]
@@ -956,7 +956,7 @@ transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 75.7
 [node name="Pickups" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap"]
 
 [node name="ItemSpawner" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Pickups" instance=ExtResource("8_haj77")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.822699, -0.11270952, -25.90325)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.822699, 0.6693158, -25.90325)
 pickup_scene = ExtResource("9_kxusw")
 specific_item = ExtResource("10_75jtm")
 
@@ -976,7 +976,7 @@ pickup_scene = ExtResource("9_kxusw")
 specific_item = ExtResource("11_oublg")
 
 [node name="ItemSpawner5" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Pickups" instance=ExtResource("8_haj77")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 285.09198, 9.204714, 16.351963)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 285.09198, 6.266076, 16.351963)
 pickup_scene = ExtResource("9_kxusw")
 specific_item = ExtResource("12_ip1o4")
 
@@ -991,7 +991,7 @@ pickup_scene = ExtResource("9_kxusw")
 specific_item = ExtResource("11_oublg")
 
 [node name="ItemSpawner8" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Pickups" instance=ExtResource("8_haj77")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -61.636517, 3.401064, -139.74364)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -74.18297, 1.2432079, -139.74364)
 pickup_scene = ExtResource("9_kxusw")
 specific_item = ExtResource("12_ip1o4")
 
@@ -1026,7 +1026,7 @@ pickup_scene = ExtResource("9_kxusw")
 specific_item = ExtResource("10_75jtm")
 
 [node name="ItemSpawner15" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Pickups" instance=ExtResource("8_haj77")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 344.33774, 7.915312, -75.32837)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 344.33774, 6.183503, -75.32837)
 pickup_scene = ExtResource("9_kxusw")
 specific_item = ExtResource("10_75jtm")
 
@@ -1046,7 +1046,7 @@ pickup_scene = ExtResource("9_kxusw")
 specific_item = ExtResource("12_ip1o4")
 
 [node name="ItemSpawner19" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Pickups" instance=ExtResource("8_haj77")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 284.9401, 8.341446, -132.734)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 284.9401, 7.8851385, -132.734)
 pickup_scene = ExtResource("9_kxusw")
 specific_item = ExtResource("13_textq")
 
@@ -2739,7 +2739,7 @@ skeleton = NodePath("")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.63427925, 0)
 
 [node name="ItemSpawner5" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/StatusItems" instance=ExtResource("8_haj77")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 285.09198, 1.7152646, 42.764378)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 285.09198, 1.7152646, 111.56317)
 pickup_scene = ExtResource("9_kxusw")
 respawn_time = 60.0
 specific_item = ExtResource("18_vj8u6")
@@ -2757,7 +2757,7 @@ respawn_time = 120.0
 specific_item = ExtResource("19_t5btl")
 
 [node name="ItemSpawner8" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/StatusItems" instance=ExtResource("8_haj77")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 161.41293, 32.47285, -225.98315)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -38.975224, 1.3574181, -306.4923)
 pickup_scene = ExtResource("9_kxusw")
 respawn_time = 60.0
 specific_item = ExtResource("18_vj8u6")
@@ -2769,7 +2769,7 @@ respawn_time = 120.0
 specific_item = ExtResource("19_t5btl")
 
 [node name="ItemSpawner10" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/StatusItems" instance=ExtResource("8_haj77")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -83.05176, 82.78801, -263.191)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -425.23117, 2.8297863, 88.3773)
 pickup_scene = ExtResource("9_kxusw")
 respawn_time = 60.0
 specific_item = ExtResource("18_vj8u6")
@@ -2781,19 +2781,19 @@ respawn_time = 60.0
 specific_item = ExtResource("15_o7pxb")
 
 [node name="ItemSpawner12" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/StatusItems" instance=ExtResource("8_haj77")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -256.5948, 15.000282, -0.07910442)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -256.5948, 14.099367, -0.07910442)
 pickup_scene = ExtResource("9_kxusw")
 respawn_time = 60.0
 specific_item = ExtResource("15_o7pxb")
 
 [node name="ItemSpawner13" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/StatusItems" instance=ExtResource("8_haj77")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -32.374786, 15.00028, -92.9527)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -32.374786, 13.972226, -92.9527)
 pickup_scene = ExtResource("9_kxusw")
 respawn_time = 60.0
 specific_item = ExtResource("15_o7pxb")
 
 [node name="ItemSpawner14" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/StatusItems" instance=ExtResource("8_haj77")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 86.97554, 12.734437, 299.9877)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 86.97554, 8.500785, 299.9877)
 pickup_scene = ExtResource("9_kxusw")
 respawn_time = 60.0
 specific_item = ExtResource("18_vj8u6")
@@ -2807,6 +2807,12 @@ random_pool = Array[Resource]([ExtResource("15_o7pxb")])
 
 [node name="ItemSpawner16" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/StatusItems" instance=ExtResource("8_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 178.51263, 15.000284, 23.683535)
+pickup_scene = ExtResource("9_kxusw")
+respawn_time = 60.0
+specific_item = ExtResource("15_o7pxb")
+
+[node name="ItemSpawner17" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/StatusItems" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -62.122055, 2.9087343, 183.42711)
 pickup_scene = ExtResource("9_kxusw")
 respawn_time = 60.0
 specific_item = ExtResource("15_o7pxb")
@@ -2941,6 +2947,12 @@ transform = Transform3D(0.9658851, 0, 0.25897095, 0, 1, 0, -0.25897095, 0, 0.965
 
 [node name="BoostPad5" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("17_stypw")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 343.32483, 52.634747, -263.0441)
+
+[node name="JumpPad9" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("18_r7ole")]
+transform = Transform3D(-0.23856732, 0, -0.97112596, 0, 1, 0, 0.97112596, 0, -0.23856732, -31.390802, 4.7455196, -93.45727)
+
+[node name="JumpPad10" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("18_r7ole")]
+transform = Transform3D(0.26422662, 0, -0.96446073, 0, 1, 0, 0.96446073, 0, 0.26422662, -254.82103, 4.7455196, 0.30915165)
 
 [node name="Flying enemies" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
 

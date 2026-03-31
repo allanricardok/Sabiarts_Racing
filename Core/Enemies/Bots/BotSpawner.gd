@@ -51,7 +51,7 @@ func _spawn_all_bots():
 		# --- INJEÇÃO DA INTELIGÊNCIA ARTIFICIAL ---
 		var brain = Node.new()
 		brain.name = "BotBrain"
-		brain.set_script(preload("res://Core/Enemies/BotBrain.gd")) 
+		brain.set_script(preload("res://Core/Enemies/Bots/BotBrain.gd")) 
 		bot.add_child(brain)
 		
 		print("[BotSpawner] Spawnou: ", bot.name, " com IA ativada e sem câmera!")
