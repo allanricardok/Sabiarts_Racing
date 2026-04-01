@@ -139,7 +139,6 @@ shape = SubResource("BoxShape3D_od0im")
 
 [node name="MovementComponent" parent="Scripts" index="2"]
 ENGINE_POWER = 2850.0
-MAX_STEER = 0.3
 BRAKE_POWER = 40.0
 BRAKE_ASSIST_FORCE = 60.0
 START_BOOST = 2.2

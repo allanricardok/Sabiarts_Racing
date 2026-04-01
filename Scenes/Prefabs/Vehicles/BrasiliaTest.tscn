@@ -171,7 +171,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.1699355, 0)
 
 [node name="MovementComponent" parent="Scripts" index="2"]
 ENGINE_POWER = 1900.0
-MAX_STEER = 0.4
+MAX_STEER = 0.6
 BRAKE_POWER = 30.0
 START_BOOST = 3.0
 BOOST_LIMIT_SPEED = 30.0

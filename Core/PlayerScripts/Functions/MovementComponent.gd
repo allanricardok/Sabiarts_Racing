@@ -82,7 +82,7 @@ func _physics_process(delta):
 func _handle_engine_and_steering(delta, is_on_ground, speed_mps):
 	var up_dot = car.global_transform.basis.y.dot(Vector3.UP)
 	
-# --- BLOQUEIO DE CONGELAMENTO ---
+	# --- BLOQUEIO DE CONGELAMENTO ---
 	if car.has_method("is_frozen") and car.is_frozen():
 		car.engine_force = 0.0
 		car.brake = BRAKE_POWER # FREIO TOTAL (Trava as rodas)
@@ -97,16 +97,28 @@ func _handle_engine_and_steering(delta, is_on_ground, speed_mps):
 	else:
 		_steering_hold_time = 0.0
 		
-	var vertical_speed = abs(car.linear_velocity.y)
-	var vertical_dampening = clamp(1.0 - (vertical_speed / 25.0), 0.5, 1.0)
-		
+	# ==============================================================================
+	# --- NOVA LÓGICA DE DIREÇÃO POR VELOCIDADE ---
+	var speed_kmh = speed_mps * 3.6 
+	var steer_multiplier = 1.0 # Padrão: 100%
+	
+	if speed_kmh > 30.0 and speed_kmh <= 100.0:
+		# De 30 a 100, vai de 1.0 (100%) descendo suavemente até 0.6 (60%)
+		steer_multiplier = remap(speed_kmh, 30.0, 100.0, 1.0, 0.6)
+	elif speed_kmh > 100.0:
+		# Acima de 100km/h, trava firme em 60%
+		steer_multiplier = 0.6
+	
+	# O limite máximo absoluto que as rodas vão virar agora
+	var max_steer_dynamic = MAX_STEER * steer_multiplier
+	
+	# Amortecimento visual/sensibilidade (Isso faz o volante ir até o limite de forma suave)
 	var aim_precision_ramp = clamp(_steering_hold_time / 0.4, 0.2, 1.0)
 	var steer_speed = lerp(3.0, 10.0, aim_precision_ramp)
 	
-	var max_steer_dynamic = MAX_STEER * vertical_dampening
 	car.steering = move_toward(car.steering, input.steering * max_steer_dynamic, delta * steer_speed)
+	# ==============================================================================
 	
-	var speed_kmh = speed_mps * 3.6 
 	var turn_dir = input.steering
 	var forward_velocity = car.linear_velocity.dot(car.global_transform.basis.z)
 	

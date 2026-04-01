@@ -82,9 +82,12 @@ func _process(delta):
 		# Se for Bot, ele só atira quando o Cérebro mandar!
 		is_firing = input.is_action_pressed 
 	else:
-		# Se for Player, ele lê os botões reais
+		# Se for Player, ele lê os botões reais COM O SUFIXO!
 		var is_doing_ability = (input.ability_up or input.ability_down or input.ability_left or input.ability_right)
-		is_firing = input.is_action_pressed and not is_doing_ability
+		
+		# Substitua "NOME_DO_SEU_INPUT_AQUI" pelo nome exato que está no Input Map para a metralhadora
+		# (ex: se no Input Map for "Shoot_P1", coloque "Shoot")
+		is_firing = Input.is_action_pressed("Action" + input.suffix) and not is_doing_ability
 
 		if Input.is_action_just_pressed("prev_weapon" + input.suffix): _switch_weapon(-1)
 		if Input.is_action_just_pressed("next_weapon" + input.suffix): _switch_weapon(1)
@@ -221,10 +224,18 @@ func _spawn_projectile(res: WeaponResource, node_name: String):
 			proj.setup(res.dano, car.linear_velocity, car)
 
 func _muzzle_flash_effect(node_name: String):
+	# Previne erro se a arma não existir no dicionário
+	if not weapon_nodes.has(node_name) or not is_instance_valid(weapon_nodes[node_name]): 
+		return
+		
 	var light = weapon_nodes[node_name].find_child("OmniLight3D", true, false)
-	if light:
+	if is_instance_valid(light):
 		light.visible = true
-		get_tree().create_timer(0.05).timeout.connect(func(): light.visible = false)
+		get_tree().create_timer(0.05).timeout.connect(func(): 
+			# BLINDAGEM: Só apaga a luz se ela ainda existir 0.05s depois!
+			if is_instance_valid(light):
+				light.visible = false
+		)
 
 func _atualizar_interface():
 	# --- CORREÇÃO DA UI COMPARTILHADA ---
