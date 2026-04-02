@@ -8,8 +8,8 @@
 script = ExtResource("1_rlkal")
 nome = "HomingMissile"
 projectile_scene = ExtResource("1_lnq0v")
-dano = 5.0
-fire_rate = 0.8
+dano = 6.0
+fire_rate = 1.0
 lockon_range = 180.0
 custom_mesh = ExtResource("1_8chqf")
 mesh_scale = Vector3(1.4, 1, 1)

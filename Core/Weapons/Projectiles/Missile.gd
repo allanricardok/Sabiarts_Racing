@@ -35,10 +35,19 @@ func setup(dmg, shooter_vel, source_car, incoming_target = null):
 	else:
 		target = null # Fica sem alvo e voa reto!
 		
-	# Mesma blindagem para o atirador (por precaução extrema)
+# Mesma blindagem para o atirador (por precaução extrema)
 	if is_instance_valid(source_car):
 		shooter = source_car
+		
 		var forward_dir = source_car.global_transform.basis.z 
+		var right_dir = source_car.global_transform.basis.x # Eixo lateral do carro (Direita)
+		
+		# --- INCLINAÇÃO MANUAL VIA CÓDIGO ---
+		# Rotaciona a direção para cima usando a lateral como dobradiça.
+		# (Nota: Se o míssil for parar no chão, mude o 5.0 para -5.0 dependendo do eixo Z do seu carro)
+		var tilt_angle = deg_to_rad(-5.0) 
+		forward_dir = forward_dir.rotated(right_dir, tilt_angle).normalized()
+		
 		velocity = (forward_dir * speed) + shooter_vel
 		
 		if velocity.dot(forward_dir) < 5.0:

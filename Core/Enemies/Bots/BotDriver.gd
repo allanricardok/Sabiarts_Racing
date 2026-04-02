@@ -14,7 +14,14 @@ var reverse_time: float = 0.0
 var doing_stunt_timer: float = 0.0 
 
 var alvo_coletavel_atual : Node3D = null
+var last_target_dist : float = 9999.0 
 var tempo_buscando_coletavel : float = 0.0
+
+# --- VARIÁVEIS DO ANTI-LOOP E PULO ---
+var timer_tentativa_alinhamento : float = 0.0
+var is_in_anti_loop : bool = false
+var stuck_jump_count : int = 0
+var stuck_jump_cooldown : float = 0.0
 
 func setup(_car: BaseVehicle, _input: Node):
 	car = _car
@@ -29,16 +36,22 @@ func _criar_sensores():
 	car.add_child(ray_center)
 	car.add_child(ray_right)
 	
+	# O olho do bot fica a 1 metro do chão (altura do para-brisa)
 	var eye_height = Vector3(0, 1.0, 0)
 	ray_left.position = eye_height
 	ray_center.position = eye_height
 	ray_right.position = eye_height
 	
-	ray_center.target_position = Vector3(0, 0, ray_length) 
-	ray_left.target_position = Vector3(-ray_length * 0.7, 0, ray_length * 0.8)
-	ray_right.target_position = Vector3(ray_length * 0.7, 0, ray_length * 0.8)
+	# --- MUDANÇA: INCLINAÇÃO TÁTICA (Feelers) ---
+	# Multiplicar por 0.35 faz o raio subir suavemente até ~7 metros de altura na ponta.
+	# Ele ignora rampas e o chão, mas detecta paredes e objetos grandes!
+	var tilt_up = ray_length * 0.35 
+	var tilt_up_sides = (ray_length * 0.8) * 0.35
 	
-	# ROLLBACK: Voltando apenas para a Layer 1!
+	ray_center.target_position = Vector3(0, tilt_up, ray_length) 
+	ray_left.target_position = Vector3(-ray_length * 0.7, tilt_up_sides, ray_length * 0.8)
+	ray_right.target_position = Vector3(ray_length * 0.7, tilt_up_sides, ray_length * 0.8)
+	
 	ray_left.collision_mask = 1
 	ray_center.collision_mask = 1
 	ray_right.collision_mask = 1
@@ -57,64 +70,164 @@ func processar_manobra_pendente(delta: float) -> bool:
 	return false
 
 func direcionar_para_coletavel(alvo: Node3D, delta: float, radar: BotRadar) -> Dictionary:
-	var forward = car.global_transform.basis.z
-	var dir = (alvo.global_position - car.global_position).normalized()
-	var dist = car.global_position.distance_to(alvo.global_position)
+	var flat_car_pos = Vector3(car.global_position.x, 0, car.global_position.z)
+	var flat_alvo_pos = Vector3(alvo.global_position.x, 0, alvo.global_position.z)
+	var flat_dir = (flat_alvo_pos - flat_car_pos).normalized()
+	var flat_forward = Vector3(car.global_transform.basis.z.x, 0, car.global_transform.basis.z.z).normalized()
 	
-	var steer = clamp(forward.cross(dir).y * 3.0, -1.0, 1.0)
+	var steer = clamp(flat_forward.cross(flat_dir).y * 3.0, -1.0, 1.0)
 	var throttle = 1.0
 	var should_jump = false 
+	var force_straight = false # NOVO: Trava absoluta de direção e sensores
 	
-	var dot_p = forward.dot(dir)
-	if dot_p < 0.2: throttle = 0.4
-	elif dist < 12.0: throttle = 0.6
-	
-	# --- CÁLCULO DE INTERCEPTAÇÃO AÉREA (COM RÉ E EMBALO) ---
+	var dot_p = flat_forward.dot(flat_dir)
+	var flat_dist = flat_car_pos.distance_to(flat_alvo_pos)
 	var y_diff = alvo.global_position.y - car.global_position.y
+	var speed = car.linear_velocity.length()
+	var speed_kmh = speed * 3.6
 	
-	# Se a caixa estiver alta (entre 3m e 20m)
-	if y_diff > 3.0 and y_diff <= 20.0: 
-		var flat_dist = Vector2(car.global_position.x, car.global_position.z).distance_to(Vector2(alvo.global_position.x, alvo.global_position.z))
-		var speed = car.linear_velocity.length()
-		
-		# SÍNDROME DO RODOANEL: Se caiu embaixo da caixa e tá sem velocidade, dá RÉ pra pegar embalo!
-		if flat_dist < 12.0 and speed < 5.0 and dot_p < 0.5:
-			throttle = -1.0
-			steer = 0.0 # Segura o volante reto pra não rodar
-			
-		# ALINHAMENTO: Se tá pegando embalo e mirando, controla a velocidade pra não passar voando
-		elif flat_dist < 30.0 and dot_p > 0.6:
-			throttle = 0.7 
-			
-		# PULO MATEMÁTICO: O pulo leva ~1.2s para atingir o ápice. 
-		if speed > 4.0 and dot_p > 0.6: 
-			var time_to_reach = flat_dist / speed
-			# Pula exatamente quando faltar entre 0.8s e 1.4s para passar por baixo da caixa!
-			if time_to_reach >= 0.8 and time_to_reach <= 1.4:
-				should_jump = true
-				
-		# PULO DE DESESPERO: Se estiver encostando na caixa
-		if flat_dist < 4.0:
-			should_jump = true
-		
-	# --- TIMER DE DESISTÊNCIA ---
+	if stuck_jump_cooldown > 0:
+		stuck_jump_cooldown -= delta
+
+	# ==========================================================
+	# 1. SISTEMA ANTI-LOOP (Girar em Falso)
+	# ==========================================================
+	if flat_dist < 20.0 and dot_p < 0.6 and speed_kmh < 10.0:
+		timer_tentativa_alinhamento += delta
+	else:
+		timer_tentativa_alinhamento = 0.0
+
+	if timer_tentativa_alinhamento > 3.0:
+		is_in_anti_loop = true
+
+	if is_in_anti_loop:
+		if dot_p > 0.90:
+			is_in_anti_loop = false
+			timer_tentativa_alinhamento = 0.0
+		else:
+			steer = 1.0 if flat_forward.cross(flat_dir).y > 0 else -1.0
+			if speed_kmh > 5.0: throttle = -1.0 
+			else: throttle = 0.5 
+			return {"steering": steer, "throttle": throttle, "jump": false, "force_straight": false}
+
+	# ==========================================================
+	# 2. TRAVA DE MIRA ABSOLUTA (> 0.99)
+	# ==========================================================
+	if dot_p > 0.99:
+		steer = 0.0
+		force_straight = true # Desconecta o volante e ignora a prevenção de batidas
+
+	if dot_p < 0.0: throttle = 0.5 
+
+	# ==========================================================
+	# 3. SISTEMA DE DESISTÊNCIA RÁPIDA (Falhou na passagem)
+	# ==========================================================
 	if alvo_coletavel_atual != alvo:
 		alvo_coletavel_atual = alvo
-		tempo_buscando_coletavel = 0.0
+		last_target_dist = flat_dist
+		stuck_jump_count = 0 # Reseta os pulos ao mudar de alvo
 	else:
-		tempo_buscando_coletavel += delta
-		# AUMENTADO PARA 25 SEGUNDOS: Manobras aéreas dão trabalho e levam tempo!
-		if tempo_buscando_coletavel > 25.0: 
-			radar.itens_ignorados.append(alvo)
+		if flat_dist > last_target_dist + 1.0 and last_target_dist < 15.0 and speed_kmh > 15.0:
+			radar.ignorar_item(alvo, 10.0) 
 			alvo_coletavel_atual = null
-			tempo_buscando_coletavel = 0.0
+			last_target_dist = 9999.0
+			return {"steering": 0.0, "throttle": 1.0, "jump": false, "force_straight": false}
+		last_target_dist = flat_dist
+
+	# ==========================================================
+	# 4. SITUAÇÃO D: ITEM MUITO ALTO (> 18m)
+	# ==========================================================
+	if y_diff > 18.0:
+		radar.ignorar_item(alvo, 10.0)
+		alvo_coletavel_atual = null
+		return {"steering": 0.0, "throttle": 1.0, "jump": false, "force_straight": false}
+
+	# ==========================================================
+	# FASE 1: APROXIMAÇÃO DISTANTE (> 20 metros)
+	# ==========================================================
+	if flat_dist > 20.0:
+		throttle = 1.0 
+		if dot_p > 0.99:
+			steer = 0.0
+			force_straight = true
+
+	# ==========================================================
+	# FASE 2: PREPARAÇÃO FINA (<= 20 metros)
+	# ==========================================================
+	else:
+		# NOVO: Se travou debaixo da caixa, tenta pular 3 vezes antes de dar ré
+		if flat_dist < 8.0 and speed_kmh < 15.0 and dot_p < 0.5 and y_diff > 3.0:
+			if stuck_jump_count < 3:
+				throttle = 0.0 
+				steer = 0.0
+				force_straight = true
+				if stuck_jump_cooldown <= 0:
+					should_jump = true
+					stuck_jump_count += 1
+					stuck_jump_cooldown = 1.5 # Espera 1.5s para o próximo pulo
+					print("[DEBUG BOT] ", car.name, " Pulo de resgate na parede: ", stuck_jump_count, "/3")
+			else:
+				throttle = -1.0 # Falhou 3 vezes, dá ré!
+				steer = 1.0
+		else:
+			# SITUAÇÃO A: Item no chão ou levemente alto (-1m a 4m)
+			if y_diff >= -1.0 and y_diff <= 4.0:
+				throttle = 0.8
+				if dot_p > 0.99:
+					steer = 0.0
+					force_straight = true
+
+			# SITUAÇÃO B: Pulo Matemático de Antecedência (4m a 8m)
+			elif y_diff > 4.0 and y_diff <= 8.0:
+				if dot_p > 0.95:
+					steer = 0.0
+					force_straight = true
+
+				# MUDANÇA: Ápice aumentado para pular bem antes enquanto tem muita velocidade
+				var apex_time = 1.45 
+				var required_speed = flat_dist / apex_time
+
+				if speed < required_speed - 2.0: throttle = 1.0
+				elif speed > required_speed + 5.0: throttle = 0.0 # Reduz se estiver muito violento
+				else: throttle = 0.8
+
+				var time_to_reach = flat_dist / max(speed, 0.1)
+				# O tempo de chegar precisa ser igual ou menor ao tempo do pulo
+				if time_to_reach <= apex_time and speed > 5.0:
+					should_jump = true
+
+				if flat_dist <= 4.0: should_jump = true
+
+			# SITUAÇÃO C: Rampa Detectada (8m a 18m)
+			elif y_diff > 8.0 and y_diff <= 18.0:
+				steer = 0.0
+				force_straight = true # DESCONECTA O STEER COMPLETAMENTE E IGNORA SENSORES DE PAREDE
+				throttle = 1.0
+				
+				# Se chegou bem perto, pula como medida extra
+				if flat_dist <= 5.0: 
+					should_jump = true
+
+	# ==========================================================
+	# 5. TIMER GERAL DE DESISTÊNCIA
+	# ==========================================================
+	tempo_buscando_coletavel += delta
+	if tempo_buscando_coletavel > 25.0: 
+		radar.ignorar_item(alvo, 10.0)
+		alvo_coletavel_atual = null
+		tempo_buscando_coletavel = 0.0
 			
-	return {"steering": steer, "throttle": throttle, "jump": should_jump}
+	return {"steering": steer, "throttle": throttle, "jump": should_jump, "force_straight": force_straight}
 
 func calcular_volante_para_alvo(alvo_pos: Vector3) -> float:
-	var forward = car.global_transform.basis.z
-	var dir_to_alvo = (alvo_pos - car.global_position).normalized()
-	return forward.cross(dir_to_alvo).y * 2.0
+	var flat_car_pos = Vector3(car.global_position.x, 0, car.global_position.z)
+	var flat_alvo_pos = Vector3(alvo_pos.x, 0, alvo_pos.z)
+	var flat_forward = Vector3(car.global_transform.basis.z.x, 0, car.global_transform.basis.z.z).normalized()
+	var dir_to_alvo = (flat_alvo_pos - flat_car_pos).normalized()
+	
+	var steer = flat_forward.cross(dir_to_alvo).y * 2.0
+	if flat_forward.dot(dir_to_alvo) > 0.99: return 0.0
+	return steer
 
 func iniciar_manobra_chao():
 	doing_stunt_timer = 1.0 
@@ -134,7 +247,8 @@ func iniciar_manobra_chao():
 				sp.initiate_stunt(Vector3(1, 0, 0), "BACKFLIP")
 	)
 
-func processar_direcao_final(delta: float, intencao_throttle: float, intencao_steering: float):
+# --- NOVO PARÂMETRO NA FUNÇÃO FINAL PARA RECEBER A TRAVA ABSOLUTA ---
+func processar_direcao_final(delta: float, intencao_throttle: float, intencao_steering: float, force_straight: bool = false):
 	var speed = car.linear_velocity.length()
 	
 	if speed < 2.0 and intencao_throttle > 0.5: stuck_timer += delta
@@ -157,19 +271,30 @@ func processar_direcao_final(delta: float, intencao_throttle: float, intencao_st
 	ray_left.force_raycast_update()
 	ray_center.force_raycast_update()
 	ray_right.force_raycast_update()
+
+	# MUDANÇA: Verifica se bateu em uma rampa específica para também ignorá-la preventivamente
+	var col_center = ray_center.get_collider()
+	var col_left = ray_left.get_collider()
+	var col_right = ray_right.get_collider()
+
+	var ignore_center = col_center and col_center.is_in_group("rampas")
+	var ignore_left = col_left and col_left.is_in_group("rampas")
+	var ignore_right = col_right and col_right.is_in_group("rampas")
 	
-	if ray_center.is_colliding():
-		is_avoiding = true
-		final_throttle = 0.4 
-		if not ray_left.is_colliding(): steer_final = -1.0 
-		elif not ray_right.is_colliding(): steer_final = 1.0 
-		else: steer_final = 1.0 
-	elif ray_left.is_colliding():
-		is_avoiding = true
-		steer_final = 1.0 
-	elif ray_right.is_colliding():
-		is_avoiding = true
-		steer_final = -1.0 
+	# SE ESTÁ COM O ALINHAMENTO TRAVADO (> 0.99 OU NA RAMPA), DESLIGA A ESQUIVA TOTALMENTE!
+	if not force_straight:
+		if ray_center.is_colliding() and not ignore_center:
+			is_avoiding = true
+			final_throttle = 0.4 
+			if not ray_left.is_colliding() or ignore_left: steer_final = -1.0 
+			elif not ray_right.is_colliding() or ignore_right: steer_final = 1.0 
+			else: steer_final = 1.0 
+		elif ray_left.is_colliding() and not ignore_left:
+			is_avoiding = true
+			steer_final = 1.0 
+		elif ray_right.is_colliding() and not ignore_right:
+			is_avoiding = true
+			steer_final = -1.0 
 
 	input.throttle = final_throttle
 	if is_avoiding: input.steering = lerp(input.steering, steer_final, delta * 8.0)

@@ -12,15 +12,19 @@ var lifetime = 5.0
 var can_explode : bool = false
 var time_alive : float = 0.0
 
-func setup(dmg, shooter_vel, incoming_target, source_car):
+# CORREÇÃO 1: A ordem agora bate com o WeaponManager: (dano, vel, atirador, alvo)
+func setup(dmg, shooter_vel, source_car, incoming_target = null):
 	damage = dmg
-	target = incoming_target
 	shooter = source_car
+	target = incoming_target
 	
-	var forward_dir = source_car.global_transform.basis.z 
-	velocity = shooter_vel + (forward_dir * 15.0)
+	# CORREÇÃO 2: Lê a direção do próprio Míssil (que herdou a inclinação do Muzzle!)
+	var forward_dir = global_transform.basis.z.normalized() 
 	
-	look_at(global_position + forward_dir, Vector3.UP)
+	# Injeta a velocidade na direção inclinada do Muzzle
+	velocity = shooter_vel + (forward_dir * speed * 0.5)
+	
+	# (Apaguei o look_at() daqui porque o WeaponManager já rotaciona o tiro perfeitamente)
 
 func _physics_process(delta):
 	time_alive += delta
@@ -42,6 +46,8 @@ func _physics_process(delta):
 		velocity = velocity.move_toward(velocity.normalized() * speed, delta * 100.0)
 	
 	global_position += velocity * delta
+	
+	# Corrige o bico do míssil para olhar para a trajetória
 	if velocity.length() > 0.1:
 		look_at(global_position + velocity, Vector3.UP)
 
@@ -49,14 +55,12 @@ func _on_body_entered(body):
 	if not can_explode or body == shooter: return
 	
 	if body.has_method("take_damage"):
-		# PASSANDO O ATIRADOR PARA O COMBO
 		body.take_damage(damage, shooter)
 	
 	_explode()
 
 func _on_target_hit(body):
 	if body.has_method("take_damage"):
-		# PASSANDO O ATIRADOR PARA O COMBO
 		body.take_damage(damage, shooter)
 	_explode()
 

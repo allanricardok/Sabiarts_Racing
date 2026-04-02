@@ -4,7 +4,7 @@
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x78nd"]
 shading_mode = 0
-albedo_color = Color(0.07629701, 0.3762259, 0.70114887, 1)
+albedo_color = Color(0.14559858, 0.6133076, 1.1174613, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_vuh8p"]
 material = SubResource("StandardMaterial3D_x78nd")

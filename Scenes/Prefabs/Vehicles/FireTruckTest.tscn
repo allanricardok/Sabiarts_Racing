@@ -85,10 +85,10 @@ tree_root = SubResource("AnimationNodeAnimation_72bta")
 anim_player = NodePath("../AnimationPlayer")
 
 [node name="Camera3D" parent="." index="1"]
-transform = Transform3D(-1, 2.526796e-08, -8.3691525e-08, -5.432975e-09, 0.9375069, 0.34796667, 8.7253795e-08, 0.34796667, -0.9375069, 0.020254374, 4.573799, -6.040127)
+transform = Transform3D(-1, 2.526796e-08, -8.3691525e-08, -7.445906e-10, 0.95482314, 0.29717487, 8.741961e-08, 0.29717487, -0.95482314, 0, 4.574, -6.469)
 
 [node name="CameraTarget" parent="." index="2"]
-transform = Transform3D(-1, 2.4330802e-08, -1.3690442e-07, -3.6662744e-08, 0.9078141, 0.4193729, 1.3364479e-07, 0.4193729, -0.9078141, 0.008372307, 3.4477234, -5.9871063)
+transform = Transform3D(-1, 4.409234e-08, -1.4417428e-07, -7.4459056e-10, 0.9548231, 0.29717487, 1.5076407e-07, 0.29717487, -0.9548231, 0, 4.574, -6.469)
 
 [node name="BlocoColisao" parent="." index="3"]
 transform = Transform3D(2.0000002, 0, 0, 0, 2, 0, 2.9802322e-08, 0, 2, -0.013972163, 1.1204093, -0.2146473)
@@ -138,12 +138,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, -4.656613e-10, 0, 1, 0, 1.2717022, -0.
 shape = SubResource("BoxShape3D_od0im")
 
 [node name="MovementComponent" parent="Scripts" index="2"]
-ENGINE_POWER = 2850.0
+ENGINE_POWER = 2500.0
 BRAKE_POWER = 40.0
 BRAKE_ASSIST_FORCE = 60.0
-START_BOOST = 2.2
-BOOST_LIMIT_SPEED = 50.0
-AIR_RESISTANCE = 0.08
+START_BOOST = 2.0
+BOOST_LIMIT_SPEED = 40.0
+AIR_RESISTANCE = 0.088
 FALL_FORCE_BUFFER_DISTANCE = 2.0
 EXTRA_FALL_GRAVITY = 12.0
 

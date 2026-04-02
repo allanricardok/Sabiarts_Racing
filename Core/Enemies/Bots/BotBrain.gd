@@ -95,7 +95,8 @@ func _process(delta):
 			input.ability_down = true
 			print("[DEBUG BOT] ", car.name, " executou Pulo Matemático de Interceptação!")
 
-	driver.processar_direcao_final(delta, intencoes.throttle, intencoes.steering)
+	var force_straight = intencoes.get("force_straight", false)
+	driver.processar_direcao_final(delta, intencoes.throttle, intencoes.steering, force_straight)
 	_process_debug(delta)
 
 # --- NOVO SISTEMA: REGENERAÇÃO DE MUNIÇÃO PASSIVA ---

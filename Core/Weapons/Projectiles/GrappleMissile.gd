@@ -57,13 +57,20 @@ func setup(dmg, shooter_vel, source_car, incoming_target = null):
 	shooter = source_car
 	is_tethered = false # Garante estado limpo ao nascer
 	
-	var forward_dir = source_car.global_transform.basis.z 
-	velocity = (forward_dir * fly_speed) + shooter_vel
-	
-	if velocity.dot(forward_dir) < 10.0:
-		velocity = forward_dir * fly_speed
+	if is_instance_valid(source_car):
+		var forward_dir = source_car.global_transform.basis.z 
+		var right_dir = source_car.global_transform.basis.x # Eixo lateral do carro (Direita)
 		
-	look_at(global_position + forward_dir, Vector3.UP)
+		# --- INCLINAÇÃO MANUAL VIA CÓDIGO (Efeito Morteiro) ---
+		var tilt_angle = deg_to_rad(-1.0) 
+		forward_dir = forward_dir.rotated(right_dir, tilt_angle).normalized()
+		
+		velocity = (forward_dir * fly_speed) + shooter_vel
+		
+		if velocity.dot(forward_dir) < 10.0:
+			velocity = forward_dir * fly_speed
+			
+		look_at(global_position + forward_dir, Vector3.UP)
 
 func _physics_process(delta):
 	if not is_instance_valid(shooter):

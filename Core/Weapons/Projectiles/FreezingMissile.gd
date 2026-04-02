@@ -34,6 +34,12 @@ func setup(dmg, shooter_vel, source_car, incoming_target = null):
 	if is_instance_valid(source_car):
 		shooter = source_car
 		var forward_dir = source_car.global_transform.basis.z 
+		var right_dir = source_car.global_transform.basis.x # Eixo lateral do carro (Direita)
+		
+		# --- INCLINAÇÃO MANUAL VIA CÓDIGO (Efeito Morteiro) ---
+		var tilt_angle = deg_to_rad(-2.0) 
+		forward_dir = forward_dir.rotated(right_dir, tilt_angle).normalized()
+		
 		velocity = (forward_dir * speed) + shooter_vel
 		
 		if velocity.dot(forward_dir) < 5.0:

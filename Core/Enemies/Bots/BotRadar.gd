@@ -5,19 +5,34 @@ var inimigos_proximos : Array = []
 var vida_proxima : Array = []
 var armas_proximas : Array = []
 var rampas_proximas : Array = []
-var itens_ignorados : Array = [] 
+
+# NOVO: Agora é um Dicionário que guarda o Item e o Tempo que ele vai voltar a ser visto
+var itens_ignorados : Dictionary = {} 
 var projeteis_ignorados : Array = [] 
+
+# FUNÇÃO NOVA: Pede pro radar fechar os olhos pra esse item temporariamente
+func ignorar_item(item: Node3D, tempo_segundos: float):
+	var tempo_final = (Time.get_ticks_msec() / 1000.0) + tempo_segundos
+	itens_ignorados[item] = tempo_final
+	print("[RADAR] ", get_parent().name, " ignorando '", item.name, "' por ", tempo_segundos, "s!")
 
 func escanear_ambiente(car: Node3D, current_state: int):
 	var car_pos = car.global_position
-	
-	# MUDANÇA: Visão expandida para 300 metros para todos os itens!
 	var range_sq = 300.0 * 300.0 
 	
-	itens_ignorados = itens_ignorados.filter(func(i): return is_instance_valid(i))
+	# --- MUDANÇA: LIMPEZA DOS ITENS IGNORADOS (Acabou o castigo de 10s) ---
+	var current_time = Time.get_ticks_msec() / 1000.0
+	var remover_lista = []
+	for item in itens_ignorados.keys():
+		if not is_instance_valid(item) or current_time >= itens_ignorados[item]:
+			remover_lista.append(item)
+	for item in remover_lista:
+		itens_ignorados.erase(item)
+		if is_instance_valid(item):
+			print("[RADAR] ", car.name, " voltou a enxergar o item '", item.name, "'!")
+			
 	projeteis_ignorados = projeteis_ignorados.filter(func(p): return is_instance_valid(p))
 	
-	# MUDANÇA: Altura ajustada para 18 metros
 	var max_y_diff_items = 18.0 
 	var max_y_diff_players = 10.0 
 	
@@ -31,19 +46,20 @@ func escanear_ambiente(car: Node3D, current_state: int):
 	vida_proxima.clear()
 	var search_range_health = range_sq 
 	for v in get_tree().get_nodes_in_group("health_pickups"):
-		if is_instance_valid(v) and v.global_position.distance_squared_to(car_pos) <= search_range_health and not v in itens_ignorados:
+		# NOVO: Checa se o item está no dicionário de castigo
+		if is_instance_valid(v) and v.global_position.distance_squared_to(car_pos) <= search_range_health and not itens_ignorados.has(v):
 			if abs(v.global_position.y - car_pos.y) <= max_y_diff_items:
 				vida_proxima.append(v)
 			
 	armas_proximas.clear()
 	for a in get_tree().get_nodes_in_group("weapon_pickups"):
-		if is_instance_valid(a) and a.global_position.distance_squared_to(car_pos) <= range_sq and not a in itens_ignorados:
+		if is_instance_valid(a) and a.global_position.distance_squared_to(car_pos) <= range_sq and not itens_ignorados.has(a):
 			if abs(a.global_position.y - car_pos.y) <= max_y_diff_items:
 				armas_proximas.append(a)
 			
 	rampas_proximas.clear()
 	for r in get_tree().get_nodes_in_group("rampas"):
-		if is_instance_valid(r) and r.global_position.distance_squared_to(car_pos) <= range_sq:
+		if is_instance_valid(r) and r.global_position.distance_squared_to(car_pos) <= range_sq and not itens_ignorados.has(r):
 			if abs(r.global_position.y - car_pos.y) <= max_y_diff_items:
 				rampas_proximas.append(r)
 

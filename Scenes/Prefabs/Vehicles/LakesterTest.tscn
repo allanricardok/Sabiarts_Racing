@@ -73,7 +73,10 @@ tree_root = SubResource("AnimationNodeAnimation_72bta")
 anim_player = NodePath("../AnimationPlayer")
 
 [node name="Camera3D" parent="." index="1"]
-transform = Transform3D(-1, 2.526796e-08, -8.3691525e-08, -5.432975e-09, 0.9375069, 0.34796667, 8.7253795e-08, 0.34796667, -0.9375069, 0.020254374, 2.6832862, -3.7965157)
+transform = Transform3D(-1, 4.9102223e-08, -1.384491e-07, -1.023302e-08, 0.9169069, 0.39910114, 1.4654168e-07, 0.39910114, -0.9169069, 0, 3.365, -3.797)
+
+[node name="CameraTarget" parent="." index="2"]
+transform = Transform3D(-1, -3.5558045e-08, 7.986468e-08, 0, 0.9135454, 0.40673664, -8.742278e-08, 0.40673664, -0.9135454, 0, 3.365, -3.797)
 
 [node name="BlocoColisao" parent="." index="3"]
 transform = Transform3D(2.0000002, 0, 0, 0, 2, 0, 2.9802322e-08, 0, 2, 0, 0.915182, -0.057)

@@ -146,6 +146,12 @@ active = false
 tree_root = SubResource("AnimationNodeAnimation_72bta")
 anim_player = NodePath("../AnimationPlayer")
 
+[node name="Camera3D" parent="." index="1"]
+transform = Transform3D(-1, 2.526796e-08, -8.3691525e-08, -5.432975e-09, 0.9375069, 0.34796667, 8.7253795e-08, 0.34796667, -0.9375069, 0, 3.072, -3.777)
+
+[node name="CameraTarget" parent="." index="2"]
+transform = Transform3D(-1, 4.6746376e-08, -1.4155961e-07, -5.432975e-09, 0.9375069, 0.34796667, 1.489793e-07, 0.34796667, -0.9375069, 0, 3.072, -3.777)
+
 [node name="MeshInstance3D" type="MeshInstance3D" parent="TrasEsq" index="0"]
 transform = Transform3D(-3.4969112e-08, -0.15, 0, 0.8, -6.5567085e-09, 0, 0, 0, 0.8, 0, 0, 0)
 layers = 2
@@ -175,6 +181,7 @@ MAX_STEER = 0.6
 BRAKE_POWER = 30.0
 START_BOOST = 3.0
 BOOST_LIMIT_SPEED = 30.0
+AIR_RESISTANCE = 0.09
 FALL_FORCE_BUFFER_DISTANCE = 2.0
 EXTRA_FALL_GRAVITY = 4.0
 
