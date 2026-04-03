@@ -44,6 +44,11 @@ func _ready():
 	
 	if input: input.is_bot = true
 	
+	# --- BOTS NASCEM VIPs COM A CHAVE (FORÇA BRUTA) ---
+	car.set("has_teleportkey", true)
+	if stats:
+		stats.set("has_teleportkey", true)
+	
 	radar = BotRadar.new()
 	radar.name = "BotRadar"
 	add_child(radar)
@@ -83,7 +88,7 @@ func _process(delta):
 		ameacas_detectadas += 1
 		_reagir_a_ameaca()
 	
-	_gerenciar_regeneracao_municao(delta) # <-- NOVO SISTEMA CHAMADO AQUI
+	_gerenciar_regeneracao_municao(delta) 
 	_gerenciar_armas_do_bot()
 	
 	var intencoes = _executar_estado_atual(delta)
@@ -99,7 +104,7 @@ func _process(delta):
 	driver.processar_direcao_final(delta, intencoes.throttle, intencoes.steering, force_straight)
 	_process_debug(delta)
 
-# --- NOVO SISTEMA: REGENERAÇÃO DE MUNIÇÃO PASSIVA ---
+# --- REGENERAÇÃO DE MUNIÇÃO PASSIVA ---
 func _gerenciar_regeneracao_municao(delta: float):
 	var wm = car.get_node_or_null("%WeaponManager")
 	if not wm or wm.weapon_pool.is_empty(): return
@@ -109,21 +114,16 @@ func _gerenciar_regeneracao_municao(delta: float):
 	
 	ammo_regen_timer -= delta
 	if ammo_regen_timer <= 0:
-		ammo_regen_timer = 5.0 # Reseta o relógio de 5s
+		ammo_regen_timer = 5.0 
 		
-		# Só adiciona se ainda não bateu o limite de 6 na arma atual
 		if ammo_added_to_current < 6:
 			active_w.ammo += 1
 			ammo_added_to_current += 1
-			print("[DEBUG BOT] ", car.name, " gerou 1 munição para ", active_w.nome, " (Regen: ", ammo_added_to_current, "/6)")
 			
 			if ammo_added_to_current >= 6:
 				if wm.weapon_pool.size() > 1:
 					wm._switch_weapon(1)
-					ammo_added_to_current = 0 # Zera para a próxima arma
-					print("[DEBUG BOT] ", car.name, " Limite de 6 atingido! Trocando para próxima arma.")
-				else:
-					print("[DEBUG BOT] ", car.name, " Limite de 6 atingido, mas só possui uma arma. Regeneração pausada.")
+					ammo_added_to_current = 0 
 
 func _reagir_a_ameaca():
 	var ability = car.get_node_or_null("%AbilityComponent")
@@ -156,20 +156,59 @@ func _get_total_ammo() -> int:
 		for w in wm.weapon_pool: ammo += w.ammo
 	return ammo
 
+# --- NOVO: TRIAGEM DE ALVOS (PRIORIDADE HUMANA 75%) ---
+func _escolher_alvo_inimigo() -> Node3D:
+	if radar.inimigos_proximos.is_empty(): 
+		return null
+		
+	var humanos = []
+	var bots_inimigos = []
+	
+	for inimigo in radar.inimigos_proximos:
+		var inp = inimigo.get_node_or_null("%InputComponent")
+		# Se não tiver InputComponent ou se 'is_bot' for falso, é Humano!
+		if inp and "is_bot" in inp and not inp.is_bot:
+			humanos.append(inimigo)
+		else:
+			bots_inimigos.append(inimigo)
+			
+	if humanos.size() > 0 and bots_inimigos.size() > 0:
+		# Rola o dado! 75% de chance de mirar no player humano
+		if randf() <= 0.75:
+			return humanos[0]
+		else:
+			return bots_inimigos[0]
+	elif humanos.size() > 0:
+		return humanos[0]
+	else:
+		return bots_inimigos[0]
+
 func _tomar_decisao_de_estado():
 	var health_pct = (stats.current_health / stats.max_health) * 100.0
 	var ammo_total = _get_total_ammo()
 	
 	is_agressive = (ammo_total > 7)
 	
+	# 1. FUGA
 	if health_pct < 40.0:
 		_mudar_estado(State.FLEE)
 		return
 	if current_state == State.FLEE and health_pct > 50.0:
 		_mudar_estado(State.WANDER_IDLE)
 		return
+		
+	# 2. ÍMÃ DE TELEPORTE
+	if radar.has_method("escanear_ambiente") and "teleporters_proximos" in radar and radar.teleporters_proximos.size() > 0:
+		var tp = radar.teleporters_proximos[0]
+		if is_instance_valid(tp) and car.global_position.distance_to(tp.global_position) <= 80.0:
+			if current_state != State.SEEK_HEIGHT:
+				print("[DEBUG BOT] ", car.name, " achou portal a 80m! Abandonando combate para teleportar!")
+			_mudar_estado(State.SEEK_HEIGHT)
+			return
+
+	# 3. ATAQUE IMEDIATO (COM TRIAGEM HUMANA)
 	if is_agressive and radar.inimigos_proximos.size() > 0:
-		alvo_atual = radar.inimigos_proximos[0]
+		alvo_atual = _escolher_alvo_inimigo() # Chamando a nova função!
 		_mudar_estado(State.ATTACK)
 		
 		if timer_manobra <= 0:
@@ -177,17 +216,22 @@ func _tomar_decisao_de_estado():
 			driver.iniciar_manobra_chao() 
 		return
 		
+	# 4. TIMERS ALEATÓRIOS
 	if timer_busca_predios <= 0:
 		_mudar_estado(State.SEEK_HEIGHT)
 		return
 	if timer_manobra <= 0:
 		_mudar_estado(State.SEEK_RAMP)
 		return
+		
+	# 5. COLETA DE MUNIÇÃO
 	if ammo_total <= 7 and radar.armas_proximas.size() > 0:
 		_mudar_estado(State.WANDER_AMMO)
 		return
+		
+	# 6. PERSEGUIÇÃO LEVE (COM TRIAGEM HUMANA)
 	if radar.inimigos_proximos.size() > 0 and chase_repeats < 5:
-		alvo_atual = radar.inimigos_proximos[0]
+		alvo_atual = _escolher_alvo_inimigo() # Chamando a nova função!
 		_mudar_estado(State.WANDER_CHASE)
 		return
 	
@@ -216,7 +260,8 @@ func _gerenciar_armas_do_bot():
 	
 	if current_state == State.ATTACK and is_instance_valid(alvo_atual):
 		alvo_tiro = alvo_atual
-	elif current_state == State.FLEE and radar.inimigos_proximos.size() > 0:
+	elif (current_state == State.FLEE or current_state == State.SEEK_HEIGHT) and radar.inimigos_proximos.size() > 0:
+		# No tiro de emergência em movimento defensivo, ele atira no mais perto ignorando a triagem de 75%
 		alvo_tiro = radar.inimigos_proximos[0]
 	
 	if is_instance_valid(alvo_tiro):
@@ -230,29 +275,24 @@ func _gerenciar_armas_do_bot():
 		if dot_p > 0.4: 
 			input.is_action_pressed = true 
 			
-			# TIRO DE EMERGÊNCIA (FLEE)
-			if current_state == State.FLEE:
+			if current_state == State.FLEE or current_state == State.SEEK_HEIGHT:
 				var active_w = wm.get_active_special()
 				if active_w and wm.special_cooldowns.get(active_w.nome, 0.0) <= 0:
 					wm.fire_special_weapon() 
-					ammo_added_to_current = 0 # <-- ZERA A REGENERAÇÃO AQUI
-					print("[DEBUG BOT] ", car.name, " TIRO DE EMERGÊNCIA: ", active_w.nome, " | Regen Zerada!")
+					ammo_added_to_current = 0 
 		
-		# TIRO ESPECIAL (ATTACK)
 		if current_state == State.ATTACK and dot_p > 0.85:
 			var active_w = wm.get_active_special()
 			if active_w and wm.special_cooldowns.get(active_w.nome, 0.0) <= 0:
 				wm.fire_special_weapon() 
-				ammo_added_to_current = 0 # <-- ZERA A REGENERAÇÃO AQUI
-				print("[DEBUG BOT] ", car.name, " DISPAROU ESPECIAL: ", active_w.nome, " | Regen Zerada!")
+				ammo_added_to_current = 0 
 				
 				disparos_especiais_seguidos += 1
 				if disparos_especiais_seguidos >= 2:
 					disparos_especiais_seguidos = 0
 					if wm.weapon_pool.size() > 1:
 						wm._switch_weapon(1)
-						ammo_added_to_current = 0 # Garante que a próxima arma comece do zero
-						print("[DEBUG BOT] ", car.name, " Trocou de Arma taticamente!")
+						ammo_added_to_current = 0 
 
 func _executar_estado_atual(delta) -> Dictionary:
 	var desire_throttle = 1.0
@@ -297,7 +337,6 @@ func _executar_estado_atual(delta) -> Dictionary:
 			if radar.vida_proxima.size() > 0:
 				var alvo_vida = radar.vida_proxima[0]
 				if is_instance_valid(alvo_vida):
-					# IGNORA O INIMIGO E FOCA 100% NA VIDA
 					var nav = driver.direcionar_para_coletavel(alvo_vida, delta, radar)
 					desire_steering = nav.steering
 					desire_throttle = nav.throttle
@@ -314,14 +353,21 @@ func _executar_estado_atual(delta) -> Dictionary:
 					desire_steering = sin(Time.get_ticks_msec() * 0.001) * 0.3
 				
 		State.SEEK_HEIGHT:
-			if tempo_no_estado >= 5.0:
+			if tempo_no_estado >= 30.0:
 				timer_busca_predios = randf_range(25.0, 60.0)
 				_mudar_estado(State.WANDER_IDLE)
 			else:
-				if radar.rampas_proximas.size() > 0: 
-					if is_instance_valid(radar.rampas_proximas[0]):
-						desire_steering = driver.calcular_volante_para_alvo(radar.rampas_proximas[0].global_position)
-					else: radar.rampas_proximas.remove_at(0)
+				if radar.has_method("escanear_ambiente") and "teleporters_proximos" in radar and radar.teleporters_proximos.size() > 0: 
+					var alvo_teleporter = radar.teleporters_proximos[0]
+					if is_instance_valid(alvo_teleporter):
+						var nav = driver.direcionar_para_coletavel(alvo_teleporter, delta, radar)
+						desire_steering = nav.steering
+						desire_throttle = nav.throttle
+					else: 
+						radar.teleporters_proximos.remove_at(0)
+				else:
+					desire_throttle = 1.0
+					desire_steering = sin(Time.get_ticks_msec() * 0.001) * 0.3
 				
 		State.SEEK_RAMP:
 			if radar.rampas_proximas.is_empty() or tempo_no_estado >= 15.0:
@@ -377,6 +423,3 @@ func _process_debug(delta):
 			"Ameaças Evadidas: ", ameacas_detectadas, "\n",
 			"===================="
 		)
-		# Deixei o print(log_str) desligado para focar nas mensagens importantes de tiro/regen.
-		# Descomente se precisar dele ativo de novo:
-		# print(log_str)

@@ -322,6 +322,7 @@ func _on_mission_updated(mission: MissionItem, current: float, target: float):
 	criar_toast("📦 " + mission.description + ": " + status, Color.CYAN)
 
 func criar_toast(texto: String, cor: Color):
+	print("[HUD DEBUG] Gerando Toast na tela: ", texto)
 	var label = Label.new()
 	label.text = texto
 	label.add_theme_font_size_override("font_size", toast_font_size)
@@ -387,7 +388,7 @@ func _update_target_info_ui():
 			for t in get_tree().get_nodes_in_group(group_name):
 				if is_instance_valid(t) and t != my_car:
 					# Cálculo de distância em 3D real
-					var dist = _radar_player_pos.distance_to(t.global_position)
+					var dist = my_car.global_position.distance_to(t.global_position)
 					if dist < closest_dist:
 						closest_dist = dist
 						display_target = t # Elege o alvo mais próximo da categoria certa no MUNDO

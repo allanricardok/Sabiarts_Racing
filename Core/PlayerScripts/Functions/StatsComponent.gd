@@ -29,6 +29,7 @@ signal stats_changed
 @export var mission_id : String = ""
 
 var _health_stylebox : StyleBoxFlat = null
+var has_teleportkey : bool = false
 
 func _ready():
 	_initialize_ui()

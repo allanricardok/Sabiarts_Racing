@@ -5,6 +5,7 @@ var inimigos_proximos : Array = []
 var vida_proxima : Array = []
 var armas_proximas : Array = []
 var rampas_proximas : Array = []
+var teleporters_proximos : Array = []
 
 # NOVO: Agora é um Dicionário que guarda o Item e o Tempo que ele vai voltar a ser visto
 var itens_ignorados : Dictionary = {} 
@@ -62,6 +63,14 @@ func escanear_ambiente(car: Node3D, current_state: int):
 		if is_instance_valid(r) and r.global_position.distance_squared_to(car_pos) <= range_sq and not itens_ignorados.has(r):
 			if abs(r.global_position.y - car_pos.y) <= max_y_diff_items:
 				rampas_proximas.append(r)
+	
+	teleporters_proximos.clear()
+	# Usa o mesmo range_sq de 300m das armas e vidas
+	for t in get_tree().get_nodes_in_group("LockableTeleporters"):
+		if is_instance_valid(t) and t.global_position.distance_squared_to(car_pos) <= range_sq and not itens_ignorados.has(t):
+			# Como os teleporters estão no chão, a diferença de altura permitida pode ser padrão
+			if abs(t.global_position.y - car_pos.y) <= max_y_diff_items:
+				teleporters_proximos.append(t)
 
 func checar_ameacas_imediatas(car: Node3D) -> bool:
 	var car_pos = car.global_position

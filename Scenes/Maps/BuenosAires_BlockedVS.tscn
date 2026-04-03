@@ -1,4 +1,4 @@
-[gd_scene load_steps=275 format=3 uid="uid://d1rl8sskrmddj"]
+[gd_scene load_steps=277 format=3 uid="uid://d1rl8sskrmddj"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_u8o8m"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="3_is8dr"]
@@ -17,6 +17,7 @@
 [ext_resource type="Resource" uid="uid://dc3tjey7savae" path="res://Resources/Weapons/FreezingMissile.tres" id="13_textq"]
 [ext_resource type="Script" uid="uid://srf4jbjqbkxl" path="res://Core/Objectives/GapPoint.gd" id="14_textq"]
 [ext_resource type="Resource" uid="uid://hv86l3gypxgx" path="res://Resources/Items/HealthItem.tres" id="15_o7pxb"]
+[ext_resource type="Material" uid="uid://bm18uj2x8wy00" path="res://Assets/3D/tests/Material.003.tres" id="16_6fv6f"]
 [ext_resource type="PackedScene" uid="uid://d08nc5o3ey67t" path="res://Scenes/Prefabs/Enemies/EnemyTurret.tscn" id="16_af68g"]
 [ext_resource type="PackedScene" uid="uid://cdg3xi8hhsm0t" path="res://Scenes/Prefabs/Items/BoostPad.tscn" id="17_stypw"]
 [ext_resource type="PackedScene" uid="uid://dpjwvb143dxpb" path="res://Scenes/Prefabs/Items/JumpPad.tscn" id="18_r7ole"]
@@ -73,6 +74,11 @@ inner_radius = 0.645
 outer_radius = 1.663
 rings = 12
 ring_segments = 8
+
+[sub_resource type="TextMesh" id="TextMesh_4e1cd"]
+text = "KEY"
+font_size = 72
+pixel_size = 0.05
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_15ih5"]
 size = Vector3(34.126038, 45.194824, 87.56592)
@@ -956,6 +962,27 @@ destination_marker = NodePath("../Marker3")
 [node name="Marker3" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Teleporters"]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 75.70886, 108.027405, 207.93234)
 
+[node name="Teleporter4" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Teleporters" node_paths=PackedStringArray("destination_marker") groups=["LockableTeleporters"] instance=ExtResource("7_ip1o4")]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -45.38611, 1.1638994, -201.01775)
+destination_marker = NodePath("../Marker4")
+
+[node name="Marker4" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Teleporters"]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -35.82742, 25.948036, -230.40997)
+
+[node name="Teleporter5" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Teleporters" node_paths=PackedStringArray("destination_marker") groups=["LockableTeleporters"] instance=ExtResource("7_ip1o4")]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -313.1437, 1.1995087, -289.73007)
+destination_marker = NodePath("../Marker5")
+
+[node name="Marker5" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Teleporters"]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -294.7091, 34.71338, -230.40997)
+
+[node name="Teleporter6" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Teleporters" node_paths=PackedStringArray("destination_marker") groups=["LockableTeleporters"] instance=ExtResource("7_ip1o4")]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -121.07984, 1.2252822, 198.75351)
+destination_marker = NodePath("../Marker6")
+
+[node name="Marker6" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Teleporters"]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -152.393, 32.17602, 201.66478)
+
 [node name="Pickups" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap"]
 
 [node name="ItemSpawner" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Pickups" instance=ExtResource("8_haj77")]
@@ -964,7 +991,7 @@ pickup_scene = ExtResource("9_kxusw")
 specific_item = ExtResource("10_75jtm")
 
 [node name="ItemSpawner2" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Pickups" instance=ExtResource("8_haj77")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 314.56998, 18.951265, -248.79314)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 311.91196, 28.63222, -248.79314)
 pickup_scene = ExtResource("9_kxusw")
 specific_item = ExtResource("10_75jtm")
 
@@ -1140,6 +1167,25 @@ transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/Obake5"]
 shape = SubResource("BoxShape3D_3i0df")
+
+[node name="TeleporterKey" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -46.74084, 31.198982, 219.16116)
+collision_layer = 4
+collision_mask = 15
+script = ExtResource("11_6vwi6")
+mission_id = "teleporter_key_BA"
+grants_teleport_key = true
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/TeleporterKey"]
+shape = SubResource("BoxShape3D_3i0df")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/TeleporterKey"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.46797943, 0)
+mesh = SubResource("TextMesh_4e1cd")
+surface_material_override/0 = ExtResource("16_6fv6f")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/TeleporterKey"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.72943115, 1.3595123)
 
 [node name="ExplorationArea" parent="GridContainer/Cont_P1/View_P1/Map/BAMap" instance=ExtResource("13_t5btl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 69.34393, 39.64796, -302.22638)

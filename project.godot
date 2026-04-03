@@ -48,6 +48,7 @@ destructibles=""
 pedestrians=""
 AbilityTeleport=""
 projetil=""
+LockableTeleporters=""
 
 [input]
 
