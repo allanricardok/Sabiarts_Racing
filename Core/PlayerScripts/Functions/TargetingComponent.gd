@@ -8,6 +8,7 @@ var target_categories = ["All Targets", "Adversaries", "Fuckers", "Environment"]
 var current_category_index : int = 1 
 var manual_target_index : int = 0
 var active_targets_sorted : Array = []
+var force_target_all : bool = false
 
 @export_group("Radar e Sensores")
 @export var radar_range : float = 350.0 

@@ -7,6 +7,7 @@ class_name WeaponManager
 @export var basic_weapon_resource: WeaponResource 
 @export var fire_rate_basic : float = 0.12
 @export var MAX_POOL_SIZE : int = 5 
+var _previous_radar_mode : int = -1
 
 # --- REFERÊNCIAS ---
 @onready var car = owner
@@ -146,19 +147,6 @@ func _switch_weapon(direction: int):
 	_update_visual_selection()
 	_atualizar_interface()
 
-func _update_visual_selection():
-	for key in weapon_nodes:
-		if key != "MachineGun": weapon_nodes[key].visible = false
-		_set_weapon_highlight(key, false)
-		
-	if weapon_nodes.has("MachineGun"): weapon_nodes["MachineGun"].visible = true
-
-	for w in weapon_pool:
-		if weapon_nodes.has(w.nome): weapon_nodes[w.nome].visible = true
-
-	var active = get_active_special()
-	if active and weapon_nodes.has(active.nome): _set_weapon_highlight(active.nome, true)
-
 func _set_weapon_highlight(weapon_name: String, is_active: bool):
 	var node = weapon_nodes.get(weapon_name)
 	if not is_instance_valid(node): return
@@ -243,6 +231,32 @@ func _muzzle_flash_effect(node_name: String):
 				light.visible = false
 		)
 
+func _update_visual_selection():
+	for key in weapon_nodes:
+		if key != "MachineGun": weapon_nodes[key].visible = false
+		_set_weapon_highlight(key, false)
+		
+	if weapon_nodes.has("MachineGun"): weapon_nodes["MachineGun"].visible = true
+
+	for w in weapon_pool:
+		if weapon_nodes.has(w.nome): weapon_nodes[w.nome].visible = true
+
+	var active = get_active_special()
+	if active and weapon_nodes.has(active.nome): 
+		_set_weapon_highlight(active.nome, true)
+		
+	# --- MUDANÇA AUTOMÁTICA DE RADAR (AGORA NO LUGAR CERTO) ---
+	# Só roda quando TROCA de arma ou ACABA a arma!
+	if is_instance_valid(targeting) and "current_category_index" in targeting:
+		if active and active.nome == "GrapplingMissile":
+			if _previous_radar_mode == -1:
+				_previous_radar_mode = targeting.current_category_index
+			targeting.current_category_index = 0 # 0 é a aba "ALL Targets"
+		else:
+			if _previous_radar_mode != -1:
+				targeting.current_category_index = _previous_radar_mode
+				_previous_radar_mode = -1
+
 func _atualizar_interface():
 	# --- CORREÇÃO DA UI COMPARTILHADA ---
 	if input and "is_bot" in input and input.is_bot: 
@@ -251,5 +265,9 @@ func _atualizar_interface():
 	var hud = get_tree().get_first_node_in_group("HUD" + player_suffix)
 	if hud and hud.has_method("atualizar_arma"):
 		var active = get_active_special()
-		if active: hud.atualizar_arma(active.nome, active.ammo)
-		else: hud.atualizar_arma("None", 0)
+		
+		# Agora a interface SÓ atualiza texto de bala, sem mexer no seu radar!
+		if active: 
+			hud.atualizar_arma(active.nome, active.ammo)
+		else: 
+			hud.atualizar_arma("None", 0)

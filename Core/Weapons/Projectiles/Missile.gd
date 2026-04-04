@@ -39,8 +39,8 @@ func setup(dmg, shooter_vel, source_car, incoming_target = null):
 	if is_instance_valid(source_car):
 		shooter = source_car
 		
-		var forward_dir = source_car.global_transform.basis.z 
-		var right_dir = source_car.global_transform.basis.x # Eixo lateral do carro (Direita)
+		var forward_dir = source_car.global_transform.basis.z.normalized()
+		var right_dir = source_car.global_transform.basis.x.normalized() # Eixo lateral do carro (Direita)
 		
 		# --- INCLINAÇÃO MANUAL VIA CÓDIGO ---
 		# Rotaciona a direção para cima usando a lateral como dobradiça.
