@@ -1,8 +1,17 @@
 # Global.gd
 extends Node
 
-# Guarda o modo de jogo atual ("Free Roam", "Combat", "Co-op", "PvP")
-var game_mode : String = ""
+# --- DEFINIÇÃO DOS MODOS DE JOGO ---
+enum RunMode { FREE_ROAM, EXPLORATION, BATTLE }
+
+# --- ESTADO ATUAL ---
+var current_run_mode : RunMode = RunMode.FREE_ROAM
+var current_map : String = "TestMap" # "TestMap" ou "BuenosAires"
+
+# --- PROGRESSÃO DO JOGADOR (Save Data) ---
+var unlocked_test_battle : bool = false
+var unlocked_ba_exploration : bool = false
+var unlocked_ba_battle : bool = false
 
 # Agora cada jogador é um Dicionário: {"esquema": "J1", "carro_cena": PackedScene}
 var dados_jogadores = [null, null, null, null]
