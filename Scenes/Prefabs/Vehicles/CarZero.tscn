@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=3 uid="uid://ry75iugdg8sl"]
+[gd_scene load_steps=38 format=3 uid="uid://ry75iugdg8sl"]
 
 [ext_resource type="Script" uid="uid://b0i2wvnkcrknc" path="res://Core/PlayerScripts/Functions/BaseVehicle.gd" id="1_drg00"]
 [ext_resource type="PackedScene" uid="uid://bp4khshtfj0rp" path="res://Scenes/Prefabs/Items/UniversalPickup.tscn" id="2_4a360"]
@@ -8,6 +8,7 @@
 [ext_resource type="Resource" uid="uid://b4n2n37tjg3ed" path="res://Resources/Weapons/HomingMissile.tres" id="4_mafvn"]
 [ext_resource type="Script" uid="uid://b5mtjc65y3mxc" path="res://Core/PlayerScripts/UI/RageUI.gd" id="5_mafvn"]
 [ext_resource type="Script" uid="uid://f41hkh6xnfgv" path="res://Core/PlayerScripts/UI/MinimapDraw.gd" id="6_70m6l"]
+[ext_resource type="Script" uid="uid://cfn8p13djjvoy" path="res://Core/PlayerScripts/CameraShake.gd" id="6_mafvn"]
 [ext_resource type="Texture2D" uid="uid://bkmid1n6i7ij6" path="res://Assets/2D/Test_Texture.jpg" id="7_66ub0"]
 [ext_resource type="Script" uid="uid://y3uxucxf1qqt" path="res://Core/PlayerScripts/UI/recticle.gd" id="8_koiev"]
 [ext_resource type="Script" uid="uid://17v2oug1wdmr" path="res://Core/PlayerScripts/Functions/VehicleHitbox.gd" id="9_yo5km"]
@@ -121,6 +122,29 @@ script = ExtResource("2_37r4d")
 follow_speed_lateral = 6.0
 follow_speed_depth = 35.0
 follow_speed_vertical = 35.0
+
+[node name="CameraShake" type="Node" parent="Camera3D"]
+script = ExtResource("6_mafvn")
+max_roll = 2.0
+shake_speed = 25.0
+speed_shake_min_kmh = 66.0
+speed_shake_max_kmh = 150.0
+speed_shake_max_force = 0.1
+turbo_force = 0.6
+turbo_duration = 0.3
+hard_land_force = 2.0
+hard_land_duration = 0.8
+weapon_fire_force = 1.0
+weapon_fire_duration = 0.5
+damage_force = 2.0
+damage_duration = 0.8
+obj_collision_force = 1.5
+obj_collision_duration = 0.8
+car_collision_min_force = 1.0
+car_collision_max_force = 3.0
+car_collision_duration = 1.0
+stunt_force = 1.6
+stunt_duration = 0.5
 
 [node name="CameraTarget" type="Node3D" parent="."]
 transform = Transform3D(-1, 2.4330802e-08, -1.3690442e-07, -3.6662744e-08, 0.9078141, 0.4193729, 1.3364479e-07, 0.4193729, -0.9078141, 0.008372307, 2.5322375, -3.9419403)

@@ -156,32 +156,43 @@ func _get_total_ammo() -> int:
 		for w in wm.weapon_pool: ammo += w.ammo
 	return ammo
 
-# --- NOVO: TRIAGEM DE ALVOS (PRIORIDADE HUMANA 75%) ---
+# --- NOVO: TRIAGEM DE ALVOS (ÓDIO GLOBAL AO PLAYER) ---
 func _escolher_alvo_inimigo() -> Node3D:
-	if radar.inimigos_proximos.is_empty(): 
-		return null
-		
-	var humanos = []
-	var bots_inimigos = []
+	var humanos_globais = []
 	
-	for inimigo in radar.inimigos_proximos:
-		var inp = inimigo.get_node_or_null("%InputComponent")
-		# Se não tiver InputComponent ou se 'is_bot' for falso, é Humano!
-		if inp and "is_bot" in inp and not inp.is_bot:
-			humanos.append(inimigo)
-		else:
-			bots_inimigos.append(inimigo)
-			
-	if humanos.size() > 0 and bots_inimigos.size() > 0:
-		# Rola o dado! 75% de chance de mirar no player humano
+	# 1. RÁDIO GLOBAL: Busca humanos vivos em todo o mapa
+	for p in get_tree().get_nodes_in_group("jogadores"):
+		if is_instance_valid(p) and p != car:
+			var inp = p.get_node_or_null("%InputComponent")
+			if inp and "is_bot" in inp and not inp.is_bot:
+				# Só ignora se o jogador tiver a função 'is_dead' e for true
+				if not ("is_dead" in p and p.is_dead):
+					humanos_globais.append(p)
+	
+	# 2. O ÍMÃ DO ÓDIO (75% de chance)
+	if humanos_globais.size() > 0:
 		if randf() <= 0.75:
-			return humanos[0]
-		else:
-			return bots_inimigos[0]
-	elif humanos.size() > 0:
-		return humanos[0]
-	else:
-		return bots_inimigos[0]
+			# Pega o jogador humano mais próximo num raio de até 400m
+			var alvo_humano = humanos_globais[0]
+			var menor_dist = car.global_position.distance_to(alvo_humano.global_position)
+			
+			for i in range(1, humanos_globais.size()):
+				var h = humanos_globais[i]
+				var dist = car.global_position.distance_to(h.global_position)
+				if dist < menor_dist:
+					menor_dist = dist
+					alvo_humano = h
+					
+			# Se o humano estiver num raio razoável (400m), foca nele ignorando o radar normal!
+			if menor_dist < 400.0:
+				return alvo_humano
+
+	# 3. MODO NORMAL (Se falhou no 75% ou o humano está muito longe)
+	if not radar.inimigos_proximos.is_empty():
+		# Pega o primeiro da lista do radar (provavelmente o mais perto)
+		return radar.inimigos_proximos[0]
+		
+	return null
 
 func _tomar_decisao_de_estado():
 	var health_pct = (stats.current_health / stats.max_health) * 100.0
@@ -206,9 +217,19 @@ func _tomar_decisao_de_estado():
 			_mudar_estado(State.SEEK_HEIGHT)
 			return
 
-	# 3. ATAQUE IMEDIATO (COM TRIAGEM HUMANA)
+	# 3. ATAQUE IMEDIATO (COM TRIAGEM HUMANA E TRAVA DE MIRA)
 	if is_agressive and radar.inimigos_proximos.size() > 0:
-		alvo_atual = _escolher_alvo_inimigo() # Chamando a nova função!
+		
+		# SÓ ROLA O DADO DE NOVO SE: Não estava atacando, ou o alvo sumiu, ou o alvo fugiu do radar!
+		if current_state != State.ATTACK or not is_instance_valid(alvo_atual) or not radar.inimigos_proximos.has(alvo_atual):
+			var alvo_anterior = alvo_atual
+			alvo_atual = _escolher_alvo_inimigo()
+			
+			# Debug limpo! Só avisa se realmente trocou de vítima
+			if alvo_atual != alvo_anterior:
+				var nome_alvo = alvo_atual.name if is_instance_valid(alvo_atual) else "Nenhum"
+				print("[DEBUG BOT] ", car.name, " 🎯 TRAVOU A MIRA NO ALVO: ", nome_alvo)
+		
 		_mudar_estado(State.ATTACK)
 		
 		if timer_manobra <= 0:
@@ -229,9 +250,11 @@ func _tomar_decisao_de_estado():
 		_mudar_estado(State.WANDER_AMMO)
 		return
 		
-	# 6. PERSEGUIÇÃO LEVE (COM TRIAGEM HUMANA)
+# 6. PERSEGUIÇÃO LEVE (COM TRAVA DE MIRA)
 	if radar.inimigos_proximos.size() > 0 and chase_repeats < 5:
-		alvo_atual = _escolher_alvo_inimigo() # Chamando a nova função!
+		if current_state != State.WANDER_CHASE or not is_instance_valid(alvo_atual) or not radar.inimigos_proximos.has(alvo_atual):
+			alvo_atual = _escolher_alvo_inimigo()
+			
 		_mudar_estado(State.WANDER_CHASE)
 		return
 	

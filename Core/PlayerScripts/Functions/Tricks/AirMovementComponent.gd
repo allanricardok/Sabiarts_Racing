@@ -19,9 +19,12 @@ var is_doing_stunt := false
 var is_slow_mo_active := false
 var original_angular_damp : float = 0.0
 
-# --- LÓGICA DE GASTO DE ENERGIA ---
 var slomo_drain_timer : float = 0.0
-const SLOMO_DRAIN_INTERVAL : float = 0.1 # Décimo de segundo
+const SLOMO_DRAIN_INTERVAL : float = 0.1 
+
+# --- VARIÁVEIS DE QUEDA (SHAKE) ---
+var was_on_ground := true
+var max_air_height := 0.0
 
 func _ready():
 	original_angular_damp = car.angular_damp
@@ -32,43 +35,47 @@ func _physics_process(delta):
 	if not car.pode_mover: return
 	var is_on_ground = check_grounded()
 	
-	# Desativa se tocar o chão
 	if is_on_ground and is_slow_mo_active:
 		_set_slow_motion(false)
 	
-	# Lógica de drenagem de energia
 	if is_slow_mo_active:
 		_process_slomo_drain(delta)
 	
 	if not is_on_ground:
+		# --- RASTREIA A ALTURA MÁXIMA NO AR ---
+		max_air_height = max(max_air_height, car.global_position.y)
 		_handle_air_logic(delta)
 	else:
+		# --- GATILHO DE POUSO (SHAKE) ---
+		if not was_on_ground:
+			var fall_distance = max_air_height - car.global_position.y
+			if fall_distance > 10.0:
+				if car.has_method("play_camera_shake"):
+					car.play_camera_shake("HardLand")
+			max_air_height = car.global_position.y # Reseta para o nível do chão
+			
 		if is_doing_stunt:
 			stunt_processor.apply_stunt_brake()
 		trick_manager.check_landing(is_doing_stunt)
 
+	# Grava para o próximo frame
+	was_on_ground = is_on_ground
+
 func _process_slomo_drain(delta):
-	# Usamos delta / Engine.time_scale para que o gasto seja no tempo real do jogador
 	slomo_drain_timer += delta / Engine.time_scale
-	
 	if slomo_drain_timer >= SLOMO_DRAIN_INTERVAL:
 		slomo_drain_timer = 0.0
-		# Tenta gastar 1 de energia usando sua função existente
 		var success = _modify_energy(-1.0)
-		
-		# Se a energia acabar, cancela o Slow-mo imediatamente
 		if not success:
 			_set_slow_motion(false)
 
 func _handle_air_logic(delta):
 	if Input.is_action_just_pressed("slow_mo"): 
-		# Só permite ativar se tiver energia para pelo menos o primeiro "tick"
 		if not is_slow_mo_active:
-			if _modify_energy(0.0): # Checagem simples se há algo no componente
+			if _modify_energy(0.0): 
 				_set_slow_motion(true)
 		else:
 			_set_slow_motion(false)
-		
 		get_viewport().set_input_as_handled()
 		
 	var near_ground = is_near_ground()
@@ -85,8 +92,6 @@ func _handle_air_logic(delta):
 	if is_doing_stunt:
 		stunt_processor.process_stunt_rotation(delta)
 
-# --- PONTE DE COMANDO ---
-
 func execute_stunt_command(axis: Vector3, trick_id: String):
 	if is_doing_stunt or not stunt_processor: return
 	stunt_processor.initiate_stunt(axis, trick_id)
@@ -95,17 +100,14 @@ func _modify_energy(amount: float) -> bool:
 	var ability = car.get_node_or_null("%AbilityComponent")
 	if not ability: return false
 	
-	if amount < 0: # Gasto
+	if amount < 0: 
 		if ability.current_energy >= abs(amount):
 			ability.current_energy -= abs(amount)
 			return true
-		# Removi o erro de falta de energia aqui para não spammar durante o dreno contínuo
 		return false
 	
 	ability.current_energy = min(ability.current_energy + amount, ability.MAX_ENERGY)
 	return true
-
-# --- AUXILIARES DE FÍSICA ---
 
 func _handle_air_control(delta):
 	var forward_in_air = max(input.throttle, 0.0)
@@ -132,5 +134,4 @@ func check_grounded() -> bool:
 func _set_slow_motion(active: bool):
 	is_slow_mo_active = active
 	Engine.time_scale = 0.2 if active else 1.0
-	# Reseta o timer ao mudar o estado
 	slomo_drain_timer = 0.0

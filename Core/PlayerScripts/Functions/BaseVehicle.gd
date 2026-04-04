@@ -34,7 +34,7 @@ var pode_mover : bool = true
 @onready var input = %InputComponent
 @onready var movement = %MovementComponent
 @onready var weapons = %WeaponManager
-@onready var effects = %VehicleEffects
+@onready var effects = %VehicleEffects # <-- DELEGAMOS OS EFEITOS PRA CA!
 
 # --- REFERÊNCIAS DE VISUAL DAMAGE ---
 @export_group("Visual Damage")
@@ -52,6 +52,7 @@ var teleport_material : StandardMaterial3D
 var _hit_cooldowns: Dictionary = {}
 var velocidade_de_impacto : float = 0.0 
 var _active_gaps : Dictionary = {}
+var pedestrians_killed : int = 0
 
 # --- INICIALIZAÇÃO ---
 
@@ -93,11 +94,16 @@ func _ready():
 # --- PROCESSAMENTO ---
 
 func _physics_process(delta):
-	if not pode_mover:
-		engine_force = 0
-		brake = 100
+	# --- TRAVA DE MOVIMENTO (GELO OU MORTE) ---
+	# Se não pode mover (cutscene/morte) OU se estiver congelado pelo componente
+	if not pode_mover or is_frozen():
+		# (O freio pesado do gelo já é aplicado dentro do VehicleEffects.gd)
+		if not is_frozen(): 
+			engine_force = 0
+			brake = 100
 		return
 	
+	# Lógica dos Gaps
 	var expired_gaps = []
 	for gap_id in _active_gaps.keys():
 		_active_gaps[gap_id] -= delta
@@ -107,12 +113,14 @@ func _physics_process(delta):
 	for gap_id in expired_gaps:
 		_active_gaps.erase(gap_id)
 	
+	# Velocímetro da UI (se existir)
 	if speed_label:
 		var kmh = linear_velocity.length() * 2.3
 		speed_label.text = str(int(kmh))
 	
 	brake = 0
 	
+	# Acumulador de força para batidas
 	var vel_atual = linear_velocity.length() * 2.3
 	if vel_atual > velocidade_de_impacto:
 		velocidade_de_impacto = vel_atual
@@ -122,12 +130,10 @@ func _physics_process(delta):
 # --- SETUP DE MULTIPLAYER (CORRIGIDO E BLINDADO) ---
 
 func _setup_multiplayer_links():
-	# Verifica imediatamente se somos um Bot
 	var is_bot = false
 	if input and "is_bot" in input:
 		is_bot = input.is_bot
 
-	# --- MÁGICA DA NAMETAG (Label3D) ---
 	if name_tag:
 		name_tag.text = "Player " + str(id + 1)
 		var layer_bit = 10 + id 
@@ -137,14 +143,11 @@ func _setup_multiplayer_links():
 		if my_camera:
 			my_camera.cull_mask &= ~(1 << layer_bit)
 
-	# --- FIM DA LINHA PARA OS BOTS ---
-	# Se for um bot, ele não precisa e não deve tocar em nenhuma HUD!
 	if is_bot: 
 		return 
 
 	var suffix = "_" + input_source
 	
-	# Usamos find_child("*HUD*") direto no carro, garantindo que ele só ache a PRÓPRIA interface
 	var my_hud = find_child("*HUD*", true, false)
 	if my_hud and my_hud.has_method("setup_hud"):
 		my_hud.setup_hud(suffix, self.id)
@@ -153,7 +156,6 @@ func _setup_multiplayer_links():
 	if weapons and weapons.has_method("setup_multiplayer"):
 		weapons.setup_multiplayer(suffix)
 		
-	# Conexão direta do Rage na própria HUD para evitar cruzamento de dados
 	if my_hud:
 		var rage_comp = get_node_or_null("%RageComponent")
 		var rage_ui = my_hud.find_child("RageUI", true, false)
@@ -164,7 +166,6 @@ func _setup_multiplayer_links():
 
 
 # --- LÓGICA DE GAPS E MANOBRAS ---
-
 func _on_pousou(is_clean: bool):
 	var trick_manager = get_node_or_null("%TrickManager")
 	if trick_manager and trick_manager.has_method("check_landing"):
@@ -193,7 +194,6 @@ func has_active_gap(id_gap: String) -> bool:
 	return _active_gaps.has(id_gap)
 
 # --- SAÚDE E VISUAL ---
-
 func update_visual_damage(percent: float):
 	if mesh_new: mesh_new.visible = percent > 60
 	if mesh_damaged and mesh_damaged != mesh_new: 
@@ -205,9 +205,17 @@ func set_pode_mover(valor: bool):
 	pode_mover = valor
 
 func take_damage(amount: float, attacker: Node = null):
+	# --- MUDANÇA: SHAKE DE DANO POR STRING ---
+	if amount > 6.0:
+		play_camera_shake("Damage")
 	if stats: stats.take_damage(amount, attacker)
 
+# --- TELEPORTE FIX ---
 func teleport_to(target_transform : Transform3D):
+	# Paramos o carro instantaneamente para evitar que ele deslize para fora do destino
+	linear_velocity = Vector3.ZERO
+	angular_velocity = Vector3.ZERO
+	
 	var tween = create_tween()
 	var all_meshes = find_children("*", "MeshInstance3D", true)
 	
@@ -216,7 +224,7 @@ func teleport_to(target_transform : Transform3D):
 	tween.tween_interval(0.1)
 	tween.tween_callback(func():
 		global_transform = target_transform
-		linear_velocity = Vector3.ZERO
+		linear_velocity = Vector3.ZERO # Reforça o freio pós teleporte
 		angular_velocity = Vector3.ZERO
 	)
 	tween.tween_interval(0.1)
@@ -225,7 +233,6 @@ func teleport_to(target_transform : Transform3D):
 	)
 
 # --- COLISÕES E IMPACTO ---
-
 func _on_impacto_corpo(body: Node):
 	if body is GridMap or "Floor" in body.name or "Exteriors" in body.name:
 		return
@@ -266,6 +273,9 @@ func _on_impacto_corpo(body: Node):
 			var rage = get_node_or_null("%RageComponent")
 			if rage: rage.add_collision_damage(dano_final)
 			
+			# --- MUDANÇA: SHAKE DE CARRO POR STRING (Passando o Dano como modificador) ---
+			play_camera_shake("CarCollision", dano_final)
+			
 	elif body.has_method("take_damage"):
 		var dano_final = min(dano_gerado, dano_maximo_por_batida)
 		body.take_damage(dano_final, self)
@@ -273,6 +283,11 @@ func _on_impacto_corpo(body: Node):
 		if not body.is_in_group("ignorar_rage"):
 			var rage = get_node_or_null("%RageComponent")
 			if rage: rage.add_collision_damage(dano_final)
+
+		# --- MUDANÇA: SHAKE DE OBJETO POR STRING ---
+		var speed_now = linear_velocity.length() * 2.3
+		if speed_now < (my_speed * 0.75): # Perdeu mais de 25% da vel?
+			play_camera_shake("ObjCollision")
 
 # --- SISTEMA DE MORTE E DESTRUIÇÃO ---
 var _is_dead : bool = false
@@ -298,21 +313,16 @@ func _on_vehicle_destroyed(attacker: Node = null):
 		set_physics_process(false)
 	else:
 		# --- MORTE DO BOT ---
-		# 1. Dá os pontos NA TELA DE COMBO do Atirador!
 		if is_instance_valid(attacker) and attacker.is_in_group("jogadores"):
 			var g_manager = attacker.get_node_or_null("%GroundTrickManager")
 			if g_manager and g_manager.has_method("add_custom_action"):
 				g_manager.add_custom_action("Bot Destroyed!", pontos_por_morte)
 		
-		# 2. Desliga a colisão para não interferir no drop
 		visible = false
 		collision_layer = 0
 		collision_mask = 0
 		
-		# 3. Spawna o loot IMEDIATAMENTE antes do carro sumir (Sem o call_deferred)
 		_spawn_loot_safely(self.global_position)
-		
-		# 4. Agora sim, joga no lixo com segurança!
 		queue_free()
 
 # --- SISTEMA DE DROPS SEGURO ---
@@ -325,14 +335,12 @@ func _spawn_loot_safely(origin_pos: Vector3):
 		if drop_item_resource_2: _create_drop_carrier(right_pos, drop_item_resource_2)
 
 func _create_drop_carrier(start_pos: Vector3, resource_to_drop: Resource):
-	# Proteção máxima
 	if not is_inside_tree(): return 
 	
 	var space_state = get_world_3d().direct_space_state
 	var destination = start_pos + (Vector3.DOWN * 100.0)
 	var query = PhysicsRayQueryParameters3D.create(start_pos, destination)
 	
-	# CRUCIAL: Manda o Raycast ignorar o próprio carro morto
 	query.exclude = [self.get_rid()] 
 	
 	var result = space_state.intersect_ray(query)
@@ -371,7 +379,6 @@ func atualizar_visao_nametags(categoria_index: int):
 	var my_camera = find_child("Camera3D", true, false)
 	if not my_camera: return
 
-	# Fechamos os olhos para TODAS as nametags (Camadas 10 até 19, para suportar mais bots)
 	for i in range(10):
 		var layer_bit = 10 + i
 		my_camera.cull_mask &= ~(1 << layer_bit)
@@ -382,10 +389,20 @@ func atualizar_visao_nametags(categoria_index: int):
 				var layer_bit = 10 + i
 				my_camera.cull_mask |= (1 << layer_bit)
 
-# --- EFEITOS DE STATUS ---
+# --- EFEITOS DE STATUS DELEGADOS AO COMPONENTE ---
 func aplicar_congelamento(tempo: float = 3.0):
-	if effects:
+	if effects and effects.has_method("aplicar_congelamento"):
 		effects.aplicar_congelamento(tempo)
 
 func is_frozen() -> bool:
-	return effects.is_frozen if effects else false
+	if effects and "is_frozen" in effects:
+		return effects.is_frozen
+	return false
+
+func play_camera_shake(event_name: String, modifier: float = 1.0):
+	var is_bot = (input and "is_bot" in input and input.is_bot)
+	if is_bot: return 
+	
+	var shaker = find_child("CameraShake", true, false)
+	if shaker and shaker.has_method("trigger_event"):
+		shaker.trigger_event(event_name, modifier)

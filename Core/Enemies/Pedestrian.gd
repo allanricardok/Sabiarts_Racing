@@ -91,11 +91,9 @@ func take_damage(amount: float, attacker: Node3D = null):
 	process_mode = Node.PROCESS_MODE_DISABLED
 	visible = false
 	
-	# --- NOVO: O "PESO" DO ATROPELAMENTO ---
-	# Se quem bateu foi um carro, nós multiplicamos a velocidade dele por 0.9 (tira 10%)
+	# --- O "PESO" DO ATROPELAMENTO ---
 	if attacker is VehicleBody3D or attacker is RigidBody3D:
 		attacker.linear_velocity *= 0.88 
-		# Dica: Se quiser que ele perca mais, mude para 0.85 (15%) ou 0.8 (20%)
 	
 	var actual_shooter = attacker
 	if attacker and "shooter" in attacker and is_instance_valid(attacker.shooter):
@@ -110,7 +108,14 @@ func take_damage(amount: float, attacker: Node3D = null):
 		if gtm:
 			gtm.add_ground_action("HIT_OBJECT")
 			
-	if GameStats:
-		GameStats.add_pedestrian_kill()
-		
+		# --- NOVO: FILTRA APENAS JOGADORES REAIS PARA O GAMESTATS ---
+		if GameStats:
+			var input = actual_shooter.get_node_or_null("%InputComponent")
+			var is_bot = (input and "is_bot" in input and input.is_bot)
+			
+			# --- NOVO: PONTO INDIVIDUAL NO CARRO ---
+			if not is_bot:
+				if "pedestrians_killed" in actual_shooter:
+					actual_shooter.pedestrians_killed += 1
+			
 	queue_free()

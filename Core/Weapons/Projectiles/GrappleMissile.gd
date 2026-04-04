@@ -53,15 +53,17 @@ func _ready():
 
 func setup(dmg, shooter_vel, source_car, incoming_target = null):
 	damage = dmg
-	target = incoming_target
 	shooter = source_car
 	is_tethered = false # Garante estado limpo ao nascer
 	
+	# --- OVERRIDE DE ALVO (ALL TARGETS) ---
+	# Ignora completamente o alvo do radar/interface e busca o melhor alvo global na frente do carro
+	target = _find_best_global_target()
+	
 	if is_instance_valid(source_car):
 		var forward_dir = source_car.global_transform.basis.z 
-		var right_dir = source_car.global_transform.basis.x # Eixo lateral do carro (Direita)
+		var right_dir = source_car.global_transform.basis.x 
 		
-		# --- INCLINAÇÃO MANUAL VIA CÓDIGO (Efeito Morteiro) ---
 		var tilt_angle = deg_to_rad(-1.0) 
 		forward_dir = forward_dir.rotated(right_dir, tilt_angle).normalized()
 		
@@ -71,6 +73,40 @@ func setup(dmg, shooter_vel, source_car, incoming_target = null):
 			velocity = forward_dir * fly_speed
 			
 		look_at(global_position + forward_dir, Vector3.UP)
+
+# --- NOVO: BUSCA GLOBAL INDEPENDENTE ---
+func _find_best_global_target() -> Node3D:
+	if not is_instance_valid(shooter): return null
+	
+	var best_target = null
+	var highest_score = -1000.0
+	
+	var car_pos = shooter.global_position
+	var forward = shooter.global_transform.basis.z.normalized()
+	
+	# Vasculha TODAS as categorias possíveis para o gancho de uma vez
+	var search_groups = ["jogadores", "inimigos", "destructibles"]
+	
+	for group in search_groups:
+		for t in get_tree().get_nodes_in_group(group):
+			if not is_instance_valid(t) or t == shooter: continue
+			
+			var dist = car_pos.distance_to(t.global_position)
+			if dist > 200.0: continue # Range máximo do Gancho
+			
+			var dir = (t.global_position - car_pos).normalized()
+			var dot_p = forward.dot(dir)
+			
+			# Tem que estar num cone à frente do carro (dot_p > 0.7 é aprox. 45 graus)
+			if dot_p > 0.7:
+				# Matemática da pontuação: Mira perfeita (dot_p próximo de 1) vale muito, 
+				# distância reduz a pontuação levemente
+				var score = (dot_p * 500.0) - dist
+				if score > highest_score:
+					highest_score = score
+					best_target = t
+					
+	return best_target
 
 func _physics_process(delta):
 	if not is_instance_valid(shooter):
@@ -176,14 +212,11 @@ func _on_area_entered(area):
 	if not is_tethered: _process_impact(area)
 
 func _process_impact(target_node):
-	# --- CADEADO DO GANCHO: Se já agarrou, ignora o resto! ---
 	if is_tethered: return
 
 	if not is_instance_valid(target_node): return
 	if target_node.is_queued_for_deletion(): return
 
-	# --- NOVO: REPELENTE DE HOLOGRAMA ---
-	# Se o objeto atingido tiver essa tag (que colocamos na HoloWall), o gancho desiste e passa reto!
 	if target_node.is_in_group("ignorar_gancho"):
 		return
 
@@ -216,7 +249,7 @@ func _play_impact_explosion():
 	pass
 
 func _start_tether(body):
-	is_tethered = true # Tranca a porta!
+	is_tethered = true
 	time_alive = 0.0 
 	
 	if body is StaticBody3D or body is GridMap:

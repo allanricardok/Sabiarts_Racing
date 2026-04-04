@@ -6,6 +6,8 @@
 size = Vector3(8.5703125, 6.2634277, 1)
 
 [node name="ExplorationArea" type="Area3D"]
+collision_layer = 4
+collision_mask = 0
 script = ExtResource("1_jyla0")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]

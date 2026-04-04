@@ -8,8 +8,8 @@
 script = ExtResource("3_4qat7")
 nome = "FreezingMissile"
 projectile_scene = ExtResource("2_2w62i")
-dano = 0.1
-fire_rate = 3.5
+dano = 0.5
+fire_rate = 3.0
 ammo = 3
 custom_mesh = ExtResource("1_2w62i")
 mesh_scale = Vector3(1.4, 1, 1)

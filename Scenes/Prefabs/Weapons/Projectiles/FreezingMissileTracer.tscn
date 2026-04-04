@@ -15,7 +15,7 @@ size = Vector3(1, 0.6642456, 1)
 
 [node name="FreezingMissileTracer" type="Area3D"]
 collision_layer = 8
-collision_mask = 7
+collision_mask = 3
 script = ExtResource("1_n5kv7")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]

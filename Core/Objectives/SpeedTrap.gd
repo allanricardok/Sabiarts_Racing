@@ -27,7 +27,18 @@ func _process_radar(car: BaseVehicle):
 	
 	print("Radar: ", car.name, " passou a ", int(speed_kmh), " km/h")
 	
-	# 1. Avisa o MissionManager para checar se batemos a meta da missão
+	# Opcional: Dispara o flash da câmera para TODOS que passarem (Players e Bots)
+	_visual_flash()
+	
+	# --- FILTRO DE BOT ---
+	# Pega o Input para saber se é a IA dirigindo
+	var input = car.get_node_or_null("%InputComponent")
+	var is_bot = (input and "is_bot" in input and input.is_bot)
+	
+	if is_bot:
+		return # Se for Bot, paramos a execução aqui. Nada de UI ou Missão!
+
+	# 1. Avisa o MissionManager para checar se batemos a meta da missão (Apenas Jogadores)
 	if is_instance_valid(MissionManager):
 		MissionManager.notify_progress(MissionItem.Type.SPEED, speed_kmh, radar_mission_id)
 		
@@ -44,9 +55,6 @@ func _process_radar(car: BaseVehicle):
 			cor = Color.GREEN
 		
 		my_hud.criar_toast("SPEEDTRAP: " + str(int(speed_kmh)) + " KM/H", cor)
-	
-	# Opcional: Aqui você pode disparar um efeito de "Flash" de câmera no radar
-	_visual_flash()
 
 func _visual_flash():
 	# TODO: Efeito de luz branca rápida para parecer uma foto de multa

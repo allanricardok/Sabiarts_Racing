@@ -8,7 +8,7 @@
 script = ExtResource("2_kwvig")
 nome = "GrapplingMissile"
 projectile_scene = ExtResource("1_fhn1e")
-dano = 3.0
+dano = 5.0
 fire_rate = 0.8
 lockon_range = 80.0
 custom_mesh = ExtResource("1_kwvig")

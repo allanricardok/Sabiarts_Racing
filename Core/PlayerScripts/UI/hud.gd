@@ -55,10 +55,6 @@ func _ready():
 	add_child(nametags_container)
 	
 	# Conecta a HUD ao cofre global
-	if GameStats:
-		GameStats.pedestrian_killed.connect(_update_ped_kill_ui)
-		# Garante que ele já comece mostrando o número certo
-		_update_ped_kill_ui(GameStats.pedestrians_killed_this_run)
 	
 	if ScoreManager.is_connected("score_changed", _on_score_updated):
 		ScoreManager.score_changed.disconnect(_on_score_updated)
@@ -97,7 +93,11 @@ func setup_hud(suffix: String, real_id: int):
 
 func _process(delta):
 	_update_ui_scaling()
-	_update_2d_nametags() # Atualiza as gotas e nomes todos os frames
+	_update_2d_nametags()
+	
+	# --- NOVO: ATUALIZA O PLACAR DE ATROPELAMENTOS INDIVIDUAL ---
+	if ped_kill_label and is_instance_valid(my_car):
+		ped_kill_label.text = "x" + str(my_car.pedestrians_killed)
 
 # --- LÓGICA DAS GOTAS TÁTICAS DINÂMICAS (POLIDO, SEM AUTO-VISÃO E AJUSTÁVEL) ---
 func _update_2d_nametags():

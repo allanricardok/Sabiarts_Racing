@@ -8,7 +8,7 @@ size = Vector3(3, 3, 3)
 [resource]
 script = ExtResource("1_5twny")
 item_name = "Health"
-health_amount = 25.0
+health_amount = 30.0
 custom_mesh = SubResource("PrismMesh_5twny")
 item_color = Color(0, 0.2784314, 1, 0.7137255)
 metadata/_custom_type_script = "uid://5wgfj8fmfmgf"

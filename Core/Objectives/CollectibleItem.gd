@@ -62,6 +62,16 @@ func _entregar_chave_interna(alvo):
 func _collect():
 	print("[Item] Coletou: ", mission_id)
 
+	# --- NOVO: FORÇA O SAVE DA CHAVE NA MARRA! ---
+	if grants_teleport_key:
+		# Se o ID dessa chave ainda não está no save, a gente soca ele lá dentro
+		if not MissionManager.completed_mission_ids.has(mission_id):
+			MissionManager.completed_mission_ids.append(mission_id)
+			# Chama o SaveManager para gravar no disco instantaneamente
+			SaveManager.save_game(MissionManager.completed_mission_ids, {})
+			print("[Item] Chave salva permanentemente no disco!")
+
+	# Segue o fluxo normal caso ela TAMBÉM seja uma missão normal
 	MissionManager.notify_progress(MissionItem.Type.COLLECT, 1.0, mission_id)
 	
 	# Efeito visual/sonoro antes de sumir

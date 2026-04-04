@@ -9,6 +9,7 @@ size = Vector3(1, 0.615, 1)
 script = ExtResource("1_yeuu5")
 item_name = "SuperHealth"
 health_amount = 60.0
+shield_amount = 5.0
 custom_mesh = SubResource("PrismMesh_yeuu5")
 mesh_scale = Vector3(3, 3, 3)
 item_color = Color(0, 0.88235295, 0.83137256, 0.8117647)

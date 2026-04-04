@@ -28,9 +28,20 @@ var stunt_timeout := 0.0
 var trickdone := false
 var is_invincible := false
 
+# --- CONTADORES DO FIREBALL ---
+var fireball_combo_count : int = 0
+
 func setup(_parent, _car):
 	parent = _parent
 	car = _car
+	# Conecta o sinal nativo do MovementComponent para resetar o Fireball SEMPRE que pousar!
+	var move_comp = car.get_node_or_null("%MovementComponent")
+	if move_comp and move_comp.has_signal("landed"):
+		move_comp.landed.connect(_on_car_landed)
+
+# Função exclusiva para limpar o estado de manobras no ar
+func _on_car_landed(_is_clean: bool):
+	fireball_combo_count = 0
 
 func initiate_stunt(axis: Vector3, trick_id: String):
 	current_trick_id = trick_id
@@ -38,14 +49,19 @@ func initiate_stunt(axis: Vector3, trick_id: String):
 	
 	# --- TRUQUES ESPECIAIS COM CUSTO ---
 	if trick_id == "FIREBALL" or trick_id == "SHOCKWAVE":
+		
+		# --- BLOQUEIO DE 3 FIREBALLS NO AR ---
+		if trick_id == "FIREBALL":
+			if fireball_combo_count >= 3:
+				_emitir_falha_energia()
+				return
+		
 		if parent._modify_energy(-ENERGY_COST_SPECIAL):
+			car.play_camera_shake("Stunt")
 			_confirm_trick_success()
 			_apply_instant_physics(trick_id)
 		else:
-			# NOVO: Se falhar o gasto de energia, dispara o feedback visual
-			var ability = car.get_node_or_null("%AbilityComponent")
-			if ability and ability.has_method("_erro_falta_energia"):
-				ability._erro_falta_energia()
+			_emitir_falha_energia()
 		return
 	
 	if trick_id == "EMOTE":
@@ -53,6 +69,11 @@ func initiate_stunt(axis: Vector3, trick_id: String):
 		return
 
 	_start_rotation_stunt(axis, p_mult)
+
+func _emitir_falha_energia():
+	var ability = car.get_node_or_null("%AbilityComponent")
+	if ability and ability.has_method("_erro_falta_energia"):
+		ability._erro_falta_energia()
 
 func _start_rotation_stunt(axis: Vector3, p_mult: float):
 	parent.is_doing_stunt = true
@@ -106,16 +127,8 @@ func apply_stunt_brake():
 	car.angular_damp = parent.original_angular_damp
 	
 	if current_trick_id != "EMOTE":
-		# Pegamos a velocidade de giro atual do carro
 		var local_vel = car.global_transform.basis.inverse() * car.angular_velocity
-		
-		# --- CORREÇÃO DO FREIO ---
-		# Em vez de aplicar um empurrão contrário, nós simplesmente subtraímos 
-		# a velocidade daquele eixo específico (zerando o giro da manobra).
-		# Isso mantém intactas outras forças (como você virando o volante).
 		local_vel -= current_stunt_axis * local_vel.dot(current_stunt_axis)
-		
-		# Devolvemos a velocidade limpa para o carro
 		car.angular_velocity = car.global_transform.basis * local_vel
 	
 	parent.is_doing_stunt = false
@@ -124,8 +137,14 @@ func apply_stunt_brake():
 
 func _apply_instant_physics(id: String):
 	if id == "FIREBALL":
+		# LÓGICA DE FORÇA REDUZIDA
+		var force_multiplier = pow(0.5, fireball_combo_count)
+		
 		var launch = (car.global_transform.basis.z * 0.1 + Vector3.UP * 1.5).normalized()
-		car.apply_central_impulse(launch * 30.0 * car.mass)
+		car.apply_central_impulse(launch * (30.0 * force_multiplier) * car.mass)
+		
+		fireball_combo_count += 1
+		
 	elif id == "SHOCKWAVE":
 		car.angular_velocity = Vector3.ZERO
 		car.apply_torque_impulse(car.global_transform.basis.y.cross(Vector3.UP) * 20.0 * car.mass)

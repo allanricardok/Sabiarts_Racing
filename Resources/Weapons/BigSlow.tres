@@ -8,8 +8,8 @@
 script = ExtResource("1_ddf8q")
 nome = "BigSlow"
 projectile_scene = ExtResource("1_etxkf")
-dano = 10.0
-fire_rate = 0.8
+dano = 16.0
+fire_rate = 1.0
 custom_mesh = ExtResource("1_r2y01")
 mesh_scale = Vector3(1.4, 1.4, 1.4)
 item_color = Color(1, 0.8627451, 0, 1)

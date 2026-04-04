@@ -133,8 +133,10 @@ func _execute_jump():
 func _execute_boost():
 	current_energy -= COST_BOOST
 	var mult = stats.speed_multiplier if stats else 1.0
+	car.play_camera_shake("Turbo")
 	car.apply_central_impulse(car.global_transform.basis.z * BOOST_IMPULSE * mult * car.mass)
 	_start_cooldown()
+	
 
 func _execute_teleport():
 	var teleport_markers = get_tree().get_nodes_in_group("AbilityTeleport")

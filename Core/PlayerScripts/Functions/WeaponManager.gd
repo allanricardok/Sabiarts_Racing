@@ -79,16 +79,18 @@ func _process(delta):
 	var is_firing = false
 	
 	if is_bot:
-		# Se for Bot, ele só atira quando o Cérebro mandar!
+		# Se for Bot, ele atira quando o Cérebro manda
 		is_firing = input.is_action_pressed 
 	else:
-		# Se for Player, ele lê os botões reais COM O SUFIXO!
+		# Se for Player, ele lê a variável que o InputComponent JÁ SEPAROU pra ele!
 		var is_doing_ability = (input.ability_up or input.ability_down or input.ability_left or input.ability_right)
 		
-		# Substitua "NOME_DO_SEU_INPUT_AQUI" pelo nome exato que está no Input Map para a metralhadora
-		# (ex: se no Input Map for "Shoot_P1", coloque "Shoot")
-		is_firing = Input.is_action_pressed("Action" + input.suffix) and not is_doing_ability
+		# USANDO O COMPONENTE para a Metralhadora
+		is_firing = input.is_action_pressed and not is_doing_ability
 
+		# --- RECUPERANDO O TIRO ESPECIAL E A TROCA DE ARMAS! ---
+		# Aqui usamos o Input global, MAS com o ".suffix" pendurado no final, 
+		# então ele está 100% blindado contra a tela dividida!
 		if Input.is_action_just_pressed("prev_weapon" + input.suffix): _switch_weapon(-1)
 		if Input.is_action_just_pressed("next_weapon" + input.suffix): _switch_weapon(1)
 		if Input.is_action_just_pressed("Fire" + input.suffix): fire_special_weapon()
@@ -179,8 +181,11 @@ func fire_basic_weapon():
 		
 	basic_cooldown = fire_rate_basic / (heat_efficiency * rage_mult) 
 	
-	_muzzle_flash_effect("MachineGun")
-	_spawn_projectile(basic_weapon_resource, "MachineGun")
+	# --- MUDANÇA: Agora usamos o nome oficial do Recurso dinamicamente! ---
+	var weapon_name = basic_weapon_resource.nome
+	
+	_muzzle_flash_effect(weapon_name)
+	_spawn_projectile(basic_weapon_resource, weapon_name)
 
 func fire_special_weapon():
 	var active = get_active_special()
@@ -193,6 +198,7 @@ func fire_special_weapon():
 	special_cooldowns[active.nome] = active.fire_rate / rate_mult
 	_muzzle_flash_effect(active.nome)
 	_spawn_projectile(active, active.nome)
+	car.play_camera_shake("WeaponFire")
 	
 	active.ammo -= 1
 	if active.ammo <= 0: _remove_current_weapon()

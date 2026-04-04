@@ -9,7 +9,7 @@ size = Vector3(3, 2, 3)
 [resource]
 script = ExtResource("1_1yjh2")
 item_name = "Shield"
-shield_amount = 25.0
+shield_amount = 30.0
 custom_mesh = SubResource("PrismMesh_1yjh2")
 item_color = Color(1, 0.23921569, 0.17254902, 1)
 metadata/_custom_type_script = "uid://5wgfj8fmfmgf"
