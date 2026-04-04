@@ -1,4 +1,4 @@
-[gd_scene load_steps=38 format=3 uid="uid://ry75iugdg8sl"]
+[gd_scene load_steps=41 format=3 uid="uid://ry75iugdg8sl"]
 
 [ext_resource type="Script" uid="uid://b0i2wvnkcrknc" path="res://Core/PlayerScripts/Functions/BaseVehicle.gd" id="1_drg00"]
 [ext_resource type="PackedScene" uid="uid://bp4khshtfj0rp" path="res://Scenes/Prefabs/Items/UniversalPickup.tscn" id="2_4a360"]
@@ -11,7 +11,9 @@
 [ext_resource type="Script" uid="uid://cfn8p13djjvoy" path="res://Core/PlayerScripts/CameraShake.gd" id="6_mafvn"]
 [ext_resource type="Texture2D" uid="uid://bkmid1n6i7ij6" path="res://Assets/2D/Test_Texture.jpg" id="7_66ub0"]
 [ext_resource type="Script" uid="uid://y3uxucxf1qqt" path="res://Core/PlayerScripts/UI/recticle.gd" id="8_koiev"]
+[ext_resource type="Shader" uid="uid://bprk76lxc16jb" path="res://Scenes/Prefabs/Vehicles/SpeedLines.gdshader" id="9_70m6l"]
 [ext_resource type="Script" uid="uid://17v2oug1wdmr" path="res://Core/PlayerScripts/Functions/VehicleHitbox.gd" id="9_yo5km"]
+[ext_resource type="Script" uid="uid://chbhmxlw1lra7" path="res://Scenes/Prefabs/Vehicles/SpeedLines.gd" id="10_66ub0"]
 [ext_resource type="Script" uid="uid://bftaf7rlmwtx" path="res://Core/PlayerScripts/Functions/RageComponent.gd" id="10_j5ts8"]
 [ext_resource type="Script" uid="uid://dpj0uel3wvdwa" path="res://Core/PlayerScripts/InputComponent.gd" id="11_ocy3r"]
 [ext_resource type="Script" uid="uid://cgce2m4fej62c" path="res://Core/PlayerScripts/Functions/MovementComponent.gd" id="12_xsuh6"]
@@ -37,6 +39,16 @@ size = Vector3(1.1523438, 0.38419932, 1.934)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_bjxsa"]
 size = Vector3(3, 2.4401855, 5)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_66ub0"]
+shader = ExtResource("9_70m6l")
+shader_parameter/line_color = Color(0.03529412, 0.03529412, 0.03529412, 0.8039216)
+shader_parameter/line_count = 25.0000007125
+shader_parameter/line_density = 0.18000000855
+shader_parameter/animation_speed = 5.0000002375
+shader_parameter/mask_radius = 0.30000001425
+shader_parameter/mask_smoothness = 0.90000004275
+shader_parameter/intensity = 0.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m0ew1"]
 content_margin_left = 2.0
@@ -313,6 +325,17 @@ grow_horizontal = 0
 max_value = 300.0
 rounded = true
 fill_mode = 3
+
+[node name="SpeedLines" type="ColorRect" parent="HUD"]
+material = SubResource("ShaderMaterial_66ub0")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("10_66ub0")
+min_speed_kmh = 60.0
 
 [node name="UI_Base" type="Control" parent="HUD"]
 clip_contents = true
