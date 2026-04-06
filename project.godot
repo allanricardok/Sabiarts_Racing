@@ -49,6 +49,9 @@ pedestrians=""
 AbilityTeleport=""
 projetil=""
 LockableTeleporters=""
+itens_exploracao=""
+itens_tutorial=""
+TutorialUI=""
 
 [input]
 

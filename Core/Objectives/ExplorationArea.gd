@@ -16,4 +16,5 @@ func _on_body_entered(body):
 			MissionManager.notify_progress(MissionItem.Type.EXPLORE, 1.0, explore_id)
 		
 		print("Lugar Secreto Encontrado: ", explore_id)
+		get_tree().call_group("TutorialUI", "complete_task", "cross_map")
 		queue_free()

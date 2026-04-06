@@ -128,6 +128,8 @@ func equip_special_weapon(new_weapon_res: WeaponResource):
 			current_weapon_index = i
 			_update_visual_selection()
 			_atualizar_interface()
+			# Cole no final da função (antes dos returns):
+			get_tree().call_group("TutorialUI", "complete_task", "grab_weapon")
 			return
 
 	if weapon_pool.size() < MAX_POOL_SIZE:

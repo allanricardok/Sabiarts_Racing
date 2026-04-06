@@ -125,12 +125,14 @@ func _erro_falta_energia():
 		)
 
 func _execute_jump():
+	get_tree().call_group("TutorialUI", "complete_task", "jump")
 	current_energy -= COST_JUMP
 	var mult = stats.jump_multiplier if stats else 1.0
 	car.apply_central_impulse(Vector3.UP * JUMP_FORCE * mult * car.mass)
 	_start_cooldown()
 
 func _execute_boost():
+	get_tree().call_group("TutorialUI", "complete_task", "turbo")
 	current_energy -= COST_BOOST
 	var mult = stats.speed_multiplier if stats else 1.0
 	car.play_camera_shake("Turbo")

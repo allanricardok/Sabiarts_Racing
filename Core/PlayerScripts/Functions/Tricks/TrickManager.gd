@@ -45,6 +45,7 @@ func marcar_gap_no_ar(gap_id: String, gap_name: String, points: int):
 	if _active_gaps_ids.has(gap_id) and not _gaps_completed_this_jump.has(gap_id):
 		_gaps_completed_this_jump.append(gap_id)
 		add_external_action(gap_name, points, COLOR_GAP)
+		get_tree().call_group("TutorialUI", "complete_task", "ramp_jump")
 
 func cancelar_gap():
 	_active_gaps_ids.clear()

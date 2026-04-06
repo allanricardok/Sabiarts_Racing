@@ -100,6 +100,10 @@ func _complete_mission(mission: MissionItem):
 	
 	SaveManager.save_game(completed_mission_ids, {}) 
 	
+	# --- NOVO: AVISA A CHECKLIST DO TUTORIAL ---
+	if mission.type == MissionItem.Type.COLLECT:
+		get_tree().call_group("TutorialUI", "complete_task", "letters")
+	
 	mission_completed.emit(mission)
 	_check_visibility()
 	print("[MissionManager] Missão validada e salva: ", mission.description)

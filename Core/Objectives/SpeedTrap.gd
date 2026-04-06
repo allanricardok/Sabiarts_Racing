@@ -53,6 +53,8 @@ func _process_radar(car: BaseVehicle):
 		var cor = Color.WHITE
 		if speed_kmh >= target_speed_reference:
 			cor = Color.GREEN
+			# --- NOVO: AVISA A CHECKLIST DO TUTORIAL ---
+			get_tree().call_group("TutorialUI", "complete_task", "speedtrap")
 		
 		my_hud.criar_toast("SPEEDTRAP: " + str(int(speed_kmh)) + " KM/H", cor)
 

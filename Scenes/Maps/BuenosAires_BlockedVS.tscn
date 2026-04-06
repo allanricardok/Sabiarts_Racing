@@ -1087,7 +1087,7 @@ specific_item = ExtResource("13_textq")
 
 [node name="Mission_Items" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap"]
 
-[node name="SecretItem" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items"]
+[node name="SecretItem" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items" groups=["itens_exploracao"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70.90806, 106.30079, 229.96863)
 collision_layer = 4
 collision_mask = 15
@@ -1116,7 +1116,7 @@ transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/Obake"]
 shape = SubResource("BoxShape3D_3i0df")
 
-[node name="Obake2" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items"]
+[node name="Obake2" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items" groups=["itens_exploracao"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -89.80764, 17.686209, -345.0291)
 collision_layer = 4
 collision_mask = 15
@@ -1129,7 +1129,7 @@ transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/Obake2"]
 shape = SubResource("BoxShape3D_3i0df")
 
-[node name="Obake3" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items"]
+[node name="Obake3" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items" groups=["itens_exploracao"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 373.71588, 8.893858, -24.781345)
 collision_layer = 4
 collision_mask = 15
@@ -1142,7 +1142,7 @@ transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/Obake3"]
 shape = SubResource("BoxShape3D_3i0df")
 
-[node name="Obake4" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items"]
+[node name="Obake4" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items" groups=["itens_exploracao"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 139.08153, 8.893858, 263.32593)
 collision_layer = 4
 collision_mask = 15
@@ -1155,7 +1155,7 @@ transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/Obake4"]
 shape = SubResource("BoxShape3D_3i0df")
 
-[node name="Obake5" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items"]
+[node name="Obake5" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items" groups=["itens_exploracao"]]
 transform = Transform3D(-0.16733663, 0, 0.9858998, 0, 1, 0, -0.9858998, 0, -0.16733663, -21.335714, 5.020214, -90.76955)
 collision_layer = 4
 collision_mask = 15
@@ -1187,7 +1187,7 @@ surface_material_override/0 = ExtResource("16_6fv6f")
 [node name="OmniLight3D" type="OmniLight3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/TeleporterKey"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.72943115, 1.3595123)
 
-[node name="ExplorationArea" parent="GridContainer/Cont_P1/View_P1/Map/BAMap" instance=ExtResource("13_t5btl")]
+[node name="ExplorationArea" parent="GridContainer/Cont_P1/View_P1/Map/BAMap" groups=["itens_exploracao"] instance=ExtResource("13_t5btl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 69.34393, 39.64796, -302.22638)
 collision_layer = 5
 collision_mask = 15

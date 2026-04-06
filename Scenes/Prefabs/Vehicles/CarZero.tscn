@@ -1,4 +1,4 @@
-[gd_scene load_steps=41 format=3 uid="uid://ry75iugdg8sl"]
+[gd_scene load_steps=43 format=3 uid="uid://ry75iugdg8sl"]
 
 [ext_resource type="Script" uid="uid://b0i2wvnkcrknc" path="res://Core/PlayerScripts/Functions/BaseVehicle.gd" id="1_drg00"]
 [ext_resource type="PackedScene" uid="uid://bp4khshtfj0rp" path="res://Scenes/Prefabs/Items/UniversalPickup.tscn" id="2_4a360"]
@@ -19,6 +19,7 @@
 [ext_resource type="Script" uid="uid://cgce2m4fej62c" path="res://Core/PlayerScripts/Functions/MovementComponent.gd" id="12_xsuh6"]
 [ext_resource type="Script" uid="uid://batvbhuur18qc" path="res://Core/PlayerScripts/Functions/StatsComponent.gd" id="13_y0tcj"]
 [ext_resource type="Script" uid="uid://bwt5x5nrgjp6b" path="res://Core/PlayerScripts/Functions/AbilityComponent.gd" id="14_grwgp"]
+[ext_resource type="Script" uid="uid://daua70hhth17f" path="res://Scenes/Prefabs/Vehicles/TutorialChecklist.gd" id="14_koiev"]
 [ext_resource type="Script" uid="uid://burl25dksofc1" path="res://Core/PlayerScripts/Functions/Tricks/AirMovementComponent.gd" id="15_glh28"]
 [ext_resource type="Script" uid="uid://o8qqxsyxuixf" path="res://Core/PlayerScripts/Functions/Tricks/StuntProcessor.gd" id="16_hsj1y"]
 [ext_resource type="Script" uid="uid://dicgxfjk23y35" path="res://Core/PlayerScripts/Functions/Tricks/TrickManager.gd" id="17_tutdn"]
@@ -75,6 +76,18 @@ corner_radius_bottom_left = 6
 corner_detail = 6
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_cj7ej"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yo5km"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.09411765, 0.09411765, 0.09411765, 0.3254902)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_whfdb"]
 content_margin_left = 0.0
@@ -684,6 +697,22 @@ expand_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 text = "x699"
+
+[node name="TutorialChecklist" type="PanelContainer" parent="HUD/UI_Base" groups=["TutorialUI"]]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -362.0
+offset_top = -538.0
+offset_right = -15.0
+offset_bottom = -84.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_yo5km")
+script = ExtResource("14_koiev")
 
 [node name="Messages" type="VBoxContainer" parent="HUD"]
 unique_name_in_owner = true

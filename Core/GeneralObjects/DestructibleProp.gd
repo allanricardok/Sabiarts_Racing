@@ -38,6 +38,10 @@ func take_damage(amount: float, attacker: Node3D = null):
 	
 	# Passamos o 'actual_shooter' (o Carro) para garantir que ele ganhe a energia e pontos
 	if actual_shooter:
+		# --- NOVO: AVISA A CHECKLIST DO TUTORIAL ---
+		if actual_shooter.is_in_group("jogadores"):
+			get_tree().call_group("TutorialUI", "complete_task", "barrels")
+			
 		# 1. Recupera energia por HIT
 		_give_energy_to_attacker(actual_shooter, energy_on_hit)
 		

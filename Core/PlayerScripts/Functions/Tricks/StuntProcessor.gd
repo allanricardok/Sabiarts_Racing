@@ -120,6 +120,8 @@ func _confirm_trick_success():
 		parent.trick_manager.add_trick_manually(current_trick_id)
 		var recovery = _get_recovery(current_trick_id)
 		if recovery > 0: parent._modify_energy(recovery)
+		# Cole logo antes do trickdone = true:
+	get_tree().call_group("TutorialUI", "complete_task", "trick")
 	trickdone = true
 
 func apply_stunt_brake():

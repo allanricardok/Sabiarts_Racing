@@ -20,7 +20,8 @@ var menu_index = 0
 @onready var menu_options = {
 	State.ROOT: [find_child("QuickPlay", true, false), find_child("Settings", true, false)],
 	State.QUICK_PLAY: [find_child("SinglePlayer", true, false), find_child("Multiplayer", true, false)],
-	State.SINGLE_PLAYER: [find_child("FreeRoam", true, false), find_child("Combat", true, false)],
+	# CORREÇÃO: Três opções no menu Single Player
+	State.SINGLE_PLAYER: [find_child("Tutorial", true, false), find_child("FreeRoam", true, false), find_child("Combat", true, false)],
 	State.MULTIPLAYER: [find_child("Coop", true, false), find_child("PvP", true, false)],
 	State.SETTINGS: [find_child("ClearDataButton", true, false), find_child("ClearScoresButton", true, false)],
 	State.MAP_SELECT: [$Screen_MapSelect/VBoxContainer/LabelMapa1, $Screen_MapSelect/VBoxContainer/LabelMapa2]
@@ -56,7 +57,9 @@ func _mudar_estado(novo_estado: int):
 	menu_index = 0
 	
 	if current_state == State.VEHICLE_SELECT:
-		max_players = 1 if Global.game_mode in ["Free Roam", "Combat"] else 4
+		# Lógica atualizada com o novo Enum
+		var is_single = (Global.current_run_mode == Global.RunMode.FREE_ROAM or Global.current_run_mode == Global.RunMode.EXPLORATION)
+		max_players = 1 if is_single else 4
 		for i in range(slots_ui.size()):
 			slots_ui[i].visible = (i < max_players)
 	
@@ -89,7 +92,11 @@ func _input(_event):
 	elif current_state == State.VEHICLE_SELECT:
 		if Input.is_action_just_pressed("Pause"): 
 			if _todos_estao_prontos():
-				_mudar_estado(State.MAP_SELECT)
+				# CORREÇÃO: Pula o MAP_SELECT se for o modo Tutorial
+				if Global.current_run_mode == Global.RunMode.FREE_ROAM:
+					_iniciar_corrida(0) # Inicia diretamente o TestMap
+				else:
+					_mudar_estado(State.MAP_SELECT)
 			return 
 			
 		for esquema in esquemas_disponiveis:
@@ -161,12 +168,14 @@ func _confirmar_menu_simples():
 			if menu_index == 0: _mudar_estado(State.SINGLE_PLAYER)
 			elif menu_index == 1: _mudar_estado(State.MULTIPLAYER)
 		State.SINGLE_PLAYER:
-			if menu_index == 0: Global.game_mode = "Free Roam"
-			elif menu_index == 1: Global.game_mode = "Combat"
+			# CORREÇÃO DO NOVO SISTEMA ENUM:
+			if menu_index == 0: Global.current_run_mode = Global.RunMode.FREE_ROAM
+			elif menu_index == 1: Global.current_run_mode = Global.RunMode.EXPLORATION
+			elif menu_index == 2: Global.current_run_mode = Global.RunMode.BATTLE
 			_mudar_estado(State.VEHICLE_SELECT)
 		State.MULTIPLAYER:
-			if menu_index == 0: Global.game_mode = "Co-op"
-			elif menu_index == 1: Global.game_mode = "PvP"
+			if menu_index == 0: Global.current_run_mode = Global.RunMode.BATTLE
+			elif menu_index == 1: Global.current_run_mode = Global.RunMode.BATTLE
 			_mudar_estado(State.VEHICLE_SELECT)
 		State.SETTINGS:
 			if menu_index == 0: _on_clear_data_pressed()
@@ -178,7 +187,9 @@ func _voltar_menu_anterior():
 		State.SINGLE_PLAYER, State.MULTIPLAYER: _mudar_estado(State.QUICK_PLAY)
 		State.VEHICLE_SELECT: 
 			for i in range(4): _remover_jogador(esquemas_disponiveis[i])
-			_mudar_estado(State.SINGLE_PLAYER if Global.game_mode in ["Free Roam", "Combat"] else State.MULTIPLAYER)
+			# CORREÇÃO DO NOVO SISTEMA ENUM PARA VOLTAR
+			var is_single = (Global.current_run_mode == Global.RunMode.FREE_ROAM or Global.current_run_mode == Global.RunMode.EXPLORATION)
+			_mudar_estado(State.SINGLE_PLAYER if is_single else State.MULTIPLAYER)
 		State.MAP_SELECT: _mudar_estado(State.VEHICLE_SELECT)
 
 # --- SISTEMA DE VEÍCULOS E LOBBY ---
@@ -225,10 +236,6 @@ func _atualizar_ui_slot(index):
 		if carros_disponiveis.size() > p_data.carro_idx and carros_disponiveis[p_data.carro_idx] != null:
 			var cena = carros_disponiveis[p_data.carro_idx]
 			
-			# 1. .resource_path pega o caminho todo ("res://Carros/Fusca_Azul.tscn")
-			# 2. .get_file() arranca as pastas ("Fusca_Azul.tscn")
-			# 3. .get_basename() arranca o .tscn ("Fusca_Azul")
-			# 4. .capitalize() tira o underline e deixa maiúsculo ("Fusca Azul")
 			nome_carro = cena.resource_path.get_file().get_basename().capitalize()
 			
 		label_controle.text = nome_carro + (" (PRONTO!)" if p_data.pronto else "")
@@ -311,7 +318,9 @@ func _iniciar_corrida(mapa_id: int = 0):
 			Global.dados_jogadores[i] = null
 			
 	if mapa_id < cenas_dos_mapas.size() and cenas_dos_mapas[mapa_id]:
-		print("Iniciando mapa: ", nomes_dos_mapas[mapa_id], " | Modo: ", Global.game_mode)
+		# ATUALIZA A GLOBAL PARA SABER QUAL MAPA ESTÁ RODANDO
+		Global.current_map = nomes_dos_mapas[mapa_id]
+		print("Iniciando mapa: ", nomes_dos_mapas[mapa_id], " | Modo: ", Global.RunMode.keys()[Global.current_run_mode])
 		get_tree().change_scene_to_packed(cenas_dos_mapas[mapa_id])
 
 func _on_clear_data_pressed():

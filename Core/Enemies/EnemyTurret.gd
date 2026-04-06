@@ -123,6 +123,15 @@ func take_damage(amount: float, attacker: Node = null):
 	if is_dead: 
 		return 
 		
+	# --- NOVO: AVISA A CHECKLIST DO TUTORIAL ---
+	# Verifica se quem deu o dano foi o jogador (ou a bala do jogador)
+	var actual_attacker = attacker
+	if attacker and "shooter" in attacker and is_instance_valid(attacker.shooter):
+		actual_attacker = attacker.shooter
+		
+	if is_instance_valid(actual_attacker) and actual_attacker.is_in_group("jogadores"):
+		get_tree().call_group("TutorialUI", "complete_task", "shoot_enemy")
+
 	if stats:
 		stats.take_damage(amount, attacker)
 

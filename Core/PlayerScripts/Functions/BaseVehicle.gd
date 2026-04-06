@@ -212,6 +212,8 @@ func take_damage(amount: float, attacker: Node = null):
 
 # --- TELEPORTE FIX ---
 func teleport_to(target_transform : Transform3D):
+	# Cole logo no começo da função:
+	get_tree().call_group("TutorialUI", "complete_task", "teleport")
 	# Paramos o carro instantaneamente para evitar que ele deslize para fora do destino
 	linear_velocity = Vector3.ZERO
 	angular_velocity = Vector3.ZERO
