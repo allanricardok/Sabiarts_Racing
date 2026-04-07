@@ -119,18 +119,26 @@ func _on_target_exited(body):
 
 func take_damage(amount: float, attacker: Node = null):
 	# --- ESCUDO FINAL ANTI-METRALHADORA ---
-	# Se já morreu, o cadáver ignora qualquer tiro extra!
 	if is_dead: 
 		return 
 		
-	# --- NOVO: AVISA A CHECKLIST DO TUTORIAL ---
-	# Verifica se quem deu o dano foi o jogador (ou a bala do jogador)
+	# --- CORREÇÃO DO TUTORIAL: IDENTIFICAÇÃO SEGURA DA BALA ---
 	var actual_attacker = attacker
-	if attacker and "shooter" in attacker and is_instance_valid(attacker.shooter):
-		actual_attacker = attacker.shooter
-		
+	var is_special = false
+	
+	if attacker:
+		# Primeiro descobre se o objeto físico que bateu na torre é uma arma especial
+		if "is_special_weapon" in attacker:
+			is_special = attacker.is_special_weapon
+			
+		# Depois descobre quem foi o jogador que atirou essa arma
+		if "shooter" in attacker and is_instance_valid(attacker.shooter):
+			actual_attacker = attacker.shooter
+			
+	# Se quem atirou foi o jogador E a arma usada foi a especial:
 	if is_instance_valid(actual_attacker) and actual_attacker.is_in_group("jogadores"):
-		get_tree().call_group("TutorialUI", "complete_task", "shoot_enemy")
+		if is_special:
+			get_tree().call_group("TutorialUI", "complete_task", "shoot_enemy")
 
 	if stats:
 		stats.take_damage(amount, attacker)

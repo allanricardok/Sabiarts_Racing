@@ -13,8 +13,10 @@ class_name SpeedLines
 var car : BaseVehicle = null
 
 func _ready():
-	# Garante que o Shader comece desligado
+	# --- CORREÇÃO DO MULTIPLAYER (MATERIAL ÚNICO) ---
+	# Duplica o material para que a HUD do P1 não altere a HUD do P2!
 	if material is ShaderMaterial:
+		material = material.duplicate()
 		material.set_shader_parameter("intensity", 0.0)
 
 func _process(_delta):

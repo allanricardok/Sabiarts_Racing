@@ -3,6 +3,7 @@ extends Control
 # --- MÁQUINA DE ESTADOS ---
 enum State { ROOT, QUICK_PLAY, SINGLE_PLAYER, MULTIPLAYER, SETTINGS, VEHICLE_SELECT, MAP_SELECT }
 var current_state = State.ROOT
+var is_multiplayer_session : bool = false
 var menu_index = 0
 
 # --- REFERÊNCIAS DE TELAS (Esconde/Mostra os painéis inteiros) ---
@@ -20,11 +21,10 @@ var menu_index = 0
 @onready var menu_options = {
 	State.ROOT: [find_child("QuickPlay", true, false), find_child("Settings", true, false)],
 	State.QUICK_PLAY: [find_child("SinglePlayer", true, false), find_child("Multiplayer", true, false)],
-	# CORREÇÃO: Três opções no menu Single Player
 	State.SINGLE_PLAYER: [find_child("Tutorial", true, false), find_child("FreeRoam", true, false), find_child("Combat", true, false)],
 	State.MULTIPLAYER: [find_child("Coop", true, false), find_child("PvP", true, false)],
 	State.SETTINGS: [find_child("ClearDataButton", true, false), find_child("ClearScoresButton", true, false)],
-	State.MAP_SELECT: [$Screen_MapSelect/VBoxContainer/LabelMapa1, $Screen_MapSelect/VBoxContainer/LabelMapa2]
+	State.MAP_SELECT: $Screen_MapSelect/VBoxContainer.get_children() if has_node("Screen_MapSelect/VBoxContainer") else []
 }
 
 # --- CONFIGURAÇÃO DE JOGO ---
@@ -57,9 +57,8 @@ func _mudar_estado(novo_estado: int):
 	menu_index = 0
 	
 	if current_state == State.VEHICLE_SELECT:
-		# Lógica atualizada com o novo Enum
-		var is_single = (Global.current_run_mode == Global.RunMode.FREE_ROAM or Global.current_run_mode == Global.RunMode.EXPLORATION)
-		max_players = 1 if is_single else 4
+		# Agora ele decide os slots baseado na porta que você entrou, e não no modo de jogo!
+		max_players = 4 if is_multiplayer_session else 1
 		for i in range(slots_ui.size()):
 			slots_ui[i].visible = (i < max_players)
 	
@@ -81,8 +80,11 @@ func _input(_event):
 			
 		for esquema in esquemas_disponiveis:
 			if Input.is_action_just_pressed("Action_" + esquema):
-				if current_state == State.MAP_SELECT: _iniciar_corrida(menu_index)
-				else: _confirmar_menu_simples()
+				if current_state == State.MAP_SELECT: 
+					# Pula o mapa 0 (Tutorial)
+					_iniciar_corrida(menu_index + 1)
+				else: 
+					_confirmar_menu_simples()
 				break
 			if Input.is_action_just_pressed("Stunt_" + esquema):
 				_voltar_menu_anterior()
@@ -92,9 +94,8 @@ func _input(_event):
 	elif current_state == State.VEHICLE_SELECT:
 		if Input.is_action_just_pressed("Pause"): 
 			if _todos_estao_prontos():
-				# CORREÇÃO: Pula o MAP_SELECT se for o modo Tutorial
 				if Global.current_run_mode == Global.RunMode.FREE_ROAM:
-					_iniciar_corrida(0) # Inicia diretamente o TestMap
+					_iniciar_corrida(0) 
 				else:
 					_mudar_estado(State.MAP_SELECT)
 			return 
@@ -120,7 +121,6 @@ func _input(_event):
 			
 			# Movimentação Horizontal e Confirmação (Apenas se não estiver Pronto)
 			if not p_data.pronto:
-				# USANDO AS SUAS AÇÕES JÁ EXISTENTES + AS NOVAS AÇÕES "cat_"
 				if Input.is_action_just_pressed("Left_" + esquema) or Input.is_action_just_pressed("cat_left_" + esquema):
 					p_data.carro_idx -= 1
 					if p_data.carro_idx < 0: p_data.carro_idx = carros_disponiveis.size() - 1
@@ -165,17 +165,31 @@ func _confirmar_menu_simples():
 			if menu_index == 0: _mudar_estado(State.QUICK_PLAY)
 			elif menu_index == 1: _mudar_estado(State.SETTINGS)
 		State.QUICK_PLAY:
-			if menu_index == 0: _mudar_estado(State.SINGLE_PLAYER)
-			elif menu_index == 1: _mudar_estado(State.MULTIPLAYER)
+			if menu_index == 0: 
+				is_multiplayer_session = false
+				_mudar_estado(State.SINGLE_PLAYER)
+			elif menu_index == 1: 
+				is_multiplayer_session = true
+				_mudar_estado(State.MULTIPLAYER)
 		State.SINGLE_PLAYER:
-			# CORREÇÃO DO NOVO SISTEMA ENUM:
-			if menu_index == 0: Global.current_run_mode = Global.RunMode.FREE_ROAM
-			elif menu_index == 1: Global.current_run_mode = Global.RunMode.EXPLORATION
-			elif menu_index == 2: Global.current_run_mode = Global.RunMode.BATTLE
+			# Single Player: Tutorial e Exploration NUNCA tem bots. Battle SEMPRE tem.
+			if menu_index == 0: 
+				Global.current_run_mode = Global.RunMode.FREE_ROAM
+				Global.spawn_bots = false
+			elif menu_index == 1: 
+				Global.current_run_mode = Global.RunMode.EXPLORATION
+				Global.spawn_bots = false
+			elif menu_index == 2: 
+				Global.current_run_mode = Global.RunMode.BATTLE
+				Global.spawn_bots = true
 			_mudar_estado(State.VEHICLE_SELECT)
 		State.MULTIPLAYER:
-			if menu_index == 0: Global.current_run_mode = Global.RunMode.BATTLE
-			elif menu_index == 1: Global.current_run_mode = Global.RunMode.BATTLE
+			# Multiplayer: Coop (0) tem bots. PvP (1) não tem bots.
+			Global.current_run_mode = Global.RunMode.BATTLE
+			if menu_index == 0: 
+				Global.spawn_bots = true # COOP
+			elif menu_index == 1: 
+				Global.spawn_bots = false # PVP Puro
 			_mudar_estado(State.VEHICLE_SELECT)
 		State.SETTINGS:
 			if menu_index == 0: _on_clear_data_pressed()
@@ -187,9 +201,7 @@ func _voltar_menu_anterior():
 		State.SINGLE_PLAYER, State.MULTIPLAYER: _mudar_estado(State.QUICK_PLAY)
 		State.VEHICLE_SELECT: 
 			for i in range(4): _remover_jogador(esquemas_disponiveis[i])
-			# CORREÇÃO DO NOVO SISTEMA ENUM PARA VOLTAR
-			var is_single = (Global.current_run_mode == Global.RunMode.FREE_ROAM or Global.current_run_mode == Global.RunMode.EXPLORATION)
-			_mudar_estado(State.SINGLE_PLAYER if is_single else State.MULTIPLAYER)
+			_mudar_estado(State.MULTIPLAYER if is_multiplayer_session else State.SINGLE_PLAYER)
 		State.MAP_SELECT: _mudar_estado(State.VEHICLE_SELECT)
 
 # --- SISTEMA DE VEÍCULOS E LOBBY ---
@@ -228,19 +240,15 @@ func _atualizar_ui_slot(index):
 	
 	if label_press: label_press.hide()
 	
-	# --- INÍCIO DA MÁGICA DO NOME DO CARRO ---
 	if label_controle:
 		var nome_carro = "Carro Desconhecido"
 		
-		# Verifica se a cena do carro existe no Array
 		if carros_disponiveis.size() > p_data.carro_idx and carros_disponiveis[p_data.carro_idx] != null:
 			var cena = carros_disponiveis[p_data.carro_idx]
-			
 			nome_carro = cena.resource_path.get_file().get_basename().capitalize()
 			
 		label_controle.text = nome_carro + (" (PRONTO!)" if p_data.pronto else "")
 		label_controle.show()
-	# --- FIM DA MÁGICA ---
 		
 	slot.modulate = Color(0.5, 1.0, 0.5) if p_data.pronto else Color(1, 1, 1)
 	
@@ -272,7 +280,6 @@ func _gerar_modelo_de_exibicao(cena_original: PackedScene) -> Node3D:
 		if filho.get_script() != null:
 			filho.set_script(null)
 
-# Se for Câmera, UI, Colisão, Som, Luz OU NAMETAG, entra pra lista de exclusão
 		if filho is Camera3D or filho is Control or filho is CollisionShape3D or filho is AudioStreamPlayer3D or filho is Light3D or filho is Label3D:
 			lixo.append(filho)
 		elif "Component" in filho.name or "Manager" in filho.name or filho is RayCast3D:
@@ -318,7 +325,6 @@ func _iniciar_corrida(mapa_id: int = 0):
 			Global.dados_jogadores[i] = null
 			
 	if mapa_id < cenas_dos_mapas.size() and cenas_dos_mapas[mapa_id]:
-		# ATUALIZA A GLOBAL PARA SABER QUAL MAPA ESTÁ RODANDO
 		Global.current_map = nomes_dos_mapas[mapa_id]
 		print("Iniciando mapa: ", nomes_dos_mapas[mapa_id], " | Modo: ", Global.RunMode.keys()[Global.current_run_mode])
 		get_tree().change_scene_to_packed(cenas_dos_mapas[mapa_id])

@@ -26,26 +26,27 @@ func _ready():
 # ==========================================
 
 func _setup_free_roam():
-	# MODO LIVRE: Apaga os Bots e os itens de missão. Deixa APENAS os itens de tutorial.
 	timer_active = false
 	time_left = 0.0 
-	_remover_bots()
 	_remover_itens_exploracao()
+	# (Não precisa mais chamar remover_bots aqui, o Spawner já se cancelou)
+	if map_missions:
+		MissionManager.setup_map(map_missions)
 
 func _setup_exploration():
-	# EXPLORAÇÃO: Apaga os Bots e os itens de tutorial. Deixa APENAS os itens de missão.
-	_remover_bots()
 	_remover_itens_tutorial()
-	
 	if map_missions:
 		MissionManager.setup_map(map_missions)
 		time_left = map_missions.time_limit
 		_update_hud_timer()
 
 func _setup_battle():
-	# BATALHA: Apaga TUDO (itens de missão e de tutorial). Deixa APENAS os Bots.
 	_remover_itens_exploracao()
 	_remover_itens_tutorial()
+	# Garante que o MissionManager não mostre UI de maletas	
+	# Desliga as missões na memória para a HUD sumir com o painel!
+	if is_instance_valid(MissionManager):
+		MissionManager.current_map_data = null 
 	
 	if map_missions:
 		time_left = map_missions.time_limit
@@ -56,11 +57,25 @@ func _setup_battle():
 # ==========================================
 
 func _remover_bots():
-	var bots = get_tree().get_nodes_in_group("inimigos") # Verifique o grupo exato dos seus bots
-	for b in bots:
-		if is_instance_valid(b) and not b.is_in_group("jogadores"):
-			b.queue_free()
-	print("[LevelController] Bots removidos para este modo.")
+	# 1. VARREDURA DE CARROS (Acha os bots disfarçados de jogadores)
+	var todos_carros = get_tree().get_nodes_in_group("jogadores")
+	for carro in todos_carros:
+		if is_instance_valid(carro):
+			var input = carro.get_node_or_null("%InputComponent")
+			# Se o controle pertencer à IA, apaga o carro!
+			if input and "is_bot" in input and input.is_bot:
+				carro.queue_free()
+				
+	# 2. VARREDURA DE OUTROS INIMIGOS (Torretas, etc)
+	var outros_inimigos = get_tree().get_nodes_in_group("inimigos")
+	for inimigo in outros_inimigos:
+		if is_instance_valid(inimigo):
+			# Se for Tutorial (Free Roam), poupa a vida das torretas!
+			if Global.current_run_mode == Global.RunMode.FREE_ROAM and inimigo is EnemyTurret:
+				continue 
+			inimigo.queue_free()
+			
+	print("[LevelController] Limpeza de Bots e Inimigos concluída para este modo.")
 
 func _remover_itens_exploracao():
 	# Apaga todos os coletáveis e objetivos do modo Buenos Aires padrão
@@ -130,25 +145,63 @@ func encerrar_partida():
 	get_tree().call_group("HUD", "clear_combo_display")
 	
 # ==========================================
-# MULTIPLAYER (LAST MAN STANDING)
+# CONDIÇÕES DE VITÓRIA / ELIMINAÇÃO (BATALHA)
 # ==========================================
 
 func registrar_morte_jogador():
 	if level_ended: return
 	
-	var qtd_jogadores_totais = Global.dados_jogadores.size()
-	if qtd_jogadores_totais <= 1:
-		return 
-		
-	call_deferred("_checar_jogadores_vivos")
+	# Removida a trava antiga! Agora ele sempre checa quando alguém morre.
+	call_deferred("_checar_condicoes_batalha")
 
-func _checar_jogadores_vivos():
+func _checar_condicoes_batalha():
 	if level_ended: return
 	
+	# Só aplicamos regras de eliminação se for modo Batalha (PvE ou PvP)
+	if Global.current_run_mode != Global.RunMode.BATTLE:
+		return
+
 	var carros_vivos = get_tree().get_nodes_in_group("jogadores")
-	if carros_vivos.size() <= 1:
-		print("[LevelController] LAST MAN STANDING! Encerrando a partida multiplayer.")
-		encerrar_partida()
+	var humanos_vivos = 0
+	var bots_vivos = 0
+	
+	for carro in carros_vivos:
+		if not is_instance_valid(carro) or carro.is_queued_for_deletion():
+			continue
+			
+		# --- A GRANDE CORREÇÃO: IGNORAR OS CADÁVERES ---
+		# Se o carro está na cena mas já morreu, pula ele na contagem!
+		if "_is_dead" in carro and carro._is_dead:
+			continue
+			
+		# Verifica se o carro é um Bot (IA) ou Jogador
+		var is_bot = false
+		var input = carro.get_node_or_null("%InputComponent")
+		if input and "is_bot" in input and input.is_bot:
+			is_bot = true
+		elif carro.has_node("BotBrain"): # Checagem extra para garantir que acha o bot
+			is_bot = true
+			
+		if is_bot:
+			bots_vivos += 1
+		else:
+			humanos_vivos += 1
+			
+	print("[LevelController] Checando Batalha... Humanos vivos: ", humanos_vivos, " | Bots vivos: ", bots_vivos)
+	
+	if Global.spawn_bots:
+		# --- MODO PVE (Single Player Battle ou Coop) ---
+		if bots_vivos == 0:
+			print("[LevelController] VITÓRIA! Todos os bots foram destruídos.")
+			encerrar_partida()
+		elif humanos_vivos == 0:
+			print("[LevelController] DERROTA! Todos os jogadores morreram.")
+			encerrar_partida()
+	else:
+		# --- MODO PVP (Multiplayer Puro sem Bots) ---
+		if humanos_vivos <= 1:
+			print("[LevelController] LAST MAN STANDING! Fim do PVP.")
+			encerrar_partida()
 
 func _show_results_summary():
 	get_tree().call_group("HUD", "abrir_menu_resultados")

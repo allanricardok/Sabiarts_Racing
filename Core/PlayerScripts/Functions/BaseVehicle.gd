@@ -302,6 +302,9 @@ func _on_vehicle_destroyed(attacker: Node = null):
 	if input and "is_bot" in input:
 		is_bot = input.is_bot
 		
+	# --- NOVO: TODO MUNDO SPAWNA LOOT AO MORRER ---
+	_spawn_loot_safely(self.global_position)
+		
 	if not is_bot:
 		# --- MORTE DE JOGADOR REAL ---
 		var controller = get_tree().get_first_node_in_group("LevelController")
@@ -312,6 +315,10 @@ func _on_vehicle_destroyed(attacker: Node = null):
 		pode_mover = false
 		collision_layer = 0
 		collision_mask = 0
+		
+		# --- CORREÇÃO DA QUEDA INFINITA ---
+		# Congela o objeto na física da engine (ele para onde está no ar/chão)
+		freeze = true 
 		set_physics_process(false)
 	else:
 		# --- MORTE DO BOT ---
@@ -323,8 +330,6 @@ func _on_vehicle_destroyed(attacker: Node = null):
 		visible = false
 		collision_layer = 0
 		collision_mask = 0
-		
-		_spawn_loot_safely(self.global_position)
 		queue_free()
 
 # --- SISTEMA DE DROPS SEGURO ---

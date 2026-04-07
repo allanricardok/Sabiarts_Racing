@@ -20,9 +20,8 @@ func take_damage(amount: float, attacker: Node3D = null):
 	if health <= 0: return 
 	health -= amount
 	
-	# --- EXTRAÇÃO DE DADOS DA BALA ---
 	var actual_shooter = attacker
-	var final_knockback = amount * 30.0 # Força padrão caso seja um atropelamento
+	var final_knockback = amount * 30.0 
 	
 	if attacker:
 		if "shooter" in attacker and is_instance_valid(attacker.shooter):
@@ -30,27 +29,23 @@ func take_damage(amount: float, attacker: Node3D = null):
 		if "knockback_force" in attacker:
 			final_knockback = attacker.knockback_force
 			
-		# --- EMPURRÃO FÍSICO CONTROLADO ---
 		if is_instance_valid(actual_shooter):
 			var hit_dir = (global_position - actual_shooter.global_position).normalized()
-			hit_dir.y = 0.2 # Dá aquele saltinho para cima
+			hit_dir.y = 0.2
 			apply_central_impulse(hit_dir * final_knockback)
 	
-	# Passamos o 'actual_shooter' (o Carro) para garantir que ele ganhe a energia e pontos
 	if actual_shooter:
-		# --- NOVO: AVISA A CHECKLIST DO TUTORIAL ---
+		# --- CORREÇÃO: SÓ RISCA SE FOR A METRALHADORA BÁSICA ---
 		if actual_shooter.is_in_group("jogadores"):
-			get_tree().call_group("TutorialUI", "complete_task", "barrels")
+			# Checa se o 'attacker' (a bala) NÃO é uma arma especial
+			if attacker and "is_special_weapon" in attacker and not attacker.is_special_weapon:
+				get_tree().call_group("TutorialUI", "complete_task", "barrels")
 			
-		# 1. Recupera energia por HIT
 		_give_energy_to_attacker(actual_shooter, energy_on_hit)
 		
-		# 2. Registra a ação no GroundTrickManager para pontos
 		var gtm = actual_shooter.get_node_or_null("%GroundTrickManager")
 		if gtm:
 			gtm.add_ground_action("HIT_OBJECT")
-	
-	# VFX de piscar... (opcional: car.anim_player.play("hit"))
 	
 	if health <= 0:
 		_morrer(actual_shooter)

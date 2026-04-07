@@ -3,17 +3,18 @@ extends PanelContainer
 
 # A lista de missões (ID : Texto visível)
 var tasks = {
-	"speedtrap": "Speedtrap at 80 km/h",
 	"barrels": "Shoot barrels using the machine gun",
 	"grab_weapon": "Grab the Common Weapon",
 	"shoot_enemy": "Shoot the enemy using the Common Weapon",
+	"speedtrap": "Speedtrap at 80 km/h",
 	"ramp_jump": "Jump over the ramp",
+	"pedestrian": "Run over or shoot a pedestrian",
 	"turbo": "Use the Turbo Boost",
 	"jump": "Use the Jump Boost",
 	"trick": "Execute a trick",
 	"letters": "Get the 5 floating letters",
 	"teleport": "Use a teleport",
-	"cross_map": "Cross the map"
+	"cross_map": "Cross the map"	
 }
 
 # Guarda as referências visuais de cada missão
@@ -99,5 +100,11 @@ func _check_all_completed():
 		if not task_nodes[key]["completed"]:
 			return
 	
-	print("TUTORIAL CONCLUÍDO!")
-	# Aqui no futuro chamaremos a liberação da Batalha no Global!
+	print("[TutorialChecklist] ALL COMPLETED! Triggering level finish.")
+	
+	# --- NOVO: A MÁGICA DE ENCERRAR O TUTORIAL ---
+	# Busca o cérebro da fase (LevelController)
+	var lc = get_tree().get_first_node_in_group("LevelLogic")
+	if is_instance_valid(lc) and lc.has_method("encerrar_partida"):
+		# Chama a função que já criamos: desliga tempo, desliga input do carro, etc.
+		lc.encerrar_partida()

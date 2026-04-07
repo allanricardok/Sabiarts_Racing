@@ -1,14 +1,21 @@
-[gd_scene load_steps=5 format=3 uid="uid://dhpscp7wsptl0"]
+[gd_scene load_steps=7 format=3 uid="uid://dhpscp7wsptl0"]
 
 [ext_resource type="Script" uid="uid://b243qbjuvt5hf" path="res://Core/Weapons/Projectiles/bullet_tracer.gd" id="1_jtk88"]
+[ext_resource type="Shader" uid="uid://x7ajinaqgtdo" path="res://Scenes/Prefabs/Weapons/Projectiles/BulletTracer.gdshader" id="2_t46uc"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_iqkou"]
+render_priority = 0
+shader = ExtResource("2_t46uc")
+shader_parameter/albedo = Color(2.7083335, 2.4515421, 0.20204829, 1)
+shader_parameter/power = 8.0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x78nd"]
 shading_mode = 0
-albedo_color = Color(1.0184411, 0.8628265, 0.53962713, 1)
+albedo_color = Color(1.269618, 1.0775908, 0.6787653, 1)
 
-[sub_resource type="BoxMesh" id="BoxMesh_18icp"]
+[sub_resource type="BoxMesh" id="BoxMesh_t46uc"]
 material = SubResource("StandardMaterial3D_x78nd")
-size = Vector3(0.07, 0.05, 0.4)
+size = Vector3(0.1, 0.1, 0.6)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_x4hmr"]
 size = Vector3(0.225, 0.525, 0.26)
@@ -20,7 +27,8 @@ script = ExtResource("1_jtk88")
 knockback_force = 350.0
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = SubResource("BoxMesh_18icp")
+material_override = SubResource("ShaderMaterial_iqkou")
+mesh = SubResource("BoxMesh_t46uc")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("BoxShape3D_x4hmr")

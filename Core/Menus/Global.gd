@@ -3,6 +3,7 @@ extends Node
 
 # --- DEFINIÇÃO DOS MODOS DE JOGO ---
 enum RunMode { FREE_ROAM, EXPLORATION, BATTLE }
+var spawn_bots : bool = true # Controla se o Spawner deve agir
 
 # --- ESTADO ATUAL ---
 var current_run_mode : RunMode = RunMode.FREE_ROAM

@@ -42,7 +42,7 @@ offset_right = 9.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_qyifk")
-nomes_dos_mapas = Array[String](["Official_Test_Map", "BA"])
+nomes_dos_mapas = Array[String](["Tutorial Map", "Buenos Aires"])
 cenas_dos_mapas = Array[PackedScene]([ExtResource("2_353f8"), ExtResource("3_6jtbh")])
 carros_disponiveis = Array[PackedScene]([ExtResource("4_s6sq0"), ExtResource("5_6487p"), ExtResource("6_v3kjt"), ExtResource("7_v3kjt")])
 
@@ -239,7 +239,6 @@ theme_override_font_sizes/font_size = 32
 text = "Combat"
 
 [node name="Screen_Multiplayer" type="Control" parent="."]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -289,12 +288,12 @@ grow_vertical = 2
 [node name="Coop" type="Label" parent="Screen_Multiplayer/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
-text = "PvP"
+text = "Combat"
 
 [node name="PvP" type="Label" parent="Screen_Multiplayer/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
-text = "Combat"
+text = "PvP"
 
 [node name="Screen_JoinAndVehicle" type="Control" parent="."]
 visible = false
@@ -633,15 +632,10 @@ offset_bottom = 25.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="LabelMapa1" type="Label" parent="Screen_MapSelect/VBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 32
-text = "Official_Test_Map"
-
 [node name="LabelMapa2" type="Label" parent="Screen_MapSelect/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
-text = "BA"
+text = "Buenos Aires"
 
 [node name="Instruction" type="Label" parent="Screen_MapSelect"]
 layout_mode = 0

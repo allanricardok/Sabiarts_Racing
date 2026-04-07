@@ -16,11 +16,15 @@ extends CanvasLayer
 func _ready():
 	add_to_group("FinishUI")
 	hide()
+	
 
 func abrir_resultados():
 	get_tree().paused = true
 	show()
-	
+		# Se for o Tutorial, esconde o painel inteiro de missões!
+	if Global.current_run_mode == Global.RunMode.FREE_ROAM:
+		# Substitua "$PainelDeMissoes" pelo nome do nó que segura o texto das missões no seu Menu
+		%ScrollContainer.visible = false
 	if menu_button:
 		menu_button.grab_focus()
 	

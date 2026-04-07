@@ -12,7 +12,10 @@ func _ready():
 	get_tree().paused = true
 	show()
 	start_button.grab_focus()
-	
+		# Se for o Tutorial, esconde o painel inteiro de missões!
+	if Global.current_run_mode == Global.RunMode.FREE_ROAM:
+		# Substitua "$PainelDeMissoes" pelo nome do nó que segura o texto das missões no seu Menu
+		%ScrollContainer.visible = false
 	# Conecta o botão de limpar dados se ele existir na cena
 	if clear_button:
 		clear_button.pressed.connect(_on_clear_data_btn_pressed)

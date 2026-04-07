@@ -118,4 +118,5 @@ func take_damage(amount: float, attacker: Node3D = null):
 				if "pedestrians_killed" in actual_shooter:
 					actual_shooter.pedestrians_killed += 1
 			
+	get_tree().call_group("TutorialUI", "complete_task", "pedestrian")
 	queue_free()

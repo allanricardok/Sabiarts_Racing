@@ -1103,7 +1103,7 @@ mesh = SubResource("TorusMesh_081xm")
 [node name="OmniLight3D" type="OmniLight3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/SecretItem"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5423012, 0)
 
-[node name="Obake" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items"]
+[node name="Obake" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items" groups=["itens_exploracao"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -292.71994, 31.646729, -163.42403)
 collision_layer = 4
 collision_mask = 15

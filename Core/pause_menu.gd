@@ -20,6 +20,10 @@ func _input(event):
 
 func _toggle_pause():
 	if not pode_pausar: return
+	# Se for o Tutorial, esconde o painel inteiro de missões!
+	if Global.current_run_mode == Global.RunMode.FREE_ROAM:
+		# Substitua "$PainelDeMissoes" pelo nome do nó que segura o texto das missões no seu Menu
+		%ScrollContainer.visible = false
 	
 	var new_pause_state = !get_tree().paused
 	get_tree().paused = new_pause_state

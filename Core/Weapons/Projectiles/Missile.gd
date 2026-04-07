@@ -14,7 +14,7 @@ var target : Node3D = null
 var shooter : Node3D = null 
 var can_explode : bool = false
 var time_alive : float = 0.0
-
+var is_special_weapon : bool = true # <--- ADICIONADO AQUI! (O Segredo!)
 # --- NOVO: A Trava de Segurança ---
 var has_exploded : bool = false 
 
