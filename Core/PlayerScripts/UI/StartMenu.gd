@@ -4,7 +4,14 @@ extends CanvasLayer
 @onready var mission_list = %MissionList 
 @onready var desc_label = %MapDescription
 @onready var start_button = %StartButton
-# Adicione este botão no seu editor e renomeie o Unique Name para ClearDataButton
+@onready var mission_scroll = %ScrollContainer # Pegando o container inteiro para esconder
+
+# --- NOVAS REFERÊNCIAS: Dicas de Controle ---
+# Certifique-se de marcar "Use Unique Name" (%) no Editor para estes nós
+@onready var control_img_key = get_node_or_null("%ControlHintKey")
+@onready var control_img_joy = get_node_or_null("%ControlHintJoy")
+
+# Botão de limpar dados (Unique Name no editor: ClearDataButton)
 @onready var clear_button = get_node_or_null("%ClearDataButton")
 
 func _ready():
@@ -12,10 +19,21 @@ func _ready():
 	get_tree().paused = true
 	show()
 	start_button.grab_focus()
-		# Se for o Tutorial, esconde o painel inteiro de missões!
+	
+	# Garante que as dicas de controle começam escondidas
+	if control_img_key: control_img_key.hide()
+	if control_img_joy: control_img_joy.hide()
+	
+	# --- LÓGICA ESPECÍFICA DO TUTORIAL ---
 	if Global.current_run_mode == Global.RunMode.FREE_ROAM:
-		# Substitua "$PainelDeMissoes" pelo nome do nó que segura o texto das missões no seu Menu
-		%ScrollContainer.visible = false
+		print("[StartMenu] Modo Tutorial detectado. Configurando UI...")
+		# Esconde a lista padrão de missões
+		if mission_scroll:
+			mission_scroll.visible = false
+			
+		# Tenta exibir a imagem de controle correta baseada no Jogador 1
+		_exibir_controles_tutorial()
+	
 	# Conecta o botão de limpar dados se ele existir na cena
 	if clear_button:
 		clear_button.pressed.connect(_on_clear_data_btn_pressed)
@@ -25,7 +43,48 @@ func _ready():
 	await get_tree().process_frame
 	_preencher_missoes()
 
+# --- NOVA FUNÇÃO: DETECÇÃO DE CONTROLE (SÓ TUTORIAL) ---
+func _exibir_controles_tutorial():
+	# Proteção caso os nós não tenham sido criados no editor
+	if not control_img_key or not control_img_joy:
+		print("[StartMenu] Erro: Nós de dica de controle (Key/Joy) não encontrados na cena.")
+		return
+
+	# No tutorial (Single Player), só precisamos olhar os dados do Jogador 1 (Índice 0)
+	if Global.dados_jogadores.size() > 0 and Global.dados_jogadores[0] != null:
+		var p1_data = Global.dados_jogadores[0]
+		
+		# O Global armazena uma Dictionary: {"esquema": "K1", "carro_cena": PackedScene}
+		var esquema_input = "K1" # Fallback padrão
+		
+		if p1_data is Dictionary and p1_data.has("esquema"):
+			esquema_input = p1_data["esquema"]
+		elif p1_data is String: # Suporte caso a estrutura antiga ainda exista
+			esquema_input = p1_data
+			
+		# Checa se o esquema começa com 'K' (Keyboard) ou 'J' (Joystick)
+		if esquema_input.begins_with("K"):
+			print("[StartMenu] Tutorial: Detectado Teclado (", esquema_input, "). Mostrando KEY.")
+			control_img_key.show()
+			control_img_joy.hide()
+		elif esquema_input.begins_with("J"):
+			print("[StartMenu] Tutorial: Detectado Joystick (", esquema_input, "). Mostrando JOY.")
+			control_img_key.hide()
+			control_img_joy.show()
+		else:
+			print("[StartMenu] Tutorial: Esquema desconhecido (", esquema_input, "). Padrão para KEY.")
+			control_img_key.show()
+	else:
+		# Se por algum motivo não houver dados de jogador (bug no lobby), mostra teclado por padrão
+		print("[StartMenu] Tutorial Aviso: Sem dados do P1 no Global. Padrão para KEY.")
+		control_img_key.show()
+
+# --- LÓGICA EXISTENTE MANTIDA ---
+
 func _preencher_missoes():
+	# Não preenchemos missões visuais se for tutorial (já escondemos o container)
+	if Global.current_run_mode == Global.RunMode.FREE_ROAM: return
+	
 	var data = MissionManager.current_map_data
 	if not data: 
 		print("[StartMenu] Erro: Dados do mapa não encontrados no MissionManager.")

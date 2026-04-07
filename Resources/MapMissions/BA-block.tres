@@ -82,14 +82,9 @@ next_map_unlock_count = 6
 map_description = "Welcome to the Buenos Aires map!
 
 Tips:
-- Use the teleporters!
-- Destroy the turrets (they are fierce)
-- Capsules are weapons
-- Triangles are types of health
-- Obake is a 3 wheeled car
-- Learn how to do tricks! (Triangle or Shift)
-- Gap points are transparent blue
-- Speedtrap is transparent red
+- There are special teleporters that are locked by a key
+- The rooftops have cool items
+- look for destructible walls for hidden things
 
-- Discover more functions using Circle"
+- Hehehe"
 metadata/_custom_type_script = "uid://dqrmrnt7j5mxe"

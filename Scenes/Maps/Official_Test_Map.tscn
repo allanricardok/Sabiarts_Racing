@@ -1,4 +1,4 @@
-[gd_scene load_steps=141 format=3 uid="uid://d2rblk8h626kc"]
+[gd_scene load_steps=144 format=3 uid="uid://d2rblk8h626kc"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_mm1ty"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="1_rakfq"]
@@ -30,7 +30,9 @@
 [ext_resource type="Resource" uid="uid://1ive11yvog3g" path="res://Resources/Items/UltraHealth+Shield.tres" id="22_mudyu"]
 [ext_resource type="PackedScene" uid="uid://d08nc5o3ey67t" path="res://Scenes/Prefabs/Enemies/EnemyTurret.tscn" id="23_rldcu"]
 [ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="27_rldcu"]
+[ext_resource type="Texture2D" uid="uid://cb3n01818jhg7" path="res://Assets/2D/keyb.png" id="30_4j5t4"]
 [ext_resource type="PackedScene" uid="uid://dopugjiu2xcnc" path="res://Scenes/Prefabs/Enemies/PedestrianSpawner.tscn" id="31_2p5n0"]
+[ext_resource type="Texture2D" uid="uid://1anrat21s34g" path="res://Assets/2D/joy.png" id="31_mudyu"]
 [ext_resource type="PackedScene" uid="uid://bmljg5w8cggri" path="res://Scenes/Prefabs/Enemies/Pedestrian2.tscn" id="32_7qfue"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_a70xh"]
@@ -405,6 +407,8 @@ albedo_color = Color(0.7176471, 0.827451, 0.78039217, 1)
 emission_enabled = true
 emission = Color(0.7176471, 0.827451, 0.78039217, 1)
 emission_energy_multiplier = 0.5
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_lmn2j"]
 
 [node name="OfficialTestMap" type="Node3D"]
 script = ExtResource("1_mm1ty")
@@ -1618,6 +1622,35 @@ start_menu = NodePath("../StartMenu")
 
 [node name="StartMenu" parent="." instance=ExtResource("20_15ih5")]
 process_mode = 3
+
+[node name="ControlHintKey" type="TextureRect" parent="StartMenu"]
+unique_name_in_owner = true
+visible = false
+material = SubResource("CanvasItemMaterial_lmn2j")
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -1184.0876
+offset_top = 63.0
+offset_right = -63.0
+offset_bottom = 675.0
+grow_horizontal = 0
+mouse_filter = 2
+texture = ExtResource("30_4j5t4")
+
+[node name="ControlHintJoy" type="TextureRect" parent="StartMenu"]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -1178.5922
+offset_top = 63.0
+offset_right = -63.0
+offset_bottom = 672.0
+grow_horizontal = 0
+mouse_filter = 2
+texture = ExtResource("31_mudyu")
 
 [node name="FinishMenu" parent="." instance=ExtResource("21_vj3fg")]
 visible = false

@@ -32,9 +32,11 @@ func _criar_sensores():
 	ray_left = RayCast3D.new()
 	ray_center = RayCast3D.new()
 	ray_right = RayCast3D.new()
-	car.add_child(ray_left)
-	car.add_child(ray_center)
-	car.add_child(ray_right)
+	
+	# CORREÇÃO: call_deferred resolve o erro "Parent node is busy"
+	car.call_deferred("add_child", ray_left)
+	car.call_deferred("add_child", ray_center)
+	car.call_deferred("add_child", ray_right)
 	
 	# O olho do bot fica a 1 metro do chão (altura do para-brisa)
 	var eye_height = Vector3(0, 1.0, 0)

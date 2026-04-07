@@ -90,8 +90,6 @@ func _process(delta):
 		is_firing = input.is_action_pressed and not is_doing_ability
 
 		# --- RECUPERANDO O TIRO ESPECIAL E A TROCA DE ARMAS! ---
-		# Aqui usamos o Input global, MAS com o ".suffix" pendurado no final, 
-		# então ele está 100% blindado contra a tela dividida!
 		if Input.is_action_just_pressed("prev_weapon" + input.suffix): _switch_weapon(-1)
 		if Input.is_action_just_pressed("next_weapon" + input.suffix): _switch_weapon(1)
 		if Input.is_action_just_pressed("Fire" + input.suffix): fire_special_weapon()
@@ -120,18 +118,35 @@ func get_active_special() -> WeaponResource:
 		return weapon_pool[current_weapon_index]
 	return null
 
+# --- CORREÇÃO: FUNÇÃO DE EQUIPAR BLINDADA CONTRA DUPLICATAS ---
 func equip_special_weapon(new_weapon_res: WeaponResource):
+	# 1. Pega o nome verdadeiro da arma de forma segura
+	var resource_name_to_check = ""
+	if "nome" in new_weapon_res and new_weapon_res.nome != "":
+		resource_name_to_check = new_weapon_res.nome
+	else:
+		resource_name_to_check = new_weapon_res.resource_path.get_file().get_basename()
+
+	# 2. Procura na mochila se já temos essa arma
 	for i in range(weapon_pool.size()):
 		var w = weapon_pool[i]
-		if w.nome == new_weapon_res.nome:
+		var current_w_name = ""
+		
+		if "nome" in w and w.nome != "":
+			current_w_name = w.nome
+		else:
+			current_w_name = w.resource_path.get_file().get_basename()
+
+		# Se o nome bater OR o caminho do arquivo for idêntico: É A MESMA ARMA! Empilha!
+		if current_w_name == resource_name_to_check or (w.resource_path != "" and w.resource_path == new_weapon_res.resource_path):
 			w.ammo += new_weapon_res.ammo
 			current_weapon_index = i
 			_update_visual_selection()
 			_atualizar_interface()
-			# --- AVISA O CADERNO ---
 			get_tree().call_group("TutorialUI", "complete_task", "grab_weapon")
 			return
 
+	# 3. Se passou do loop, é uma arma inédita. Coloca num novo slot da mochila.
 	if weapon_pool.size() < MAX_POOL_SIZE:
 		var dup = new_weapon_res.duplicate()
 		weapon_pool.append(dup)
@@ -139,16 +154,8 @@ func equip_special_weapon(new_weapon_res: WeaponResource):
 		_update_visual_selection()
 	
 	_atualizar_interface()
-	# --- AVISA O CADERNO ---
 	get_tree().call_group("TutorialUI", "complete_task", "grab_weapon")
 
-	if weapon_pool.size() < MAX_POOL_SIZE:
-		var dup = new_weapon_res.duplicate()
-		weapon_pool.append(dup)
-		current_weapon_index = weapon_pool.size() - 1
-		_update_visual_selection()
-	
-	_atualizar_interface()
 
 func _switch_weapon(direction: int):
 	if weapon_pool.size() <= 1: return 
@@ -181,7 +188,6 @@ func fire_basic_weapon():
 		
 	basic_cooldown = fire_rate_basic / (heat_efficiency * rage_mult) 
 	
-	# --- MUDANÇA: Agora usamos o nome oficial do Recurso dinamicamente! ---
 	var weapon_name = basic_weapon_resource.nome
 	
 	_muzzle_flash_effect(weapon_name)
@@ -230,7 +236,6 @@ func _spawn_projectile(res: WeaponResource, node_name: String):
 			proj.setup(res.dano, car.linear_velocity, car)
 
 func _muzzle_flash_effect(node_name: String):
-	# Previne erro se a arma não existir no dicionário
 	if not weapon_nodes.has(node_name) or not is_instance_valid(weapon_nodes[node_name]): 
 		return
 		
@@ -238,7 +243,6 @@ func _muzzle_flash_effect(node_name: String):
 	if is_instance_valid(light):
 		light.visible = true
 		get_tree().create_timer(0.05).timeout.connect(func(): 
-			# BLINDAGEM: Só apaga a luz se ela ainda existir 0.05s depois!
 			if is_instance_valid(light):
 				light.visible = false
 		)
@@ -257,28 +261,24 @@ func _update_visual_selection():
 	if active and weapon_nodes.has(active.nome): 
 		_set_weapon_highlight(active.nome, true)
 		
-	# --- MUDANÇA AUTOMÁTICA DE RADAR (AGORA NO LUGAR CERTO) ---
-	# Só roda quando TROCA de arma ou ACABA a arma!
 	if is_instance_valid(targeting) and "current_category_index" in targeting:
 		if active and active.nome == "GrapplingMissile":
 			if _previous_radar_mode == -1:
 				_previous_radar_mode = targeting.current_category_index
-			targeting.current_category_index = 0 # 0 é a aba "ALL Targets"
+			targeting.current_category_index = 0
 		else:
 			if _previous_radar_mode != -1:
 				targeting.current_category_index = _previous_radar_mode
 				_previous_radar_mode = -1
 
 func _atualizar_interface():
-	# --- CORREÇÃO DA UI COMPARTILHADA ---
 	if input and "is_bot" in input and input.is_bot: 
-		return # Bot não tem HUD para atualizar!
+		return
 		
 	var hud = get_tree().get_first_node_in_group("HUD" + player_suffix)
 	if hud and hud.has_method("atualizar_arma"):
 		var active = get_active_special()
 		
-		# Agora a interface SÓ atualiza texto de bala, sem mexer no seu radar!
 		if active: 
 			hud.atualizar_arma(active.nome, active.ammo)
 		else: 

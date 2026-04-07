@@ -29,7 +29,7 @@ func _setup_free_roam():
 	timer_active = false
 	time_left = 0.0 
 	_remover_itens_exploracao()
-	# (Não precisa mais chamar remover_bots aqui, o Spawner já se cancelou)
+	
 	if map_missions:
 		MissionManager.setup_map(map_missions)
 
@@ -212,3 +212,25 @@ func add_bonus_time(amount: float):
 	time_left += amount
 	_update_hud_timer() 
 	print("[LevelController] +", amount, " segundos!")
+
+func _enter_tree():
+	# --- A MÁGICA DA AMNÉSIA ANTECIPADA ---
+	if Global.current_run_mode == Global.RunMode.FREE_ROAM:
+		if map_missions:
+			for m in map_missions.missions:
+				m.is_completed = false
+				if m.id in MissionManager.completed_mission_ids:
+					MissionManager.completed_mission_ids.erase(m.id)
+			
+			MissionManager.completed_count = 0
+			
+			if is_instance_valid(SaveManager):
+				# --- CORREÇÃO: BLINDAGEM DE HIGHSCORES ---
+				var scores_atuais = {}
+				if "highscores" in SaveManager:
+					scores_atuais = SaveManager.highscores
+				elif "high_scores" in SaveManager:
+					scores_atuais = SaveManager.high_scores
+					
+				# Salva passando as missões zeradas e os scores que conseguiu encontrar
+				SaveManager.save_game(MissionManager.completed_mission_ids, scores_atuais)

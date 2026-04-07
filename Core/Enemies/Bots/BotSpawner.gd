@@ -47,9 +47,6 @@ func _spawn_all_bots():
 		brain.set_script(preload("res://Core/Enemies/Bots/BotBrain.gd")) 
 		bot.add_child(brain)
 		
-		bot.global_position = spawn_pos.global_position
-		bot.global_rotation = spawn_pos.global_rotation
-		
 		# --- INTEGRAÇÃO COM OS SEUS SISTEMAS ---
 		bot.add_to_group("jogadores")
 		
@@ -62,4 +59,6 @@ func _spawn_all_bots():
 		# Instancia o bot no mesmo nível do Spawner (na raiz da cena)
 		get_parent().add_child(bot)
 		
+		bot.global_position = spawn_pos.global_position
+		bot.global_rotation = spawn_pos.global_rotation
 		print("[BotSpawner] Spawnou: ", bot.name, " com IA ativada e sem câmera/UI!")

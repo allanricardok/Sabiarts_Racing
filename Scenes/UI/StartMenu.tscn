@@ -32,25 +32,12 @@ anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 40.0
-offset_top = -558.0
-offset_right = 580.0
+offset_top = -371.0
+offset_right = 676.0
 offset_bottom = -39.0
 grow_vertical = 0
 theme_override_font_sizes/normal_font_size = 24
-text = "Welcome to the test map!
-
-Tips:
-- Use the teleporters!
-- Destroy the turrets (they are fierce)
-- Capsules are weapons
-- Triangles are types of health
-- Obake is a 3 wheeled car
-- Learn how to do tricks! (Triangle or Shift)
-- Gap points are transparent blue
-- Speedtrap is transparent red
-
-- Circle + left or R is the Teleport function
-- Discover more functions using Circle"
+text = "Kill everyone."
 
 [node name="ScrollContainer" type="ScrollContainer" parent="StartMenu"]
 unique_name_in_owner = true
