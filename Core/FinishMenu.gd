@@ -50,8 +50,11 @@ func abrir_resultados():
 		current_score_label.text = winner_name.to_upper() + " - " + formatted_score
 		print("[FinishMenu] CurrentScoreLabel atualizado: ", current_score_label.text)
 	
+	# --- CORREÇÃO: PUXANDO O NOME DA FONTE SEGURA (GLOBAL) ---
 	var map_name = "MAPA DESCONHECIDO"
-	if MissionManager.current_map_data:
+	if Global.current_map != "":
+		map_name = Global.current_map
+	elif MissionManager.current_map_data:
 		map_name = MissionManager.current_map_data.map_name
 	
 	if map_name_label:

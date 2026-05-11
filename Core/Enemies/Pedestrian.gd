@@ -108,15 +108,19 @@ func take_damage(amount: float, attacker: Node3D = null):
 		if gtm:
 			gtm.add_ground_action("HIT_OBJECT")
 			
-		# --- NOVO: FILTRA APENAS JOGADORES REAIS PARA O GAMESTATS ---
-		if GameStats:
-			var input = actual_shooter.get_node_or_null("%InputComponent")
-			var is_bot = (input and "is_bot" in input and input.is_bot)
-			
-			# --- NOVO: PONTO INDIVIDUAL NO CARRO ---
-			if not is_bot:
-				if "pedestrians_killed" in actual_shooter:
-					actual_shooter.pedestrians_killed += 1
+# --- FILTRA APENAS JOGADORES REAIS ---
+		var input = actual_shooter.get_node_or_null("%InputComponent")
+		var is_bot = (input and "is_bot" in input and input.is_bot)
+		
+		if not is_bot:
+			# 1. Adiciona à contagem individual do carro (para o HUD em tempo real)
+			if "pedestrians_killed" in actual_shooter:
+				actual_shooter.pedestrians_killed += 1
+				
+			# 2. AVISA O GAMESTATS (Para a Tela Final e para o Save no HD)
+			# É esta linha que estava faltando!
+			if is_instance_valid(GameStats) and GameStats.has_method("add_pedestrian_kill"):
+				GameStats.add_pedestrian_kill()
 			
 	get_tree().call_group("TutorialUI", "complete_task", "pedestrian")
 	queue_free()

@@ -132,8 +132,11 @@ func encerrar_partida():
 	
 	print("[LevelController] Encerrando partida! Chamando tela de resultados...")
 	
+	# --- CORREÇÃO: USA A GLOBAL PARA SALVAR O NOME DO ARQUIVO ---
 	var mapa_atual = "MapaDesconhecido"
-	if map_missions and map_missions.map_name != "":
+	if Global.current_map != "":
+		mapa_atual = Global.current_map
+	elif map_missions and map_missions.map_name != "":
 		mapa_atual = map_missions.map_name
 	
 	for p_id in range(4): 

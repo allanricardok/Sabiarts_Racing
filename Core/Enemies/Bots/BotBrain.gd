@@ -201,10 +201,10 @@ func _tomar_decisao_de_estado():
 	is_agressive = (ammo_total > 7)
 	
 	# 1. FUGA
-	if health_pct < 40.0:
+	if health_pct < 25.0:
 		_mudar_estado(State.FLEE)
 		return
-	if current_state == State.FLEE and health_pct > 50.0:
+	if current_state == State.FLEE and health_pct > 35.0:
 		_mudar_estado(State.WANDER_IDLE)
 		return
 		

@@ -82,22 +82,24 @@ func _exibir_controles_tutorial():
 # --- LÓGICA EXISTENTE MANTIDA ---
 
 func _preencher_missoes():
-	# Não preenchemos missões visuais se for tutorial (já escondemos o container)
-	if Global.current_run_mode == Global.RunMode.FREE_ROAM: return
-	
 	var data = MissionManager.current_map_data
 	if not data: 
 		print("[StartMenu] Erro: Dados do mapa não encontrados no MissionManager.")
 		return
 	
-	# Usamos 'get()' para tentar pegar o valor. Se não existir, ele usa o map_name.
+	# 1. CARREGA A DESCRIÇÃO PRIMEIRO (Para todos os modos, incluindo Tutorial)
 	var desc = data.get("map_description")
 	if desc == null or desc == "":
 		desc_label.text = data.map_name + "\nObjetivos da Fase:"
 	else:
 		desc_label.text = data.map_name + "\n" + desc
 	
-	# Limpa a lista atual
+	# --- TRAVA DO TUTORIAL MUDOU PARA CÁ ---
+	# Se for Tutorial, paramos a função aqui para não gerar a lista de checkboxes!
+	if Global.current_run_mode == Global.RunMode.FREE_ROAM:
+		return
+	
+	# 2. GERA A LISTA DE CAIXINHAS (Somente para Exploration)
 	for child in mission_list.get_children(): 
 		child.queue_free()
 	
@@ -107,15 +109,12 @@ func _preencher_missoes():
 		var m = data.missions[i]
 		var item = Label.new()
 		
-		# Lógica de exibição baseada no progresso salvo e no Batch 2
 		var is_secret = i >= 6 and not MissionManager.batch_2_unlocked
 		
 		if is_secret and not m.is_completed:
-			# Se for secreta e NÃO concluída, fica escondida
 			item.text = "🔒 ??? (Bloqueada)"
 			item.add_theme_color_override("font_color", Color.DIM_GRAY)
 		else:
-			# Se for Batch 1, ou Batch 2 desbloqueado, ou já concluída (mesmo secreta)
 			var prefixo = "✔ " if m.is_completed else "□ "
 			item.text = prefixo + m.description
 			
