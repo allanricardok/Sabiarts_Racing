@@ -20,8 +20,8 @@ var look_vector : Vector2 = Vector2.ZERO
 var mouse_look : Vector2 = Vector2.ZERO  
 
 @export var camera_sensitivity : float = 0.000005 
-@export var air_camera_multiplier : float = 0.2   
-@export var mouse_return_speed : float = 5.0    
+@export var air_camera_multiplier : float = 0.2    
+@export var mouse_return_speed : float = 5.0      
 @export var mouse_maneuver_threshold : float = 1000.0 
 
 # --- BOTÕES E ESTADOS ---
@@ -29,6 +29,7 @@ var is_action_pressed : bool = false
 var is_fire_pressed : bool = false
 var is_attribute_pressed : bool = false
 var is_stunt_pressed: bool = false
+var is_change_weapon_pressed: bool = false
 
 var ability_up : bool = false
 var ability_down : bool = false
@@ -37,6 +38,12 @@ var ability_right : bool = false
 
 var air_move : Node = null
 var debug_timer : float = 0.0
+
+# --- VARIÁVEIS PARA O TURBO (DOUBLE TAP) E PULO ---
+var last_throttle_time : float = 0.0
+@export var double_tap_delay : float = 0.25 # Janela de 250ms para o segundo clique
+var is_turbo_pressed : bool = false # Esta variável será lida pelo AbilityComponent
+var is_jump_pressed: bool = false # Nova variável para o Pulo L1
 
 func setup(input_source: String):
 	suffix = "_" + input_source
@@ -74,10 +81,34 @@ func _process(delta):
 		steering = Input.get_axis("Right" + suffix, "Left" + suffix)
 		pitch = Input.get_axis("Pitch_Down" + suffix, "Pitch_Up" + suffix)
 
+	# --- LÓGICA DO TURBO (DOUBLE TAP THROTTLE) ---
+	# Detecta o exato momento que o jogador aperta "Para frente"
+	if Input.is_action_just_pressed("Forward" + suffix):
+		var current_time = Time.get_ticks_msec() / 1000.0
+		if current_time - last_throttle_time <= double_tap_delay:
+			is_turbo_pressed = true
+		else:
+			is_turbo_pressed = false
+		last_throttle_time = current_time
+	# Reseta se soltar o acelerador
+	elif Input.is_action_just_released("Forward" + suffix):
+		is_turbo_pressed = false
+
+	# --- PULO AGORA LÊ COM SUFIXO ---
+	is_jump_pressed = Input.is_action_just_pressed("jump" + suffix)
+
 	is_action_pressed = Input.is_action_pressed("Action" + suffix)
 	is_fire_pressed = Input.is_action_pressed("Fire" + suffix)
 	is_stunt_pressed = Input.is_action_pressed("Stunt" + suffix)
 	is_look_behind_pressed = Input.is_action_pressed("LookBehind" + suffix)
+	
+	# --- TROCA DE ARMA (Ignorando Joysticks) ---
+	if suffix.begins_with("_K"):
+		# Lê a ação de troca apenas se for teclado (_K1, _K2)
+		is_change_weapon_pressed = Input.is_action_just_pressed("change_weapon" + suffix)
+	else:
+		# Ignora para controles (_J1, _J2, etc.)
+		is_change_weapon_pressed = false
 	
 	if suffix.begins_with("_J"):
 		is_attribute_pressed = Input.is_action_pressed("Attribute" + suffix)

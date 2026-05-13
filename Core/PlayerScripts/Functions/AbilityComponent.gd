@@ -90,22 +90,32 @@ func _process(delta):
 	if not input.is_attribute_pressed and sequence_timer <= 0:
 		tap_count = 0
 
+	# --- HABILIDADES DE CÍRCULO (TELEPORT E SHIELD) ---
 	if input.is_attribute_pressed and current_cooldown <= 0:
 		_checar_combos_habilidade()
+		
+	# --- HABILIDADES NOVAS: PULO (L1) E TURBO (DOUBLE TAP) ---
+	if current_cooldown <= 0:
+		# --- CORREÇÃO: LÊ A VARIÁVEL DE PULO DO INPUT COMPONENT ---
+		if input.is_jump_pressed:
+			if current_energy >= COST_JUMP: _execute_jump()
+			else: _erro_falta_energia()
+			
+		# Turbo via Double Tap (Lê a variável do InputComponent)
+		elif input.is_turbo_pressed:
+			if current_energy >= COST_BOOST: 
+				_execute_boost()
+			else: 
+				_erro_falta_energia()
+			# Força o desligamento da variável para não metralhar turbo enquanto segura o botão
+			input.is_turbo_pressed = false 
 
 	_was_attribute_pressed = input.is_attribute_pressed
 
 func _checar_combos_habilidade():
+	# Mantivemos apenas as habilidades do "Círculo" aqui
 	if input.ability_left and tap_count >= 2:
 		if current_energy >= COST_TELEPORT: _execute_teleport()
-		else: _erro_falta_energia()
-		
-	elif input.ability_up:
-		if current_energy >= COST_BOOST: _execute_boost()
-		else: _erro_falta_energia()
-		
-	elif input.ability_down:
-		if current_energy >= COST_JUMP: _execute_jump()
 		else: _erro_falta_energia()
 		
 	elif input.ability_right:

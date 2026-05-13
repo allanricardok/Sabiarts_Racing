@@ -132,7 +132,7 @@ func _handle_engine_and_steering(delta, is_on_ground, speed_mps):
 			if forward_velocity < -0.1: turn_dir = -input.steering
 			
 			var final_turn_speed = STATIONARY_TURN_SPEED * aim_precision_ramp * torque_contact_multiplier
-			car.apply_torque(car.global_transform.basis.y * turn_dir * final_turn_speed * car.mass)	
+			car.apply_torque(car.global_transform.basis.y * turn_dir * final_turn_speed * car.mass)    
 			
 		if speed_kmh >= SPEED_MIN_ASSIST and abs(input.steering) > 0.88:
 			var speed_factor = clamp(speed_kmh, SPEED_MIN_ASSIST, SPEED_MAX_ASSIST)

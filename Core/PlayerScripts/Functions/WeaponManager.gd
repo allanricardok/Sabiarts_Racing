@@ -90,8 +90,14 @@ func _process(delta):
 		is_firing = input.is_action_pressed and not is_doing_ability
 
 		# --- RECUPERANDO O TIRO ESPECIAL E A TROCA DE ARMAS! ---
-		if Input.is_action_just_pressed("prev_weapon" + input.suffix): _switch_weapon(-1)
-		if Input.is_action_just_pressed("next_weapon" + input.suffix): _switch_weapon(1)
+		if input.suffix.begins_with("_K"):
+			# Exclusivo de Teclado (Lê botões individuais)
+			if Input.is_action_just_pressed("prev_weapon" + input.suffix): _switch_weapon(-1)
+			if Input.is_action_just_pressed("next_weapon" + input.suffix): _switch_weapon(1)
+		else:
+			# Exclusivo de Controle (Lê a variável do R1 mapeada no InputComponent)
+			if Input.is_action_just_pressed("next_weapon" + input.suffix): _switch_weapon(1)
+			
 		if Input.is_action_just_pressed("Fire" + input.suffix): fire_special_weapon()
 
 	if not is_firing and _was_firing:

@@ -3,18 +3,18 @@ extends PanelContainer
 
 # A lista de missões (ID : Texto visível)
 var tasks = {
-	"barrels": "Shoot barrels using the machine gun",
-	"grab_weapon": "Grab the Common Weapon",
-	"shoot_enemy": "Shoot the enemy using the Common Weapon",
+	"barrels": "Shoot barrels using the machine gun (X)",
+	"grab_weapon": "Grab the Weapon Item",
+	"shoot_enemy": "Shoot the enemy using the Missile (□)",
 	"speedtrap": "Speedtrap at 80 km/h",
 	"ramp_jump": "Jump over the ramp",
 	"pedestrian": "Run over or shoot a pedestrian",
-	"turbo": "Use the Turbo Boost",
-	"jump": "Use the Jump Boost",
-	"trick": "Execute a trick",
+	"turbo": "Use Turbo (Double tap throttle)",
+	"jump": "Use Jump (L1)",
+	"trick": "Execute a trick (△)",
 	"letters": "Get the 5 floating letters",
-	"teleport": "Use a teleport",
-	"cross_map": "Cross the map"	
+	"teleport": "Use a teleport (Pink Cylinder)",
+	"cross_map": "Cross the whole map"	
 }
 
 # Guarda as referências visuais de cada missão
