@@ -169,9 +169,9 @@ func _escolher_alvo_inimigo() -> Node3D:
 				if not ("is_dead" in p and p.is_dead):
 					humanos_globais.append(p)
 	
-	# 2. O ÍMÃ DO ÓDIO (75% de chance)
+	# 2. O ÍMÃ DO ÓDIO (85% de chance)
 	if humanos_globais.size() > 0:
-		if randf() <= 0.75:
+		if randf() <= 0.85:
 			# Pega o jogador humano mais próximo num raio de até 400m
 			var alvo_humano = humanos_globais[0]
 			var menor_dist = car.global_position.distance_to(alvo_humano.global_position)
@@ -187,7 +187,7 @@ func _escolher_alvo_inimigo() -> Node3D:
 			if menor_dist < 400.0:
 				return alvo_humano
 
-	# 3. MODO NORMAL (Se falhou no 75% ou o humano está muito longe)
+	# 3. MODO NORMAL (Se falhou no 85% ou o humano está muito longe)
 	if not radar.inimigos_proximos.is_empty():
 		# Pega o primeiro da lista do radar (provavelmente o mais perto)
 		return radar.inimigos_proximos[0]
@@ -201,10 +201,10 @@ func _tomar_decisao_de_estado():
 	is_agressive = (ammo_total > 7)
 	
 	# 1. FUGA
-	if health_pct < 25.0:
+	if health_pct < 20.0:
 		_mudar_estado(State.FLEE)
 		return
-	if current_state == State.FLEE and health_pct > 35.0:
+	if current_state == State.FLEE and health_pct > 26.0:
 		_mudar_estado(State.WANDER_IDLE)
 		return
 		

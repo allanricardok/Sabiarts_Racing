@@ -7,9 +7,46 @@ var pode_pausar: bool = true
 @onready var mission_container = %MissionList
 @onready var resume_btn = %ResumeBtn 
 @onready var menu_btn = %MenuBtn
-
-# --- NOVO BOTÃO ---
 @onready var end_match_btn = get_node_or_null("%EndMatchBtn")
+
+var camera_select_btn: OptionButton
+
+func _ready():
+	_setup_camera_button()
+
+func _setup_camera_button():
+	camera_select_btn = OptionButton.new()
+	camera_select_btn.name = "CameraSelectBtn"
+	camera_select_btn.add_item("Opções de Câmera", 999) # Placeholder inicial
+	camera_select_btn.add_item("Câmera: Normal", 0)
+	camera_select_btn.add_item("Câmera: Capô", 1)
+	camera_select_btn.add_item("Câmera: Longe", 2)
+	
+	# Habilita o foco para o controle
+	camera_select_btn.focus_mode = Control.FOCUS_ALL
+	
+	if resume_btn:
+		var font = resume_btn.get_theme_font("font")
+		if font: camera_select_btn.add_theme_font_override("font", font)
+		camera_select_btn.add_theme_font_size_override("font_size", 32)
+		var style = resume_btn.get_theme_stylebox("focus")
+		if style: camera_select_btn.add_theme_stylebox_override("focus", style)
+		
+	camera_select_btn.alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	camera_select_btn.item_selected.connect(_on_camera_selected)
+	
+	var vbox = $Control/VBoxContainer
+	if vbox:
+		vbox.add_child(camera_select_btn)
+		vbox.move_child(camera_select_btn, 0) # COLOCA COMO PRIMEIRO BOTÃO
+
+func _on_camera_selected(index: int):
+	# Ignora o clique no placeholder se necessário
+	if index == 0 and camera_select_btn.get_item_id(0) == 999: return
+	
+	var mode = camera_select_btn.get_item_id(index)
+	print("[PauseMenu] Alterando câmera para o modo: ", mode)
+	get_tree().call_group("jogadores", "set_camera_mode", mode)
 
 func _input(event):
 	if start_menu and start_menu.visible:
@@ -20,9 +57,8 @@ func _input(event):
 
 func _toggle_pause():
 	if not pode_pausar: return
-	# Se for o Tutorial, esconde o painel inteiro de missões!
+	
 	if Global.current_run_mode == Global.RunMode.FREE_ROAM:
-		# Substitua "$PainelDeMissoes" pelo nome do nó que segura o texto das missões no seu Menu
 		%ScrollContainer.visible = false
 	
 	var new_pause_state = !get_tree().paused
@@ -30,9 +66,9 @@ func _toggle_pause():
 	visible = new_pause_state
 	
 	if new_pause_state:
-		print("[PauseMenu] Jogo pausado. Atualizando lista de missões.")
-		if resume_btn:
-			resume_btn.grab_focus()
+		# Ao pausar, o foco vai para o seletor de câmera que é o primeiro
+		if camera_select_btn:
+			camera_select_btn.grab_focus()
 		_atualizar_lista_missoes()
 	else:
 		get_viewport().gui_release_focus()
@@ -61,7 +97,6 @@ func _atualizar_lista_missoes():
 			
 		h_box.add_child(lbl)
 		mission_container.add_child(h_box)
-	print("[PauseMenu] Lista sincronizada com segredos.")
 
 func desativar_pausa():
 	pode_pausar = false
@@ -69,30 +104,25 @@ func desativar_pausa():
 		_toggle_pause()
 
 func _on_resume_btn_pressed():
-	print("[PauseMenu] Botão Continuar pressionado.")
 	_toggle_pause()
 
 func _on_menu_btn_pressed():
-	print("[PauseMenu] Saindo para o menu principal.")
 	get_tree().paused = false 
 	get_tree().change_scene_to_file("res://Scenes/UI/Menu.tscn")
 
-# --- NOVA FUNÇÃO: FINALIZAR PARTIDA ---
 func _on_end_match_btn_pressed():
-	print("[PauseMenu] Finalizar Partida pressionado.")
-	_toggle_pause() # Despausa o jogo e esconde o menu
-	
+	_toggle_pause() 
 	var controller = get_tree().get_first_node_in_group("LevelController")
 	if controller and controller.has_method("encerrar_partida"):
 		controller.encerrar_partida()
-	else:
-		push_error("[PauseMenu] LevelController não encontrado ou sem o método encerrar_partida()!")
 
 func _process(_delta):
 	if visible:
 		for esquema in ["K1", "J1", "J2", "J3", "J4"]:
 			if Input.is_action_just_pressed("Action_" + esquema):
 				var focused_node = get_viewport().gui_get_focus_owner()
-				if focused_node is Button:
-					print("[PauseMenu] Botão ativado via ação de pulo: ", focused_node.name)
+				if focused_node is OptionButton:
+					# No caso do OptionButton, simula o clique para abrir o popup
+					focused_node.show_popup()
+				elif focused_node is Button:
 					focused_node.pressed.emit()

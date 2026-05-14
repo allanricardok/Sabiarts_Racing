@@ -104,7 +104,7 @@ func _on_impact(target_node):
 
 	# --- MÁGICA DO GELO ---
 	if actual_target.has_method("aplicar_congelamento"):
-		actual_target.aplicar_congelamento(3.0) # Congela por 3 segundos
+		actual_target.aplicar_congelamento(2.0) # Congela por 3 segundos
 		
 	# --- APLICA O DANO (Para matar pedestres ou dar aquele 0.1 de dano) ---
 	if actual_target.has_method("take_damage"):

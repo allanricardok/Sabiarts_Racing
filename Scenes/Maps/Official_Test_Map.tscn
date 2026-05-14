@@ -1214,7 +1214,7 @@ outline_size = 24
 uppercase = true
 
 [node name="Obake3" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items" groups=["itens_tutorial"]]
-transform = Transform3D(-0.24716814, 0, -0.9689726, 0, 1, 0, 0.9689726, 0, -0.24716814, 52.763664, 12.845549, -19.355536)
+transform = Transform3D(-0.24716814, 0, -0.9689726, 0, 1, 0, 0.9689726, 0, -0.24716814, 41.857872, 9.075413, -19.355536)
 collision_layer = 4
 collision_mask = 15
 script = ExtResource("13_7c4m2")
@@ -1224,7 +1224,6 @@ mission_id = "Obakes_TST"
 shape = SubResource("BoxShape3D_3i0df")
 
 [node name="Label3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/V8Map/Mission_Items/Obake3"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.244772, -3.6360817, 8.800171)
 pixel_size = 0.05
 billboard = 1
 modulate = Color(0.7850689, 0.3766419, 0.18013455, 1)

@@ -241,9 +241,6 @@ fov = 92.0
 near = 0.392
 far = 400.0
 script = ExtResource("2_8gjg4")
-follow_speed_lateral = 6.0
-follow_speed_depth = 35.0
-follow_speed_vertical = 35.0
 
 [node name="CameraTarget" type="Node3D" parent="."]
 transform = Transform3D(-1, 2.4330802e-08, -1.3690442e-07, -3.6662744e-08, 0.9078141, 0.4193729, 1.3364479e-07, 0.4193729, -0.9078141, 0.008372307, 2.5322375, -3.9419403)
@@ -900,7 +897,7 @@ COST_SHIELD = 40.0
 energy_bar = NodePath("../../HUD/UI_Base/AbilityBar")
 cooldown_bar = NodePath("../../HUD/UI_Base/WeaponCooldown")
 JUMP_FORCE = 20.0
-BOOST_IMPULSE = 12.0
+BOOST_IMPULSE = 22.0
 
 [node name="AirMovementComponent" type="Node" parent="Scripts"]
 unique_name_in_owner = true

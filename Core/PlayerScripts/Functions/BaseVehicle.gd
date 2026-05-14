@@ -47,6 +47,13 @@ var pode_mover : bool = true
 @export var speed_label: Label 
 @onready var name_tag = $NameTag
 
+# ---  CAMERA ---
+@export_group("Configurações de Câmera")
+## Posição local da câmera do capô.
+@export var hood_camera_pos: Vector3 = Vector3(0, 1.2, 1.2)
+## Deslocamento extra para a câmera distante (adicionado à posição normal).
+@export var far_camera_offset: Vector3 = Vector3(0, 3.0, -5.0)
+
 # --- VARIÁVEIS INTERNAS ---
 var teleport_material : StandardMaterial3D
 var _hit_cooldowns: Dictionary = {}
@@ -412,3 +419,8 @@ func play_camera_shake(event_name: String, modifier: float = 1.0):
 	var shaker = find_child("CameraShake", true, false)
 	if shaker and shaker.has_method("trigger_event"):
 		shaker.trigger_event(event_name, modifier)
+
+func set_camera_mode(mode_index: int):
+	var my_camera = find_child("Camera3D", true, false)
+	if my_camera and my_camera.has_method("set_camera_mode"):
+		my_camera.set_camera_mode(mode_index)

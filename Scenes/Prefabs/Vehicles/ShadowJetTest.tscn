@@ -50,6 +50,7 @@ advance_on_start = true
 [node name="BaseVehicle" instance=ExtResource("1_rdnk8")]
 transform = Transform3D(1, 0, 0, 0, 0.99896896, -0.04539786, 0, 0.04539786, 0.99896896, 0, 0, 0)
 mass = 330.0
+hood_camera_pos = Vector3(0, 1.35, 1.2)
 
 [node name="Visual" parent="." index="0"]
 transform = Transform3D(0.58, 0, 0, 0, 0.58000004, -1.8626451e-09, 0, 1.8626451e-09, 0.58000004, 0, -0.01208591, -0.26594755)
