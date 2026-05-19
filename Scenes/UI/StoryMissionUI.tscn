@@ -1,0 +1,110 @@
+[gd_scene load_steps=4 format=3 uid="uid://cpbeu41m4p3fb"]
+
+[ext_resource type="Script" uid="uid://dbdjh18x7g44d" path="res://Core/PlayerScripts/UI/StoryMissionUI.gd" id="1_6hry7"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0upb4"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.1, 0.1, 0.1, 0.6)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+corner_detail = 5
+expand_margin_left = 8.0
+expand_margin_top = 8.0
+expand_margin_right = 8.0
+expand_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6hry7"]
+bg_color = Color(0.5664601, 0.5664601, 0.85295856, 0.3647059)
+
+[node name="StoryMissionUi" type="CanvasLayer"]
+script = ExtResource("1_6hry7")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect" type="ColorRect" parent="Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0.039215688, 0.16470589, 0.94509804)
+
+[node name="Info" type="VBoxContainer" parent="Control"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 45.0
+offset_top = -975.0
+offset_right = 835.0
+offset_bottom = -231.0
+grow_vertical = 0
+theme_override_constants/separation = 15
+
+[node name="Title" type="Label" parent="Control/Info"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 42
+text = "Title
+"
+
+[node name="Description" type="Label" parent="Control/Info"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Teste missão testeTeste missão testeTeste missão testeTeste missão testeTeste missão testeTeste missão testeTeste missão testeTeste missão testeTeste missão testeTeste missão teste"
+autowrap_mode = 2
+
+[node name="Accept" type="Button" parent="Control"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -417.0
+offset_top = -232.0
+offset_right = -47.0
+offset_bottom = -157.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 48
+theme_override_styles/normal = SubResource("StyleBoxFlat_0upb4")
+theme_override_styles/focus = SubResource("StyleBoxFlat_6hry7")
+text = "Accept"
+
+[node name="Reject" type="Button" parent="Control"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -417.0
+offset_top = -126.0
+offset_right = -47.0
+offset_bottom = -51.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 48
+theme_override_styles/normal = SubResource("StyleBoxFlat_0upb4")
+theme_override_styles/focus = SubResource("StyleBoxFlat_6hry7")
+text = "Reject"
+
+[connection signal="pressed" from="Control/Accept" to="." method="_on_accept_btn_pressed"]
+[connection signal="pressed" from="Control/Reject" to="." method="_on_reject_btn_pressed"]

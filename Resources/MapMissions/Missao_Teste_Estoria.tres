@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="StoryMissionData" load_steps=3 format=3 uid="uid://81q5tefascy8"]
+
+[ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/StoryMissionData.gd" id="1_dvnv8"]
+[ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="1_p1p2m"]
+
+[resource]
+script = ExtResource("1_dvnv8")
+time_limit = 10.0
+mission_environment = ExtResource("1_p1p2m")
+nodes_to_enable = Array[NodePath]([NodePath("GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/Obake"), NodePath("GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/Obake2"), NodePath("GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/Obake3"), NodePath("GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/Obake4"), NodePath("GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/Obake5")])
+metadata/_custom_type_script = "uid://o1ox0n7mmqv"
