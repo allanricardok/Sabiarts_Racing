@@ -1,4 +1,4 @@
-[gd_scene load_steps=284 format=3 uid="uid://d1rl8sskrmddj"]
+[gd_scene load_steps=285 format=3 uid="uid://d1rl8sskrmddj"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_u8o8m"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="3_is8dr"]
@@ -47,6 +47,7 @@
 [ext_resource type="Script" uid="uid://bcqktfavkyynj" path="res://Core/Objectives/StoryMissionPortal.gd" id="40_4e1cd"]
 [ext_resource type="Resource" uid="uid://81q5tefascy8" path="res://Resources/MapMissions/Missao_Teste_Estoria.tres" id="41_44s4c"]
 [ext_resource type="PackedScene" uid="uid://cpbeu41m4p3fb" path="res://Scenes/UI/StoryMissionUI.tscn" id="45_kq8oo"]
+[ext_resource type="PackedScene" uid="uid://b5uq5cu7yermy" path="res://Scenes/UI/StoryMissionResultUI.tscn" id="46_neuqn"]
 [ext_resource type="Script" uid="uid://ckpa324htfvdu" path="res://Core/Objectives/StoryModeController.gd" id="48_neuqn"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_a70xh"]
@@ -6037,15 +6038,20 @@ process_mode = 3
 visible = false
 
 [node name="StoryMissionUi" parent="." instance=ExtResource("45_kq8oo")]
+visible = false
+
+[node name="StoryMissionResultUi" parent="." instance=ExtResource("46_neuqn")]
+visible = false
 
 [node name="LevelLogic" type="Node" parent="."]
 script = ExtResource("25_qdutf")
 map_missions = ExtResource("32_ip1o4")
 
-[node name="StoryModeController" type="Node" parent="." node_paths=PackedStringArray("world_env", "mission_ui")]
+[node name="StoryModeController" type="Node" parent="." node_paths=PackedStringArray("world_env", "mission_ui", "result_ui")]
 script = ExtResource("48_neuqn")
 world_env = NodePath("../GridContainer/Cont_P1/View_P1/WorldEnvironment2")
 mission_ui = NodePath("../StoryMissionUi")
+result_ui = NodePath("../StoryMissionResultUi")
 
 [connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/BAMap/Gaps1/Gap Balcony" to="GridContainer/Cont_P1/View_P1/Map/BAMap/Gaps1/Gap Balcony" method="_on_body_entered"]
 [connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/BAMap/Gaps1/Gap BalconyEnd" to="GridContainer/Cont_P1/View_P1/Map/BAMap/Gaps1/Gap BalconyEnd" method="_on_body_entered"]

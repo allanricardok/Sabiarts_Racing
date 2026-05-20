@@ -20,6 +20,8 @@ func _ready():
 			_setup_exploration()
 		Global.RunMode.BATTLE:
 			_setup_battle()
+		Global.RunMode.STORY: # <-- AQUI CHAMA O NOVO SETUP
+			_setup_story()
 
 # ==========================================
 # CONFIGURAÇÕES DE MODOS
@@ -52,6 +54,14 @@ func _setup_battle():
 		time_left = map_missions.time_limit
 		_update_hud_timer()
 
+# --- NOVO SETUP: HISTÓRIA ---
+func _setup_story():
+	timer_active = false
+	time_left = 0.0 
+	_remover_itens_exploracao()
+	_remover_itens_tutorial()
+	# No futuro, podemos apagar a GUI clássica do MissionManager aqui também se necessário
+
 # ==========================================
 # FUNÇÕES DE FAXINA (FILTROS DE MAPA)
 # ==========================================
@@ -70,8 +80,8 @@ func _remover_bots():
 	var outros_inimigos = get_tree().get_nodes_in_group("inimigos")
 	for inimigo in outros_inimigos:
 		if is_instance_valid(inimigo):
-			# Se for Tutorial (Free Roam), poupa a vida das torretas!
-			if Global.current_run_mode == Global.RunMode.FREE_ROAM and inimigo is EnemyTurret:
+			# Se for Tutorial (Free Roam) OU História, poupa a vida das torretas!
+			if Global.current_run_mode in [Global.RunMode.FREE_ROAM, Global.RunMode.STORY] and inimigo is EnemyTurret:
 				continue 
 			inimigo.queue_free()
 			
@@ -98,11 +108,13 @@ func _remover_itens_tutorial():
 func start_timer():
 	if level_ended: return
 	
-	if Global.current_run_mode != Global.RunMode.FREE_ROAM:
+	# --- CORREÇÃO: Não inicia timer se for Modo História ---
+	if Global.current_run_mode in [Global.RunMode.FREE_ROAM, Global.RunMode.STORY]:
+		timer_active = false
+		print("[LevelController] Partida Iniciada (Modo Infinito - Sem Tempo).")
+	else:
 		timer_active = true
 		print("[LevelController] Partida Iniciada! Cronômetro rodando.")
-	else:
-		print("[LevelController] Partida Iniciada (Modo Livre - Sem Tempo).")
 
 func _process(delta: float):
 	if timer_active and not level_ended:

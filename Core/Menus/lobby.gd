@@ -1,3 +1,4 @@
+# StartMenu.gd
 extends Control
 
 # --- MÁQUINA DE ESTADOS ---
@@ -21,7 +22,7 @@ var menu_index = 0
 @onready var menu_options = {
 	State.ROOT: [find_child("QuickPlay", true, false), find_child("Settings", true, false)],
 	State.QUICK_PLAY: [find_child("SinglePlayer", true, false), find_child("Multiplayer", true, false)],
-	State.SINGLE_PLAYER: [find_child("Tutorial", true, false), find_child("FreeRoam", true, false), find_child("Combat", true, false)],
+	State.SINGLE_PLAYER: [find_child("Tutorial", true, false), find_child("FreeRoam", true, false), find_child("Combat", true, false), find_child("Story", true, false)], # <-- ADICIONADO O BOTÃO "Story" AQUI
 	State.MULTIPLAYER: [find_child("Coop", true, false), find_child("PvP", true, false)],
 	State.SETTINGS: [find_child("ClearDataButton", true, false), find_child("ClearScoresButton", true, false)],
 	State.MAP_SELECT: $Screen_MapSelect/VBoxContainer.get_children() if has_node("Screen_MapSelect/VBoxContainer") else []
@@ -172,7 +173,6 @@ func _confirmar_menu_simples():
 				is_multiplayer_session = true
 				_mudar_estado(State.MULTIPLAYER)
 		State.SINGLE_PLAYER:
-			# Single Player: Tutorial e Exploration NUNCA tem bots. Battle SEMPRE tem.
 			if menu_index == 0: 
 				Global.current_run_mode = Global.RunMode.FREE_ROAM
 				Global.spawn_bots = false
@@ -182,6 +182,9 @@ func _confirmar_menu_simples():
 			elif menu_index == 2: 
 				Global.current_run_mode = Global.RunMode.BATTLE
 				Global.spawn_bots = true
+			elif menu_index == 3: # <-- NOVA DEFINIÇÃO PARA MODO HISTÓRIA
+				Global.current_run_mode = Global.RunMode.STORY
+				Global.spawn_bots = false # No modo história, os inimigos vêm pelas missões
 			_mudar_estado(State.VEHICLE_SELECT)
 		State.MULTIPLAYER:
 			# Multiplayer: Coop (0) tem bots. PvP (1) não tem bots.

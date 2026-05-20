@@ -6,6 +6,8 @@
 [resource]
 script = ExtResource("1_dvnv8")
 time_limit = 10.0
+score_target = 200
 mission_environment = ExtResource("1_p1p2m")
+mission_sun_color = Color(1, 0, 0.05490196, 1)
 nodes_to_enable = Array[NodePath]([NodePath("GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/Obake"), NodePath("GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/Obake2"), NodePath("GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/Obake3"), NodePath("GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/Obake4"), NodePath("GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/Obake5")])
 metadata/_custom_type_script = "uid://o1ox0n7mmqv"

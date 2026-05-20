@@ -5,7 +5,8 @@ class_name StoryModeController
 @export_group("Referências do Mapa")
 @export var world_env: WorldEnvironment
 @export var sun_light: DirectionalLight3D
-@export var mission_ui: CanvasLayer # ARRASTE A CENA DA SUA UI PARA AQUI NO INSPECTOR!
+@export var mission_ui: CanvasLayer 
+@export var result_ui: CanvasLayer # <--- NOVA REFERÊNCIA PARA A TELA DE RESULTADOS
 
 # Salva o estado do Open World
 var original_env: Environment
@@ -49,7 +50,7 @@ func decline_mission():
 	print("[StoryController] Missão Recusada. Voltando ao Open World.")
 	current_mission = null
 	active_portal = null
-	get_tree().paused = false # Apenas despausa e segue a vida
+	get_tree().paused = false
 
 # --- 3. QUANDO O JOGADOR CLICA EM ACEITAR ---
 func accept_mission():
@@ -93,7 +94,9 @@ func end_mission(success: bool):
 		p.is_active = true
 		p.set_deferred("monitoring", true)
 
+	var mission_name_temp = "Missão"
 	if current_mission:
+		mission_name_temp = current_mission.mission_name
 		for path in current_mission.nodes_to_enable:
 			var node = get_node_or_null(path)
 			if node:
@@ -105,10 +108,20 @@ func end_mission(success: bool):
 	var msg = "SUCESSO!" if success else "TEMPO ESGOTADO / FALHA!"
 	print("[StoryController] Missão Encerrada: ", msg)
 	
-	current_mission = null
-	
 	get_tree().paused = true
-	# Aqui no futuro chamaremos a tela de Vitória/Derrota, igual acabamos de fazer com a de Aceitar!
+	
+	# Chama a UI de Resultado!
+	if result_ui and result_ui.has_method("show_result"):
+		result_ui.show_result(success, mission_name_temp, self)
+	else:
+		push_error("[StoryController] UI de Resultado não configurada!")
+
+# --- 5. RETORNO AO OPEN WORLD APÓS A TELA DE RESULTADOS ---
+func resume_open_world():
+	print("[StoryController] Voltando para o modo Open World.")
+	current_mission = null
+	active_portal = null
+	get_tree().paused = false
 
 func _restore_all_health_and_energy():
 	var vehicles = get_tree().get_nodes_in_group("jogadores") + get_tree().get_nodes_in_group("inimigos")
