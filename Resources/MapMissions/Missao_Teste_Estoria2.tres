@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="StoryMissionData" load_steps=3 format=3 uid="uid://drit30f7ro0oc"]
+
+[ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="1_ma3il"]
+[ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/StoryMissionData.gd" id="2_wessu"]
+
+[resource]
+script = ExtResource("2_wessu")
+mission_type = 3
+mission_name = "Mata os cara"
+mission_description = "Coma o cu de 3 caras"
+time_limit = 30.0
+score_target = 0
+mission_environment = ExtResource("1_ma3il")
+mission_sun_color = Color(1, 0, 0.05490196, 1)
+metadata/_custom_type_script = "uid://o1ox0n7mmqv"

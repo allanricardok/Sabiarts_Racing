@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="StoryMissionData" load_steps=3 format=3 uid="uid://bprkepyn722gt"]
+
+[ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="1_k6iqc"]
+[ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/StoryMissionData.gd" id="2_r66d8"]
+
+[resource]
+script = ExtResource("2_r66d8")
+mission_type = 3
+mission_name = "Pega as obake rs"
+mission_description = "Coma 5 delas"
+time_limit = 120.0
+score_target = 0
+enemy_count = 0
+mission_environment = ExtResource("1_k6iqc")
+mission_sun_color = Color(1, 0, 0.05490196, 1)
+nodes_to_enable = Array[NodePath]([NodePath("../../BAMap/Mission_Items/Obake"), NodePath("../../BAMap/Mission_Items/Obake2"), NodePath("../../BAMap/Mission_Items/Obake3"), NodePath("../../BAMap/Mission_Items/Obake4"), NodePath("../../BAMap/Mission_Items/Obake5")])
+metadata/_custom_type_script = "uid://o1ox0n7mmqv"

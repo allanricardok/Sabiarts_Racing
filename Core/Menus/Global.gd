@@ -13,6 +13,8 @@ var current_map : String = "TestMap" # "TestMap" ou "BuenosAires"
 var unlocked_test_battle : bool = false
 var unlocked_ba_exploration : bool = false
 var unlocked_ba_battle : bool = false
+var story_total_points: int = 0
+var points_to_next_city: int = 5000 # O alvo para abrir a próxima cidade
 
 # Agora cada jogador é um Dicionário: {"esquema": "J1", "carro_cena": PackedScene}
 var dados_jogadores = [null, null, null, null]

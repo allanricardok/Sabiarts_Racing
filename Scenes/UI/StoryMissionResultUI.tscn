@@ -68,6 +68,13 @@ theme_override_font_sizes/font_size = 28
 text = "Teste missão testeTeste missão testeTeste missão testeTeste missão testeTeste missão testeTeste missão testeTeste missão testeTeste missão testeTeste missão testeTeste missão teste"
 autowrap_mode = 2
 
+[node name="PointsLabel" type="Label" parent="Control/Info"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "10.000"
+autowrap_mode = 2
+
 [node name="ContinueBtn" type="Button" parent="Control"]
 unique_name_in_owner = true
 layout_mode = 1
