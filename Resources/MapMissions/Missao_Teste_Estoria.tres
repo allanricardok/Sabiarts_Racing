@@ -1,14 +1,24 @@
-[gd_resource type="Resource" script_class="StoryMissionData" load_steps=3 format=3 uid="uid://81q5tefascy8"]
+[gd_resource type="Resource" script_class="StoryMissionData" load_steps=5 format=3 uid="uid://81q5tefascy8"]
 
+[ext_resource type="Script" uid="uid://2oic07orss4" path="res://Core/Objectives/MissionItem.gd" id="1_dl0aj"]
 [ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/StoryMissionData.gd" id="1_dvnv8"]
 [ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="1_p1p2m"]
+
+[sub_resource type="Resource" id="Resource_kmhdb"]
+script = ExtResource("1_dl0aj")
+id = "69_RS"
+description = "Dê o bumbum 250 vezes"
+target_value = 250.0
+metadata/_custom_type_script = "uid://2oic07orss4"
 
 [resource]
 script = ExtResource("1_dvnv8")
 mission_name = "Manobra supimpa"
-mission_description = "Dê o cu 10 vezes"
+mission_description = "Dê o bumbum 250 vezes"
 time_limit = 30.0
-score_target = 200
+score_target = 2000
+mission_reward_points = 1500
+classic_objective = SubResource("Resource_kmhdb")
 enemy_count = 0
 mission_environment = ExtResource("1_p1p2m")
 mission_sun_color = Color(1, 0, 0.05490196, 1)

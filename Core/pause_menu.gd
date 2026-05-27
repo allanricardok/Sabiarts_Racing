@@ -10,11 +10,33 @@ var pode_pausar: bool = true
 @onready var end_match_btn = get_node_or_null("%EndMatchBtn")
 
 var camera_select_btn: OptionButton
+var abort_mission_btn: Button # <--- Nova variável para o botão
 
 func _ready():
-	_setup_camera_button()
+	_setup_dynamic_buttons()
 
-func _setup_camera_button():
+func _setup_dynamic_buttons():
+	var vbox = $Control/VBoxContainer
+	if not vbox: return
+	
+	# --- 1. SETUP DO BOTÃO DE ABORTAR MISSÃO ---
+	abort_mission_btn = Button.new()
+	abort_mission_btn.name = "AbortMissionBtn"
+	abort_mission_btn.text = "Abortar Missão"
+	abort_mission_btn.focus_mode = Control.FOCUS_ALL
+	
+	if resume_btn:
+		var font = resume_btn.get_theme_font("font")
+		if font: abort_mission_btn.add_theme_font_override("font", font)
+		abort_mission_btn.add_theme_font_size_override("font_size", 32)
+		var style = resume_btn.get_theme_stylebox("focus")
+		if style: abort_mission_btn.add_theme_stylebox_override("focus", style)
+	
+	abort_mission_btn.alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	abort_mission_btn.pressed.connect(_on_abort_mission_btn_pressed)
+	vbox.add_child(abort_mission_btn)
+	
+	# --- 2. SETUP DO BOTÃO DE CÂMERA ---
 	camera_select_btn = OptionButton.new()
 	camera_select_btn.name = "CameraSelectBtn"
 	camera_select_btn.add_item("Opções de Câmera", 999) # Placeholder inicial
@@ -22,7 +44,6 @@ func _setup_camera_button():
 	camera_select_btn.add_item("Câmera: Capô", 1)
 	camera_select_btn.add_item("Câmera: Longe", 2)
 	
-	# Habilita o foco para o controle
 	camera_select_btn.focus_mode = Control.FOCUS_ALL
 	
 	if resume_btn:
@@ -34,14 +55,14 @@ func _setup_camera_button():
 		
 	camera_select_btn.alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	camera_select_btn.item_selected.connect(_on_camera_selected)
+	vbox.add_child(camera_select_btn)
 	
-	var vbox = $Control/VBoxContainer
-	if vbox:
-		vbox.add_child(camera_select_btn)
-		vbox.move_child(camera_select_btn, 0) # COLOCA COMO PRIMEIRO BOTÃO
+	# --- 3. ORDENAÇÃO FORÇADA ---
+	# Coloca o botão de Abortar no topo (0) e a Câmera logo abaixo (1)
+	vbox.move_child(abort_mission_btn, 0)
+	vbox.move_child(camera_select_btn, 1)
 
 func _on_camera_selected(index: int):
-	# Ignora o clique no placeholder se necessário
 	if index == 0 and camera_select_btn.get_item_id(0) == 999: return
 	
 	var mode = camera_select_btn.get_item_id(index)
@@ -66,10 +87,21 @@ func _toggle_pause():
 	visible = new_pause_state
 	
 	if new_pause_state:
-		# Ao pausar, o foco vai para o seletor de câmera que é o primeiro
-		if camera_select_btn:
-			camera_select_btn.grab_focus()
 		_atualizar_lista_missoes()
+		
+		# --- VERIFICAÇÃO DO MODO HISTÓRIA ---
+		var story_controller = get_tree().get_first_node_in_group("StoryController")
+		var has_mission = story_controller and story_controller.has_method("has_active_mission") and story_controller.has_active_mission()
+		
+		if abort_mission_btn:
+			abort_mission_btn.visible = has_mission
+			abort_mission_btn.disabled = not has_mission
+		
+		# Foco dinâmico: se a missão estiver ativa, vai pro botão Abortar, senão vai pra Câmera
+		if has_mission and abort_mission_btn:
+			abort_mission_btn.grab_focus()
+		elif camera_select_btn:
+			camera_select_btn.grab_focus()
 	else:
 		get_viewport().gui_release_focus()
 
@@ -103,6 +135,14 @@ func desativar_pausa():
 	if get_tree().paused:
 		_toggle_pause()
 
+func _on_abort_mission_btn_pressed():
+	# Retoma o jogo e esconde o menu
+	_toggle_pause()
+	
+	var story_controller = get_tree().get_first_node_in_group("StoryController")
+	if story_controller and story_controller.has_method("abort_current_mission"):
+		story_controller.abort_current_mission()
+
 func _on_resume_btn_pressed():
 	_toggle_pause()
 
@@ -122,7 +162,6 @@ func _process(_delta):
 			if Input.is_action_just_pressed("Action_" + esquema):
 				var focused_node = get_viewport().gui_get_focus_owner()
 				if focused_node is OptionButton:
-					# No caso do OptionButton, simula o clique para abrir o popup
 					focused_node.show_popup()
 				elif focused_node is Button:
 					focused_node.pressed.emit()

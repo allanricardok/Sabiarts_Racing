@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="MissionItem" load_steps=2 format=3 uid="uid://cqn4jos28r5ff"]
+
+[ext_resource type="Script" uid="uid://2oic07orss4" path="res://Core/Objectives/MissionItem.gd" id="1_puod2"]
+
+[resource]
+script = ExtResource("1_puod2")
+id = "obake_BA"
+description = "Collect 3 Obakes"
+type = 2
+target_value = 3.0
+metadata/_custom_type_script = "uid://2oic07orss4"

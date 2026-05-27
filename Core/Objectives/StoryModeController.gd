@@ -7,9 +7,8 @@ class_name StoryModeController
 @export var sun_light: DirectionalLight3D
 @export var mission_ui: CanvasLayer 
 @export var result_ui: CanvasLayer 
-@export var bot_spawner: Node # <--- ARRASTE O SEU BOTSPAWNER PARA AQUI NO INSPECTOR!
+@export var bot_spawner: Node 
 
-# Salva o estado do Open World
 var original_env: Environment
 var original_sun_color: Color
 var original_sun_energy: float
@@ -19,9 +18,12 @@ var active_portal: StoryMissionPortal
 var mission_timer: float = 0.0
 var is_mission_running: bool = false
 
-# Variáveis de monitorização para as missões
-var player_score_at_start: int = 0
+var active_classic_objective: MissionItem = null
+
 var combat_targets: Array[Node] = []
+var spawned_bots: Array[Node] = []
+
+var original_transforms: Dictionary = {}
 
 func _ready():
 	process_mode = Node.PROCESS_MODE_ALWAYS 
@@ -35,130 +37,157 @@ func _ready():
 func _process(delta):
 	if not is_mission_running or get_tree().paused: return
 	
-	# 1. GERENCIAMENTO DE TEMPO (CRONÓMETRO)
 	if current_mission.time_limit > 0:
 		mission_timer -= delta
+		get_tree().call_group("HUD", "atualizar_timer", mission_timer)
+		
 		if mission_timer <= 0:
-			# Se for sobrevivência, o tempo chegar ao fim significa VITÓRIA!
 			if current_mission.mission_type == StoryMissionData.MissionType.SURVIVAL:
 				end_mission(true)
 			else:
-				end_mission(false) # Nos outros modos, deixar o tempo acabar é falha
+				end_mission(false) 
 			return
 
-	# 2. CHECAGENS DE VITÓRIA POR TIPO DE MISSÃO
 	match current_mission.mission_type:
 		
 		StoryMissionData.MissionType.SCORE_ATTACK:
-			# Verifica a diferença de pontos ganha desde o início da missão
 			var current_score = ScoreManager.get_total_score(0)
-			if (current_score - player_score_at_start) >= current_mission.score_target:
+			if current_mission.score_target > 0 and current_score >= current_mission.score_target:
 				end_mission(true)
-				
+		
 		StoryMissionData.MissionType.CLASSIC_OBJECTIVE:
-			# Verifica se o script do Radar/Coletável marcou o MissionItem como concluído
-			if current_mission.classic_objective and current_mission.classic_objective.is_completed:
+			if active_classic_objective and active_classic_objective.is_completed:
 				end_mission(true)
 				
 		StoryMissionData.MissionType.COMBAT_DESTROY:
-			# Verifica se os inimigos listados ainda existem
 			var all_destroyed = true
 			for target in combat_targets:
-				# Se o nó ainda é válido e não foi eliminado da árvore...
 				if is_instance_valid(target) and not target.is_queued_for_deletion():
-					# Checagem extra de segurança caso o seu inimigo use uma variável de estado
 					if "_is_dead" in target and target._is_dead:
 						continue 
 					all_destroyed = false
 					break
 			
-			# Se todos os alvos foram varridos e a lista não estava vazia no início
 			if all_destroyed and combat_targets.size() > 0:
 				end_mission(true)
 
-# --- CHAMADO PELO PORTAL ---
 func request_mission_start(portal: StoryMissionPortal, data: StoryMissionData):
 	active_portal = portal
 	current_mission = data
 	
-	print("[StoryController] Abrindo Ecrã de Aceitação de Missão...")
 	if mission_ui and mission_ui.has_method("show_mission_prompt"):
 		mission_ui.show_mission_prompt(data, self)
 	else:
-		push_error("[StoryController] UI da missão não configurada ou sem a função correta!")
+		push_error("[StoryController] UI da missão não configurada!")
 
-# --- QUANDO O JOGADOR CLICA EM RECUSAR ---
 func decline_mission():
-	print("[StoryController] Missão Recusada. Voltando ao Open World.")
 	current_mission = null
 	active_portal = null
 	get_tree().paused = false
 
-# --- QUANDO O JOGADOR CLICA EM ACEITAR ---
 func accept_mission():
-	# Preparação dos dados de monitorização
-	player_score_at_start = ScoreManager.get_total_score(0)
 	combat_targets.clear()
+	spawned_bots.clear()
+	active_classic_objective = null
 	
-	# Reseta a missão clássica para garantir que não estava completa de corridas passadas
-	if current_mission.mission_type == StoryMissionData.MissionType.CLASSIC_OBJECTIVE and current_mission.classic_objective:
-		current_mission.classic_objective.is_completed = false
+	if is_instance_valid(ScoreManager):
+		if ScoreManager.has_method("reset_score"): ScoreManager.reset_score()
+		elif ScoreManager.has_method("clear_score"): ScoreManager.clear_score()
 
-	# 1. Esconde TODOS os portais de missão do mundo
+	if current_mission.mission_type == StoryMissionData.MissionType.CLASSIC_OBJECTIVE:
+		if current_mission.classic_objective:
+			active_classic_objective = current_mission.classic_objective.duplicate()
+			
+			if is_instance_valid(MissionManager):
+				var fake_map_data = MapMissionData.new()
+				fake_map_data.map_name = current_mission.mission_name
+				fake_map_data.missions.clear()
+				fake_map_data.missions.append(active_classic_objective)
+				
+				MissionManager.setup_map(fake_map_data)
+				
+				active_classic_objective.is_completed = false
+				if "current_progress" in active_classic_objective:
+					active_classic_objective.current_progress = 0.0
+					
+				if "completed_mission_ids" in MissionManager:
+					MissionManager.completed_mission_ids.erase(active_classic_objective.id)
+				if "completed_count" in MissionManager: 
+					MissionManager.completed_count = 0
+					
+				print("[DEBUG-STORY] Amnésia pós-setup aplicada! O auto-complete foi bloqueado.")
+		else:
+			push_error("[StoryController] Tipo Clássico sem 'classic_objective'!")
+
 	for p in get_tree().get_nodes_in_group("mission_portals"):
 		p.visible = false
 		p.is_active = false
 		p.set_deferred("monitoring", false)
 
-	# 2. Muda a Atmosfera / Iluminação
 	if current_mission.mission_environment and world_env:
 		world_env.environment = current_mission.mission_environment
 	if sun_light:
 		sun_light.light_color = current_mission.mission_sun_color
 		sun_light.light_energy = current_mission.mission_sun_energy
 
-	# 3. SPAWN AUTOMÁTICO DE INIMIGOS (MODO COMBATE)
 	if current_mission.mission_type == StoryMissionData.MissionType.COMBAT_DESTROY:
-		if bot_spawner and bot_spawner.has_method("spawn_bot"):
+		if bot_spawner and bot_spawner.has_method("spawn_single_bot"):
 			for i in range(current_mission.enemy_count):
-				var enemy = bot_spawner.spawn_bot()
+				var enemy = bot_spawner.spawn_single_bot(i)
 				if enemy:
 					combat_targets.append(enemy)
-		else:
-			push_error("[StoryController] BotSpawner não configurado ou sem método spawn_bot!")
+					spawned_bots.append(enemy)
 
-	# 4. Ativa os objetos/inimigos pré-carregados manuais desta missão
 	for path in current_mission.nodes_to_enable:
 		var node = get_node_or_null(path)
+		if not node:
+			var node_name = String(path).split("/")[-1]
+			node = get_tree().current_scene.find_child(node_name, true, false)
+			
 		if node:
+			if not original_transforms.has(node):
+				original_transforms[node] = node.global_transform
+			
+			node.global_transform = original_transforms[node]
 			node.visible = true
 			node.process_mode = Node.PROCESS_MODE_INHERIT
 			
-			# Se você arrastar um inimigo manual no Inspetor num modo Combate, ele também deve ser destruído
+			if node.has_method("reset"):
+				node.reset()
+				
 			if current_mission.mission_type == StoryMissionData.MissionType.COMBAT_DESTROY and not combat_targets.has(node):
 				combat_targets.append(node)
 
-	# 5. Inicia Timer e despausa
 	mission_timer = current_mission.time_limit
 	is_mission_running = true
 	get_tree().paused = false
-	print("[StoryController] Missão Iniciada! Tipo: ", current_mission.mission_type)
 
-# --- GATILHO MANUAL DE VITÓRIA (Caso precise forçar via script externo) ---
 func complete_current_mission():
 	if is_mission_running:
 		end_mission(true)
 
-# --- QUANDO A MISSÃO TERMINA ---
+# --- NOVA FUNÇÃO PÚBLICA: ABORTAR MISSÃO PELO MENU DE PAUSA ---
+func abort_current_mission():
+	if is_mission_running:
+		print("[DEBUG-STORY] Jogador optou por abortar a missão atual voluntariamente.")
+		end_mission(false) # Finaliza como falha e chama a UI de fim de missão
+
+# --- FUNÇÃO AUXILIAR DE CHECAGEM ---
+func has_active_mission() -> bool:
+	return is_mission_running
+
 func end_mission(success: bool):
 	is_mission_running = false
+	active_classic_objective = null
 	
-	# REMOVE INIMIGOS SPAWNADOS AUTOMATICAMENTE PELA MISSÃO DE COMBATE
-	if current_mission and current_mission.mission_type == StoryMissionData.MissionType.COMBAT_DESTROY:
-		for target in combat_targets:
-			if is_instance_valid(target) and not target.is_queued_for_deletion():
-				target.queue_free()
-	combat_targets.clear() # Limpa a memória
+	if is_instance_valid(MissionManager):
+		MissionManager.current_map_data = null
+	
+	for bot in spawned_bots:
+		if is_instance_valid(bot) and not bot.is_queued_for_deletion():
+			bot.queue_free()
+	spawned_bots.clear()
+	combat_targets.clear()
 	
 	if world_env: world_env.environment = original_env
 	if sun_light:
@@ -176,26 +205,37 @@ func end_mission(success: bool):
 	if current_mission:
 		mission_name_temp = current_mission.mission_name
 		if success:
-			# Para todos os modos, vamos usar a variável "score_target" como a recompensa base de conclusão
-			points_earned = current_mission.score_target
-			Global.story_total_points += points_earned
-			print("[StoryController] Ganhaste ", points_earned, " pontos! Progresso: ", Global.story_total_points)
+			if not Global.completed_story_missions.has(current_mission.mission_id):
+				points_earned = current_mission.mission_reward_points
+				Global.story_total_points += points_earned
+				Global.completed_story_missions.append(current_mission.mission_id)
+				
+				if active_portal:
+					active_portal.make_semitransparent()
+			else:
+				points_earned = 0
 			
 		for path in current_mission.nodes_to_enable:
 			var node = get_node_or_null(path)
+			if not node:
+				var node_name = String(path).split("/")[-1]
+				node = get_tree().current_scene.find_child(node_name, true, false)
 			if node:
 				node.visible = false
 				node.process_mode = Node.PROCESS_MODE_DISABLED
 	
 	_restore_all_health_and_energy()
+	
+	if is_instance_valid(ScoreManager):
+		if ScoreManager.has_method("reset_score"): ScoreManager.reset_score()
+		elif ScoreManager.has_method("clear_score"): ScoreManager.clear_score()
+		
 	get_tree().paused = true
+	get_tree().call_group("HUD", "atualizar_timer", 0.0)
 	
 	if result_ui and result_ui.has_method("show_result"):
 		result_ui.show_result(success, mission_name_temp, points_earned, self)
-	else:
-		push_error("[StoryController] UI de Resultado não configurada!")
 
-# --- RETORNO AO OPEN WORLD ---
 func resume_open_world():
 	current_mission = null
 	active_portal = null

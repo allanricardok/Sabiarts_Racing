@@ -20,7 +20,7 @@ func _ready():
 			_setup_exploration()
 		Global.RunMode.BATTLE:
 			_setup_battle()
-		Global.RunMode.STORY: # <-- AQUI CHAMA O NOVO SETUP
+		Global.RunMode.STORY:
 			_setup_story()
 
 # ==========================================
@@ -30,21 +30,22 @@ func _ready():
 func _setup_free_roam():
 	timer_active = false
 	time_left = 0.0 
-	_remover_itens_exploracao()
-	
+	# CORREÇÃO: Não remove mais os itens aqui para não quebrar outros testes
 	if map_missions:
 		MissionManager.setup_map(map_missions)
 
 func _setup_exploration():
-	_remover_itens_tutorial()
+	# CORREÇÃO: Mantém os itens presentes por padrão
 	if map_missions:
 		MissionManager.setup_map(map_missions)
 		time_left = map_missions.time_limit
 		_update_hud_timer()
 
 func _setup_battle():
+	# LÓGICA INVERTIDA: Apenas o modo Batalha faz a faxina pesada no mapa!
 	_remover_itens_exploracao()
 	_remover_itens_tutorial()
+	
 	# Garante que o MissionManager não mostre UI de maletas	
 	# Desliga as missões na memória para a HUD sumir com o painel!
 	if is_instance_valid(MissionManager):
@@ -54,13 +55,12 @@ func _setup_battle():
 		time_left = map_missions.time_limit
 		_update_hud_timer()
 
-# --- NOVO SETUP: HISTÓRIA ---
 func _setup_story():
 	timer_active = false
 	time_left = 0.0 
-	_remover_itens_exploracao()
-	_remover_itens_tutorial()
-	# No futuro, podemos apagar a GUI clássica do MissionManager aqui também se necessário
+	# CORREÇÃO: No Modo História os objetos NÃO são deletados, permitindo que os
+	# portais controlem a visibilidade deles dinamicamente sem conflito!
+	print("[LevelController] Modo História configurado. Objetos preservados na cena.")
 
 # ==========================================
 # FUNÇÕES DE FAXINA (FILTROS DE MAPA)
@@ -88,18 +88,16 @@ func _remover_bots():
 	print("[LevelController] Limpeza de Bots e Inimigos concluída para este modo.")
 
 func _remover_itens_exploracao():
-	# Apaga todos os coletáveis e objetivos do modo Buenos Aires padrão
 	var itens = get_tree().get_nodes_in_group("itens_exploracao")
 	for item in itens:
 		if is_instance_valid(item): item.queue_free()
-	print("[LevelController] Itens de exploração removidos.")
+	print("[LevelController] Itens de exploração removidos de forma forçada.")
 
 func _remover_itens_tutorial():
-	# Apaga alvos e coletáveis específicos do mapa de treino
 	var itens = get_tree().get_nodes_in_group("itens_tutorial")
 	for item in itens:
 		if is_instance_valid(item): item.queue_free()
-	print("[LevelController] Itens de tutorial removidos.")
+	print("[LevelController] Itens de tutorial removidos de forma forçada.")
 
 # ==========================================
 # FLUXO DA PARTIDA
@@ -108,7 +106,6 @@ func _remover_itens_tutorial():
 func start_timer():
 	if level_ended: return
 	
-	# --- CORREÇÃO: Não inicia timer se for Modo História ---
 	if Global.current_run_mode in [Global.RunMode.FREE_ROAM, Global.RunMode.STORY]:
 		timer_active = false
 		print("[LevelController] Partida Iniciada (Modo Infinito - Sem Tempo).")
@@ -144,7 +141,6 @@ func encerrar_partida():
 	
 	print("[LevelController] Encerrando partida! Chamando tela de resultados...")
 	
-	# --- CORREÇÃO: USA A GLOBAL PARA SALVAR O NOME DO ARQUIVO ---
 	var mapa_atual = "MapaDesconhecido"
 	if Global.current_map != "":
 		mapa_atual = Global.current_map
@@ -165,14 +161,11 @@ func encerrar_partida():
 
 func registrar_morte_jogador():
 	if level_ended: return
-	
-	# Removida a trava antiga! Agora ele sempre checa quando alguém morre.
 	call_deferred("_checar_condicoes_batalha")
 
 func _checar_condicoes_batalha():
 	if level_ended: return
 	
-	# Só aplicamos regras de eliminação se for modo Batalha (PvE ou PvP)
 	if Global.current_run_mode != Global.RunMode.BATTLE:
 		return
 
@@ -184,17 +177,14 @@ func _checar_condicoes_batalha():
 		if not is_instance_valid(carro) or carro.is_queued_for_deletion():
 			continue
 			
-		# --- A GRANDE CORREÇÃO: IGNORAR OS CADÁVERES ---
-		# Se o carro está na cena mas já morreu, pula ele na contagem!
 		if "_is_dead" in carro and carro._is_dead:
 			continue
 			
-		# Verifica se o carro é um Bot (IA) ou Jogador
 		var is_bot = false
 		var input = carro.get_node_or_null("%InputComponent")
 		if input and "is_bot" in input and input.is_bot:
 			is_bot = true
-		elif carro.has_node("BotBrain"): # Checagem extra para garantir que acha o bot
+		elif carro.has_node("BotBrain"):
 			is_bot = true
 			
 		if is_bot:
@@ -202,10 +192,9 @@ func _checar_condicoes_batalha():
 		else:
 			humanos_vivos += 1
 			
-	print("[LevelController] Checando Batalha... Humanos vivos: ", humanos_vivos, " | Bots vivos: ", bots_vivos)
+	print("[LevelController] Checando Batalha... Humans vivos: ", humanos_vivos, " | Bots vivos: ", bots_vivos)
 	
 	if Global.spawn_bots:
-		# --- MODO PVE (Single Player Battle ou Coop) ---
 		if bots_vivos == 0:
 			print("[LevelController] VITÓRIA! Todos os bots foram destruídos.")
 			encerrar_partida()
@@ -213,7 +202,6 @@ func _checar_condicoes_batalha():
 			print("[LevelController] DERROTA! Todos os jogadores morreram.")
 			encerrar_partida()
 	else:
-		# --- MODO PVP (Multiplayer Puro sem Bots) ---
 		if humanos_vivos <= 1:
 			print("[LevelController] LAST MAN STANDING! Fim do PVP.")
 			encerrar_partida()
@@ -229,7 +217,6 @@ func add_bonus_time(amount: float):
 	print("[LevelController] +", amount, " segundos!")
 
 func _enter_tree():
-	# --- A MÁGICA DA AMNÉSIA ANTECIPADA ---
 	if Global.current_run_mode == Global.RunMode.FREE_ROAM:
 		if map_missions:
 			for m in map_missions.missions:
@@ -240,12 +227,10 @@ func _enter_tree():
 			MissionManager.completed_count = 0
 			
 			if is_instance_valid(SaveManager):
-				# --- CORREÇÃO: BLINDAGEM DE HIGHSCORES ---
 				var scores_atuais = {}
 				if "highscores" in SaveManager:
 					scores_atuais = SaveManager.highscores
 				elif "high_scores" in SaveManager:
 					scores_atuais = SaveManager.high_scores
 					
-				# Salva passando as missões zeradas e os scores que conseguiu encontrar
 				SaveManager.save_game(MissionManager.completed_mission_ids, scores_atuais)

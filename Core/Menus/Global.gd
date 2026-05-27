@@ -15,6 +15,7 @@ var unlocked_ba_exploration : bool = false
 var unlocked_ba_battle : bool = false
 var story_total_points: int = 0
 var points_to_next_city: int = 5000 # O alvo para abrir a próxima cidade
+var completed_story_missions : Array[String] = []
 
 # Agora cada jogador é um Dicionário: {"esquema": "J1", "carro_cena": PackedScene}
 var dados_jogadores = [null, null, null, null]

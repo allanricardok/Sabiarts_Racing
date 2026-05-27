@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="MapMissionData" load_steps=12 format=3 uid="uid://twwvwp5k3okx"]
 
 [ext_resource type="Script" uid="uid://2oic07orss4" path="res://Core/Objectives/MissionItem.gd" id="1_3kmgt"]
+[ext_resource type="Resource" uid="uid://cqn4jos28r5ff" path="res://Resources/MapMissions/Single-Mission-Obake.tres" id="2_gayt0"]
 [ext_resource type="Script" uid="uid://dqrmrnt7j5mxe" path="res://Core/Objectives/MapMissionData.gd" id="2_i00q1"]
 
 [sub_resource type="Resource" id="Resource_d3yxn"]
@@ -31,14 +32,6 @@ id = "gap_balcony_BA"
 description = "Mall Balcony Gap"
 type = 4
 target_value = 1.0
-metadata/_custom_type_script = "uid://2oic07orss4"
-
-[sub_resource type="Resource" id="Resource_7nuau"]
-script = ExtResource("1_3kmgt")
-id = "obake_BA"
-description = "Collect 5 Obakes"
-type = 2
-target_value = 5.0
 metadata/_custom_type_script = "uid://2oic07orss4"
 
 [sub_resource type="Resource" id="Resource_vtej8"]
@@ -77,7 +70,7 @@ metadata/_custom_type_script = "uid://2oic07orss4"
 script = ExtResource("2_i00q1")
 map_name = "BuenosAires-Block"
 time_limit = 360.0
-missions = Array[ExtResource("1_3kmgt")]([SubResource("Resource_d3yxn"), SubResource("Resource_cp5jd"), SubResource("Resource_00uud"), SubResource("Resource_qo7tj"), SubResource("Resource_7nuau"), SubResource("Resource_vtej8"), SubResource("Resource_m10t6"), SubResource("Resource_t15lh"), SubResource("Resource_64uib")])
+missions = Array[ExtResource("1_3kmgt")]([SubResource("Resource_d3yxn"), SubResource("Resource_cp5jd"), SubResource("Resource_00uud"), SubResource("Resource_qo7tj"), ExtResource("2_gayt0"), SubResource("Resource_vtej8"), SubResource("Resource_m10t6"), SubResource("Resource_t15lh"), SubResource("Resource_64uib")])
 next_map_unlock_count = 6
 map_description = "Welcome to the Buenos Aires map!
 
