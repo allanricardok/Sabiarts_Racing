@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="StoryMissionData" load_steps=5 format=3 uid="uid://blt37tt3y7nim"]
+
+[ext_resource type="Script" uid="uid://2oic07orss4" path="res://Core/Objectives/MissionItem.gd" id="1_esgsk"]
+[ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="2_yj4l4"]
+[ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/StoryMissionData.gd" id="3_aoffx"]
+
+[sub_resource type="Resource" id="Resource_esgsk"]
+script = ExtResource("1_esgsk")
+id = "chacina"
+description = "mate 5 pedestres"
+type = 7
+target_value = 5.0
+metadata/_custom_type_script = "uid://2oic07orss4"
+
+[resource]
+script = ExtResource("3_aoffx")
+mission_id = "m_04"
+mission_name = "Roadkill"
+mission_description = "CHACINA 5 esquerdomachos"
+time_limit = 30.0
+mission_reward_points = 69
+classic_objective = SubResource("Resource_esgsk")
+enemy_count = 0
+mission_environment = ExtResource("2_yj4l4")
+mission_sun_color = Color(1, 0, 0.05490196, 1)
+metadata/_custom_type_script = "uid://o1ox0n7mmqv"

@@ -36,8 +36,8 @@ func _trigger_mission():
 		set_deferred("monitoring", true)
 
 func make_semitransparent():
-	# CORREÇÃO CRÍTICA: O quarto parâmetro (owned) foi mudado para 'false'.
-	# Isso força o Godot a inspecionar materiais dentro de subcenas complexas empacotadas!
-	for child in find_children("*", "GeometryInstance3D", true, false):
-		child.transparency = 0.5
+	# Mudado para MeshInstance3D para garantir compatibilidade direta com a malha visual
+	for child in find_children("*", "MeshInstance3D", true, false):
+		if "transparency" in child:
+			child.transparency = 0.65
 	print("[StoryPortal] Portal da missão '", mission_data.mission_name, "' agora está semitransparente.")

@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_wessu")
-mission_type = 3
+mission_type = 1
 mission_id = "m_02"
 mission_name = "Mata os cara"
 mission_description = "Coma o cu de 3 caras"

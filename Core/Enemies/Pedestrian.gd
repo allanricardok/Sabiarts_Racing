@@ -109,18 +109,30 @@ func take_damage(amount: float, attacker: Node3D = null):
 			gtm.add_ground_action("HIT_OBJECT")
 			
 # --- FILTRA APENAS JOGADORES REAIS ---
+# --- FILTRA APENAS JOGADORES REAIS ---
 		var input = actual_shooter.get_node_or_null("%InputComponent")
 		var is_bot = (input and "is_bot" in input and input.is_bot)
 		
 		if not is_bot:
-			# 1. Adiciona à contagem individual do carro (para o HUD em tempo real)
+			# 1. Adiciona à contagem individual do carro (para stats/conquistas)
 			if "pedestrians_killed" in actual_shooter:
 				actual_shooter.pedestrians_killed += 1
 				
-			# 2. AVISA O GAMESTATS (Para a Tela Final e para o Save no HD)
-			# É esta linha que estava faltando!
+			# 2. NOTIFICA A MISSÃO CLÁSSICA
+			if is_instance_valid(MissionManager):
+				# Mandamos 1.0 de progresso por morte. Deixe o ID vazio ("") pois a missão não exige um pedestre específico!
+				MissionManager.notify_progress(MissionItem.Type.ROADKILL, 1.0, "")
+				
+			# 3. AVISA O GAMESTATS GLOBAL
 			if is_instance_valid(GameStats) and GameStats.has_method("add_pedestrian_kill"):
 				GameStats.add_pedestrian_kill()
+				
+			# 4. FEEDBACK VISUAL INSTANTÂNEO NA HUD (Opcional, mas muito satisfatório)
+			if input:
+				var hud = get_tree().get_first_node_in_group("HUD" + input.suffix)
+				if not hud: hud = get_tree().get_first_node_in_group("HUD")
+				if hud and hud.has_method("criar_toast"):
+					hud.criar_toast("💥 ROADKILL!", Color.RED)
 			
 	get_tree().call_group("TutorialUI", "complete_task", "pedestrian")
 	queue_free()

@@ -67,7 +67,6 @@ func notify_progress(type: MissionItem.Type, value: float, id: String = ""):
 				if id == mission.id and value >= mission.target_value:
 					success = true
 			
-			# MELHORIA: Para GAPs, agora exigimos que o 'value' seja 1.0 (Validação do Carro)
 			MissionItem.Type.GAP:
 				if id == mission.id and value >= 1.0: 
 					success = true
@@ -81,10 +80,23 @@ func notify_progress(type: MissionItem.Type, value: float, id: String = ""):
 					var current_val = collection_progress.get(id, 0.0) + value
 					collection_progress[id] = current_val
 					
+					# Dispara o aviso para a HUD atualizar a contagem
 					mission_updated.emit(mission, current_val, mission.target_value)
 					
 					if current_val >= mission.target_value:
 						success = true
+						
+			# --- NOVA LÓGICA DO ROADKILL ACUMULATIVA ---
+			MissionItem.Type.ROADKILL:
+				# Usa o ID da missão em si como chave, já que qualquer pedestre serve!
+				var current_val = collection_progress.get(mission.id, 0.0) + value
+				collection_progress[mission.id] = current_val
+				
+				# É ESTE SINAL AQUI QUE FAZ O CONTADOR "1/10" APARECER NA TELA!
+				mission_updated.emit(mission, current_val, mission.target_value)
+				
+				if current_val >= mission.target_value:
+					success = true
 		
 		if success:
 			_complete_mission(mission)

@@ -7,13 +7,12 @@
 [resource]
 script = ExtResource("2_r66d8")
 mission_id = "m_03"
-mission_name = "Pega as obake rs"
-mission_description = "Coma 2 delas"
-score_target = 0
+mission_name = "PRF"
+mission_description = "3 obakes"
 mission_reward_points = 1000
 classic_objective = ExtResource("1_r66d8")
 enemy_count = 0
 mission_environment = ExtResource("1_k6iqc")
 mission_sun_color = Color(1, 0, 0.05490196, 1)
-nodes_to_enable = Array[NodePath]([NodePath("../../BAMap/Mission_Items/Obake3"), NodePath("../../BAMap/Mission_Items/Obake4"), NodePath("../../BAMap/Mission_Items/Obake5")])
+nodes_to_enable = Array[NodePath]([NodePath("../../BAMap/Mission_Items/Obake"), NodePath("../../BAMap/Mission_Items/Obake2"), NodePath("../../BAMap/Mission_Items/Obake3")])
 metadata/_custom_type_script = "uid://o1ox0n7mmqv"

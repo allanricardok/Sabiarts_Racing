@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="StoryMissionData" load_steps=5 format=3 uid="uid://ek22lkql8uy7"]
+
+[ext_resource type="Script" uid="uid://2oic07orss4" path="res://Core/Objectives/MissionItem.gd" id="1_0r22g"]
+[ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="2_25vq1"]
+[ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/StoryMissionData.gd" id="3_a10ft"]
+
+[sub_resource type="Resource" id="Resource_r66d8"]
+script = ExtResource("1_0r22g")
+id = "radar_140_BA"
+description = "radar a 100km/h"
+type = 1
+target_value = 100.0
+metadata/_custom_type_script = "uid://2oic07orss4"
+
+[resource]
+script = ExtResource("3_a10ft")
+mission_id = "m_05"
+mission_name = "PRF"
+mission_description = "Passe no radar a mais de 100km/h"
+time_limit = 30.0
+mission_reward_points = 3000
+classic_objective = SubResource("Resource_r66d8")
+enemy_count = 0
+mission_environment = ExtResource("2_25vq1")
+mission_sun_color = Color(1, 0, 0.05490196, 1)
+nodes_to_enable = Array[NodePath]([NodePath("../../BAMap/Mission_Items/Obake"), NodePath("../../BAMap/Mission_Items/Obake2"), NodePath("../../BAMap/Mission_Items/Obake3")])
+metadata/_custom_type_script = "uid://o1ox0n7mmqv"

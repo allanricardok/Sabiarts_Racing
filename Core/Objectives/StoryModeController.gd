@@ -22,7 +22,6 @@ var active_classic_objective: MissionItem = null
 
 var combat_targets: Array[Node] = []
 var spawned_bots: Array[Node] = []
-
 var original_transforms: Dictionary = {}
 
 func _ready():
@@ -42,19 +41,10 @@ func _process(delta):
 		get_tree().call_group("HUD", "atualizar_timer", mission_timer)
 		
 		if mission_timer <= 0:
-			if current_mission.mission_type == StoryMissionData.MissionType.SURVIVAL:
-				end_mission(true)
-			else:
-				end_mission(false) 
+			end_mission(false) 
 			return
 
 	match current_mission.mission_type:
-		
-		StoryMissionData.MissionType.SCORE_ATTACK:
-			var current_score = ScoreManager.get_total_score(0)
-			if current_mission.score_target > 0 and current_score >= current_mission.score_target:
-				end_mission(true)
-		
 		StoryMissionData.MissionType.CLASSIC_OBJECTIVE:
 			if active_classic_objective and active_classic_objective.is_completed:
 				end_mission(true)
@@ -80,7 +70,16 @@ func request_mission_start(portal: StoryMissionPortal, data: StoryMissionData):
 	else:
 		push_error("[StoryController] UI da missão não configurada!")
 
+# --- CORREÇÃO: RELIGA OS PORTAIS CASO A MISSÃO SEJA RECUSADA ---
 func decline_mission():
+	print("[StoryController] Missão Recusada. Reativando portais.")
+	
+	for p in get_tree().get_nodes_in_group("mission_portals"):
+		p.visible = true
+		p.is_active = true
+		p.set_deferred("monitoring", true)
+		p.set_deferred("monitorable", true)
+		
 	current_mission = null
 	active_portal = null
 	get_tree().paused = false
@@ -114,8 +113,6 @@ func accept_mission():
 					MissionManager.completed_mission_ids.erase(active_classic_objective.id)
 				if "completed_count" in MissionManager: 
 					MissionManager.completed_count = 0
-					
-				print("[DEBUG-STORY] Amnésia pós-setup aplicada! O auto-complete foi bloqueado.")
 		else:
 			push_error("[StoryController] Tipo Clássico sem 'classic_objective'!")
 
@@ -123,6 +120,7 @@ func accept_mission():
 		p.visible = false
 		p.is_active = false
 		p.set_deferred("monitoring", false)
+		p.set_deferred("monitorable", false)
 
 	if current_mission.mission_environment and world_env:
 		world_env.environment = current_mission.mission_environment
@@ -166,13 +164,10 @@ func complete_current_mission():
 	if is_mission_running:
 		end_mission(true)
 
-# --- NOVA FUNÇÃO PÚBLICA: ABORTAR MISSÃO PELO MENU DE PAUSA ---
 func abort_current_mission():
 	if is_mission_running:
-		print("[DEBUG-STORY] Jogador optou por abortar a missão atual voluntariamente.")
-		end_mission(false) # Finaliza como falha e chama a UI de fim de missão
+		end_mission(false)
 
-# --- FUNÇÃO AUXILIAR DE CHECAGEM ---
 func has_active_mission() -> bool:
 	return is_mission_running
 
@@ -198,6 +193,7 @@ func end_mission(success: bool):
 		p.visible = true
 		p.is_active = true
 		p.set_deferred("monitoring", true)
+		p.set_deferred("monitorable", true)
 
 	var mission_name_temp = "Missão"
 	var points_earned = 0

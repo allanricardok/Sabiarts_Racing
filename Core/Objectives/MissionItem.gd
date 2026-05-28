@@ -2,7 +2,7 @@
 extends Resource
 class_name MissionItem
 
-enum Type { SCORE, SPEED, COLLECT, DESTROY, GAP, EXPLORE, MISSION }
+enum Type { SCORE, SPEED, COLLECT, DESTROY, GAP, EXPLORE, MISSION, ROADKILL }
 
 @export var id: String = ""
 @export var description: String = ""
