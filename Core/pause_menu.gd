@@ -10,7 +10,7 @@ var pode_pausar: bool = true
 @onready var end_match_btn = get_node_or_null("%EndMatchBtn")
 
 var camera_select_btn: OptionButton
-var abort_mission_btn: Button # <--- Nova variável para o botão
+var abort_mission_btn: Button 
 
 func _ready():
 	_setup_dynamic_buttons()
@@ -19,7 +19,6 @@ func _setup_dynamic_buttons():
 	var vbox = $Control/VBoxContainer
 	if not vbox: return
 	
-	# --- 1. SETUP DO BOTÃO DE ABORTAR MISSÃO ---
 	abort_mission_btn = Button.new()
 	abort_mission_btn.name = "AbortMissionBtn"
 	abort_mission_btn.text = "Abortar Missão"
@@ -36,10 +35,9 @@ func _setup_dynamic_buttons():
 	abort_mission_btn.pressed.connect(_on_abort_mission_btn_pressed)
 	vbox.add_child(abort_mission_btn)
 	
-	# --- 2. SETUP DO BOTÃO DE CÂMERA ---
 	camera_select_btn = OptionButton.new()
 	camera_select_btn.name = "CameraSelectBtn"
-	camera_select_btn.add_item("Opções de Câmera", 999) # Placeholder inicial
+	camera_select_btn.add_item("Opções de Câmera", 999) 
 	camera_select_btn.add_item("Câmera: Normal", 0)
 	camera_select_btn.add_item("Câmera: Capô", 1)
 	camera_select_btn.add_item("Câmera: Longe", 2)
@@ -57,8 +55,6 @@ func _setup_dynamic_buttons():
 	camera_select_btn.item_selected.connect(_on_camera_selected)
 	vbox.add_child(camera_select_btn)
 	
-	# --- 3. ORDENAÇÃO FORÇADA ---
-	# Coloca o botão de Abortar no topo (0) e a Câmera logo abaixo (1)
 	vbox.move_child(abort_mission_btn, 0)
 	vbox.move_child(camera_select_btn, 1)
 
@@ -66,7 +62,6 @@ func _on_camera_selected(index: int):
 	if index == 0 and camera_select_btn.get_item_id(0) == 999: return
 	
 	var mode = camera_select_btn.get_item_id(index)
-	print("[PauseMenu] Alterando câmera para o modo: ", mode)
 	get_tree().call_group("jogadores", "set_camera_mode", mode)
 
 func _input(event):
@@ -89,7 +84,6 @@ func _toggle_pause():
 	if new_pause_state:
 		_atualizar_lista_missoes()
 		
-		# --- VERIFICAÇÃO DO MODO HISTÓRIA ---
 		var story_controller = get_tree().get_first_node_in_group("StoryController")
 		var has_mission = story_controller and story_controller.has_method("has_active_mission") and story_controller.has_active_mission()
 		
@@ -97,7 +91,6 @@ func _toggle_pause():
 			abort_mission_btn.visible = has_mission
 			abort_mission_btn.disabled = not has_mission
 		
-		# Foco dinâmico: se a missão estiver ativa, vai pro botão Abortar, senão vai pra Câmera
 		if has_mission and abort_mission_btn:
 			abort_mission_btn.grab_focus()
 		elif camera_select_btn:
@@ -109,6 +102,52 @@ func _atualizar_lista_missoes():
 	if not mission_container: return
 	for child in mission_container.get_children(): child.queue_free()
 	
+	# --- BIFURCAÇÃO: COMO O MENU GERA A LISTA DE ACORDO COM O MODO ---
+	if Global.current_run_mode == Global.RunMode.STORY:
+		_atualizar_lista_historia()
+	else:
+		_atualizar_lista_classica()
+
+# --- NOVO: GERADOR DA LISTA DO MODO HISTÓRIA ---
+func _atualizar_lista_historia():
+	# Busca todos os portais no mapa, mesmo os invisíveis
+	var portals = get_tree().get_nodes_in_group("mission_portals")
+	
+	var titulo = Label.new()
+	titulo.text = "--- MISSÕES DO MAPA ---"
+	titulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	mission_container.add_child(titulo)
+	
+	for portal in portals:
+		if "mission_data" in portal and portal.mission_data:
+			var m_data = portal.mission_data
+			var is_completed = Global.completed_story_missions.has(m_data.mission_id)
+			
+			var h_box = HBoxContainer.new()
+			var lbl = Label.new()
+			
+			var prefixo = "[✔] " if is_completed else "[ ] "
+			lbl.text = prefixo + m_data.mission_name + " (" + str(m_data.mission_reward_points) + " pts)"
+			lbl.add_theme_color_override("font_color", Color.GREEN if is_completed else Color.WHITE)
+			
+			h_box.add_child(lbl)
+			mission_container.add_child(h_box)
+	
+	var sep = HSeparator.new()
+	mission_container.add_child(sep)
+	
+	var meta_lbl = Label.new()
+	var pontos_atuais = Global.story_total_points
+	var pontos_necessarios = Global.pontos_para_proximo_mapa if "pontos_para_proximo_mapa" in Global else 5000
+	
+	meta_lbl.text = "Progresso Total: " + str(pontos_atuais) + " / " + str(pontos_necessarios) + " pts para liberar o próximo mapa"
+	meta_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	meta_lbl.add_theme_color_override("font_color", Color.YELLOW)
+	meta_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	mission_container.add_child(meta_lbl)
+
+# --- GERADOR DA LISTA DO MODO EXPLORAÇÃO CLÁSSICO ---
+func _atualizar_lista_classica():
 	var data = MissionManager.current_map_data
 	if not data: return
 	
@@ -136,7 +175,6 @@ func desativar_pausa():
 		_toggle_pause()
 
 func _on_abort_mission_btn_pressed():
-	# Retoma o jogo e esconde o menu
 	_toggle_pause()
 	
 	var story_controller = get_tree().get_first_node_in_group("StoryController")

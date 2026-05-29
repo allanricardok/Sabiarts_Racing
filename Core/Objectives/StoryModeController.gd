@@ -32,6 +32,10 @@ func _ready():
 	if sun_light:
 		original_sun_color = sun_light.light_color
 		original_sun_energy = sun_light.light_energy
+		
+	# --- CHECAGEM INICIAL DE PONTUAÇÃO PARA O PORTAL FINAL ---
+	# Aguarda 1 frame para garantir que o save global já foi carregado
+	call_deferred("_check_next_map_unlock")
 
 func _process(delta):
 	if not is_mission_running or get_tree().paused: return
@@ -70,10 +74,7 @@ func request_mission_start(portal: StoryMissionPortal, data: StoryMissionData):
 	else:
 		push_error("[StoryController] UI da missão não configurada!")
 
-# --- CORREÇÃO: RELIGA OS PORTAIS CASO A MISSÃO SEJA RECUSADA ---
 func decline_mission():
-	print("[StoryController] Missão Recusada. Reativando portais.")
-	
 	for p in get_tree().get_nodes_in_group("mission_portals"):
 		p.visible = true
 		p.is_active = true
@@ -92,6 +93,7 @@ func accept_mission():
 	if is_instance_valid(ScoreManager):
 		if ScoreManager.has_method("reset_score"): ScoreManager.reset_score()
 		elif ScoreManager.has_method("clear_score"): ScoreManager.clear_score()
+	get_tree().call_group("HUD", "clear_combo_display")
 
 	if current_mission.mission_type == StoryMissionData.MissionType.CLASSIC_OBJECTIVE:
 		if current_mission.classic_objective:
@@ -113,8 +115,6 @@ func accept_mission():
 					MissionManager.completed_mission_ids.erase(active_classic_objective.id)
 				if "completed_count" in MissionManager: 
 					MissionManager.completed_count = 0
-		else:
-			push_error("[StoryController] Tipo Clássico sem 'classic_objective'!")
 
 	for p in get_tree().get_nodes_in_group("mission_portals"):
 		p.visible = false
@@ -156,6 +156,8 @@ func accept_mission():
 			if current_mission.mission_type == StoryMissionData.MissionType.COMBAT_DESTROY and not combat_targets.has(node):
 				combat_targets.append(node)
 
+	get_tree().call_group("HUD", "mostrar_missao_ativa", current_mission.mission_name)
+
 	mission_timer = current_mission.time_limit
 	is_mission_running = true
 	get_tree().paused = false
@@ -174,6 +176,11 @@ func has_active_mission() -> bool:
 func end_mission(success: bool):
 	is_mission_running = false
 	active_classic_objective = null
+	
+	get_tree().call_group("HUD", "atualizar_timer", 0.0)
+	get_tree().call_group("HUD", "atualizar_status_missao", success)
+	
+	await get_tree().create_timer(1.5).timeout
 	
 	if is_instance_valid(MissionManager):
 		MissionManager.current_map_data = null
@@ -206,6 +213,9 @@ func end_mission(success: bool):
 				Global.story_total_points += points_earned
 				Global.completed_story_missions.append(current_mission.mission_id)
 				
+				if Global.has_method("save_story_progress"):
+					Global.save_story_progress()
+				
 				if active_portal:
 					active_portal.make_semitransparent()
 			else:
@@ -226,8 +236,12 @@ func end_mission(success: bool):
 		if ScoreManager.has_method("reset_score"): ScoreManager.reset_score()
 		elif ScoreManager.has_method("clear_score"): ScoreManager.clear_score()
 		
+	get_tree().call_group("HUD", "esconder_missao_ativa")
+	
+	# --- CHECA SE O PORTAL FINAL DEVE APARECER AGORA ---
+	_check_next_map_unlock()
+
 	get_tree().paused = true
-	get_tree().call_group("HUD", "atualizar_timer", 0.0)
 	
 	if result_ui and result_ui.has_method("show_result"):
 		result_ui.show_result(success, mission_name_temp, points_earned, self)
@@ -236,6 +250,13 @@ func resume_open_world():
 	current_mission = null
 	active_portal = null
 	get_tree().paused = false
+
+# --- A MÁGICA DA CHECAGEM DO PORTAL ---
+func _check_next_map_unlock():
+	if is_instance_valid(Global) and "story_total_points" in Global and "points_to_next_city" in Global:
+		if Global.story_total_points >= Global.points_to_next_city:
+			# Acorda todos os portais do próximo mapa!
+			get_tree().call_group("next_map_portals", "activate_portal")
 
 func _restore_all_health_and_energy():
 	var vehicles = get_tree().get_nodes_in_group("jogadores") + get_tree().get_nodes_in_group("inimigos")

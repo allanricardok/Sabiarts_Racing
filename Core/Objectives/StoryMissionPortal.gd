@@ -35,9 +35,23 @@ func _trigger_mission():
 		push_error("[StoryPortal] StoryModeController não foi encontrado na raiz da cena!")
 		set_deferred("monitoring", true)
 
+# Substitua apenas esta função no seu StoryMissionPortal.gd
 func make_semitransparent():
-	# Mudado para MeshInstance3D para garantir compatibilidade direta com a malha visual
-	for child in find_children("*", "MeshInstance3D", true, false):
+	# Busca todas as malhas que formam o visual do portal
+	var meshes = find_children("*", "MeshInstance3D", true, false)
+	
+	for child in meshes:
+		# 1. Tenta a transparência nativa rápida da engine
 		if "transparency" in child:
 			child.transparency = 0.65
-	print("[StoryPortal] Portal da missão '", mission_data.mission_name, "' agora está semitransparente.")
+			
+		# 2. PLANO B À PROVA DE BALAS: Injeta transparência no material do objeto
+		var mat = child.get_active_material(0)
+		if mat and mat is BaseMaterial3D:
+			# Duplica para não afetar os outros portais do mapa que usam a mesma cor
+			var novo_material = mat.duplicate()
+			novo_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+			novo_material.albedo_color.a = 0.35 # Deixa a malha visivelmente translúcida
+			child.set_surface_override_material(0, novo_material)
+
+	print("[StoryPortal] Portal '", mission_data.mission_name, "' agora está semitransparente. Meshes afetadas: ", meshes.size())

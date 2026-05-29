@@ -1,4 +1,4 @@
-[gd_scene load_steps=289 format=3 uid="uid://d1rl8sskrmddj"]
+[gd_scene load_steps=292 format=3 uid="uid://d1rl8sskrmddj"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_u8o8m"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="3_is8dr"]
@@ -52,6 +52,7 @@
 [ext_resource type="PackedScene" uid="uid://cpbeu41m4p3fb" path="res://Scenes/UI/StoryMissionUI.tscn" id="45_kq8oo"]
 [ext_resource type="Resource" uid="uid://ek22lkql8uy7" path="res://Resources/MapMissions/Missao_Teste_Estoria5.tres" id="45_yp3g3"]
 [ext_resource type="PackedScene" uid="uid://b5uq5cu7yermy" path="res://Scenes/UI/StoryMissionResultUI.tscn" id="46_neuqn"]
+[ext_resource type="Script" uid="uid://dpmbgmu3rpmqp" path="res://Core/Objectives/StoryNextMapPortal.gd" id="46_yp3g3"]
 [ext_resource type="Script" uid="uid://ckpa324htfvdu" path="res://Core/Objectives/StoryModeController.gd" id="48_neuqn"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_a70xh"]
@@ -796,6 +797,19 @@ albedo_color = Color(0.14901961, 1, 0.2627451, 1)
 
 [sub_resource type="SphereMesh" id="SphereMesh_kq8oo"]
 material = SubResource("StandardMaterial3D_jtjsh")
+radius = 4.0
+height = 8.0
+radial_segments = 12
+rings = 12
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_g1bi8"]
+albedo_color = Color(0.09411765, 0.6509804, 1, 1)
+emission_enabled = true
+emission = Color(0, 0.33333334, 0.38039216, 1)
+emission_energy_multiplier = 2.25
+
+[sub_resource type="SphereMesh" id="SphereMesh_yp3g3"]
+material = SubResource("StandardMaterial3D_g1bi8")
 radius = 4.0
 height = 8.0
 radial_segments = 12
@@ -6051,6 +6065,20 @@ shape = SubResource("SphereShape3D_44s4c")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Radar"]
 mesh = SubResource("SphereMesh_kq8oo")
 
+[node name="EndRunPortal" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -57.845234, 1.9364719, -20.908699)
+visible = false
+disable_mode = 2
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("46_yp3g3")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/EndRunPortal"]
+shape = SubResource("SphereShape3D_44s4c")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/EndRunPortal"]
+mesh = SubResource("SphereMesh_yp3g3")
+
 [node name="Cont_P2" type="SubViewportContainer" parent="GridContainer"]
 visible = false
 layout_mode = 2
@@ -6107,9 +6135,10 @@ visible = false
 script = ExtResource("25_qdutf")
 map_missions = ExtResource("32_ip1o4")
 
-[node name="StoryModeController" type="Node" parent="." node_paths=PackedStringArray("world_env", "mission_ui", "result_ui", "bot_spawner")]
+[node name="StoryModeController" type="Node" parent="." node_paths=PackedStringArray("world_env", "sun_light", "mission_ui", "result_ui", "bot_spawner")]
 script = ExtResource("48_neuqn")
 world_env = NodePath("../GridContainer/Cont_P1/View_P1/WorldEnvironment2")
+sun_light = NodePath("../GridContainer/Cont_P1/View_P1/WorldEnvironment2/DirectionalLight3D")
 mission_ui = NodePath("../StoryMissionUi")
 result_ui = NodePath("../StoryMissionResultUi")
 bot_spawner = NodePath("../GridContainer/Cont_P1/View_P1/Map/BotSpawner")
@@ -6197,4 +6226,5 @@ bot_spawner = NodePath("../GridContainer/Cont_P1/View_P1/Map/BotSpawner")
 [connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/BAMap/Gaps5/Gap BS6" to="GridContainer/Cont_P1/View_P1/Map/BAMap/Gaps5/Gap BS6" method="_on_body_entered"]
 [connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/BAMap/Gaps5/Gap BS1End6" to="GridContainer/Cont_P1/View_P1/Map/BAMap/Gaps5/Gap BS1End6" method="_on_body_entered"]
 
+[editable path="GridContainer/Cont_P1/View_P1/WorldEnvironment2"]
 [editable path="GridContainer/Cont_P1/View_P1/Map/BAMap/ExplorationArea"]

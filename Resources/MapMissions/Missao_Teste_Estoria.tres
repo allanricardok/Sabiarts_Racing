@@ -16,7 +16,6 @@ script = ExtResource("1_dvnv8")
 mission_name = "Manobra supimpa"
 mission_description = "Dê o bumbum 250 vezes"
 time_limit = 30.0
-score_target = 2000
 mission_reward_points = 1500
 classic_objective = SubResource("Resource_kmhdb")
 enemy_count = 0

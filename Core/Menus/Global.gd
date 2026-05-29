@@ -31,3 +31,21 @@ func clonar_jogador_teste(slot_index: int = 0, carro_fallback: PackedScene = nul
 			"is_debug": true
 		}
 		print("DEBUG: Jogador de teste injetado no slot ", slot_index)
+
+func _ready():
+	# Carrega o progresso automaticamente assim que o jogo abre
+	load_story_progress()
+
+func save_story_progress():
+	var file = ConfigFile.new()
+	file.set_value("Story", "completed_missions", completed_story_missions)
+	file.set_value("Story", "total_points", story_total_points)
+	file.save("user://story_progress.cfg")
+	print("[Global] Progresso da História Salvo no HD!")
+
+func load_story_progress():
+	var file = ConfigFile.new()
+	if file.load("user://story_progress.cfg") == OK:
+		completed_story_missions = file.get_value("Story", "completed_missions", [])
+		story_total_points = file.get_value("Story", "total_points", 0)
+		print("[Global] Progresso da História Carregado do HD!")
