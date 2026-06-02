@@ -3,7 +3,6 @@ extends Area3D
 
 @export_group("Física de Combate")
 @export var speed = 80.0
-# REDUZIDO: Era 18.0 no Homing. Agora 4.0 para ser bem "rígido" e errar curvas bruscas!
 @export var steering_force = 8.0 
 @export var knockback_force: float = 1500.0
 
@@ -16,6 +15,9 @@ var can_explode : bool = false
 var time_alive : float = 0.0
 var has_exploded : bool = false 
 
+# --- RECEBE A ORDEM DO WEAPON MANAGER ---
+var is_shot_backwards: bool = false 
+
 func _ready():
 	if not body_entered.is_connected(_on_body_entered):
 		body_entered.connect(_on_body_entered)
@@ -23,7 +25,7 @@ func _ready():
 		area_entered.connect(_on_area_entered)
 
 func setup(dmg, shooter_vel, source_car, incoming_target = null):
-	damage = dmg # (Vai ser ignorado no impacto)
+	damage = dmg 
 	has_exploded = false 
 	
 	if is_instance_valid(incoming_target) and not incoming_target.is_queued_for_deletion():
@@ -33,19 +35,25 @@ func setup(dmg, shooter_vel, source_car, incoming_target = null):
 		
 	if is_instance_valid(source_car):
 		shooter = source_car
-		var forward_dir = source_car.global_transform.basis.z 
-		var right_dir = source_car.global_transform.basis.x # Eixo lateral do carro (Direita)
 		
-		# --- INCLINAÇÃO MANUAL VIA CÓDIGO (Efeito Morteiro) ---
-		var tilt_angle = deg_to_rad(-2.0) 
+		# --- CORREÇÃO DO EIXO ---
+		var forward_dir = -global_transform.basis.z.normalized()
+		var right_dir = global_transform.basis.x.normalized()
+		
+		# --- INCLINAÇÃO ZERADA COMO PEDIDO ---
+		var tilt_angle = deg_to_rad(0) if not is_shot_backwards else deg_to_rad(0)
 		forward_dir = forward_dir.rotated(right_dir, tilt_angle).normalized()
 		
-		velocity = (forward_dir * speed) + shooter_vel
+		var propulsion = forward_dir * speed
 		
-		if velocity.dot(forward_dir) < 5.0:
-			velocity = forward_dir * speed
+		# --- FÍSICA LIMPA ---
+		if is_shot_backwards:
+			velocity = propulsion
+		else:
+			velocity = propulsion + shooter_vel
 			
-		look_at(global_position + forward_dir, Vector3.UP)
+		if velocity.length() > 0.1:
+			look_at(global_position + velocity.normalized(), Vector3.UP)
 		
 		var ignore_slowmo = source_car.is_in_group("jogadores")
 		get_tree().create_timer(5.0, false, false, ignore_slowmo).timeout.connect(_explode)
@@ -104,9 +112,9 @@ func _on_impact(target_node):
 
 	# --- MÁGICA DO GELO ---
 	if actual_target.has_method("aplicar_congelamento"):
-		actual_target.aplicar_congelamento(2.0) # Congela por 3 segundos
+		actual_target.aplicar_congelamento(2.0)
 		
-	# --- APLICA O DANO (Para matar pedestres ou dar aquele 0.1 de dano) ---
+	# --- APLICA O DANO ---
 	if actual_target.has_method("take_damage"):
 		actual_target.take_damage(damage, self)
 		

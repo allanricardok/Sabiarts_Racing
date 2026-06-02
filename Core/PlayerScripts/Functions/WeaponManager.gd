@@ -33,7 +33,6 @@ var player_suffix : String = ""
 # --- VISUAL E DESTAQUE ---
 var highlight_material : StandardMaterial3D
 
-# --- PONTE PARA A HUD NÃO QUEBRAR ---
 var current_target: Node3D:
 	get:
 		if is_instance_valid(targeting) and is_instance_valid(targeting.current_target):
@@ -71,34 +70,32 @@ func _process(delta):
 		
 	if not car.pode_mover: return
 	
-	# CADEADO DO GELO
 	if car.has_method("is_frozen") and car.is_frozen(): 
 		_was_firing = false 
 		return 
 
-	# --- CORREÇÃO DO INPUT COMPARTILHADO ---
 	var is_firing = false
 	
 	if is_bot:
-		# Se for Bot, ele atira quando o Cérebro manda
 		is_firing = input.is_action_pressed 
 	else:
-		# Se for Player, ele lê a variável que o InputComponent JÁ SEPAROU pra ele!
 		var is_doing_ability = (input.ability_up or input.ability_down or input.ability_left or input.ability_right)
-		
-		# USANDO O COMPONENTE para a Metralhadora
 		is_firing = input.is_action_pressed and not is_doing_ability
 
-		# --- RECUPERANDO O TIRO ESPECIAL E A TROCA DE ARMAS! ---
 		if input.suffix.begins_with("_K"):
-			# Exclusivo de Teclado (Lê botões individuais)
 			if Input.is_action_just_pressed("prev_weapon" + input.suffix): _switch_weapon(-1)
 			if Input.is_action_just_pressed("next_weapon" + input.suffix): _switch_weapon(1)
 		else:
-			# Exclusivo de Controle (Lê a variável do R1 mapeada no InputComponent)
 			if Input.is_action_just_pressed("next_weapon" + input.suffix): _switch_weapon(1)
 			
-		if Input.is_action_just_pressed("Fire" + input.suffix): fire_special_weapon()
+# --- LÓGICA DE TIRO LIMPA E CORRIGIDA ---
+		var fire_backwards = input.is_fire_backwards_pressed
+		var fire_normal = Input.is_action_just_pressed("Fire" + input.suffix)
+
+		if fire_backwards:
+			fire_special_weapon(true)
+		elif fire_normal:
+			fire_special_weapon(false)
 
 	if not is_firing and _was_firing:
 		_is_recovering = true
@@ -118,22 +115,18 @@ func _process(delta):
 	_was_firing = is_firing
 
 # --- GESTÃO DO INVENTÁRIO (POOL) ---
-
 func get_active_special() -> WeaponResource:
 	if current_weapon_index >= 0 and current_weapon_index < weapon_pool.size():
 		return weapon_pool[current_weapon_index]
 	return null
 
-# --- CORREÇÃO: FUNÇÃO DE EQUIPAR BLINDADA CONTRA DUPLICATAS ---
 func equip_special_weapon(new_weapon_res: WeaponResource):
-	# 1. Pega o nome verdadeiro da arma de forma segura
 	var resource_name_to_check = ""
 	if "nome" in new_weapon_res and new_weapon_res.nome != "":
 		resource_name_to_check = new_weapon_res.nome
 	else:
 		resource_name_to_check = new_weapon_res.resource_path.get_file().get_basename()
 
-	# 2. Procura na mochila se já temos essa arma
 	for i in range(weapon_pool.size()):
 		var w = weapon_pool[i]
 		var current_w_name = ""
@@ -143,7 +136,6 @@ func equip_special_weapon(new_weapon_res: WeaponResource):
 		else:
 			current_w_name = w.resource_path.get_file().get_basename()
 
-		# Se o nome bater OR o caminho do arquivo for idêntico: É A MESMA ARMA! Empilha!
 		if current_w_name == resource_name_to_check or (w.resource_path != "" and w.resource_path == new_weapon_res.resource_path):
 			w.ammo += new_weapon_res.ammo
 			current_weapon_index = i
@@ -152,7 +144,6 @@ func equip_special_weapon(new_weapon_res: WeaponResource):
 			get_tree().call_group("TutorialUI", "complete_task", "grab_weapon")
 			return
 
-	# 3. Se passou do loop, é uma arma inédita. Coloca num novo slot da mochila.
 	if weapon_pool.size() < MAX_POOL_SIZE:
 		var dup = new_weapon_res.duplicate()
 		weapon_pool.append(dup)
@@ -161,7 +152,6 @@ func equip_special_weapon(new_weapon_res: WeaponResource):
 	
 	_atualizar_interface()
 	get_tree().call_group("TutorialUI", "complete_task", "grab_weapon")
-
 
 func _switch_weapon(direction: int):
 	if weapon_pool.size() <= 1: return 
@@ -180,8 +170,7 @@ func _set_weapon_highlight(weapon_name: String, is_active: bool):
 		if is_active: mesh.material_overlay = highlight_material
 		else: mesh.material_overlay = null
 
-# --- LÓGICA DE TIRO ---
-
+# --- LÓGICA DE TIRO (AGORA ACEITA O PARÂMETRO BACKWARDS) ---
 func fire_basic_weapon():
 	if not basic_weapon_resource: return
 	
@@ -197,24 +186,7 @@ func fire_basic_weapon():
 	var weapon_name = basic_weapon_resource.nome
 	
 	_muzzle_flash_effect(weapon_name)
-	_spawn_projectile(basic_weapon_resource, weapon_name)
-
-func fire_special_weapon():
-	var active = get_active_special()
-	if not active or active.ammo <= 0: return
-	if special_cooldowns.get(active.nome, 0.0) > 0: return
-	
-	var rage = car.get_node_or_null("%RageComponent")
-	var rate_mult = rage.get_fire_rate_mult() if rage else 1.0
-	
-	special_cooldowns[active.nome] = active.fire_rate / rate_mult
-	_muzzle_flash_effect(active.nome)
-	_spawn_projectile(active, active.nome)
-	car.play_camera_shake("WeaponFire")
-	
-	active.ammo -= 1
-	if active.ammo <= 0: _remove_current_weapon()
-	_atualizar_interface()
+	_spawn_projectile(basic_weapon_resource, weapon_name, false) # Metralhadora sempre atira pra frente
 
 func _remove_current_weapon():
 	weapon_pool.remove_at(current_weapon_index)
@@ -226,17 +198,58 @@ func _remove_current_weapon():
 	_update_visual_selection()
 	_atualizar_interface()
 
-func _spawn_projectile(res: WeaponResource, node_name: String):
+func fire_special_weapon(backwards: bool = false):
+	var active = get_active_special()
+	if not active or active.ammo <= 0: return
+	if special_cooldowns.get(active.nome, 0.0) > 0: return
+	
+	print("[DEBUG-WEAPON] Disparando especial! backwards = ", backwards) # <--- DEBUG AQUI
+	
+	var rage = car.get_node_or_null("%RageComponent")
+	var rate_mult = rage.get_fire_rate_mult() if rage else 1.0
+	
+	special_cooldowns[active.nome] = active.fire_rate / rate_mult
+	_muzzle_flash_effect(active.nome)
+	_spawn_projectile(active, active.nome, backwards)
+	car.play_camera_shake("WeaponFire")
+	
+	active.ammo -= 1
+	if active.ammo <= 0: _remove_current_weapon()
+	_atualizar_interface()
+
+func _spawn_projectile(res: WeaponResource, node_name: String, backwards: bool = false):
 	var proj = ProjectilePool.get_projectile(res.projectile_scene)
 	var muzzle = weapon_nodes[node_name].find_child("Muzzle", true, false)
 	
-	if muzzle: proj.global_transform = muzzle.global_transform
+	# O SEGREDO REVELADO: O seu carro usa o Eixo +Z como frente!
+	var car_forward = car.global_transform.basis.z.normalized()
+	var spawn_pos = car.global_position
+	var shoot_dir = car_forward
+	
+	if muzzle:
+		spawn_pos = muzzle.global_position
+		# Se atirar normal, usa a mira original da arma
+		shoot_dir = -muzzle.global_transform.basis.z.normalized()
+		
+	if backwards:
+		# Forçamos a direção e o tiro exatamente para as costas do carro (-Z do carro)
+		shoot_dir = -car_forward
+		spawn_pos = car.global_position + (shoot_dir * 4.0) + Vector3(0, 0.8, 0)
+		
+	proj.global_position = spawn_pos
+	
+	# Aponta o míssil visualmente na direção do tiro
+	proj.look_at(spawn_pos + shoot_dir, Vector3.UP)
 	
 	if "is_special_weapon" in proj: proj.is_special_weapon = (node_name != "MachineGun")
 	
+	# --- A MARRETA INFALÍVEL ---
+	# Injetamos a variável direto no projétil antes mesmo do setup rodar!
+	proj.set("is_shot_backwards", backwards)
+	
 	if proj.has_method("setup"):
 		if node_name == "HomingMissile" or node_name == "GrapplingMissile" or node_name == "FreezingMissile":
-			var target = targeting.current_target if is_instance_valid(targeting) else null
+			var target = targeting.current_target if (is_instance_valid(targeting) and not backwards) else null
 			proj.setup(res.dano, car.linear_velocity, car, target)
 		else:
 			proj.setup(res.dano, car.linear_velocity, car)

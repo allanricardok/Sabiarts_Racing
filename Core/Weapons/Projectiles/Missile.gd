@@ -7,6 +7,8 @@ extends Area3D
 ## Define a força do solavanco que o alvo sofre ao ser atingido pelo míssil
 @export var knockback_force: float = 1500.0
 
+var is_shot_backwards: bool = false # <--- Recebe a ordem direta do WeaponManager
+
 var damage = 1.0
 
 var velocity = Vector3.ZERO
@@ -26,39 +28,38 @@ func _ready():
 
 func setup(dmg, shooter_vel, source_car, incoming_target = null):
 	damage = dmg
-	has_exploded = false # Garante que nasce destrancado
+	has_exploded = false
 	
-	# --- BLINDAGEM CONTRA ALVOS FANTASMAS ---
-	# Só guarda o alvo se ele realmente ainda existir no mundo!
-	if is_instance_valid(incoming_target) and not incoming_target.is_queued_for_deletion():
-		target = incoming_target
-	else:
-		target = null # Fica sem alvo e voa reto!
+	# Blindagem de alvo
+	target = incoming_target if (is_instance_valid(incoming_target) and not incoming_target.is_queued_for_deletion()) else null
 		
-# Mesma blindagem para o atirador (por precaução extrema)
 	if is_instance_valid(source_car):
 		shooter = source_car
 		
-		var forward_dir = source_car.global_transform.basis.z.normalized()
-		var right_dir = source_car.global_transform.basis.x.normalized() # Eixo lateral do carro (Direita)
+		# A direção do míssil que o WeaponManager já arrumou
+		var forward_dir = -global_transform.basis.z.normalized()
+		var right_dir = global_transform.basis.x.normalized()
 		
-		# --- INCLINAÇÃO MANUAL VIA CÓDIGO ---
-		# Rotaciona a direção para cima usando a lateral como dobradiça.
-		# (Nota: Se o míssil for parar no chão, mude o 5.0 para -5.0 dependendo do eixo Z do seu carro)
-		var tilt_angle = deg_to_rad(-5.0) 
+		# Se o tiro for reverso, inclinamos a ponta para cima para ele não bater no chão rápido demais
+		var tilt_angle = deg_to_rad(0) if not is_shot_backwards else deg_to_rad(0)
 		forward_dir = forward_dir.rotated(right_dir, tilt_angle).normalized()
 		
-		velocity = (forward_dir * speed) + shooter_vel
+		var propulsion = forward_dir * speed
 		
-		if velocity.dot(forward_dir) < 5.0:
-			velocity = forward_dir * speed
+		# --- FÍSICA LIMPA E OBJETIVA ---
+		if is_shot_backwards:
+			# Atirou para trás: o míssil usa só a própria força, ignorando a inércia que arrastava ele pra frente!
+			velocity = propulsion
+		else:
+			# Atirou para frente: soma a força do tiro com o embalo normal do carro.
+			velocity = propulsion + shooter_vel
 			
-		look_at(global_position + forward_dir, Vector3.UP)
-		
+		if velocity.length() > 0.1:
+			look_at(global_position + velocity.normalized(), Vector3.UP)
+			
 		var ignore_slowmo = source_car.is_in_group("jogadores")
 		get_tree().create_timer(5.0, false, false, ignore_slowmo).timeout.connect(_explode)
 	else:
-		# Se por algum milagre o carro sumir no exato frame do tiro, o míssil se destrói.
 		queue_free()
 
 func _physics_process(delta):

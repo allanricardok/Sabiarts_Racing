@@ -6,7 +6,6 @@ extends Area3D
 @export var steering_force = 10.0
 @export var finish_boost_force : float = 15.0 
 @export var max_fly_time : float = 2 
-# --- NOVO: Variável ajustável para evitar esmagamento ---
 ## Altura EXTRA somada ao ponto de ancoragem quando o alvo está no chão
 @export var low_target_height_boost : float = 2.0 
 
@@ -35,9 +34,11 @@ var fixed_impact_point : Vector3 = Vector3.ZERO
 var initial_distance : float = 0.0
 var speed_multiplier : float = 1.0
 
-# --- VARIÁVEIS ANTI-ESMAGAMENTO ---
 var muzzle_start_height : float = 0.0
 var anchor_offset_y : float = 0.0
+
+# --- RECEBE A ORDEM DO WEAPON MANAGER ---
+var is_shot_backwards: bool = false 
 
 func _ready():
 	cable_mesh_instance = MeshInstance3D.new()
@@ -64,23 +65,28 @@ func setup(dmg, shooter_vel, source_car, incoming_target = null):
 	is_tethered = false 
 	target = incoming_target
 	
-	# Salva a altura de onde o gancho saiu
 	muzzle_start_height = global_position.y
 	anchor_offset_y = 0.0
 	
 	if is_instance_valid(source_car):
-		var forward_dir = source_car.global_transform.basis.z.normalized()
-		var right_dir = source_car.global_transform.basis.x.normalized()
+		# --- CORREÇÃO DO EIXO ---
+		var forward_dir = -global_transform.basis.z.normalized()
+		var right_dir = global_transform.basis.x.normalized()
 		
-		var tilt_angle = deg_to_rad(-1.0) 
+		# --- INCLINAÇÃO ZERADA COMO PEDIDO ---
+		var tilt_angle = deg_to_rad(0) if not is_shot_backwards else deg_to_rad(0)
 		forward_dir = forward_dir.rotated(right_dir, tilt_angle).normalized()
 		
-		velocity = (forward_dir * fly_speed) + shooter_vel
+		var propulsion = forward_dir * fly_speed
 		
-		if velocity.dot(forward_dir) < 10.0:
-			velocity = forward_dir * fly_speed
-			
-		look_at(global_position + forward_dir, Vector3.UP)
+		# --- FÍSICA LIMPA ---
+		if is_shot_backwards:
+			velocity = propulsion
+		else:
+			velocity = propulsion + shooter_vel
+		
+		if velocity.length() > 0.1:
+			look_at(global_position + velocity.normalized(), Vector3.UP)
 
 func _physics_process(delta):
 	if not is_instance_valid(shooter):
@@ -144,9 +150,7 @@ func _state_tethered(delta):
 			_finish_grapple()
 			return
 
-	# --- APLICA O OFFSET ANTI-ESMAGAMENTO ---
 	pull_target_pos.y += anchor_offset_y
-
 	global_position = pull_target_pos
 
 	if time_alive > 0.2:
@@ -238,15 +242,11 @@ func _start_tether(body):
 	
 	var target_pos = fixed_impact_point if target_is_static else target.global_position
 	
-	# --- SISTEMA INTELIGENTE ANTI-ESMAGAMENTO ---
 	var space_state = get_world_3d().direct_space_state
-	
-	# 1. Checa a altura do chão embaixo do carro
 	var q_car = PhysicsRayQueryParameters3D.create(shooter.global_position, shooter.global_position + Vector3.DOWN * 20.0)
 	q_car.exclude = [shooter.get_rid(), get_rid()]
 	var res_car = space_state.intersect_ray(q_car)
 	
-	# 2. Checa a altura do chão embaixo do alvo
 	var q_tgt = PhysicsRayQueryParameters3D.create(target_pos + Vector3.UP * 1.0, target_pos + Vector3.DOWN * 20.0)
 	q_tgt.exclude = [shooter.get_rid(), get_rid()]
 	if not target_is_static and is_instance_valid(target):
@@ -255,14 +255,9 @@ func _start_tether(body):
 	
 	if res_car and res_tgt:
 		var diff_floor = abs(res_car.position.y - res_tgt.position.y)
-		
-		# Regra: Se estão no mesmo plano (dif < 2.5m) E o alvo é baixo
 		if diff_floor < 2.5 and target_pos.y < (res_car.position.y + 1.0):
-			# --- MUDANÇA AQUI ---
-			# Adiciona o bônus do inspetor em cima da diferença de altura!
 			anchor_offset_y = max(0.0, (muzzle_start_height - target_pos.y) + low_target_height_boost)
 
-	# Atualiza a posição com o offset para calcular a distância inicial corretamente
 	var final_target_pos = target_pos + Vector3(0, anchor_offset_y, 0)
 	initial_distance = shooter.global_position.distance_to(final_target_pos)
 	

@@ -20,8 +20,29 @@ func setup(dmg_value: float, car_velocity: Vector3, source_car: Node3D, propulsi
 	damage = dmg_value
 	shooter = source_car
 	
-	var propulsion = -global_transform.basis.z * propulsion_speed
-	velocity = car_velocity + propulsion
+	# A direção pura que o míssil está apontando (já rotacionada 180 graus pelo WeaponManager)
+	var shot_direction = -global_transform.basis.z.normalized()
+	var propulsion = shot_direction * propulsion_speed
+	
+	# --- A CORREÇÃO DE INÉRCIA PARA TIROS REVERSOS ---
+	var is_shooting_backwards = false
+	
+	# Se o carro estiver em movimento (velocidade maior que algo mínimo para não bugar parado)
+	if car_velocity.length() > 2.0:
+		var car_move_direction = car_velocity.normalized()
+		
+		# Dot Product: Se o ângulo entre o movimento do carro e a mira do tiro for maior que ~90 graus, 
+		# o resultado será negativo. Isso significa que o tiro está indo contra o movimento!
+		if shot_direction.dot(car_move_direction) < -0.3:
+			is_shooting_backwards = true
+
+	if is_shooting_backwards:
+		# Se atirou para trás, IGNORA a velocidade pra frente do carro para o míssil não ser arrastado.
+		# O míssil vai sair voando limpo para trás com sua própria força.
+		velocity = propulsion
+	else:
+		# Se atirou para a frente, soma a inércia normalmente (tiro normal)
+		velocity = car_velocity + propulsion
 	
 	# --- RESET DO POOL (ACORDA A BALA) ---
 	hit_done = false
