@@ -167,6 +167,11 @@ AIR_CONTROL_FORCE = 12.0
 AIR_TORQUE_FORCE = 30.0
 EXTRA_FALL_FORCE = 12.0
 
+[node name="WallRideComponent" parent="Scripts" index="9"]
+anti_gravity_start = 4.0
+anti_gravity_end = 2.6
+wall_glue_force = 60.0
+
 [node name="MachineGun" parent="Guns" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5277264, 1.5135581)
 

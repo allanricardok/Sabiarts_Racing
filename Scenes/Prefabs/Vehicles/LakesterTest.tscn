@@ -137,6 +137,10 @@ max_shield = 40.0
 AIR_CONTROL_FORCE = 18.0
 AIR_TORQUE_FORCE = 45.0
 
+[node name="WallRideComponent" parent="Scripts" index="9"]
+anti_gravity_start = 2.6
+anti_gravity_end = 1.0
+
 [node name="Guns" parent="." index="13"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.41651595)
 

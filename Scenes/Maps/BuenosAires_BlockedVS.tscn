@@ -1,4 +1,4 @@
-[gd_scene load_steps=292 format=3 uid="uid://d1rl8sskrmddj"]
+[gd_scene load_steps=293 format=3 uid="uid://d1rl8sskrmddj"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_u8o8m"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="3_is8dr"]
@@ -53,6 +53,7 @@
 [ext_resource type="Resource" uid="uid://ek22lkql8uy7" path="res://Resources/MapMissions/Missao_Teste_Estoria5.tres" id="45_yp3g3"]
 [ext_resource type="PackedScene" uid="uid://b5uq5cu7yermy" path="res://Scenes/UI/StoryMissionResultUI.tscn" id="46_neuqn"]
 [ext_resource type="Script" uid="uid://dpmbgmu3rpmqp" path="res://Core/Objectives/StoryNextMapPortal.gd" id="46_yp3g3"]
+[ext_resource type="Resource" uid="uid://bi8k3texgwi2q" path="res://Resources/MapMissions/Missao_Teste_Estoria6.tres" id="47_keab0"]
 [ext_resource type="Script" uid="uid://ckpa324htfvdu" path="res://Core/Objectives/StoryModeController.gd" id="48_neuqn"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_a70xh"]
@@ -5993,10 +5994,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -256.54572, 2.0657039, -36.06
 [node name="Marker3D4" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/BotSpawner"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -35.117577, 2.0657039, 268.90598)
 
-[node name="StoryMissions" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
+[node name="StoryMissions" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map" groups=["elementos_historia"]]
 
 [node name="Score" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 33.024242, 1.9364719, -20.908699)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 255.67159, 1.9364719, -96.38939)
 disable_mode = 2
 collision_layer = 4
 collision_mask = 2
@@ -6010,7 +6011,7 @@ shape = SubResource("SphereShape3D_44s4c")
 mesh = SubResource("SphereMesh_kq8oo")
 
 [node name="Enemies" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 77.7672, 1.9364719, -20.908699)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 37.87349, 1.9364719, -20.908699)
 disable_mode = 2
 collision_layer = 4
 collision_mask = 2
@@ -6024,7 +6025,7 @@ shape = SubResource("SphereShape3D_44s4c")
 mesh = SubResource("SphereMesh_kq8oo")
 
 [node name="Obakes" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 117.40633, 1.9364719, -20.908699)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 106.30643, 1.9364719, -20.908699)
 disable_mode = 2
 collision_layer = 4
 collision_mask = 2
@@ -6038,7 +6039,7 @@ shape = SubResource("SphereShape3D_44s4c")
 mesh = SubResource("SphereMesh_kq8oo")
 
 [node name="Roadkill" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 144.1954, 1.9364719, -20.908699)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 158.99216, 1.9364719, -20.908699)
 disable_mode = 2
 collision_layer = 4
 collision_mask = 2
@@ -6052,7 +6053,7 @@ shape = SubResource("SphereShape3D_44s4c")
 mesh = SubResource("SphereMesh_kq8oo")
 
 [node name="Radar" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 172.4973, 1.9364719, -20.908699)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 213.54501, 1.9364719, -20.908699)
 disable_mode = 2
 collision_layer = 4
 collision_mask = 2
@@ -6078,6 +6079,20 @@ shape = SubResource("SphereShape3D_44s4c")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/EndRunPortal"]
 mesh = SubResource("SphereMesh_yp3g3")
+
+[node name="Score2" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 232.88293, 33.101078, -214.58961)
+disable_mode = 2
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("40_4e1cd")
+mission_data = ExtResource("47_keab0")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Score2"]
+shape = SubResource("SphereShape3D_44s4c")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Score2"]
+mesh = SubResource("SphereMesh_kq8oo")
 
 [node name="Cont_P2" type="SubViewportContainer" parent="GridContainer"]
 visible = false

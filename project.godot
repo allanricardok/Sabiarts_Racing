@@ -52,6 +52,7 @@ LockableTeleporters=""
 itens_exploracao=""
 itens_tutorial=""
 TutorialUI=""
+elementos_historia=""
 
 [input]
 

@@ -7,18 +7,19 @@
 [sub_resource type="Resource" id="Resource_kmhdb"]
 script = ExtResource("1_dl0aj")
 id = "69_RS"
-description = "Dê o bumbum 250 vezes"
-target_value = 250.0
+description = "Trickster"
+target_value = 2000.0
 metadata/_custom_type_script = "uid://2oic07orss4"
 
 [resource]
 script = ExtResource("1_dvnv8")
-mission_name = "Manobra supimpa"
-mission_description = "Dê o bumbum 250 vezes"
+mission_name = "Trickster"
+mission_description = "Score over 2.000 points"
 time_limit = 30.0
 mission_reward_points = 1500
 classic_objective = SubResource("Resource_kmhdb")
 enemy_count = 0
 mission_environment = ExtResource("1_p1p2m")
-mission_sun_color = Color(1, 0, 0.05490196, 1)
+mission_sun_color = Color(0.5452965, 1.86578, 2.4318616, 0.155)
+mission_sun_energy = 0.3
 metadata/_custom_type_script = "uid://o1ox0n7mmqv"

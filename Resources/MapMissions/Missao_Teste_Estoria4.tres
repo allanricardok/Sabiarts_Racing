@@ -7,20 +7,21 @@
 [sub_resource type="Resource" id="Resource_esgsk"]
 script = ExtResource("1_esgsk")
 id = "chacina"
-description = "mate 5 pedestres"
+description = "Kill 5 Esquerdomachos"
 type = 7
-target_value = 5.0
+target_value = 25.0
 metadata/_custom_type_script = "uid://2oic07orss4"
 
 [resource]
 script = ExtResource("3_aoffx")
 mission_id = "m_04"
 mission_name = "Roadkill"
-mission_description = "CHACINA 5 esquerdomachos"
-time_limit = 30.0
-mission_reward_points = 69
+mission_description = "Kill 25 Esquerdomachos"
+time_limit = 70.0
+mission_reward_points = 1000
 classic_objective = SubResource("Resource_esgsk")
 enemy_count = 0
 mission_environment = ExtResource("2_yj4l4")
-mission_sun_color = Color(1, 0, 0.05490196, 1)
+mission_sun_color = Color(0.6261257, 0, 0.018082649, 0.702)
+mission_sun_energy = 0.7
 metadata/_custom_type_script = "uid://o1ox0n7mmqv"

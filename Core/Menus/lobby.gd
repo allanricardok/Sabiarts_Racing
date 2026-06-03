@@ -333,9 +333,32 @@ func _iniciar_corrida(mapa_id: int = 0):
 		get_tree().change_scene_to_packed(cenas_dos_mapas[mapa_id])
 
 func _on_clear_data_pressed():
+	# 1. Limpa dados gerais do SaveManager
 	SaveManager.clear_data()
+	
+	# 2. Limpa dados físicos das Missões
+	if SaveManager.has_method("clear_story_data"):
+		SaveManager.clear_story_data()
+	
+	# 3. Limpeza de Memória Global (CRÍTICO)
+	if is_instance_valid(Global):
+		if "completed_story_missions" in Global:
+			Global.completed_story_missions.clear()
+		if "story_total_points" in Global:
+			Global.story_total_points = 0
+		# Se tiveres uma função global que forza um novo save limpo, podes chamá-la aqui
+		if Global.has_method("save_story_progress"):
+			Global.save_story_progress()
+	
+	# 4. Limpeza da Memória do Mission Manager
+	var mission_manager = get_node_or_null("/root/MissionManager")
+	if mission_manager and mission_manager.has_method("reset_missions"):
+		mission_manager.reset_missions()
+		
+	# Feedback visual do botão
 	var btn = find_child("ClearDataButton", true, false)
 	if btn: btn.modulate = Color(1, 0, 0)
+	
 	get_tree().create_timer(0.2).timeout.connect(_atualizar_visual_menus)
 
 func _on_botao_apagar_scores_pressed():

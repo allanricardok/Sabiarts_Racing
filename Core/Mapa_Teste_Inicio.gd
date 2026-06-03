@@ -7,9 +7,30 @@ extends Node3D
 func _ready():
 	_configurar_tela_e_spawn()
 	_auto_categorizar_objetos()
-# Zera a contagem toda vez que o mapa é carregado!
+	
+	# Zera a contagem toda vez que o mapa é carregado!
 	if GameStats:
 		GameStats.reset_run_stats()
+
+	# --- CHAMA A FAXINA DOS MODOS AQUI ---
+	_limpar_elementos_por_modo()
+
+# --- NOVA FUNÇÃO DE LIMPEZA ---
+func _limpar_elementos_por_modo():
+	# 1. Limpeza de História: Se NÃO for o modo História, apaga tudo que é de história
+	if Global.current_run_mode != Global.RunMode.STORY:
+		print("[Mapa] Modo não-história detectado. Apagando elementos de história...")
+		# Procura todo mundo que você colocou no grupo "elementos_historia"
+		var story_elements = get_tree().get_nodes_in_group("elementos_historia")
+		for element in story_elements:
+			element.queue_free()
+
+	# 2. (BÔNUS) Limpeza de Armas: Se for modo História ou Exploração, talvez você não queira armas/vidas no chão
+	if Global.current_run_mode == Global.RunMode.STORY or Global.current_run_mode == Global.RunMode.EXPLORATION:
+		print("[Mapa] Limpando Pickups de Combate...")
+		var weapons = get_tree().get_nodes_in_group("weapon_pickups")
+		for w in weapons:
+			w.queue_free()
 
 # --- NOVA FUNÇÃO AUTOMÁTICA ---
 func _auto_categorizar_objetos():

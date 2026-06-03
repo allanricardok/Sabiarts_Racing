@@ -68,3 +68,14 @@ func clear_highscores():
 		print("[SaveManager] Ficheiro de highscores apagado com sucesso.")
 	else:
 		print("[SaveManager] Nenhum ficheiro de highscores encontrado para apagar.")
+
+func clear_story_data():
+	var path = "user://kkflp_save.cfg"
+	if FileAccess.file_exists(path):
+		var err = DirAccess.remove_absolute(path)
+		if err == OK:
+			print("[SaveManager] Ficheiro de história (kkflp_save.cfg) apagado permanentemente.")
+		else:
+			print("[SaveManager] Erro ao tentar apagar ficheiro de história: ", err)
+	else:
+		print("[SaveManager] Ficheiro de história não encontrado. Nada a apagar.")

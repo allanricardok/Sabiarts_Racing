@@ -7,13 +7,14 @@
 [resource]
 script = ExtResource("2_r66d8")
 mission_id = "m_03"
-mission_name = "PRF"
-mission_description = "3 obakes"
-mission_reward_points = 1000
+mission_name = "Capture the Obakes"
+mission_description = "Capture 3 Obakes"
+time_limit = 80.0
+mission_reward_points = 1500
 classic_objective = ExtResource("1_r66d8")
 enemy_count = 0
 mission_environment = ExtResource("1_k6iqc")
-mission_sun_color = Color(1, 0, 0.05490196, 1)
-mission_sun_energy = 1.1
+mission_sun_color = Color(0.6845989, 0.613583, 1.0184411, 0.71300006)
+mission_sun_energy = 0.5
 nodes_to_enable = Array[NodePath]([NodePath("../../BAMap/Mission_Items/Obake5"), NodePath("../../BAMap/Mission_Items/Obake4"), NodePath("../../BAMap/Mission_Items/Obake3")])
 metadata/_custom_type_script = "uid://o1ox0n7mmqv"
