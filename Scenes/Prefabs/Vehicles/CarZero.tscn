@@ -1,4 +1,4 @@
-[gd_scene load_steps=43 format=3 uid="uid://ry75iugdg8sl"]
+[gd_scene load_steps=45 format=3 uid="uid://ry75iugdg8sl"]
 
 [ext_resource type="Script" uid="uid://b0i2wvnkcrknc" path="res://Core/PlayerScripts/Functions/BaseVehicle.gd" id="1_drg00"]
 [ext_resource type="PackedScene" uid="uid://bp4khshtfj0rp" path="res://Scenes/Prefabs/Items/UniversalPickup.tscn" id="2_4a360"]
@@ -29,6 +29,8 @@
 [ext_resource type="Script" uid="uid://cdtih2m8pdfvb" path="res://Core/PlayerScripts/Functions/TargetingComponent.gd" id="20_mb2us"]
 [ext_resource type="Script" uid="uid://c6kscgps8kwls" path="res://Core/PlayerScripts/Functions/WeaponManager.gd" id="21_hifds"]
 [ext_resource type="Resource" uid="uid://cl6d44tjh6xry" path="res://Resources/Weapons/MachineGun.tres" id="22_3o2qt"]
+[ext_resource type="Script" uid="uid://cipoabink6um3" path="res://Core/PlayerScripts/Functions/WallRideComponent.gd" id="30_j5ts8"]
+[ext_resource type="Script" uid="uid://cre5uqt5tupo4" path="res://Core/PlayerScripts/Functions/UIScannerComponent.gd" id="31_ocy3r"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_625mm"]
 friction = 0.01
@@ -861,6 +863,16 @@ script = ExtResource("18_kryjj")
 unique_name_in_owner = true
 script = ExtResource("19_xeif0")
 
+[node name="WallRideComponent" type="Node" parent="Scripts"]
+unique_name_in_owner = true
+script = ExtResource("30_j5ts8")
+max_wall_distance = 3.0
+min_speed_kmh = 2.0
+min_ground_height = 1.6
+anti_gravity_decay_time = 2.0
+wall_glue_force = 50.0
+validation_time = 0.5
+
 [node name="VehicleEffects" type="Node" parent="Scripts"]
 unique_name_in_owner = true
 script = ExtResource("19_drg00")
@@ -874,6 +886,10 @@ unique_name_in_owner = true
 script = ExtResource("21_hifds")
 basic_weapon_resource = ExtResource("22_3o2qt")
 fire_rate_basic = 0.1
+
+[node name="UIScannerComponent" type="Node3D" parent="Scripts"]
+unique_name_in_owner = true
+script = ExtResource("31_ocy3r")
 
 [node name="Guns" type="Node3D" parent="."]
 

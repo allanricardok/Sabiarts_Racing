@@ -33,7 +33,13 @@ func _ready():
 
 func _physics_process(delta):
 	if not car.pode_mover: return
-	var is_on_ground = check_grounded()
+	
+	# Verifica se há wallride a decorrer ou a estabilizar
+	var wall_rider = car.get_node_or_null("WallRideComponent")
+	var is_wallriding_active = wall_rider and (wall_rider.is_wallriding or wall_rider.is_exiting_wallride)
+	
+	# Se houver, a leitura do chão é ignorada para manter o TrickManager em modo de voo!
+	var is_on_ground = check_grounded() if not is_wallriding_active else false
 	
 	if is_on_ground and is_slow_mo_active:
 		_set_slow_motion(false)
@@ -81,16 +87,24 @@ func _handle_air_logic(delta):
 	var near_ground = is_near_ground()
 	var orientation = car.global_transform.basis.y.dot(Vector3.UP)
 	
-	if orientation < 0.0 and near_ground and not is_doing_stunt:
+	# Verifica se está no meio do Wallride
+	var wall_rider = car.get_node_or_null("WallRideComponent")
+	var is_wallriding = wall_rider and wall_rider.is_wallriding
+	
+	# O SEGREDO DO RESET: Se a orientação for < 0.2 (deitado de lado ou de ponta-cabeça)
+	# e perto do chão, ele cancela a manobra IMEDIATAMENTE (ignorando se estiver em Wallride).
+	if orientation < 0.2 and near_ground and not is_doing_stunt and not is_wallriding:
 		trick_manager.reset_trick()
 	else:
 		trick_manager.process_air_time(delta, near_ground)
 	
-	_apply_fast_fall(delta)
-	_handle_air_control(delta)
-	
-	if is_doing_stunt:
-		stunt_processor.process_stunt_rotation(delta)
+	# Desliga controles aéreos de Rotação e Queda Rápida enquanto está no muro
+	if not is_wallriding:
+		_apply_fast_fall(delta)
+		_handle_air_control(delta)
+		
+		if is_doing_stunt:
+			stunt_processor.process_stunt_rotation(delta)
 
 func execute_stunt_command(axis: Vector3, trick_id: String):
 	if is_doing_stunt or not stunt_processor: return

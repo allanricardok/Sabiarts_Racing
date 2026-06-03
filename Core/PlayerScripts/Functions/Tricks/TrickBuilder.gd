@@ -46,6 +46,12 @@ func process_maneuvers(_delta: float):
 		_reset_sequence()
 
 func _handle_combo_logic():
+	# --- PRIORIDADE DO WALLRIDE ---
+	# Impede de fazer manobras giratórias se o Wallride estiver ativo
+	var wall_rider = car.get_node_or_null("WallRideComponent")
+	if wall_rider and wall_rider.is_wallriding:
+		return
+
 	var stunt_action = "Stunt" + input.suffix
 	var now = Time.get_ticks_msec()
 	
