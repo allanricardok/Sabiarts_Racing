@@ -175,6 +175,30 @@ func _finalize_score():
 	# Salva a pontuação na Global (Funciona para Bots e Players)
 	ScoreManager.add_points(final_score, car.id)
 	
+	# --- NOVO: CONVERTE PONTUAÇÃO EM ENERGIA (0.5%) COM DEBUGS ---
+	var ability = car.find_child("AbilityComponent", true, false)
+	if ability and "current_energy" in ability and "MAX_ENERGY" in ability:
+		var energy_gained = final_score * 0.005
+		var old_energy = ability.current_energy
+		
+		ability.current_energy += energy_gained
+		
+		print("=========================================")
+		print("[TrickManager] Combo Finalizado! Pontuação: ", final_score)
+		print("[TrickManager] Energia Gerada: +", snapped(energy_gained, 0.1))
+		
+		# Trava no limite máximo
+		if ability.current_energy >= ability.MAX_ENERGY:
+			ability.current_energy = ability.MAX_ENERGY
+			if old_energy < ability.MAX_ENERGY:
+				print("[TrickManager] BINGO! Energia carregada ao MÁXIMO (100%)!")
+			else:
+				print("[TrickManager] Energia já estava no máximo. Desperdiçada.")
+		else:
+			print("[TrickManager] Energia atual do carro: ", snapped(ability.current_energy, 0.1), " / ", ability.MAX_ENERGY)
+		print("=========================================")
+	# ----------------------------------------------------
+	
 	# Avisa o gerente de missões (Apenas para Players)
 	var is_bot = (car.input and "is_bot" in car.input and car.input.is_bot)
 	if not is_bot:
@@ -191,8 +215,6 @@ func _finalize_score():
 		return
 		
 	_update_final_display(hud, final_score, mult)
-
-# --- CORREÇÃO NO RESET ---
 
 func reset_trick():
 	tracking_jump = false

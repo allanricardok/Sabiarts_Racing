@@ -17,9 +17,13 @@ class_name WallRideComponent
 @export var anti_gravity_start : float = 3.0 
 @export var anti_gravity_end : float = 1.5 
 @export var anti_gravity_decay_time : float = 5.0 
-@export var wall_glue_force : float = 30.0 
+
+# --- NOVAS VARIÁVEIS DE HOVER (Levitação) ---
+@export var wall_target_distance : float = 0.3 # Distância exata do centro do carro até a parede (Ajuste se as rodas entrarem no muro)
+@export var wall_magnet_speed : float = 8.0 # Quão rápido ele corrige a distância (Mola)
+
 @export var wall_forward_boost : float = 1.0 
-@export var wall_turn_speed : float = 3.0 # NOVO: Velocidade da curva do volante na parede
+@export var wall_turn_speed : float = 3.0 
 @export var jump_up_force : float = 12.0 
 
 @export_group("Pontuação")
@@ -87,7 +91,7 @@ func _process_wallride(delta):
 
 	if not is_validated and time_in_wallride >= validation_time:
 		is_validated = true
-		trick_manager.add_external_action("Wallride In", 50, TrickManager.COLOR_SPECIAL)
+		trick_manager.add_external_action("Wallride In", 20, TrickManager.COLOR_SPECIAL)
 
 	if not input.is_stunt_pressed:
 		_stop_wallride("Botão Triângulo solto de forma limpa.")
@@ -98,61 +102,69 @@ func _process_wallride(delta):
 		_stop_wallride("Velocidade insuficiente.")
 		return
 
-	var dist_ground = _get_ground_distance(current_wall_normal * 1.0)
+	# Offset do chão aumentado (1.5m) para garantir que o raio nunca bate na parede onde o carro está
+	var dist_ground = _get_ground_distance(current_wall_normal * 1.5)
 	if dist_ground <= min_ground_height:
 		_stop_wallride("Atingiu o chão.")
 		return
 
+# --- RADAR DE MANUTENÇÃO ---
 	var ray_start = car.global_position + (current_wall_normal * 1.5)
 	var ray_dir = -current_wall_normal * (max_wall_distance * 2.0)
 	var result = _shoot_ray_ignoring_holos(ray_start, ray_start + ray_dir)
 
+	var target_vel_wall = 0.0 # Começa neutro
+
 	if result:
 		current_wall_normal = result.normal
 		wall_lost_timer = 0.0 
+		
+		# ========================================================
+		# O SEGREDO DO HOVERCRAFT (Calcula apenas se achou a parede)
+		# ========================================================
+		var dist_to_wall = car.global_position.distance_to(result.position)
+		var error = dist_to_wall - wall_target_distance
+		target_vel_wall = clamp(-error * wall_magnet_speed, -15.0, 15.0)
 	else:
 		wall_lost_timer += delta
 		if wall_lost_timer > 0.25: 
 			_stop_wallride("Radar de manutenção perdeu a parede.")
 			return
+		# Se estiver na tolerância da quina, o target_vel_wall continua 0.0 (desliza livre)
 
-	var vel_into_wall = car.linear_velocity.dot(current_wall_normal)
-	if vel_into_wall < 0: 
-		car.linear_velocity -= current_wall_normal * vel_into_wall
+	# Aplica a levitação (seja a correção do Hovercraft ou o deslize neutro da quina)
+	var current_vel_wall = car.linear_velocity.dot(current_wall_normal)
+	car.linear_velocity -= current_wall_normal * current_vel_wall
+	car.linear_velocity += current_wall_normal * target_vel_wall
 
+	# --- FÍSICA RESTANTE ---
 	var current_anti_grav = lerp(anti_gravity_start, anti_gravity_end, min(time_in_wallride / anti_gravity_decay_time, 1.0))
 	var real_gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 	var anti_gravity = Vector3.UP * (real_gravity * car.mass * current_anti_grav)
 	
-	var glue = -current_wall_normal * (wall_glue_force * car.mass)
-	
-	# --- CORREÇÃO DO 180 BUG (Geometria em vez de Inércia) ---
 	var car_fwd = -car.global_transform.basis.z.normalized()
 	var forward_dir = (car_fwd - current_wall_normal * car_fwd.dot(current_wall_normal))
-	
-	# Prevenção caso o carro entre perfeitamente a 90 graus
 	if forward_dir.length_squared() < 0.01:
 		forward_dir = car.global_transform.basis.y
 	forward_dir = forward_dir.normalized()
 	
-	# --- CORREÇÃO DO PEÃO (Arcade Steering) ---
 	if abs(input.steering) > 0.05:
-		# Podes precisar retirar o sinal de menos (-) no input se sentires que a curva está invertida
 		forward_dir = forward_dir.rotated(current_wall_normal, -input.steering * wall_turn_speed * delta).normalized()
 	
 	var motor_force = Vector3.ZERO
 	if input.throttle > 0:
 		motor_force = forward_dir * (wall_forward_boost * car.mass * input.throttle)
 		
-	car.apply_central_force(anti_gravity + glue + motor_force)
+	car.apply_central_force(anti_gravity + motor_force) # Repare que "glue" não é mais empurrada aqui!
 
 	if input.is_jump_pressed:
 		car.apply_central_impulse(Vector3.UP * jump_up_force * car.mass)
 		car.apply_central_impulse(current_wall_normal * (jump_up_force * car.mass * 0.5)) 
-		trick_manager.add_external_action("Wall Jump", 50, TrickManager.COLOR_SPECIAL)
+		trick_manager.add_external_action("Wall Jump", 10, TrickManager.COLOR_SPECIAL)
 		_stop_wallride("Wall-Jump executado!")
 		return
 
+	# --- ROTAÇÃO VISUAL E BLOQUEIO ---
 	var z_axis = -forward_dir
 	var y_axis = current_wall_normal 
 	var x_axis = y_axis.cross(z_axis).normalized()
@@ -161,15 +173,13 @@ func _process_wallride(delta):
 	var target_basis = Basis(x_axis, y_axis, z_axis)
 	car.global_transform.basis = car.global_transform.basis.slerp(target_basis, delta * 15.0)
 	
-	# --- MATA O PEÃO ---
-	# Bloqueia completamente o AirMovementComponent de girar o carro na parede
 	car.angular_velocity = Vector3.ZERO
 
 	if is_validated:
 		point_tick_timer += delta
 		if point_tick_timer >= 0.25: 
 			point_tick_timer -= 0.25
-			trick_manager.add_external_action("Wallride", 20, TrickManager.COLOR_SPECIAL)
+			trick_manager.add_external_action("Wallride", 10, TrickManager.COLOR_SPECIAL)
 
 func _stop_wallride(reason: String = ""):
 	if not is_wallriding: return
@@ -201,7 +211,6 @@ func _process_wallride_exit(delta):
 	var upright_basis = Basis(x_axis, y_axis, z_axis)
 	car.global_transform.basis = car.global_transform.basis.slerp(upright_basis, delta * 8.0)
 	car.angular_velocity = car.angular_velocity.lerp(Vector3.ZERO, delta * 5.0)
-
 
 # ==========================================
 # SENSORES E RADARES AVANÇADOS

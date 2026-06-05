@@ -33,12 +33,22 @@ func _ready():
 		original_sun_color = sun_light.light_color
 		original_sun_energy = sun_light.light_energy
 		
-	# --- CHECAGEM INICIAL DE PONTUAÇÃO PARA O PORTAL FINAL ---
-	# Aguarda 1 frame para garantir que o save global já foi carregado
+	# Usamos call_deferred para dar tempo de a HUD nascer antes de mandar apagar!
+	call_deferred("_setup_inicial_seguro")
 	call_deferred("_check_next_map_unlock")
+
+func _setup_inicial_seguro():
+	# Oculta de forma segura a interface inteira de missão quando o Free Roam começa
+	get_tree().call_group("HUD", "atualizar_timer", 0.0)
+	get_tree().call_group("HUD", "esconder_timer")
+	get_tree().call_group("HUD", "esconder_missao_ativa")
 
 func _process(delta):
 	if not is_mission_running or get_tree().paused: return
+	
+	# --- 3. VERIFICAÇÃO DE MORTE DO JOGADOR ---
+	if _check_player_death():
+		return
 	
 	if current_mission.time_limit > 0:
 		mission_timer -= delta
@@ -59,11 +69,64 @@ func _process(delta):
 				if is_instance_valid(target) and not target.is_queued_for_deletion():
 					if "_is_dead" in target and target._is_dead:
 						continue 
+						
+					var target_stats = target.find_child("StatsComponent", true, false)
+					if target_stats and "is_dead" in target_stats and target_stats.is_dead:
+						continue
+						
 					all_destroyed = false
 					break
 			
 			if all_destroyed and combat_targets.size() > 0:
 				end_mission(true)
+
+# --- SISTEMA DE MORTE E CHECKPOINT CORRIGIDO ---
+func _check_player_death() -> bool:
+	var players = get_tree().get_nodes_in_group("jogadores")
+	if players.is_empty(): return false
+	
+	for p1 in players:
+		if not is_instance_valid(p1): continue
+		
+		# Simplificamos: Verificamos apenas a variável interna do BaseVehicle
+		var is_dead = false
+		if "_is_dead" in p1 and p1._is_dead:
+			is_dead = true
+				
+		if is_dead:
+			print("[StoryController] Jogador morreu! Iniciando Ressurreição de Checkpoint...")
+			
+			# 1. REPOSICIONAMENTO FÍSICO
+			if is_instance_valid(active_portal):
+				var spawn_pos = active_portal.global_position + (active_portal.global_transform.basis.z * 5.0)
+				p1.global_position = spawn_pos
+				p1.linear_velocity = Vector3.ZERO
+				p1.angular_velocity = Vector3.ZERO
+				p1.global_position.y += 1.0 
+				
+				var z_axis = p1.global_transform.basis.z
+				z_axis.y = 0.0
+				if z_axis.length_squared() < 0.01: z_axis = p1.global_transform.basis.x.cross(Vector3.UP)
+				z_axis = z_axis.normalized()
+				var y_axis = Vector3.UP
+				var x_axis = y_axis.cross(z_axis).normalized()
+				p1.global_transform.basis = Basis(x_axis, y_axis, z_axis)
+			
+			# 2. CHAMA A FUNÇÃO DE RESSURREIÇÃO DO PRÓPRIO CARRO
+			if p1.has_method("revive"):
+				p1.revive()
+			
+			end_mission(false)
+			return true
+			
+	return false
+
+func _restore_all_health_and_energy():
+	var vehicles = get_tree().get_nodes_in_group("jogadores") + get_tree().get_nodes_in_group("inimigos")
+	for v in vehicles:
+		if not is_instance_valid(v): continue
+		if v.has_method("revive"):
+			v.revive()
 
 func request_mission_start(portal: StoryMissionPortal, data: StoryMissionData):
 	active_portal = portal
@@ -121,6 +184,12 @@ func accept_mission():
 		p.is_active = false
 		p.set_deferred("monitoring", false)
 		p.set_deferred("monitorable", false)
+		
+	# --- 1. Esconde o portal de SAÍDA do mapa durante a missão ---
+	for p in get_tree().get_nodes_in_group("next_map_portals"):
+		p.visible = false
+		p.set_deferred("monitoring", false)
+		p.set_deferred("monitorable", false)
 
 	if current_mission.mission_environment and world_env:
 		world_env.environment = current_mission.mission_environment
@@ -157,6 +226,13 @@ func accept_mission():
 				combat_targets.append(node)
 
 	get_tree().call_group("HUD", "mostrar_missao_ativa", current_mission.mission_name)
+	
+	# --- 2. Controle do Timer na HUD ---
+	if current_mission.time_limit <= 0:
+		get_tree().call_group("HUD", "atualizar_timer", 0.0)
+		get_tree().call_group("HUD", "esconder_timer")
+	else:
+		get_tree().call_group("HUD", "mostrar_timer")
 
 	mission_timer = current_mission.time_limit
 	is_mission_running = true
@@ -180,7 +256,7 @@ func end_mission(success: bool):
 	get_tree().call_group("HUD", "atualizar_timer", 0.0)
 	get_tree().call_group("HUD", "atualizar_status_missao", success)
 	
-	await get_tree().create_timer(1.5).timeout
+	await get_tree().create_timer(.5).timeout
 	
 	if is_instance_valid(MissionManager):
 		MissionManager.current_map_data = null
@@ -230,6 +306,7 @@ func end_mission(success: bool):
 				node.visible = false
 				node.process_mode = Node.PROCESS_MODE_DISABLED
 	
+	# Cura e revive os carros forçadamente!
 	_restore_all_health_and_energy()
 	
 	if is_instance_valid(ScoreManager):
@@ -237,8 +314,8 @@ func end_mission(success: bool):
 		elif ScoreManager.has_method("clear_score"): ScoreManager.clear_score()
 		
 	get_tree().call_group("HUD", "esconder_missao_ativa")
+	get_tree().call_group("HUD", "esconder_timer")
 	
-	# --- CHECA SE O PORTAL FINAL DEVE APARECER AGORA ---
 	_check_next_map_unlock()
 
 	get_tree().paused = true
@@ -251,20 +328,14 @@ func resume_open_world():
 	active_portal = null
 	get_tree().paused = false
 
-# --- A MÁGICA DA CHECAGEM DO PORTAL ---
 func _check_next_map_unlock():
 	if is_instance_valid(Global) and "story_total_points" in Global and "points_to_next_city" in Global:
 		if Global.story_total_points >= Global.points_to_next_city:
 			# Acorda todos os portais do próximo mapa!
 			get_tree().call_group("next_map_portals", "activate_portal")
-
-func _restore_all_health_and_energy():
-	var vehicles = get_tree().get_nodes_in_group("jogadores") + get_tree().get_nodes_in_group("inimigos")
-	for v in vehicles:
-		var stats = v.find_child("StatsComponent", true, false)
-		if stats and "current_health" in stats and "MAX_HEALTH" in stats:
-			stats.current_health = stats.MAX_HEALTH
 			
-		var ability = v.find_child("AbilityComponent", true, false)
-		if ability and "current_energy" in ability and "MAX_ENERGY" in ability:
-			ability.current_energy = ability.MAX_ENERGY
+			# Garante que eles voltem a estar visíveis e interagíveis
+			for p in get_tree().get_nodes_in_group("next_map_portals"):
+				p.visible = true
+				p.set_deferred("monitoring", true)
+				p.set_deferred("monitorable", true)

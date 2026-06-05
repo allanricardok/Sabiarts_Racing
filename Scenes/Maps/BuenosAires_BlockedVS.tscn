@@ -6066,7 +6066,7 @@ shape = SubResource("SphereShape3D_44s4c")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Radar"]
 mesh = SubResource("SphereMesh_kq8oo")
 
-[node name="EndRunPortal" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
+[node name="EndRunPortal" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions" groups=["next_map_portals"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -57.845234, 1.9364719, -20.908699)
 visible = false
 disable_mode = 2

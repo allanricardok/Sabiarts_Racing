@@ -180,9 +180,8 @@ EXTRA_FALL_FORCE = 12.0
 
 [node name="WallRideComponent" parent="Scripts" index="9"]
 min_speed_kmh = 1.0
-anti_gravity_start = 5.0
-anti_gravity_end = 2.0
-wall_glue_force = 60.0
+anti_gravity_end = 1.2
+wall_target_distance = 0.6
 
 [node name="GrapplingMissile" parent="Guns" index="3"]
 transform = Transform3D(1, 0, 0, 0, 0.9998431, 0.017714167, 0, -0.017714167, 0.9998431, -0.2062447, 0, 0.29715776)

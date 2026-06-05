@@ -52,6 +52,11 @@ func _ready():
 		ScoreManager.score_changed.disconnect(_on_score_updated)
 	ScoreManager.score_changed.connect(_on_score_updated)
 	
+	# Verifica se o modo atual é o Story Mode
+	if Global.current_run_mode == Global.RunMode.STORY:
+		# call_deferred garante que a HUD terminou de ser desenhada na tela antes de ocultar
+		call_deferred("esconder_timer")
+	
 	if not MissionManager.mission_completed.is_connected(_on_mission_completed):
 		MissionManager.mission_completed.connect(_on_mission_completed)
 	
@@ -342,3 +347,19 @@ func criar_toast(texto: String, cor: Color):
 
 func _update_ped_kill_ui(amount: int):
 	if ped_kill_label: ped_kill_label.text = "x" + str(amount)
+	
+func esconder_timer():
+	var timer_label = get_node_or_null("%TimerLabel")
+	var timer_bg = get_node_or_null("%ColorRect4")
+
+	if timer_label: 
+		timer_label.hide()
+		timer_bg.hide()
+
+func mostrar_timer():
+	var timer_label = get_node_or_null("%TimerLabel")
+	var timer_bg = get_node_or_null("%ColorRect4")
+
+	if timer_label: 
+		timer_label.show()
+		timer_bg.show()

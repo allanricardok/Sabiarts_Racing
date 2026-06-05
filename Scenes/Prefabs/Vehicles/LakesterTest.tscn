@@ -147,6 +147,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.41651595)
 [node name="MachineGun" parent="Guns" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.32013983, 0.4221766)
 
+[node name="Muzzle" parent="Guns/MachineGun" index="1"]
+transform = Transform3D(-1, 1.2206126e-09, 8.741426e-08, 0, 0.99990255, -0.01396218, -8.742278e-08, -0.01396218, -0.99990255, 0, 0.75172055, 2.2299254)
+
 [node name="BigSlow" parent="Guns" index="1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.38518295, 0.004850924, -0.0057343245)
 

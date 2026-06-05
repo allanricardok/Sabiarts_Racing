@@ -61,14 +61,24 @@ func _ready():
 
 func setup(dmg, shooter_vel, source_car, incoming_target = null):
 	damage = dmg
-	shooter = source_car
 	is_tethered = false 
-	target = incoming_target
+	
+	# --- BLINDAGEM CONTRA ALVOS/ATIRADORES DELETADOS ---
+	if is_instance_valid(source_car):
+		shooter = source_car
+	else:
+		shooter = null
+		
+	if is_instance_valid(incoming_target):
+		target = incoming_target
+	else:
+		target = null
+	# ----------------------------------------------------
 	
 	muzzle_start_height = global_position.y
 	anchor_offset_y = 0.0
 	
-	if is_instance_valid(source_car):
+	if is_instance_valid(shooter):
 		# --- CORREÇÃO DO EIXO ---
 		var forward_dir = -global_transform.basis.z.normalized()
 		var right_dir = global_transform.basis.x.normalized()
