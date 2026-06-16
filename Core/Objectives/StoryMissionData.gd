@@ -22,10 +22,6 @@ enum MissionType { CLASSIC_OBJECTIVE, COMBAT_DESTROY }
 ## Obrigatório se o tipo for CLASSIC_OBJECTIVE!
 @export var classic_objective: MissionItem
 
-@export_group("Combate Automático")
-## Quantos inimigos o jogo deve criar automaticamente (Apenas COMBAT_DESTROY)
-@export var enemy_count: int = 3
-
 @export_group("Atmosfera")
 @export var mission_environment: Environment
 @export var mission_sun_color: Color = Color.WHITE
@@ -33,3 +29,10 @@ enum MissionType { CLASSIC_OBJECTIVE, COMBAT_DESTROY }
 
 @export_group("Objetos Templates (Opcional)")
 @export var nodes_to_enable: Array[NodePath]
+
+@export_group("Combate Automático")
+@export var enemy_count: int = 3
+## Multiplicador de dano que os bots CAUSAM nesta missão (1.0 = normal, 1.2 = 20% a mais)
+@export var enemy_damage_dealt_mult: float = 1.0
+## Multiplicador de dano que os bots RECEBEM nesta missão (1.0 = normal, 0.8 = 20% de resistência)
+@export var enemy_damage_received_mult: float = 1.0

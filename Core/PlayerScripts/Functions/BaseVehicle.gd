@@ -432,49 +432,50 @@ func set_camera_mode(mode_index: int):
 	if my_camera and my_camera.has_method("set_camera_mode"):
 		my_camera.set_camera_mode(mode_index)
 		
+# --- RESSURREIÇÃO ---
 func revive():
 	print("[Vehicle-DEBUG] Comando de reviver recebido!")
+	
 	_is_dead = false
 	
-	# 1. Garante que o carro em si está visível e a física roda livremente
+	# 1. Garante que o carro em si está visível, com física ativa e pode colidir
 	visible = true
 	process_mode = Node.PROCESS_MODE_INHERIT
 	freeze = false 
 	set_physics_process(true)
 	pode_mover = true
 	
-	# RESTAURA AS CAMADAS ORIGINAIS PARA O PORTAL FUNCIONAR!
+	# Restaura as camadas originais de colisão para os portais funcionarem
 	collision_layer = original_collision_layer 
 	collision_mask = original_collision_mask
 	
-	# 2. Religa a parte visual
+	# 2. Procura todas as malhas 3D (Meshes) dentro do carro e as torna visíveis
 	var todas_as_meshes = find_children("*", "MeshInstance3D", true)
 	for mesh in todas_as_meshes:
 		mesh.visible = true
 		
+	# 3. Restaura o VisualDamage
 	var visual_damage = find_child("VisualDamageComponent", true, false)
 	if visual_damage and visual_damage.has_method("reset"):
 		visual_damage.reset()
 	update_visual_damage(100.0) 
 		
-	# 3. Força a Cura do Carro
+	# 4. Restaura Saúde e Escudo de Combate chamando as funções do componente
 	if stats:
-		print("[Vehicle-DEBUG] StatsComponent encontrado. Tentando curar...")
+		print("[Vehicle-DEBUG] StatsComponent encontrado. Curando Vida e Shield...")
 		if stats.has_method("heal_full"): 
 			stats.heal_full()
-		elif stats.has_method("reset"):
-			stats.reset()
 		else:
-			var curado = false
-			var life_vars = ["current_health", "health", "hp", "vida"]
-			for var_name in life_vars:
-				if var_name in stats:
-					stats.set(var_name, 100.0)
-					curado = true
-					break
+			# Garante a cura direta e segura caso heal_full não exista
+			if "current_health" in stats: stats.current_health = stats.max_health
+			if "current_shield" in stats: stats.current_shield = stats.max_shield
+			if "is_dead" in stats: stats.is_dead = false
+			if "is_invulnerable" in stats: stats.is_invulnerable = false
 			
-	# 4. Restaura a Energia
-	var ability = find_child("AbilityComponent", true, false)
+	# 5. Restaura a Energia de Habilidades (Pulo, Turbo, Teleporte)
+	var ability = get_node_or_null("%AbilityComponent")
+	if not ability:
+		ability = find_child("AbilityComponent", true, false)
+		
 	if ability and "current_energy" in ability:
-		# Se a energia não for acessível diretamente, tenta usar os setters da interface do Godot
-		ability.set("current_energy", 100.0)
+		ability.current_energy = ability.get("MAX_ENERGY") if "MAX_ENERGY" in ability else 100.0

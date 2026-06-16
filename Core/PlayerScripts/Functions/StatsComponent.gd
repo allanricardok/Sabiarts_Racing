@@ -10,6 +10,12 @@ signal health_depleted(attacker: Node)
 signal shield_broken
 signal stats_changed
 
+@export_group("Combat Multipliers")
+## Multiplicador de dano que este personagem RECEBE (Ex: 0.8 = toma 20% a menos)
+@export var damage_received_multiplier: float = 1.0
+## Multiplicador de dano que este personagem CAUSA (Ex: 1.2 = bate 20% mais forte)
+@export var damage_dealt_multiplier: float = 1.0
+
 @export_group("Survival")
 @export var max_health: float = 100.0
 @export var max_shield: float = 50.0
@@ -110,6 +116,19 @@ func take_damage(amount: float, source: Node = null):
 			attacker_node = source.shooter
 		if "knockback_force" in source:
 			final_knockback = source.knockback_force
+			
+	# =====================================================================
+	# --- MÁGICA DOS MULTIPLICADORES DE DANO ---
+	
+	# 1. Aplica o buff de quem está ATACANDO (Lê o StatsComponent do atirador)
+	if is_instance_valid(attacker_node):
+		var attacker_stats = attacker_node.find_child("StatsComponent*", true, false)
+		if attacker_stats and "damage_dealt_multiplier" in attacker_stats:
+			amount *= attacker_stats.damage_dealt_multiplier
+			
+	# 2. Aplica a resistência de quem está RECEBENDO o dano (O próprio dono deste script)
+	amount *= damage_received_multiplier
+	# =====================================================================
 		
 	var shield_damage_portion = amount * 0.8
 	var health_damage_portion = amount * 0.2

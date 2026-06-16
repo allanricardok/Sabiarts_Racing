@@ -11,6 +11,7 @@ var pode_pausar: bool = true
 
 var camera_select_btn: OptionButton
 var abort_mission_btn: Button 
+var reset_mission_btn: Button # --- NOVO: Referência do botão de reiniciar ---
 
 func _ready():
 	_setup_dynamic_buttons()
@@ -19,6 +20,7 @@ func _setup_dynamic_buttons():
 	var vbox = $Control/VBoxContainer
 	if not vbox: return
 	
+	# --- INSTANCIAÇÃO DO ABORTAR MISSÃO ---
 	abort_mission_btn = Button.new()
 	abort_mission_btn.name = "AbortMissionBtn"
 	abort_mission_btn.text = "Abortar Missão"
@@ -35,6 +37,24 @@ func _setup_dynamic_buttons():
 	abort_mission_btn.pressed.connect(_on_abort_mission_btn_pressed)
 	vbox.add_child(abort_mission_btn)
 	
+	# --- NOVO: INSTANCIAÇÃO DO REINICIAR MISSÃO ---
+	reset_mission_btn = Button.new()
+	reset_mission_btn.name = "ResetMissionBtn"
+	reset_mission_btn.text = "Reiniciar Missão"
+	reset_mission_btn.focus_mode = Control.FOCUS_ALL
+	
+	if resume_btn:
+		var font = resume_btn.get_theme_font("font")
+		if font: reset_mission_btn.add_theme_font_override("font", font)
+		reset_mission_btn.add_theme_font_size_override("font_size", 32)
+		var style = resume_btn.get_theme_stylebox("focus")
+		if style: reset_mission_btn.add_theme_stylebox_override("focus", style)
+		
+	reset_mission_btn.alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	reset_mission_btn.pressed.connect(_on_reset_mission_btn_pressed)
+	vbox.add_child(reset_mission_btn)
+	
+	# --- CONFIGURAÇÃO DA CÂMERA ---
 	camera_select_btn = OptionButton.new()
 	camera_select_btn.name = "CameraSelectBtn"
 	camera_select_btn.add_item("Opções de Câmera", 999) 
@@ -55,8 +75,10 @@ func _setup_dynamic_buttons():
 	camera_select_btn.item_selected.connect(_on_camera_selected)
 	vbox.add_child(camera_select_btn)
 	
+	# Ordenação visual dos nós dentro da VBox
 	vbox.move_child(abort_mission_btn, 0)
-	vbox.move_child(camera_select_btn, 1)
+	vbox.move_child(reset_mission_btn, 1)
+	vbox.move_child(camera_select_btn, 2)
 
 func _on_camera_selected(index: int):
 	if index == 0 and camera_select_btn.get_item_id(0) == 999: return
@@ -90,9 +112,15 @@ func _toggle_pause():
 		if abort_mission_btn:
 			abort_mission_btn.visible = has_mission
 			abort_mission_btn.disabled = not has_mission
+			
+		# --- NOVO: Controla exibição do botão de reset ---
+		if reset_mission_btn:
+			reset_mission_btn.visible = has_mission
+			reset_mission_btn.disabled = not has_mission
 		
-		if has_mission and abort_mission_btn:
-			abort_mission_btn.grab_focus()
+		# Define onde o foco inicial do controle/teclado vai pousar ao abrir o menu
+		if has_mission and reset_mission_btn:
+			reset_mission_btn.grab_focus()
 		elif camera_select_btn:
 			camera_select_btn.grab_focus()
 	else:
@@ -102,15 +130,12 @@ func _atualizar_lista_missoes():
 	if not mission_container: return
 	for child in mission_container.get_children(): child.queue_free()
 	
-	# --- BIFURCAÇÃO: COMO O MENU GERA A LISTA DE ACORDO COM O MODO ---
 	if Global.current_run_mode == Global.RunMode.STORY:
 		_atualizar_lista_historia()
 	else:
 		_atualizar_lista_classica()
 
-# --- NOVO: GERADOR DA LISTA DO MODO HISTÓRIA ---
 func _atualizar_lista_historia():
-	# Busca todos os portais no mapa, mesmo os invisíveis
 	var portals = get_tree().get_nodes_in_group("mission_portals")
 	
 	var titulo = Label.new()
@@ -146,7 +171,6 @@ func _atualizar_lista_historia():
 	meta_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	mission_container.add_child(meta_lbl)
 
-# --- GERADOR DA LISTA DO MODO EXPLORAÇÃO CLÁSSICO ---
 func _atualizar_lista_classica():
 	var data = MissionManager.current_map_data
 	if not data: return
@@ -176,10 +200,26 @@ func desativar_pausa():
 
 func _on_abort_mission_btn_pressed():
 	_toggle_pause()
-	
 	var story_controller = get_tree().get_first_node_in_group("StoryController")
 	if story_controller and story_controller.has_method("abort_current_mission"):
 		story_controller.abort_current_mission()
+
+func _on_reset_mission_btn_pressed():
+	print("=========================================")
+	print("[PauseMenu-DEBUG] Botão de Reiniciar Missão CLICADO!")
+	_toggle_pause()
+	
+	var story_controller = get_tree().get_first_node_in_group("StoryController")
+	if story_controller:
+		print("[PauseMenu-DEBUG] StoryController ENCONTRADO no grupo!")
+		if story_controller.has_method("restart_current_mission"):
+			print("[PauseMenu-DEBUG] Método 'restart_current_mission' EXISTE! Enviando ordem...")
+			story_controller.restart_current_mission()
+		else:
+			push_error("[PauseMenu-DEBUG] ERRO: O StoryController não tem a função 'restart_current_mission'!")
+	else:
+		push_error("[PauseMenu-DEBUG] ERRO: StoryController NÃO FOI ENCONTRADO na cena!")
+	print("=========================================")
 
 func _on_resume_btn_pressed():
 	_toggle_pause()

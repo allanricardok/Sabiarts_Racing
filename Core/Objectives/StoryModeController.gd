@@ -80,47 +80,6 @@ func _process(delta):
 			if all_destroyed and combat_targets.size() > 0:
 				end_mission(true)
 
-# --- SISTEMA DE MORTE E CHECKPOINT CORRIGIDO ---
-func _check_player_death() -> bool:
-	var players = get_tree().get_nodes_in_group("jogadores")
-	if players.is_empty(): return false
-	
-	for p1 in players:
-		if not is_instance_valid(p1): continue
-		
-		# Simplificamos: Verificamos apenas a variável interna do BaseVehicle
-		var is_dead = false
-		if "_is_dead" in p1 and p1._is_dead:
-			is_dead = true
-				
-		if is_dead:
-			print("[StoryController] Jogador morreu! Iniciando Ressurreição de Checkpoint...")
-			
-			# 1. REPOSICIONAMENTO FÍSICO
-			if is_instance_valid(active_portal):
-				var spawn_pos = active_portal.global_position + (active_portal.global_transform.basis.z * 5.0)
-				p1.global_position = spawn_pos
-				p1.linear_velocity = Vector3.ZERO
-				p1.angular_velocity = Vector3.ZERO
-				p1.global_position.y += 1.0 
-				
-				var z_axis = p1.global_transform.basis.z
-				z_axis.y = 0.0
-				if z_axis.length_squared() < 0.01: z_axis = p1.global_transform.basis.x.cross(Vector3.UP)
-				z_axis = z_axis.normalized()
-				var y_axis = Vector3.UP
-				var x_axis = y_axis.cross(z_axis).normalized()
-				p1.global_transform.basis = Basis(x_axis, y_axis, z_axis)
-			
-			# 2. CHAMA A FUNÇÃO DE RESSURREIÇÃO DO PRÓPRIO CARRO
-			if p1.has_method("revive"):
-				p1.revive()
-			
-			end_mission(false)
-			return true
-			
-	return false
-
 func _restore_all_health_and_energy():
 	var vehicles = get_tree().get_nodes_in_group("jogadores") + get_tree().get_nodes_in_group("inimigos")
 	for v in vehicles:
@@ -202,6 +161,20 @@ func accept_mission():
 			for i in range(current_mission.enemy_count):
 				var enemy = bot_spawner.spawn_single_bot(i)
 				if enemy:
+					# =========================================================
+					# INJETA OS BUFFS DE DIFICULDADE DIRETAMENTE NO BOT CRIADO
+					var stats = enemy.find_child("StatsComponent*", true, false)
+					if stats:
+						# Verifica se a missão tem os valores configurados, senão usa 1.0 padrão
+						var dealt = current_mission.enemy_damage_dealt_mult if "enemy_damage_dealt_mult" in current_mission else 1.0
+						var received = current_mission.enemy_damage_received_mult if "enemy_damage_received_mult" in current_mission else 1.0
+						
+						if "damage_dealt_multiplier" in stats:
+							stats.damage_dealt_multiplier = dealt
+						if "damage_received_multiplier" in stats:
+							stats.damage_received_multiplier = received
+					# =========================================================
+					
 					combat_targets.append(enemy)
 					spawned_bots.append(enemy)
 
@@ -248,6 +221,127 @@ func abort_current_mission():
 
 func has_active_mission() -> bool:
 	return is_mission_running
+
+func restart_current_mission():
+	if not is_mission_running or not current_mission: return
+	
+	# Desliga a flag para o sistema de morte não se intrometer
+	is_mission_running = false
+	
+	# 1. Limpa a arena antiga
+	for bot in spawned_bots:
+		if is_instance_valid(bot) and not bot.is_queued_for_deletion():
+			bot.queue_free()
+	spawned_bots.clear()
+	combat_targets.clear()
+	
+	for path in current_mission.nodes_to_enable:
+		var node = get_node_or_null(path)
+		if not node:
+			var node_name = String(path).split("/")[-1]
+			node = get_tree().current_scene.find_child(node_name, true, false)
+		if node:
+			node.visible = false
+			node.process_mode = Node.PROCESS_MODE_DISABLED
+	
+	# 2. LÓGICA DE TELEPORTE COM FILTRO DE PLAYER REAL
+	var true_player = null
+	var todos_jogadores = get_tree().get_nodes_in_group("jogadores")
+	
+	for p in todos_jogadores:
+		if is_instance_valid(p) and not p.is_queued_for_deletion():
+			var is_bot = false
+			var ic = p.get_node_or_null("%InputComponent")
+			if not ic: ic = p.find_child("InputComponent*", true, false)
+			
+			if ic and "is_bot" in ic and ic.is_bot:
+				is_bot = true
+				
+			if not is_bot:
+				true_player = p
+				break
+				
+	if is_instance_valid(true_player) and is_instance_valid(active_portal):
+		# Simula a morte desligando a física
+		true_player.freeze = true
+		true_player.set_physics_process(false)
+		
+		# Matemática da posição do portal
+		var spawn_pos = active_portal.global_position + (active_portal.global_transform.basis.z * 5.0)
+		spawn_pos.y += 2.0 
+		var z_axis = active_portal.global_transform.basis.z
+		z_axis.y = 0.0
+		if z_axis.length_squared() < 0.01: z_axis = active_portal.global_transform.basis.x.cross(Vector3.UP)
+		z_axis = z_axis.normalized()
+		var y_axis = Vector3.UP
+		var x_axis = y_axis.cross(z_axis).normalized()
+		
+		# Teleporte imediato forçado
+		true_player.global_transform = Transform3D(Basis(x_axis, y_axis, z_axis), spawn_pos)
+		true_player.linear_velocity = Vector3.ZERO
+		true_player.angular_velocity = Vector3.ZERO
+		
+		# Garante que a Engine registrou a mudança antes de continuar
+		await get_tree().process_frame
+		
+		# CHECAGEM DE SEGURANÇA: Só revive se o nó não tiver sumido neste 1 frame
+		if is_instance_valid(true_player) and true_player.has_method("revive"):
+			true_player.revive()
+	
+	# 3. O SEGREDO FINAL: Esperar 0.2 segundos ANTES de gerar os bots.
+	await get_tree().create_timer(0.2).timeout
+	
+	# Reconstrói a missão
+	accept_mission()
+
+# --- SISTEMA DE MORTE E CHECKPOINT ---
+func _check_player_death() -> bool:
+	var players = get_tree().get_nodes_in_group("jogadores")
+	if players.is_empty(): return false
+	
+	for p1 in players:
+		if not is_instance_valid(p1): continue
+		
+		var is_dead = false
+		if "_is_dead" in p1 and p1._is_dead:
+			is_dead = true
+		elif p1.find_child("StatsComponent", true, false) and p1.find_child("StatsComponent", true, false).get("current_health") <= 0:
+			is_dead = true
+				
+		if is_dead:
+			print("[StoryController] Jogador morreu em combate! Resetando para o portal...")
+			
+			# Desliga a flag antes de limpar para não bugar a checagem no frame da morte
+			is_mission_running = false
+			
+			if is_instance_valid(active_portal):
+				_executar_reset_fisico_veiculo(p1)
+			
+			end_mission(false)
+			return true
+			
+	return false
+
+func _executar_reset_fisico_veiculo(vehicle: Node3D):
+	var spawn_pos = active_portal.global_position + (active_portal.global_transform.basis.z * 5.0)
+	spawn_pos.y += 2.0 
+	
+	var z_axis = active_portal.global_transform.basis.z
+	z_axis.y = 0.0
+	if z_axis.length_squared() < 0.01: z_axis = active_portal.global_transform.basis.x.cross(Vector3.UP)
+	z_axis = z_axis.normalized()
+	var y_axis = Vector3.UP
+	var x_axis = y_axis.cross(z_axis).normalized()
+	var safe_basis = Basis(x_axis, y_axis, z_axis)
+	
+	vehicle.freeze = true
+	vehicle.global_transform = Transform3D(safe_basis, spawn_pos)
+	vehicle.linear_velocity = Vector3.ZERO
+	vehicle.angular_velocity = Vector3.ZERO
+	vehicle.freeze = false
+	
+	if vehicle.has_method("revive"):
+		vehicle.revive()
 
 func end_mission(success: bool):
 	is_mission_running = false
