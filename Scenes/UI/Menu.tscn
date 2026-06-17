@@ -176,6 +176,7 @@ theme_override_font_sizes/font_size = 32
 text = "Multiplayer"
 
 [node name="Screen_SinglePlayer" type="Control" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -227,6 +228,11 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "Tutorial"
 
+[node name="Story" type="Label" parent="Screen_SinglePlayer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Story Mode"
+
 [node name="FreeRoam" type="Label" parent="Screen_SinglePlayer/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
@@ -236,11 +242,6 @@ text = "Free Roam"
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "Combat"
-
-[node name="Story" type="Label" parent="Screen_SinglePlayer/VBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 32
-text = "Story Mode"
 
 [node name="Screen_Multiplayer" type="Control" parent="."]
 visible = false
@@ -293,7 +294,7 @@ grow_vertical = 2
 [node name="Coop" type="Label" parent="Screen_Multiplayer/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
-text = "Combat"
+text = "Co-op Combat"
 
 [node name="PvP" type="Label" parent="Screen_Multiplayer/VBoxContainer"]
 layout_mode = 2
@@ -649,7 +650,7 @@ offset_top = 680.0
 offset_right = 1056.0
 offset_bottom = 773.0
 theme_override_font_sizes/font_size = 32
-text = "Press Start / Enter
+text = "Press Machinegun
 to start"
 horizontal_alignment = 1
 
@@ -681,18 +682,19 @@ anchor_left = 0.5
 anchor_right = 0.5
 offset_left = 72.5
 offset_top = 32.0
-offset_right = 517.5
-offset_bottom = 290.0
+offset_right = 557.5
+offset_bottom = 348.0
 grow_horizontal = 2
 theme_override_font_sizes/font_size = 18
 text = "Joystick (Sony Layout):
 R2 L2 = Accelerate Brake
 Left Joy = Land + Air movement
-X = Machine Gun
-Square = Special Gun
-R1 or L1 = weapon select 
-Triangle = Tricks                   L3 = SloMo (press)
-Circle + Left Joy = Jump, boost, shield, teleport
+X = Machine Gun                            L3 = SloMo (press)
+Square = Special Gun                    Up/Down = Target
+L1 = Jump                                         Double R2 = Turbo
+R1 = Change Map Category
+Triangle = Tricks
+Circle + Left Joy = shield, teleport, shoot back
 Right Joy = Camera
 "
 

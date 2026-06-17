@@ -136,6 +136,9 @@ func _atualizar_lista_missoes():
 		_atualizar_lista_classica()
 
 func _atualizar_lista_historia():
+	# ---------------------------------------------------------
+	# PARTE 1: MISSÕES
+	# ---------------------------------------------------------
 	var portals = get_tree().get_nodes_in_group("mission_portals")
 	
 	var titulo = Label.new()
@@ -157,15 +160,49 @@ func _atualizar_lista_historia():
 			
 			h_box.add_child(lbl)
 			mission_container.add_child(h_box)
+			
+	# ---------------------------------------------------------
+	# PARTE 2: COLETÁVEIS SECRETOS
+	# ---------------------------------------------------------
+	var coletaveis = get_tree().get_nodes_in_group("story_collectibles")
+	if coletaveis.size() > 0:
+		var sep_col = HSeparator.new()
+		mission_container.add_child(sep_col)
+		
+		var titulo_col = Label.new()
+		titulo_col.text = "--- ITENS SECRETOS ---"
+		titulo_col.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		mission_container.add_child(titulo_col)
+		
+		for col in coletaveis:
+			var h_box = HBoxContainer.new()
+			var lbl = Label.new()
+			
+			var is_completed = false
+			if "collectible_id" in col:
+				is_completed = Global.collected_items_ids.has(col.collectible_id)
+				
+			var prefixo = "[✔] " if is_completed else "[ ] "
+			var c_name = col.collectible_name if "collectible_name" in col else "Coletável Misterioso"
+			var c_pts = col.points_value if "points_value" in col else 0
+			
+			lbl.text = prefixo + c_name + " (" + str(c_pts) + " pts)"
+			lbl.add_theme_color_override("font_color", Color.AQUAMARINE if is_completed else Color.GRAY)
+			
+			h_box.add_child(lbl)
+			mission_container.add_child(h_box)
 	
-	var sep = HSeparator.new()
-	mission_container.add_child(sep)
+	# ---------------------------------------------------------
+	# PARTE 3: META DE PONTUAÇÃO
+	# ---------------------------------------------------------
+	var sep_meta = HSeparator.new()
+	mission_container.add_child(sep_meta)
 	
 	var meta_lbl = Label.new()
 	var pontos_atuais = Global.story_total_points
 	var pontos_necessarios = Global.pontos_para_proximo_mapa if "pontos_para_proximo_mapa" in Global else 5000
 	
-	meta_lbl.text = "Progresso Total: " + str(pontos_atuais) + " / " + str(pontos_necessarios) + " pts para liberar o próximo mapa"
+	meta_lbl.text = "Progresso Total: " + str(pontos_atuais) + " / " + str(pontos_necessarios) + " pts"
 	meta_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	meta_lbl.add_theme_color_override("font_color", Color.YELLOW)
 	meta_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

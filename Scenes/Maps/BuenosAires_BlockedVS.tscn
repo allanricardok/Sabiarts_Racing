@@ -1,4 +1,4 @@
-[gd_scene load_steps=293 format=3 uid="uid://d1rl8sskrmddj"]
+[gd_scene load_steps=296 format=3 uid="uid://d1rl8sskrmddj"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_u8o8m"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="3_is8dr"]
@@ -54,6 +54,7 @@
 [ext_resource type="PackedScene" uid="uid://b5uq5cu7yermy" path="res://Scenes/UI/StoryMissionResultUI.tscn" id="46_neuqn"]
 [ext_resource type="Script" uid="uid://dpmbgmu3rpmqp" path="res://Core/Objectives/StoryNextMapPortal.gd" id="46_yp3g3"]
 [ext_resource type="Resource" uid="uid://bi8k3texgwi2q" path="res://Resources/MapMissions/Missao_Teste_Estoria6.tres" id="47_keab0"]
+[ext_resource type="PackedScene" uid="uid://c7djmj41vlc02" path="res://Scenes/Prefabs/Items/StoryCollectable.tscn" id="48_i3s4m"]
 [ext_resource type="Script" uid="uid://ckpa324htfvdu" path="res://Core/Objectives/StoryModeController.gd" id="48_neuqn"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_a70xh"]
@@ -815,6 +816,14 @@ radius = 4.0
 height = 8.0
 radial_segments = 12
 rings = 12
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i3s4m"]
+shading_mode = 0
+albedo_color = Color(1.0444838, 1.0444838, 0, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_bq51w"]
+material = SubResource("StandardMaterial3D_i3s4m")
+size = Vector3(3, 1.8, 0.2)
 
 [node name="BA-block" type="Node3D"]
 script = ExtResource("1_u8o8m")
@@ -6011,7 +6020,7 @@ shape = SubResource("SphereShape3D_44s4c")
 mesh = SubResource("SphereMesh_kq8oo")
 
 [node name="Enemies" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 37.87349, 1.9364719, -20.908699)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -203.60689, 1.9364719, 47.982536)
 disable_mode = 2
 collision_layer = 4
 collision_mask = 2
@@ -6025,7 +6034,7 @@ shape = SubResource("SphereShape3D_44s4c")
 mesh = SubResource("SphereMesh_kq8oo")
 
 [node name="Obakes" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 106.30643, 1.9364719, -20.908699)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 110.51259, 1.9364719, 232.89275)
 disable_mode = 2
 collision_layer = 4
 collision_mask = 2
@@ -6039,7 +6048,7 @@ shape = SubResource("SphereShape3D_44s4c")
 mesh = SubResource("SphereMesh_kq8oo")
 
 [node name="Roadkill" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 158.99216, 1.9364719, -20.908699)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 98.66676, 1.9364719, -24.607231)
 disable_mode = 2
 collision_layer = 4
 collision_mask = 2
@@ -6053,7 +6062,7 @@ shape = SubResource("SphereShape3D_44s4c")
 mesh = SubResource("SphereMesh_kq8oo")
 
 [node name="Radar" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 213.54501, 1.9364719, -20.908699)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 194.75027, 1.9364719, 58.368927)
 disable_mode = 2
 collision_layer = 4
 collision_mask = 2
@@ -6093,6 +6102,70 @@ shape = SubResource("SphereShape3D_44s4c")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Score2"]
 mesh = SubResource("SphereMesh_kq8oo")
+
+[node name="StoryModeItems" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
+
+[node name="StoryCollectable" parent="GridContainer/Cont_P1/View_P1/Map/StoryModeItems" instance=ExtResource("48_i3s4m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 312.72852, 14.435219, -212.67325)
+collectible_name = "50 Bucks"
+points_value = 50
+
+[node name="StoryCollectable2" parent="GridContainer/Cont_P1/View_P1/Map/StoryModeItems" instance=ExtResource("48_i3s4m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 314.866, 10.120236, -26.027962)
+collectible_id = "item_002"
+collectible_name = "50 Bucks"
+points_value = 50
+
+[node name="StoryCollectable3" parent="GridContainer/Cont_P1/View_P1/Map/StoryModeItems" instance=ExtResource("48_i3s4m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 390.03403, 54.654697, 209.1669)
+collectible_id = "item_003"
+collectible_name = "50 Bucks"
+points_value = 50
+
+[node name="StoryCollectable4" parent="GridContainer/Cont_P1/View_P1/Map/StoryModeItems" instance=ExtResource("48_i3s4m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.07449, 31.42289, -289.81146)
+collectible_id = "item_004"
+collectible_name = "50 Bucks"
+points_value = 50
+
+[node name="StoryCollectable5" parent="GridContainer/Cont_P1/View_P1/Map/StoryModeItems" instance=ExtResource("48_i3s4m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -145.81227, 30.81908, 200.82991)
+collectible_id = "item_005"
+collectible_name = "50 Bucks"
+points_value = 50
+
+[node name="StoryCollectable6" parent="GridContainer/Cont_P1/View_P1/Map/StoryModeItems" instance=ExtResource("48_i3s4m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 119.44498, 13.945396, 210.04422)
+collectible_id = "item_006"
+collectible_name = "50 Bucks"
+points_value = 50
+
+[node name="StoryCollectable7" parent="GridContainer/Cont_P1/View_P1/Map/StoryModeItems" instance=ExtResource("48_i3s4m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -418.1018, 88.44309, -200.56198)
+collectible_id = "item_007"
+collectible_name = "50 Bucks"
+points_value = 50
+
+[node name="StoryCollectable8" parent="GridContainer/Cont_P1/View_P1/Map/StoryModeItems" instance=ExtResource("48_i3s4m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -228.36421, 32.189293, -167.05588)
+collectible_id = "item_008"
+collectible_name = "50 Bucks"
+points_value = 50
+
+[node name="StoryCollectable9" parent="GridContainer/Cont_P1/View_P1/Map/StoryModeItems" instance=ExtResource("48_i3s4m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -127.615685, 30.02731, -242.49991)
+collectible_id = "item_009"
+collectible_name = "50 Bucks"
+points_value = 50
+
+[node name="StoryCollectable10" parent="GridContainer/Cont_P1/View_P1/Map/StoryModeItems" instance=ExtResource("48_i3s4m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.639112, 127.08138, -32.400295)
+collectible_id = "item_010"
+collectible_name = "100 Bucks"
+points_value = 100
+
+[node name="Visual" parent="GridContainer/Cont_P1/View_P1/Map/StoryModeItems/StoryCollectable10" index="0"]
+mesh = SubResource("BoxMesh_bq51w")
 
 [node name="Cont_P2" type="SubViewportContainer" parent="GridContainer"]
 visible = false
@@ -6243,3 +6316,4 @@ bot_spawner = NodePath("../GridContainer/Cont_P1/View_P1/Map/BotSpawner")
 
 [editable path="GridContainer/Cont_P1/View_P1/WorldEnvironment2"]
 [editable path="GridContainer/Cont_P1/View_P1/Map/BAMap/ExplorationArea"]
+[editable path="GridContainer/Cont_P1/View_P1/Map/StoryModeItems/StoryCollectable10"]

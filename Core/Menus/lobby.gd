@@ -22,7 +22,15 @@ var menu_index = 0
 @onready var menu_options = {
 	State.ROOT: [find_child("QuickPlay", true, false), find_child("Settings", true, false)],
 	State.QUICK_PLAY: [find_child("SinglePlayer", true, false), find_child("Multiplayer", true, false)],
-	State.SINGLE_PLAYER: [find_child("Tutorial", true, false), find_child("FreeRoam", true, false), find_child("Combat", true, false), find_child("Story", true, false)], # <-- ADICIONADO O BOTÃO "Story" AQUI
+	
+	# CORRIGIDO: A ordem aqui define o menu_index 0, 1, 2 e 3!
+	State.SINGLE_PLAYER: [
+		find_child("Tutorial", true, false),   # Index 0
+		find_child("Story", true, false),      # Index 1
+		find_child("FreeRoam", true, false),   # Index 2 (Exploration)
+		find_child("Combat", true, false)      # Index 3 (Battle)
+	], 
+	
 	State.MULTIPLAYER: [find_child("Coop", true, false), find_child("PvP", true, false)],
 	State.SETTINGS: [find_child("ClearDataButton", true, false), find_child("ClearScoresButton", true, false)],
 	State.MAP_SELECT: $Screen_MapSelect/VBoxContainer.get_children() if has_node("Screen_MapSelect/VBoxContainer") else []
@@ -173,18 +181,26 @@ func _confirmar_menu_simples():
 				is_multiplayer_session = true
 				_mudar_estado(State.MULTIPLAYER)
 		State.SINGLE_PLAYER:
+			# A numeração (0, 1, 2, 3) deve refletir a exata ordem de cima para baixo do seu Menu!
 			if menu_index == 0: 
+				# 1ª Opção visual: Tutorial / Free Roam
 				Global.current_run_mode = Global.RunMode.FREE_ROAM
 				Global.spawn_bots = false
+				
 			elif menu_index == 1: 
+				# 2ª Opção visual: Story
+				Global.current_run_mode = Global.RunMode.STORY
+				Global.spawn_bots = false 
+				
+			elif menu_index == 2: 
+				# 3ª Opção visual: Exploration
 				Global.current_run_mode = Global.RunMode.EXPLORATION
 				Global.spawn_bots = false
-			elif menu_index == 2: 
+				
+			elif menu_index == 3: 
+				# 4ª Opção visual: Battle
 				Global.current_run_mode = Global.RunMode.BATTLE
 				Global.spawn_bots = true
-			elif menu_index == 3: # <-- NOVA DEFINIÇÃO PARA MODO HISTÓRIA
-				Global.current_run_mode = Global.RunMode.STORY
-				Global.spawn_bots = false # No modo história, os inimigos vêm pelas missões
 			_mudar_estado(State.VEHICLE_SELECT)
 		State.MULTIPLAYER:
 			# Multiplayer: Coop (0) tem bots. PvP (1) não tem bots.
@@ -346,7 +362,11 @@ func _on_clear_data_pressed():
 			Global.completed_story_missions.clear()
 		if "story_total_points" in Global:
 			Global.story_total_points = 0
-		# Se tiveres uma função global que forza um novo save limpo, podes chamá-la aqui
+		# --- NOVO: Limpa o registro dos itens coletados ---
+		if "collected_items_ids" in Global:
+			Global.collected_items_ids.clear()
+			
+		# Salva o estado "zerado" no disco
 		if Global.has_method("save_story_progress"):
 			Global.save_story_progress()
 	
