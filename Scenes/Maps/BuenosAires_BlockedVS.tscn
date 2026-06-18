@@ -1131,6 +1131,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 253.76178, 1.1229267, -132.73
 pickup_scene = ExtResource("9_kxusw")
 specific_item = ExtResource("13_textq")
 
+[node name="ItemSpawner21" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Pickups" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 253.76178, 1.1229267, -55.033195)
+pickup_scene = ExtResource("9_kxusw")
+specific_item = ExtResource("11_oublg")
+
 [node name="Mission_Items" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap"]
 
 [node name="SecretItem" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items" groups=["itens_exploracao"]]

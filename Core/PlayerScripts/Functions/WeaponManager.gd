@@ -2,6 +2,11 @@
 extends Node3D
 class_name WeaponManager
 
+# --- VARIÁVEIS DA WEAPON WHEEL ---
+var is_wheel_open: bool = false
+var hovered_weapon_index: int = 0
+var wheel_ui_node: WeaponWheel = null
+
 # --- CONFIGURAÇÕES ---
 @export_group("Armas")
 @export var basic_weapon_resource: WeaponResource 
@@ -79,6 +84,48 @@ func _process(delta):
 	if is_bot:
 		is_firing = input.is_action_pressed 
 	else:
+		# Tenta encontrar a Weapon Wheel na HUD do jogador atual (se ainda não encontrou)
+		if not is_instance_valid(wheel_ui_node):
+			var hud = get_tree().get_first_node_in_group("HUD" + player_suffix)
+			if hud: wheel_ui_node = hud.find_child("WeaponWheel", true, false)
+
+		var wheel_action = "WeaponWheel" + input.suffix # <-- Ação do L3
+		
+# 1. ABRE A RODA E LIGA A CÂMERA LENTA
+		if Input.is_action_just_pressed(wheel_action): # <-- APAGAMOS A TRAVA AQUI!
+			is_wheel_open = true
+			Engine.time_scale = 0.5
+			if is_instance_valid(wheel_ui_node):
+				wheel_ui_node.open_wheel(weapon_pool)
+				
+		# 2. FECHA A RODA, EQUIPA A ARMA E DESLIGA A CÂMERA LENTA
+		elif Input.is_action_just_released(wheel_action) and is_wheel_open:
+			is_wheel_open = false
+			Engine.time_scale = 1.0
+			if is_instance_valid(wheel_ui_node):
+				wheel_ui_node.close_wheel()
+				equip_weapon_by_pool_index(hovered_weapon_index)
+
+# 3. LÓGICA ENQUANTO A RODA ESTÁ ABERTA (Usa o analógico)
+		if is_wheel_open:
+			var dir_left = "Left" + input.suffix
+			var dir_right = "Right" + input.suffix
+			
+			# Usando os inputs de habilidade que já estão configurados com o analógico
+			# Nota: Se o seu input.suffix já for algo como "_J1", a soma resulta perfeitamente em "AbilityUp_J1"
+			var dir_up = "AbilityUp" + input.suffix
+			var dir_down = "AbilityDown" + input.suffix
+			
+			# Se por acaso o nome no Input Map tiver um underline forçado e o suffix não, 
+			# você pode alterar para: "AbilityUp_" + input.suffix.trim_prefix("_")
+			
+			var analog_dir = Input.get_vector(dir_left, dir_right, dir_up, dir_down)
+			
+			if is_instance_valid(wheel_ui_node):
+				hovered_weapon_index = wheel_ui_node.update_selection(analog_dir)
+				
+			return # CORTA A EXECUÇÃO AQUI! Não deixa atirar nem fazer outras coisas enquanto a roda está aberta.
+		# ... (A partir daqui continua o seu código normal de atirar e ciclar pelo teclado)
 		var is_doing_ability = (input.ability_up or input.ability_down or input.ability_left or input.ability_right)
 		is_firing = input.is_action_pressed and not is_doing_ability
 
@@ -161,6 +208,12 @@ func _switch_weapon(direction: int):
 		
 	_update_visual_selection()
 	_atualizar_interface()
+
+func equip_weapon_by_pool_index(index: int):
+	if index >= 0 and index < weapon_pool.size():
+		current_weapon_index = index
+		_update_visual_selection()
+		_atualizar_interface()
 
 func _set_weapon_highlight(weapon_name: String, is_active: bool):
 	var node = weapon_nodes.get(weapon_name)
