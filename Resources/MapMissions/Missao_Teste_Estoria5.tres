@@ -15,7 +15,7 @@ metadata/_custom_type_script = "uid://2oic07orss4"
 [resource]
 script = ExtResource("3_a10ft")
 mission_id = "m_05"
-mission_name = "Detran provoking"
+mission_name = "Fuck Detran"
 mission_description = "Go through the Radar over 100km/h"
 time_limit = 30.0
 mission_reward_points = 1000

@@ -1,4 +1,4 @@
-[gd_scene load_steps=296 format=3 uid="uid://d1rl8sskrmddj"]
+[gd_scene load_steps=302 format=3 uid="uid://d1rl8sskrmddj"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_u8o8m"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="3_is8dr"]
@@ -794,11 +794,31 @@ size = Vector3(12.478851, 3.2165527, 5.956909)
 [sub_resource type="SphereShape3D" id="SphereShape3D_44s4c"]
 radius = 4.779808
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jtjsh"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_g7yph"]
+albedo_color = Color(0.95686275, 1, 0.14901961, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_h44hj"]
+material = SubResource("StandardMaterial3D_g7yph")
+radius = 4.0
+height = 8.0
+radial_segments = 12
+rings = 12
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0p4fw"]
+albedo_color = Color(1, 0.14999998, 0.14999998, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_ioiyf"]
+material = SubResource("StandardMaterial3D_0p4fw")
+radius = 4.0
+height = 8.0
+radial_segments = 12
+rings = 12
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tqs36"]
 albedo_color = Color(0.14901961, 1, 0.2627451, 1)
 
 [sub_resource type="SphereMesh" id="SphereMesh_kq8oo"]
-material = SubResource("StandardMaterial3D_jtjsh")
+material = SubResource("StandardMaterial3D_tqs36")
 radius = 4.0
 height = 8.0
 radial_segments = 12
@@ -812,6 +832,16 @@ emission_energy_multiplier = 2.25
 
 [sub_resource type="SphereMesh" id="SphereMesh_yp3g3"]
 material = SubResource("StandardMaterial3D_g1bi8")
+radius = 4.0
+height = 8.0
+radial_segments = 12
+rings = 12
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rf88v"]
+albedo_color = Color(0.92941177, 0.9764706, 0.27450982, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_ynl81"]
+material = SubResource("StandardMaterial3D_rf88v")
 radius = 4.0
 height = 8.0
 radial_segments = 12
@@ -6022,7 +6052,18 @@ mission_data = ExtResource("41_44s4c")
 shape = SubResource("SphereShape3D_44s4c")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Score"]
-mesh = SubResource("SphereMesh_kq8oo")
+mesh = SubResource("SphereMesh_h44hj")
+
+[node name="Label3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Score"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.9194775, 0)
+pixel_size = 0.05
+billboard = 1
+modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
+outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
+text = "Trickster 2000"
+font_size = 30
+outline_size = 20
+uppercase = true
 
 [node name="Enemies" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -203.60689, 1.9364719, 47.982536)
@@ -6036,10 +6077,21 @@ mission_data = ExtResource("42_qdutf")
 shape = SubResource("SphereShape3D_44s4c")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Enemies"]
-mesh = SubResource("SphereMesh_kq8oo")
+mesh = SubResource("SphereMesh_ioiyf")
+
+[node name="Label3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Enemies"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.9194775, 0)
+pixel_size = 0.05
+billboard = 1
+modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
+outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
+text = "Carnage"
+font_size = 30
+outline_size = 20
+uppercase = true
 
 [node name="Obakes" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 110.51259, 1.9364719, 232.89275)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 119.285416, 1.9364719, 241.77068)
 disable_mode = 2
 collision_layer = 4
 collision_mask = 2
@@ -6051,6 +6103,17 @@ shape = SubResource("SphereShape3D_44s4c")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Obakes"]
 mesh = SubResource("SphereMesh_kq8oo")
+
+[node name="Label3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Obakes"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.9194775, 0)
+pixel_size = 0.05
+billboard = 1
+modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
+outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
+text = "Capture the Obakes"
+font_size = 30
+outline_size = 20
+uppercase = true
 
 [node name="Roadkill" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 98.66676, 1.9364719, -24.607231)
@@ -6066,6 +6129,17 @@ shape = SubResource("SphereShape3D_44s4c")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Roadkill"]
 mesh = SubResource("SphereMesh_kq8oo")
 
+[node name="Label3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Roadkill"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.9194775, 0)
+pixel_size = 0.05
+billboard = 1
+modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
+outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
+text = "Roadkill"
+font_size = 30
+outline_size = 20
+uppercase = true
+
 [node name="Radar" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 194.75027, 1.9364719, 58.368927)
 disable_mode = 2
@@ -6079,6 +6153,17 @@ shape = SubResource("SphereShape3D_44s4c")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Radar"]
 mesh = SubResource("SphereMesh_kq8oo")
+
+[node name="Label3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Radar"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.9194775, 0)
+pixel_size = 0.05
+billboard = 1
+modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
+outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
+text = "Fuck Detran"
+font_size = 30
+outline_size = 20
+uppercase = true
 
 [node name="EndRunPortal" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions" groups=["next_map_portals"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -57.845234, 1.9364719, -20.908699)
@@ -6094,6 +6179,17 @@ shape = SubResource("SphereShape3D_44s4c")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/EndRunPortal"]
 mesh = SubResource("SphereMesh_yp3g3")
 
+[node name="Label3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/EndRunPortal"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.9194775, 0)
+pixel_size = 0.05
+billboard = 1
+modulate = Color(15.839062, 7.1337852, 4.957465, 1)
+outline_modulate = Color(0.93, 0.1209, 0.1209, 1)
+text = "End Run"
+font_size = 30
+outline_size = 20
+uppercase = true
+
 [node name="Score2" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 232.88293, 33.101078, -214.58961)
 disable_mode = 2
@@ -6106,7 +6202,18 @@ mission_data = ExtResource("47_keab0")
 shape = SubResource("SphereShape3D_44s4c")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Score2"]
-mesh = SubResource("SphereMesh_kq8oo")
+mesh = SubResource("SphereMesh_ynl81")
+
+[node name="Label3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Score2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.9194775, 0)
+pixel_size = 0.05
+billboard = 1
+modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
+outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
+text = "Trickster 8000"
+font_size = 30
+outline_size = 20
+uppercase = true
 
 [node name="StoryModeItems" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
 

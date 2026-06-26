@@ -7,8 +7,8 @@
 script = ExtResource("2_wessu")
 mission_type = 1
 mission_id = "m_02"
-mission_name = "Kill everyone"
-mission_description = "Coma o cu de 3 caras"
+mission_name = "Carnage"
+mission_description = "Deguste o ânus de 3 oponentes"
 time_limit = 200.0
 mission_reward_points = 2000
 mission_environment = ExtResource("1_ma3il")

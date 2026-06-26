@@ -13,7 +13,7 @@ metadata/_custom_type_script = "uid://2oic07orss4"
 
 [resource]
 script = ExtResource("1_dvnv8")
-mission_name = "Trickster"
+mission_name = "Trickster 2000"
 mission_description = "Score over 2.000 points"
 time_limit = 30.0
 mission_reward_points = 1500

@@ -17,6 +17,7 @@ var collected_items_ids: Array[String] = []
 var story_total_points: int = 0
 var points_to_next_city: int = 5000 # O alvo para abrir a próxima cidade
 var completed_story_missions : Array[String] = []
+var total_tokens: int = 0
 
 # Agora cada jogador é um Dicionário: {"esquema": "J1", "carro_cena": PackedScene}
 var dados_jogadores = [null, null, null, null]
