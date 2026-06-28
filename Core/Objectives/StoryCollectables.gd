@@ -76,9 +76,10 @@ func _iniciar_animacao_flutuante():
 	var visual = find_child("Visual", true, false)
 	if not visual: return
 	
-	var tween_move = create_tween().set_loops()
+	# O segredo é o .bind_node(visual) - ele atrela a vida do Tween à vida da malha!
+	var tween_move = create_tween().bind_node(visual).set_loops()
 	tween_move.tween_property(visual, "position:y", 0.3, 1.5).as_relative().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tween_move.tween_property(visual, "position:y", -0.3, 1.5).as_relative().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	
-	var tween_spin = create_tween().set_loops()
+	var tween_spin = create_tween().bind_node(visual).set_loops()
 	tween_spin.tween_property(visual, "rotation:y", TAU, 3.0).as_relative()

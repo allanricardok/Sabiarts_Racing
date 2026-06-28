@@ -8,6 +8,7 @@ var pode_pausar: bool = true
 @onready var resume_btn = %ResumeBtn 
 @onready var menu_btn = %MenuBtn
 @onready var end_match_btn = get_node_or_null("%EndMatchBtn")
+@onready var main_button_container = $Control/VBoxContainer
 
 var camera_select_btn: OptionButton
 var abort_mission_btn: Button 
@@ -136,8 +137,43 @@ func _atualizar_lista_missoes():
 		_atualizar_lista_classica()
 
 func _atualizar_lista_historia():
+	# 1. Limpa a lista de missões (Esquerda)
+	for child in mission_container.get_children():
+		child.queue_free()
+		
+	# 2. Limpa o botão antigo de Restart (Direita) para não duplicar!
+	var old_btn = main_button_container.get_node_or_null("DynamicRestartBtn")
+	if is_instance_valid(old_btn):
+		old_btn.queue_free()
+		
+	var controller = get_tree().get_first_node_in_group("StoryController")
+	
+	# =====================================================================
+	# --- GERADOR AUTOMÁTICO DO RESTART LAST MISSION (LADO DIREITO) ---
+	# =====================================================================
+	if controller:
+		if not controller.is_mission_running and controller.last_played_mission != null:
+			var restart_btn = Button.new()
+			restart_btn.name = "DynamicRestartBtn" # Dá um nome fixo para acharmos e apagarmos depois
+			restart_btn.text = "Restart Last Mission"
+			restart_btn.add_theme_color_override("font_color", Color.ORANGE)
+			
+			restart_btn.pressed.connect(func():
+				get_tree().paused = false
+				hide() 
+				controller.start_last_played_mission()
+			)
+			
+			# Adiciona no container de botões principais (Direita)
+			main_button_container.add_child(restart_btn)
+			
+			# Move o botão para o índice 1 (Ficará exatamente abaixo do "ResumeBtn", que é o índice 0)
+			# Se quiser que ele seja o primeirão de todos no topo, mude para 0!
+			main_button_container.move_child(restart_btn, 1) 
+	# =====================================================================
+
 	# ---------------------------------------------------------
-	# PARTE 1: MISSÕES
+	# PARTE 1: MISSÕES (O seu código original continua exatamente igual daqui para baixo)
 	# ---------------------------------------------------------
 	var portals = get_tree().get_nodes_in_group("mission_portals")
 	
@@ -149,6 +185,13 @@ func _atualizar_lista_historia():
 	for portal in portals:
 		if "mission_data" in portal and portal.mission_data:
 			var m_data = portal.mission_data
+			
+			# Trava de pontos que adicionamos anteriormente
+			var required_pts = m_data.required_unlock_points if "required_unlock_points" in m_data else 0
+			var current_pts = Global.story_total_points if is_instance_valid(Global) else 0
+			if current_pts < required_pts:
+				continue
+				
 			var is_completed = Global.completed_story_missions.has(m_data.mission_id)
 			
 			var h_box = HBoxContainer.new()
@@ -160,7 +203,7 @@ func _atualizar_lista_historia():
 			
 			h_box.add_child(lbl)
 			mission_container.add_child(h_box)
-			
+
 	# ---------------------------------------------------------
 	# PARTE 2: COLETÁVEIS SECRETOS
 	# ---------------------------------------------------------

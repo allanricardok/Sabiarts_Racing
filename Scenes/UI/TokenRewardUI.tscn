@@ -1,0 +1,102 @@
+[gd_scene load_steps=4 format=3 uid="uid://dpwm3nbh0pryq"]
+
+[ext_resource type="Script" uid="uid://cddumetm1op54" path="res://Core/PlayerScripts/UI/TokenRewardUI.gd" id="1_ai2nf"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nqav1"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.1, 0.1, 0.1, 0.6)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+corner_detail = 5
+expand_margin_left = 8.0
+expand_margin_top = 8.0
+expand_margin_right = 8.0
+expand_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jrnx4"]
+bg_color = Color(0.5664601, 0.5664601, 0.85295856, 0.3647059)
+
+[node name="TokenRewardUI" type="CanvasLayer"]
+process_mode = 3
+script = ExtResource("1_ai2nf")
+
+[node name="Control" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect" type="ColorRect" parent="Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0.039215688, 0.16470589, 0.94509804)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -343.0
+offset_top = 64.0
+offset_right = 343.0
+offset_bottom = 846.0
+grow_horizontal = 2
+theme_override_constants/separation = 15
+
+[node name="TitleLabel" type="Label" parent="Control/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 42
+text = "Highscores:"
+
+[node name="StatusLabel" type="Label" parent="Control/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Exemple"
+
+[node name="TokensGanhosLabel" type="Label" parent="Control/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Exemple"
+
+[node name="SaldoTotalLabel" type="Label" parent="Control/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Exemple"
+
+[node name="FecharBtn" type="Button" parent="Control"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -417.0
+offset_top = -126.0
+offset_right = -47.0
+offset_bottom = -51.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 48
+theme_override_styles/normal = SubResource("StyleBoxFlat_nqav1")
+theme_override_styles/focus = SubResource("StyleBoxFlat_jrnx4")
+text = "Resume"
+
+[connection signal="pressed" from="Control/FecharBtn" to="." method="_on_fechar_pressed"]

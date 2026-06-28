@@ -7,7 +7,6 @@ extends CanvasLayer
 @onready var mission_scroll = %ScrollContainer # Pegando o container inteiro para esconder
 
 # --- NOVAS REFERÊNCIAS: Dicas de Controle ---
-# Certifique-se de marcar "Use Unique Name" (%) no Editor para estes nós
 @onready var control_img_key = get_node_or_null("%ControlHintKey")
 @onready var control_img_joy = get_node_or_null("%ControlHintJoy")
 
@@ -15,10 +14,15 @@ extends CanvasLayer
 @onready var clear_button = get_node_or_null("%ClearDataButton")
 
 func _ready():
-	# IMPORTANTE: O Process Mode do StartMenu deve estar como "Always" no Inspetor
 	get_tree().paused = true
 	show()
 	start_button.grab_focus()
+	
+	# Zera as flags de repetição de missão da run anterior ao entrar no menu
+	if is_instance_valid(Global) and "missions_repeated_this_run" in Global:
+		Global.missions_repeated_this_run.clear()
+	
+	# --- CORREÇÃO: Removida a linha _mudar_estado(State.ROOT) que gerava o erro de escopo ---
 	
 	# Garante que as dicas de controle começam escondidas
 	if control_img_key: control_img_key.hide()
@@ -27,19 +31,17 @@ func _ready():
 	# --- LÓGICA ESPECÍFICA DO TUTORIAL ---
 	if Global.current_run_mode == Global.RunMode.FREE_ROAM:
 		print("[StartMenu] Modo Tutorial detectado. Configurando UI...")
-		# Esconde a lista padrão de missões
 		if mission_scroll:
 			mission_scroll.visible = false
-			
-		# Tenta exibir a imagem de controle correta baseada no Jogador 1
 		_exibir_controles_tutorial()
 	
-	# Conecta o botão de limpar dados se ele existir na cena
 	if clear_button:
+		# Evita conexões duplicadas limpando conexões antigas se houverem
+		if clear_button.pressed.is_connected(_on_clear_data_btn_pressed):
+			clear_button.pressed.disconnect(_on_clear_data_btn_pressed)
 		clear_button.pressed.connect(_on_clear_data_btn_pressed)
 		print("[StartMenu] Botão de reset de dados conectado.")
 	
-	# Aguarda o MissionManager carregar os dados persistentes
 	await get_tree().process_frame
 	_preencher_missoes()
 
@@ -157,3 +159,8 @@ func _on_clear_data_btn_pressed():
 	# 3. Atualiza a interface do menu imediatamente
 	_preencher_missoes()
 	print("[StartMenu] Interface resetada após limpeza de dados.")
+	
+	if is_instance_valid(Global):
+		Global.total_tokens = 0
+		Global.missions_repeated_this_run.clear()
+		Global.save_player_profile()

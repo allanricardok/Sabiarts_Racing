@@ -13,6 +13,32 @@ func _ready():
 		if mission_data and Global.completed_story_missions.has(mission_data.mission_id):
 			make_semitransparent()
 
+	# --- NOVO: Checa se a missão tem pontos suficientes para nascer ---
+	if not is_unlocked():
+		_hide_and_disable()
+
+# Função auxiliar para o sistema perguntar se a missão já está liberada
+func is_unlocked() -> bool:
+	if not mission_data: return true
+	var required = mission_data.required_unlock_points if "required_unlock_points" in mission_data else 0
+	var current = Global.story_total_points if is_instance_valid(Global) and "story_total_points" in Global else 0
+	return current >= required
+
+func _hide_and_disable():
+	visible = false
+	is_active = false
+	set_deferred("monitoring", false)
+	set_deferred("monitorable", false)
+
+# Esta função será usada pelo Controlador para religar o portal de forma segura
+func activate_portal_safely():
+	if not is_unlocked(): return # Trava: se não tiver pontos, recusa a ativação!
+	
+	visible = true
+	is_active = true
+	set_deferred("monitoring", true)
+	set_deferred("monitorable", true)
+
 func _on_body_entered(body):
 	if not is_active: return
 	

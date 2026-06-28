@@ -36,3 +36,7 @@ enum MissionType { CLASSIC_OBJECTIVE, COMBAT_DESTROY }
 @export var enemy_damage_dealt_mult: float = 1.0
 ## Multiplicador de dano que os bots RECEBEM nesta missão (1.0 = normal, 0.8 = 20% de resistência)
 @export var enemy_damage_received_mult: float = 1.0
+
+@export_group("Desbloqueio")
+## Quantos pontos de história o jogador precisa ter para esta missão aparecer no mapa e nos menus. (0 = sempre visível)
+@export var required_unlock_points: int = 0

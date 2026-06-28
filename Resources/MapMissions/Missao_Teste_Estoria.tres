@@ -8,13 +8,13 @@
 script = ExtResource("1_dl0aj")
 id = "69_RS"
 description = "Trickster"
-target_value = 2000.0
+target_value = 1000.0
 metadata/_custom_type_script = "uid://2oic07orss4"
 
 [resource]
 script = ExtResource("1_dvnv8")
-mission_name = "Trickster 2000"
-mission_description = "Score over 2.000 points"
+mission_name = "Trickster 1000"
+mission_description = "Score over 1.000 points"
 time_limit = 30.0
 mission_reward_points = 1500
 classic_objective = SubResource("Resource_kmhdb")

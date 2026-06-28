@@ -1,4 +1,4 @@
-[gd_scene load_steps=302 format=3 uid="uid://d1rl8sskrmddj"]
+[gd_scene load_steps=303 format=3 uid="uid://d1rl8sskrmddj"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_u8o8m"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="3_is8dr"]
@@ -56,6 +56,7 @@
 [ext_resource type="Resource" uid="uid://bi8k3texgwi2q" path="res://Resources/MapMissions/Missao_Teste_Estoria6.tres" id="47_keab0"]
 [ext_resource type="PackedScene" uid="uid://c7djmj41vlc02" path="res://Scenes/Prefabs/Items/StoryCollectable.tscn" id="48_i3s4m"]
 [ext_resource type="Script" uid="uid://ckpa324htfvdu" path="res://Core/Objectives/StoryModeController.gd" id="48_neuqn"]
+[ext_resource type="PackedScene" uid="uid://dpwm3nbh0pryq" path="res://Scenes/UI/TokenRewardUI.tscn" id="54_g7yph"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_a70xh"]
 material = ExtResource("3_is8dr")
@@ -6060,7 +6061,7 @@ pixel_size = 0.05
 billboard = 1
 modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
 outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
-text = "Trickster 2000"
+text = "Trickster 1000"
 font_size = 30
 outline_size = 20
 uppercase = true
@@ -6329,6 +6330,9 @@ visible = false
 visible = false
 
 [node name="StoryMissionResultUi" parent="." instance=ExtResource("46_neuqn")]
+visible = false
+
+[node name="TokenRewardUI" parent="." instance=ExtResource("54_g7yph")]
 visible = false
 
 [node name="LevelLogic" type="Node" parent="."]

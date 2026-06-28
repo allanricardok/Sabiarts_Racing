@@ -1,4 +1,3 @@
-# StoryModeController.gd
 extends Node
 class_name StoryModeController
 
@@ -8,6 +7,9 @@ class_name StoryModeController
 @export var mission_ui: CanvasLayer 
 @export var result_ui: CanvasLayer 
 @export var bot_spawner: Node 
+
+var last_played_mission: StoryMissionData = null
+var last_played_portal: StoryMissionPortal = null
 
 var original_env: Environment
 var original_sun_color: Color
@@ -33,22 +35,19 @@ func _ready():
 		original_sun_color = sun_light.light_color
 		original_sun_energy = sun_light.light_energy
 		
-	# Usamos call_deferred para dar tempo de a HUD nascer antes de mandar apagar!
 	call_deferred("_setup_inicial_seguro")
 	call_deferred("_check_next_map_unlock")
 
 func _setup_inicial_seguro():
-	# Oculta de forma segura a interface inteira de missão quando o Free Roam começa
 	get_tree().call_group("HUD", "atualizar_timer", 0.0)
 	get_tree().call_group("HUD", "esconder_timer")
 	get_tree().call_group("HUD", "esconder_missao_ativa")
 
 func _process(delta):
-	if not is_mission_running or get_tree().paused: return
+	# SEGURANÇA MÁXIMA: Se não houver missão válida na memória, aborta o frame na hora
+	if not is_mission_running or get_tree().paused or not current_mission: return
 	
-	# --- 3. VERIFICAÇÃO DE MORTE DO JOGADOR ---
-	if _check_player_death():
-		return
+	if _check_player_death(): return
 	
 	if current_mission.time_limit > 0:
 		mission_timer -= delta
@@ -83,8 +82,7 @@ func _process(delta):
 func _restore_all_health_and_energy():
 	var vehicles = get_tree().get_nodes_in_group("jogadores") + get_tree().get_nodes_in_group("inimigos")
 	for v in vehicles:
-		if not is_instance_valid(v): continue
-		if v.has_method("revive"):
+		if is_instance_valid(v) and v.has_method("revive"):
 			v.revive()
 
 func request_mission_start(portal: StoryMissionPortal, data: StoryMissionData):
@@ -97,17 +95,19 @@ func request_mission_start(portal: StoryMissionPortal, data: StoryMissionData):
 		push_error("[StoryController] UI da missão não configurada!")
 
 func decline_mission():
+	# Modificado para respeitar o bloqueio de pontos
 	for p in get_tree().get_nodes_in_group("mission_portals"):
-		p.visible = true
-		p.is_active = true
-		p.set_deferred("monitoring", true)
-		p.set_deferred("monitorable", true)
+		if p.has_method("activate_portal_safely"):
+			p.activate_portal_safely()
 		
 	current_mission = null
 	active_portal = null
 	get_tree().paused = false
 
 func accept_mission():
+# --- NOVO: Grava na memória para o botão de Restart ---
+	last_played_mission = current_mission
+	last_played_portal = active_portal
 	combat_targets.clear()
 	spawned_bots.clear()
 	active_classic_objective = null
@@ -144,7 +144,6 @@ func accept_mission():
 		p.set_deferred("monitoring", false)
 		p.set_deferred("monitorable", false)
 		
-	# --- 1. Esconde o portal de SAÍDA do mapa durante a missão ---
 	for p in get_tree().get_nodes_in_group("next_map_portals"):
 		p.visible = false
 		p.set_deferred("monitoring", false)
@@ -161,19 +160,12 @@ func accept_mission():
 			for i in range(current_mission.enemy_count):
 				var enemy = bot_spawner.spawn_single_bot(i)
 				if enemy:
-					# =========================================================
-					# INJETA OS BUFFS DE DIFICULDADE DIRETAMENTE NO BOT CRIADO
 					var stats = enemy.find_child("StatsComponent*", true, false)
 					if stats:
-						# Verifica se a missão tem os valores configurados, senão usa 1.0 padrão
-						var dealt = current_mission.enemy_damage_dealt_mult if "enemy_damage_dealt_mult" in current_mission else 1.0
-						var received = current_mission.enemy_damage_received_mult if "enemy_damage_received_mult" in current_mission else 1.0
-						
 						if "damage_dealt_multiplier" in stats:
-							stats.damage_dealt_multiplier = dealt
+							stats.damage_dealt_multiplier = current_mission.enemy_damage_dealt_mult if "enemy_damage_dealt_mult" in current_mission else 1.0
 						if "damage_received_multiplier" in stats:
-							stats.damage_received_multiplier = received
-					# =========================================================
+							stats.damage_received_multiplier = current_mission.enemy_damage_received_mult if "enemy_damage_received_mult" in current_mission else 1.0
 					
 					combat_targets.append(enemy)
 					spawned_bots.append(enemy)
@@ -200,7 +192,6 @@ func accept_mission():
 
 	get_tree().call_group("HUD", "mostrar_missao_ativa", current_mission.mission_name)
 	
-	# --- 2. Controle do Timer na HUD ---
 	if current_mission.time_limit <= 0:
 		get_tree().call_group("HUD", "atualizar_timer", 0.0)
 		get_tree().call_group("HUD", "esconder_timer")
@@ -212,12 +203,10 @@ func accept_mission():
 	get_tree().paused = false
 
 func complete_current_mission():
-	if is_mission_running:
-		end_mission(true)
+	if is_mission_running: end_mission(true)
 
 func abort_current_mission():
-	if is_mission_running:
-		end_mission(false)
+	if is_mission_running: end_mission(false)
 
 func has_active_mission() -> bool:
 	return is_mission_running
@@ -225,8 +214,14 @@ func has_active_mission() -> bool:
 func restart_current_mission():
 	if not is_mission_running or not current_mission: return
 	
-	# Desliga a flag para o sistema de morte não se intrometer
 	is_mission_running = false
+	
+	# =========================================================
+	# --- NOVO: Trava os portais antes de teleportar o carro ---
+	for p in get_tree().get_nodes_in_group("mission_portals"):
+		p.is_active = false
+		p.set_deferred("monitoring", false)
+	# =========================================================
 	
 	# 1. Limpa a arena antiga
 	for bot in spawned_bots:
@@ -244,57 +239,49 @@ func restart_current_mission():
 			node.visible = false
 			node.process_mode = Node.PROCESS_MODE_DISABLED
 	
-	# 2. LÓGICA DE TELEPORTE COM FILTRO DE PLAYER REAL
 	var true_player = null
-	var todos_jogadores = get_tree().get_nodes_in_group("jogadores")
-	
-	for p in todos_jogadores:
+	for p in get_tree().get_nodes_in_group("jogadores"):
 		if is_instance_valid(p) and not p.is_queued_for_deletion():
 			var is_bot = false
 			var ic = p.get_node_or_null("%InputComponent")
 			if not ic: ic = p.find_child("InputComponent*", true, false)
 			
-			if ic and "is_bot" in ic and ic.is_bot:
-				is_bot = true
-				
+			if ic and "is_bot" in ic and ic.is_bot: is_bot = true
 			if not is_bot:
 				true_player = p
 				break
 				
 	if is_instance_valid(true_player) and is_instance_valid(active_portal):
-		# Simula a morte desligando a física
 		true_player.freeze = true
 		true_player.set_physics_process(false)
 		
-		# Matemática da posição do portal
-		var spawn_pos = active_portal.global_position + (active_portal.global_transform.basis.z * 5.0)
-		spawn_pos.y += 2.0 
-		var z_axis = active_portal.global_transform.basis.z
+# 1. Pega a direção e normaliza para ignorar distorções de escala
+		var direcao_frente = active_portal.global_transform.basis.z.normalized()
+		
+		# 2. Afasta exatos 3 metros reais na direção calculada
+		var spawn_pos = active_portal.global_position + (direcao_frente * 4.5)
+		spawn_pos.y += 1.2 
+		
+		# 3. Alinha o carro
+		var z_axis = direcao_frente
 		z_axis.y = 0.0
 		if z_axis.length_squared() < 0.01: z_axis = active_portal.global_transform.basis.x.cross(Vector3.UP)
 		z_axis = z_axis.normalized()
 		var y_axis = Vector3.UP
 		var x_axis = y_axis.cross(z_axis).normalized()
 		
-		# Teleporte imediato forçado
 		true_player.global_transform = Transform3D(Basis(x_axis, y_axis, z_axis), spawn_pos)
 		true_player.linear_velocity = Vector3.ZERO
 		true_player.angular_velocity = Vector3.ZERO
 		
-		# Garante que a Engine registrou a mudança antes de continuar
 		await get_tree().process_frame
 		
-		# CHECAGEM DE SEGURANÇA: Só revive se o nó não tiver sumido neste 1 frame
 		if is_instance_valid(true_player) and true_player.has_method("revive"):
 			true_player.revive()
 	
-	# 3. O SEGREDO FINAL: Esperar 0.2 segundos ANTES de gerar os bots.
 	await get_tree().create_timer(0.2).timeout
-	
-	# Reconstrói a missão
 	accept_mission()
 
-# --- SISTEMA DE MORTE E CHECKPOINT ---
 func _check_player_death() -> bool:
 	var players = get_tree().get_nodes_in_group("jogadores")
 	if players.is_empty(): return false
@@ -309,11 +296,7 @@ func _check_player_death() -> bool:
 			is_dead = true
 				
 		if is_dead:
-			print("[StoryController] Jogador morreu em combate! Resetando para o portal...")
-			
-			# Desliga a flag antes de limpar para não bugar a checagem no frame da morte
 			is_mission_running = false
-			
 			if is_instance_valid(active_portal):
 				_executar_reset_fisico_veiculo(p1)
 			
@@ -332,10 +315,9 @@ func _executar_reset_fisico_veiculo(vehicle: Node3D):
 	z_axis = z_axis.normalized()
 	var y_axis = Vector3.UP
 	var x_axis = y_axis.cross(z_axis).normalized()
-	var safe_basis = Basis(x_axis, y_axis, z_axis)
 	
 	vehicle.freeze = true
-	vehicle.global_transform = Transform3D(safe_basis, spawn_pos)
+	vehicle.global_transform = Transform3D(Basis(x_axis, y_axis, z_axis), spawn_pos)
 	vehicle.linear_velocity = Vector3.ZERO
 	vehicle.angular_velocity = Vector3.ZERO
 	vehicle.freeze = false
@@ -352,8 +334,7 @@ func end_mission(success: bool):
 	
 	await get_tree().create_timer(.5).timeout
 	
-	if is_instance_valid(MissionManager):
-		MissionManager.current_map_data = null
+	if is_instance_valid(MissionManager): MissionManager.current_map_data = null
 	
 	for bot in spawned_bots:
 		if is_instance_valid(bot) and not bot.is_queued_for_deletion():
@@ -366,30 +347,45 @@ func end_mission(success: bool):
 		sun_light.light_color = original_sun_color
 		sun_light.light_energy = original_sun_energy
 
+	# Modificado para respeitar o bloqueio de pontos
 	for p in get_tree().get_nodes_in_group("mission_portals"):
-		p.visible = true
-		p.is_active = true
-		p.set_deferred("monitoring", true)
-		p.set_deferred("monitorable", true)
+		if p.has_method("activate_portal_safely"):
+			p.activate_portal_safely()
 
 	var mission_name_temp = "Missão"
 	var points_earned = 0
+	var tokens_earned = 0 
+	var status_tipo = "LOCKED" 
 	
 	if current_mission:
 		mission_name_temp = current_mission.mission_name
 		if success:
-			if not Global.completed_story_missions.has(current_mission.mission_id):
-				points_earned = current_mission.mission_reward_points
+			var m_id = current_mission.mission_id
+			var is_first_time = not Global.completed_story_missions.has(m_id)
+			var already_repeated_this_run = Global.missions_repeated_this_run.has(m_id)
+			
+			points_earned = current_mission.mission_reward_points
+			
+			if is_first_time:
+				tokens_earned = int(points_earned * 0.20)
+				status_tipo = "FIRST_TIME"
+				
 				Global.story_total_points += points_earned
-				Global.completed_story_missions.append(current_mission.mission_id)
+				Global.completed_story_missions.append(m_id)
+				if Global.has_method("save_story_progress"): Global.save_story_progress()
+				if active_portal: active_portal.make_semitransparent()
 				
-				if Global.has_method("save_story_progress"):
-					Global.save_story_progress()
-				
-				if active_portal:
-					active_portal.make_semitransparent()
+			elif not already_repeated_this_run:
+				tokens_earned = int(points_earned * 0.10)
+				status_tipo = "REPEATED"
+				Global.missions_repeated_this_run.append(m_id)
 			else:
-				points_earned = 0
+				tokens_earned = 0
+				status_tipo = "LOCKED"
+
+			if tokens_earned > 0:
+				Global.total_tokens += tokens_earned
+				if Global.has_method("save_player_profile"): Global.save_player_profile()
 			
 		for path in current_mission.nodes_to_enable:
 			var node = get_node_or_null(path)
@@ -400,7 +396,6 @@ func end_mission(success: bool):
 				node.visible = false
 				node.process_mode = Node.PROCESS_MODE_DISABLED
 	
-	# Cura e revive os carros forçadamente!
 	_restore_all_health_and_energy()
 	
 	if is_instance_valid(ScoreManager):
@@ -411,25 +406,52 @@ func end_mission(success: bool):
 	get_tree().call_group("HUD", "esconder_timer")
 	
 	_check_next_map_unlock()
-
 	get_tree().paused = true
+	
+	if success and current_mission:
+		var token_ui = get_node_or_null("TokenRewardUI") as TokenRewardUI
+		if not token_ui:
+			token_ui = get_tree().current_scene.find_child("TokenRewardUI", true, false) as TokenRewardUI
+			
+		if token_ui:
+			token_ui.exibir_extrato(mission_name_temp, status_tipo, tokens_earned, self)
+			return 
 	
 	if result_ui and result_ui.has_method("show_result"):
 		result_ui.show_result(success, mission_name_temp, points_earned, self)
 
 func resume_open_world():
+	# Garante que nenhuma lógica de missão tente rodar de fundo ao voltar pro Free Roam
+	is_mission_running = false
 	current_mission = null
 	active_portal = null
 	get_tree().paused = false
 
 func _check_next_map_unlock():
+	# 1. Tenta ligar missões normais recém-desbloqueadas
+	for p in get_tree().get_nodes_in_group("mission_portals"):
+		if p.has_method("activate_portal_safely"):
+			p.activate_portal_safely()
+			
+	# 2. Checa o desbloqueio do portal da próxima cidade
 	if is_instance_valid(Global) and "story_total_points" in Global and "points_to_next_city" in Global:
 		if Global.story_total_points >= Global.points_to_next_city:
-			# Acorda todos os portais do próximo mapa!
 			get_tree().call_group("next_map_portals", "activate_portal")
-			
-			# Garante que eles voltem a estar visíveis e interagíveis
 			for p in get_tree().get_nodes_in_group("next_map_portals"):
 				p.visible = true
 				p.set_deferred("monitoring", true)
 				p.set_deferred("monitorable", true)
+
+func start_last_played_mission():
+	if not last_played_mission or not is_instance_valid(last_played_portal): 
+		return
+	
+	# Injeta os dados da memória de volta para as variáveis ativas
+	current_mission = last_played_mission
+	active_portal = last_played_portal
+	
+	# Engana a função de restart para ela achar que estamos no meio da partida
+	is_mission_running = true 
+	
+	# Reaproveita 100% do seu sistema de teleporte, limpeza e recomeço!
+	restart_current_mission()
