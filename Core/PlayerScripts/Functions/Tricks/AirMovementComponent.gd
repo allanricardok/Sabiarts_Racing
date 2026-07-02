@@ -14,6 +14,10 @@ class_name AirMovementComponent
 @export var EXTRA_FALL_FORCE = 25.0 
 @export var FALL_FORCE_BUFFER_DISTANCE = 1.5 
 
+# --- MEMÓRIA DO WALLRIDE (OVERRIDE) ---
+var was_wallriding_internal := false
+var wallride_immunity_timer := 0.0
+
 # --- ESTADO COMPARTILHADO ---
 var is_doing_stunt := false
 var is_slow_mo_active := false
@@ -34,12 +38,12 @@ func _ready():
 func _physics_process(delta):
 	if not car.pode_mover: return
 	
-	# Verifica se há wallride a decorrer ou a estabilizar
-	var wall_rider = car.get_node_or_null("WallRideComponent")
-	var is_wallriding_active = wall_rider and (wall_rider.is_wallriding or wall_rider.is_exiting_wallride)
+	# 1. Pega a inclinação exata do carro (1.0 = em pé, 0.0 = de lado na parede, -1.0 = teto)
+	var orientation = car.global_transform.basis.y.dot(Vector3.UP)
 	
-	# Se houver, a leitura do chão é ignorada para manter o TrickManager em modo de voo!
-	var is_on_ground = check_grounded() if not is_wallriding_active else false
+	# 2. A MÁGICA: Só considera que pousou se as rodas tocarem E o carro não estiver de lado!
+	# Como na parede a orientação é próxima de 0.0, ele vai ignorar as rodas raspando no muro.
+	var is_on_ground = check_grounded() and (orientation > 0.4)
 	
 	if is_on_ground and is_slow_mo_active:
 		_set_slow_motion(false)

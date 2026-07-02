@@ -184,11 +184,29 @@ func _process_wallride(delta):
 func _stop_wallride(reason: String = ""):
 	if not is_wallriding: return
 	is_wallriding = false
-	is_exiting_wallride = true
-	exit_wallride_timer = 0.5 
-	wallride_cooldown = 0.5 
+	
+	if reason == "TRANSITION_JUMP" or reason == "Wall-Jump executado!":
+		is_exiting_wallride = false
+		exit_wallride_timer = 0.0
+	else:
+		is_exiting_wallride = true
+		exit_wallride_timer = 1.0 
+		
+	wallride_cooldown = 1.0
 
 func _process_wallride_exit(delta):
+	# --- NOVO: Se o jogador começar a tentar manobrar no ar, desliga o auto-upright imediatamente! ---
+	if input.is_jump_pressed:
+		car.apply_central_impulse(Vector3.UP * jump_up_force * car.mass)
+		car.apply_central_impulse(current_wall_normal * (jump_up_force * car.mass * 0.5)) 
+		
+		# Adiciona os pontos do Wall Jump direto no combo ativo
+		trick_manager.add_external_action("Wall Jump", 10, TrickManager.COLOR_SPECIAL)
+		
+		# Chamamos com uma razão específica de transição
+		_stop_wallride("TRANSITION_JUMP")
+		return
+
 	exit_wallride_timer -= delta
 	
 	var is_ground_immune = (exit_wallride_timer > 0.3) 

@@ -174,6 +174,7 @@ func equip_special_weapon(new_weapon_res: WeaponResource):
 	else:
 		resource_name_to_check = new_weapon_res.resource_path.get_file().get_basename()
 
+	# 1. Procura se a arma já existe no inventário para somar munição
 	for i in range(weapon_pool.size()):
 		var w = weapon_pool[i]
 		var current_w_name = ""
@@ -185,16 +186,25 @@ func equip_special_weapon(new_weapon_res: WeaponResource):
 
 		if current_w_name == resource_name_to_check or (w.resource_path != "" and w.resource_path == new_weapon_res.resource_path):
 			w.ammo += new_weapon_res.ammo
-			current_weapon_index = i
+			
+			# MODIFICADO: Só muda o índice se o jogador estivesse completamente sem arma especial
+			if current_weapon_index == -1:
+				current_weapon_index = i
+				
 			_update_visual_selection()
 			_atualizar_interface()
 			get_tree().call_group("TutorialUI", "complete_task", "grab_weapon")
 			return
 
+	# 2. Se for uma arma inédita no pool
 	if weapon_pool.size() < MAX_POOL_SIZE:
 		var dup = new_weapon_res.duplicate()
 		weapon_pool.append(dup)
-		current_weapon_index = weapon_pool.size() - 1
+		
+		# MODIFICADO: Só muda o índice se o jogador estivesse completamente sem arma especial
+		if current_weapon_index == -1:
+			current_weapon_index = weapon_pool.size() - 1
+			
 		_update_visual_selection()
 	
 	_atualizar_interface()
