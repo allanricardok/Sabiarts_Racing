@@ -35,6 +35,16 @@ var jump_start_timestamp : int = 0
 var display_version : int = 0
 var is_showing_final_score := false
 
+# --- BLINDAGEM DE COMBO ---
+var combo_immunity_timer : float = 0.0
+
+func _process(delta):
+	if combo_immunity_timer > 0.0:
+		combo_immunity_timer -= delta
+
+func grant_immunity(duration: float):
+	combo_immunity_timer = duration
+
 # --- LOGICA DE GAPS INTEGRADA (MÚLTIPLOS GAPS) ---
 
 func iniciar_deteccao_gap(gap_id: String):

@@ -85,6 +85,10 @@ func _start_wallride(normal: Vector3):
 	
 	if air_move.is_doing_stunt and is_instance_valid(air_move.stunt_processor):
 		air_move.stunt_processor.apply_stunt_brake()
+		
+	# --- NOVO: Força o desligamento da flag para não travar o StuntProcessor ---
+	if is_instance_valid(air_move):
+		air_move.is_doing_stunt = false
 
 func _process_wallride(delta):
 	time_in_wallride += delta
@@ -185,27 +189,31 @@ func _stop_wallride(reason: String = ""):
 	if not is_wallriding: return
 	is_wallriding = false
 	
+	if is_instance_valid(air_move):
+		if reason != "TRANSITION_JUMP" and reason != "Wall-Jump executado!":
+			if air_move.is_doing_stunt and is_instance_valid(air_move.stunt_processor):
+				air_move.stunt_processor.apply_stunt_brake()
+			car.angular_velocity = Vector3.ZERO
+	
 	if reason == "TRANSITION_JUMP" or reason == "Wall-Jump executado!":
 		is_exiting_wallride = false
 		exit_wallride_timer = 0.0
+		wallride_cooldown = 0.4 # Cooldown curto apenas para não grudar nas próprias costas ao pular
 	else:
 		is_exiting_wallride = true
-		exit_wallride_timer = 1.0 
-		
-	wallride_cooldown = 1.0
-
+		exit_wallride_timer = 0.5 
+		wallride_cooldown = 0.0 # ZERO cooldown! Permite grudar na parede da frente instantaneamente.
+	
 func _process_wallride_exit(delta):
-	# --- NOVO: Se o jogador começar a tentar manobrar no ar, desliga o auto-upright imediatamente! ---
-	if input.is_jump_pressed:
-		car.apply_central_impulse(Vector3.UP * jump_up_force * car.mass)
-		car.apply_central_impulse(current_wall_normal * (jump_up_force * car.mass * 0.5)) 
-		
-		# Adiciona os pontos do Wall Jump direto no combo ativo
-		trick_manager.add_external_action("Wall Jump", 10, TrickManager.COLOR_SPECIAL)
-		
-		# Chamamos com uma razão específica de transição
-		_stop_wallride("TRANSITION_JUMP")
+	# =====================================================================
+	# TRAVA DE SEGURANÇA CONTRA CONFLITO DE MANOBRAS (CORTA-CIRCUITO)
+	# Se o componente aéreo iniciou um mortal/giro, desliga o alinhamento
+	# da parede no mesmo frame para não travar a rotação física do carro!
+	# =====================================================================
+	if is_instance_valid(air_move) and air_move.is_doing_stunt:
+		is_exiting_wallride = false
 		return
+	# =====================================================================
 
 	exit_wallride_timer -= delta
 	

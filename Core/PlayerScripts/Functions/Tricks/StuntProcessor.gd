@@ -76,6 +76,10 @@ func _emitir_falha_energia():
 		ability._erro_falta_energia()
 
 func _start_rotation_stunt(axis: Vector3, p_mult: float):
+	print("=========================================")
+	print("[STUNT PROCESSOR] 🎬 INICIANDO MANOBRA: ", current_trick_id)
+	print(" -> Retirando atrito (angular_damp = 0.01)")
+	
 	parent.is_doing_stunt = true
 	accumulated_angle = 0.0
 	stunt_timeout = 2.0
@@ -100,9 +104,40 @@ func _start_rotation_stunt(axis: Vector3, p_mult: float):
 
 func process_stunt_rotation(delta):
 	if current_trick_id == "EMOTE": return
-	if car.get_contact_count() > 0:
-		apply_stunt_brake()
-		return
+
+	var is_immune = false
+	var wall_rider = car.get_node_or_null("%WallRideComponent")
+	if not wall_rider: wall_rider = car.find_child("WallRideComponent", true, false)
+	
+	if is_instance_valid(wall_rider):
+		if wall_rider.get("is_exiting_wallride") or wall_rider.get("wallride_cooldown") > 0.0:
+			is_immune = true
+
+	# =========================================================
+	# CORREÇÃO: O RAIO-X DO CHÃO
+	# Como não podemos ler a normal da colisão diretamente aqui, 
+	# nós lançamos um raio para baixo sempre que o carro bater em algo.
+	# =========================================================
+	if not is_immune and car.get_contact_count() > 0:
+		var bateu_no_chao = false
+		var space_state = car.get_world_3d().direct_space_state
+		
+		# Dispara um raio de 2.5 metros do centro do carro para baixo (gravidade)
+		var query = PhysicsRayQueryParameters3D.create(car.global_position, car.global_position + (Vector3.DOWN * 2.5))
+		query.exclude = [car.get_rid()]
+		query.hit_from_inside = true
+		
+		var result = space_state.intersect_ray(query)
+		
+		# Se atingiu algo logo abaixo e a superfície aponta para cima (chão)
+		if result and result.normal.y > 0.4:
+			bateu_no_chao = true
+			
+		# Só trava a manobra se realmente bateu as costas/teto no chão!
+		if bateu_no_chao:
+			apply_stunt_brake("Colisão com o CHÃO interrompeu a manobra!")
+			return
+	# =========================================================
 
 	var current_basis = car.global_transform.basis
 	var frame_angle = (last_basis.inverse() * current_basis).get_rotation_quaternion().get_angle()
@@ -112,8 +147,31 @@ func process_stunt_rotation(delta):
 
 	if accumulated_angle >= (PI * 1.6) and not trickdone:
 		_confirm_trick_success()
-	if accumulated_angle >= (PI * 2) or stunt_timeout <= 0:
-		apply_stunt_brake()
+		
+	if accumulated_angle >= (PI * 2):
+		apply_stunt_brake("Giro completo concluído com sucesso!")
+	elif stunt_timeout <= 0:
+		apply_stunt_brake("Timeout estourou.")
+
+# --- MÁQUINA DE FREIO BLINDADA ---
+func apply_stunt_brake(motivo: String = "Chamada Forçada"):
+	print("[STUNT PROCESSOR] 🛑 FREIO ACIONADO! Motivo: ", motivo)
+	
+	if is_invincible: _call_ability_shield(false)
+	
+	# Garante que o atrito volta ao normal SEMPRE
+	car.angular_damp = parent.original_angular_damp
+	print(" -> Atrito restaurado para normal: ", parent.original_angular_damp)
+	
+	if current_trick_id != "EMOTE" and current_trick_id != "":
+		var local_vel = car.global_transform.basis.inverse() * car.angular_velocity
+		local_vel -= current_stunt_axis * local_vel.dot(current_stunt_axis)
+		car.angular_velocity = car.global_transform.basis * local_vel
+	
+	parent.is_doing_stunt = false
+	current_trick_id = ""
+	accumulated_angle = 0.0
+	print("=========================================")
 
 func _confirm_trick_success():
 	if current_trick_id != "" and parent.trick_manager:
@@ -123,19 +181,6 @@ func _confirm_trick_success():
 		# Cole logo antes do trickdone = true:
 	get_tree().call_group("TutorialUI", "complete_task", "trick")
 	trickdone = true
-
-func apply_stunt_brake():
-	if is_invincible: _call_ability_shield(false)
-	car.angular_damp = parent.original_angular_damp
-	
-	if current_trick_id != "EMOTE":
-		var local_vel = car.global_transform.basis.inverse() * car.angular_velocity
-		local_vel -= current_stunt_axis * local_vel.dot(current_stunt_axis)
-		car.angular_velocity = car.global_transform.basis * local_vel
-	
-	parent.is_doing_stunt = false
-	current_trick_id = ""
-	accumulated_angle = 0.0
 
 func _apply_instant_physics(id: String):
 	if id == "FIREBALL":
