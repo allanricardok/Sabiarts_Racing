@@ -96,10 +96,18 @@ func _process(delta):
 		
 	# --- HABILIDADES NOVAS: PULO (L1) E TURBO (DOUBLE TAP) ---
 	if current_cooldown <= 0:
-		# --- CORREÇÃO: LÊ A VARIÁVEL DE PULO DO INPUT COMPONENT ---
+		# LÊ O ESTADO DO MURO ANTES DE AGIR
+		var wall_rider = car.get_node_or_null("%WallRideComponent")
+		var is_wallriding = wall_rider and wall_rider.get("is_wallriding")
+		
 		if input.is_jump_pressed:
-			if current_energy >= COST_JUMP: _execute_jump()
-			else: _erro_falta_energia()
+			# Só executa o pulo normal se o carro NÃO estiver no muro
+			if not is_wallriding:
+				if current_energy >= COST_JUMP: 
+					_execute_jump()
+				else: 
+					_erro_falta_energia()
+			# Se estiver no muro, ele ignora o input e deixa o WallRideComponent trabalhar!
 			
 		# Turbo via Double Tap (Lê a variável do InputComponent)
 		elif input.is_turbo_pressed:
@@ -108,9 +116,7 @@ func _process(delta):
 			else: 
 				_erro_falta_energia()
 			# Força o desligamento da variável para não metralhar turbo enquanto segura o botão
-			input.is_turbo_pressed = false 
-
-	_was_attribute_pressed = input.is_attribute_pressed
+			input.is_turbo_pressed = false
 
 func _checar_combos_habilidade():
 	# Mantivemos apenas as habilidades do "Círculo" aqui

@@ -44,16 +44,33 @@ func _physics_process(delta):
 	var wall_rider = car.get_node_or_null("%WallRideComponent")
 	if not wall_rider: wall_rider = car.find_child("WallRideComponent", true, false)
 			
-	var is_wallriding_active = false
+	var is_wallriding = false
+	var time_out_of_wall = 999.0
+	
 	if is_instance_valid(wall_rider):
-		# Agora o escudo abraça totalmente o cooldown do pulo
-		is_wallriding_active = wall_rider.get("is_wallriding") or wall_rider.get("is_exiting_wallride") or (wall_rider.get("wallride_cooldown") > 0.0)
+		# Lemos apenas se ele está GRUDADO. Ignoramos a flag de "exiting" de 0.5s!
+		is_wallriding = wall_rider.get("is_wallriding")
+		time_out_of_wall = wall_rider.get("time_since_last_wallride")
 	
 	var is_on_ground = false
-	if not is_wallriding_active:
-		# A MÁGICA GEOMÉTRICA: Pousa apenas se tocar fisicamente E estiver minimamente em pé.
-		# Como na parede ele está escorregando de lado (orientation < 0.3), ele ignora o muro!
+	
+	# =========================================================
+	# O FIM DO DELAY DE 0.5 SEGUNDOS:
+	# O chão só é ignorado se o carro estiver ativamente surfando 
+	# OU tentando emendar um Transfer (segurando Triângulo) logo após sair.
+	# Se soltou o Triângulo e caiu livremente, o pouso é exato no frame do impacto!
+	# =========================================================
+	var is_transfer_protected = (time_out_of_wall < 0.5) and input.is_stunt_pressed
+	
+	if not is_wallriding and not is_transfer_protected:
 		is_on_ground = check_grounded() and (orientation > 0.3)
+		
+	# --- DEBUG LIMPO DE POUSO ---
+	if is_on_ground and not was_on_ground:
+		print("=========================================")
+		print("[AIR DEBUG] 🛬 ATERRISSAGEM CONFIRMADA INSTANTANEAMENTE!")
+		print(" -> Tempo de queda após o muro: ", snapped(time_out_of_wall, 0.1), "s")
+		print("=========================================")
 	
 	if is_on_ground and is_slow_mo_active:
 		_set_slow_motion(false)
@@ -63,8 +80,13 @@ func _physics_process(delta):
 	
 	if not is_on_ground:
 		max_air_height = max(max_air_height, car.global_position.y)
-		_handle_air_logic(delta)
+		
+		# O TrickManager ainda recebe o Coyote Time de 1.0s para não cancelar o combo 
+		# por causa da "quina" do prédio, mesmo que a física não esteja protegida.
+		var is_coyote_air_active = (time_out_of_wall < 1.0)
+		_handle_air_logic(delta, is_coyote_air_active)
 	else:
+		# Pousou de verdade! Sem delays artificiais de 0.5s.
 		if not was_on_ground:
 			var fall_distance = max_air_height - car.global_position.y
 			if fall_distance > 10.0:
@@ -72,18 +94,16 @@ func _physics_process(delta):
 					car.play_camera_shake("HardLand")
 			max_air_height = car.global_position.y
 			
-		# O POUSO PERFEITO: Caiu de pé (> 0.3) E terminou de fazer as manobras
 		var is_clean = (orientation > 0.3) and not is_doing_stunt
 			
 		if is_doing_stunt:
-			stunt_processor.apply_stunt_brake()
+			stunt_processor.apply_stunt_brake("Pouso no asfalto detectado.")
 			
 		trick_manager.check_landing(is_clean)
 
 	was_on_ground = is_on_ground
 
-
-func _handle_air_logic(delta):
+func _handle_air_logic(delta, forcing_coyote: bool):
 	if Input.is_action_just_pressed("slow_mo"): 
 		if not is_slow_mo_active:
 			if _modify_energy(0.0): 
@@ -92,21 +112,17 @@ func _handle_air_logic(delta):
 			_set_slow_motion(false)
 		get_viewport().set_input_as_handled()
 		
-	var near_ground = is_near_ground()
-	var orientation = car.global_transform.basis.y.dot(Vector3.UP)
+	# =========================================================
+	# BLINDAGEM DO TRICK MANAGER
+	# Se estiver no Coyote Time, forçamos o near_ground a ser FALSO.
+	# Impede que a UI feche o combo meio segundo antes do carro bater.
+	# =========================================================
+	var near_ground = false if forcing_coyote else is_near_ground()
+	
+	trick_manager.process_air_time(delta, near_ground)
 	
 	var wall_rider = car.get_node_or_null("%WallRideComponent")
 	if not wall_rider: wall_rider = car.find_child("WallRideComponent", true, false)
-			
-	var is_wallriding_or_cooldown = false
-	if is_instance_valid(wall_rider):
-		# Adicione o bloqueio do cooldown aqui também!
-		is_wallriding_or_cooldown = wall_rider.get("is_wallriding") or wall_rider.get("is_exiting_wallride") or (wall_rider.get("wallride_cooldown") > 0.0)
-	# Previne que o combo quebre na exata fração de segundo em que o carro desconecta do muro de lado
-	if orientation < 0.2 and near_ground and not is_doing_stunt and not is_wallriding_or_cooldown:
-		trick_manager.reset_trick()
-	else:
-		trick_manager.process_air_time(delta, near_ground)
 	
 	if not is_instance_valid(wall_rider) or not wall_rider.get("is_wallriding"):
 		_apply_fast_fall(delta)
@@ -114,6 +130,35 @@ func _handle_air_logic(delta):
 		
 		if is_doing_stunt:
 			stunt_processor.process_stunt_rotation(delta)
+
+func check_grounded() -> bool:
+	# =========================================================
+	# BLINDAGEM DO WALL-JUMP: Regra de Ouro da Física
+	# Se a velocidade Y é maior que 2.0 (o carro está subindo),
+	# é impossível aterrissar. Retorna falso e protege o salto!
+	# =========================================================
+	if car.linear_velocity.y > 2.0:
+		return false
+
+	var space_state = car.get_world_3d().direct_space_state
+	var valid_ground_found = false
+	
+	for child in car.get_children():
+		if child is VehicleWheel3D and child.is_in_contact():
+			# Raio míope: enxerga apenas 20cm além da roda
+			var ray_dist = child.wheel_radius + 0.2
+			var query = PhysicsRayQueryParameters3D.create(child.global_position, child.global_position + (Vector3.DOWN * ray_dist))
+			query.exclude = [car.get_rid()]
+			query.hit_from_inside = true
+			
+			var result = space_state.intersect_ray(query)
+			
+			# Chão plano ou rampa suave
+			if result and result.normal.y > 0.8:
+				valid_ground_found = true
+				break
+				
+	return valid_ground_found
 
 func _process_slomo_drain(delta):
 	slomo_drain_timer += delta / Engine.time_scale
@@ -166,28 +211,6 @@ func is_near_ground() -> bool:
 	var query = PhysicsRayQueryParameters3D.create(car.global_position, car.global_position + Vector3.DOWN * FALL_FORCE_BUFFER_DISTANCE, 1)
 	query.exclude = [car.get_rid()]
 	return space_state.intersect_ray(query).size() > 0
-
-func check_grounded() -> bool:
-	var space_state = car.get_world_3d().direct_space_state
-	var valid_ground_found = false
-	
-	for child in car.get_children():
-		if child is VehicleWheel3D and child.is_in_contact():
-			# A RODA BATEU EM ALGO! Mas é parede ou chão?
-			# Lançamos um raio curto da roda apontando pra gravidade (baixo)
-			var query = PhysicsRayQueryParameters3D.create(child.global_position, child.global_position + (Vector3.DOWN * 2.0))
-			query.exclude = [car.get_rid()]
-			query.hit_from_inside = true
-			
-			var result = space_state.intersect_ray(query)
-			
-			# Se o raio bateu em algo e essa superfície aponta para cima (chão/rampa)
-			# (Ignora paredes perfeitas onde normal.y é próximo de 0.0)
-			if result and result.normal.y > 0.4:
-				valid_ground_found = true
-				break
-				
-	return valid_ground_found
 
 func _set_slow_motion(active: bool):
 	is_slow_mo_active = active

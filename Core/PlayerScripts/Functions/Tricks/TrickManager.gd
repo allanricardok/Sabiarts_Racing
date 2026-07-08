@@ -227,6 +227,12 @@ func _finalize_score():
 	_update_final_display(hud, final_score, mult)
 
 func reset_trick():
+	if tracking_jump:
+		print("=========================================")
+		print("[TRICK MANAGER] ❌ COMBO PERDIDO/RESETADO!")
+		print(" -> Motivo: Carro capotou, pousou de cabeça para baixo ou bateu forte.")
+		print("=========================================")
+		
 	tracking_jump = false
 	_reset_gap_state_internal()
 	if is_showing_final_score: return
