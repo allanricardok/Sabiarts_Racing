@@ -44,10 +44,16 @@ func _setup_inicial_seguro():
 	get_tree().call_group("HUD", "esconder_missao_ativa")
 
 func _process(delta):
-	# SEGURANÇA MÁXIMA: Se não houver missão válida na memória, aborta o frame na hora
-	if not is_mission_running or get_tree().paused or not current_mission: return
+	# Se o jogo estiver pausado, aborta
+	if get_tree().paused: return
 	
+	# =======================================================
+	# SENSOR LIBERADO: Checa a morte o tempo todo (Missão ou Free Roam)
+	# =======================================================
 	if _check_player_death(): return
+	
+	# SEGURANÇA MÁXIMA: Daqui pra baixo, só roda se a missão for válida!
+	if not is_mission_running or not current_mission: return
 	
 	if current_mission.time_limit > 0:
 		mission_timer -= delta
@@ -296,28 +302,58 @@ func _check_player_death() -> bool:
 			is_dead = true
 				
 		if is_dead:
-			is_mission_running = false
-			if is_instance_valid(active_portal):
-				_executar_reset_fisico_veiculo(p1)
+			# O reset físico (Teleporte e Cura) acontece incondicionalmente!
+			_executar_reset_fisico_veiculo(p1)
 			
-			end_mission(false)
+			# Se estiver numa missão, encerra ela com falha.
+			if is_mission_running:
+				is_mission_running = false
+				end_mission(false)
+				
 			return true
 			
 	return false
 
 func _executar_reset_fisico_veiculo(vehicle: Node3D):
-	var spawn_pos = active_portal.global_position + (active_portal.global_transform.basis.z * 5.0)
-	spawn_pos.y += 2.0 
+	var spawn_transform : Transform3D
 	
-	var z_axis = active_portal.global_transform.basis.z
-	z_axis.y = 0.0
-	if z_axis.length_squared() < 0.01: z_axis = active_portal.global_transform.basis.x.cross(Vector3.UP)
-	z_axis = z_axis.normalized()
-	var y_axis = Vector3.UP
-	var x_axis = y_axis.cross(z_axis).normalized()
+	# =======================================================
+	# ESCOLHA DO DESTINO: Portal da Missão OU Spawn Central?
+	# =======================================================
+	if is_mission_running and is_instance_valid(active_portal):
+		# LÓGICA ORIGINAL: Usa o portal atual com offset
+		var z_axis = active_portal.global_transform.basis.z
+		var spawn_pos = active_portal.global_position + (z_axis * 15.0)
+		spawn_pos.y += 2.0 
+		
+		z_axis.y = 0.0
+		if z_axis.length_squared() < 0.01: z_axis = active_portal.global_transform.basis.x.cross(Vector3.UP)
+		z_axis = z_axis.normalized()
+		var y_axis = Vector3.UP
+		var x_axis = y_axis.cross(z_axis).normalized()
+		
+		spawn_transform = Transform3D(Basis(x_axis, y_axis, z_axis), spawn_pos)
+	else:
+		# LÓGICA FREE ROAM: Busca os spawns na estrutura do seu mapa
+		var spawn_point = get_tree().get_first_node_in_group("SpawnPoint")
+		
+		# PLANO B: Se não achou pelo grupo, busca diretamente pela árvore usando o nó '%' que vimos na imagem
+		if not spawn_point:
+			var container_spawns = get_tree().current_scene.find_child("SpawnPoints", true, false)
+			if container_spawns and container_spawns.get_child_count() > 0:
+				# Pega o primeiro spawn disponível (Spawn1)
+				spawn_point = container_spawns.get_child(0)
+		
+		# Aplica o transform se encontrou o ponto, senão mantém a posição atual como fallback
+		if spawn_point:
+			spawn_transform = spawn_point.global_transform
+		else:
+			print("[StoryModeController] AVISO: Nenhum SpawnPoint foi encontrado!")
+			spawn_transform = vehicle.global_transform
+	# =======================================================
 	
 	vehicle.freeze = true
-	vehicle.global_transform = Transform3D(Basis(x_axis, y_axis, z_axis), spawn_pos)
+	vehicle.global_transform = spawn_transform
 	vehicle.linear_velocity = Vector3.ZERO
 	vehicle.angular_velocity = Vector3.ZERO
 	vehicle.freeze = false
