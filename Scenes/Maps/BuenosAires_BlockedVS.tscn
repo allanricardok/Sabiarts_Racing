@@ -3235,7 +3235,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 61.033615, 45.748463, -288.05
 shape = SubResource("ConcavePolygonShape3D_pyjdw")
 
 [node name="MeshInstance3D8" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Interiors"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 61.033615, 28.650036, -288.05927)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 61.044, 28.65, -288.059)
 mesh = SubResource("BoxMesh_ynl81")
 
 [node name="CollisionShape3D2" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Interiors"]
@@ -3243,7 +3243,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 61.033615, 28.650036, -288.05
 shape = SubResource("ConcavePolygonShape3D_vbp2c")
 
 [node name="MeshInstance3D9" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Interiors"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.49225, 36.091297, -288.05927)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.416, 36.091, -288.059)
 mesh = SubResource("BoxMesh_kbvtn")
 
 [node name="CollisionShape3D3" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Interiors"]
@@ -3251,7 +3251,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.49225, 36.091297, -288.059
 shape = SubResource("ConcavePolygonShape3D_oublg")
 
 [node name="MeshInstance3D10" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Interiors"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 61.024757, 36.257473, -209.03075)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 61.04, 36.257, -209.031)
 mesh = SubResource("BoxMesh_6a8qd")
 
 [node name="CollisionShape3D4" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Interiors"]

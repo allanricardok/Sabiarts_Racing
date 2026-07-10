@@ -94,7 +94,7 @@ func _process(delta):
 # 1. ABRE A RODA E LIGA A CÂMERA LENTA
 		if Input.is_action_just_pressed(wheel_action): # <-- APAGAMOS A TRAVA AQUI!
 			is_wheel_open = true
-			Engine.time_scale = 0.5
+			Engine.time_scale = 0.4
 			if is_instance_valid(wheel_ui_node):
 				wheel_ui_node.open_wheel(weapon_pool)
 				
@@ -125,14 +125,14 @@ func _process(delta):
 				hovered_weapon_index = wheel_ui_node.update_selection(analog_dir)
 				
 			return # CORTA A EXECUÇÃO AQUI! Não deixa atirar nem fazer outras coisas enquanto a roda está aberta.
-		# ... (A partir daqui continua o seu código normal de atirar e ciclar pelo teclado)
 		var is_doing_ability = (input.ability_up or input.ability_down or input.ability_left or input.ability_right)
 		is_firing = input.is_action_pressed and not is_doing_ability
 
+		# =========================================================
+		# LIMPEZA CONCLUÍDA: Apenas Teclado/Mouse pode usar troca sequencial agora!
+		# =========================================================
 		if input.suffix.begins_with("_K"):
 			if Input.is_action_just_pressed("prev_weapon" + input.suffix): _switch_weapon(-1)
-			if Input.is_action_just_pressed("next_weapon" + input.suffix): _switch_weapon(1)
-		else:
 			if Input.is_action_just_pressed("next_weapon" + input.suffix): _switch_weapon(1)
 			
 # --- LÓGICA DE TIRO LIMPA E CORRIGIDA ---

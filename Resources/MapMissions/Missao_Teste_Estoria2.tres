@@ -14,5 +14,7 @@ mission_reward_points = 2000
 mission_environment = ExtResource("1_ma3il")
 mission_sun_color = Color(1.5003835, 0, 0, 0.33100003)
 mission_sun_energy = 0.6
+enemy_damage_dealt_mult = 0.8
+enemy_damage_received_mult = 2.0
 required_unlock_points = 3000
 metadata/_custom_type_script = "uid://o1ox0n7mmqv"

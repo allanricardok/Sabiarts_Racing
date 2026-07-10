@@ -12,6 +12,9 @@ var force_target_all : bool = false
 var last_selected_target : Node3D = null 
 var _previous_adversary_count : int = 0
 
+# --- NOVO: Cérebro de Abas Dinâmicas ---
+var valid_category_indices : Array[int] = [0] # 0 sempre existe como fallback
+
 @export_group("Radar e Sensores")
 @export var radar_range : float = 350.0 
 @export_flags_3d_physics var los_collision_mask = 1 
@@ -34,10 +37,18 @@ func _process(delta):
 	
 	var real_delta = delta / Engine.time_scale if car.is_in_group("jogadores") else delta
 	
-	if Input.is_action_just_pressed("cat_left" + input.suffix): _cycle_category(-1)
-	if Input.is_action_just_pressed("cat_right" + input.suffix): _cycle_category(1)
-	if Input.is_action_just_pressed("target_up" + input.suffix): _cycle_target(-1)
-	if Input.is_action_just_pressed("target_down" + input.suffix): _cycle_target(1)
+	# =========================================================
+	# TRAVA DA WEAPON WHEEL:
+	# O radar fica "surdo" aos controles se a roda estiver aberta.
+	# Isso impede que esbarrões no D-Pad ou limites do Analógico mudem de alvo.
+	# =========================================================
+	var is_wheel_open = is_instance_valid(weapons) and "is_wheel_open" in weapons and weapons.is_wheel_open
+	
+	if not is_wheel_open:
+		if Input.is_action_just_pressed("cat_left" + input.suffix): _cycle_category(-1)
+		if Input.is_action_just_pressed("cat_right" + input.suffix): _cycle_category(1)
+		if Input.is_action_just_pressed("target_up" + input.suffix): _cycle_target(-1)
+		if Input.is_action_just_pressed("target_down" + input.suffix): _cycle_target(1)
 
 	radar_update_timer -= real_delta
 	if radar_update_timer <= 0:
@@ -51,27 +62,56 @@ func _validate_initial_category():
 	var is_bot = (input and "is_bot" in input and input.is_bot)
 	if is_bot: return
 	
+	_recalculate_valid_categories()
+	
 	_previous_adversary_count = _get_category_count(1)
 	if _previous_adversary_count > 0:
 		current_category_index = 1
-		print("[Targeting] Adversários detectados! Iniciando na aba: ", target_categories[1])
+		print("[Targeting] Adversários detectados no boot! Iniciando na aba: ", target_categories[1])
 	else:
 		current_category_index = 0
-		print("[Targeting] Sem adversários vivos. Iniciando na aba: ", target_categories[0])
+		print("[Targeting] Sem adversários vivos no boot. Iniciando na aba: All Targets")
 		
 	manual_target_index = 0
 	last_selected_target = null
 
+# --- NOVA FUNÇÃO: Avalia quais abas têm o direito de existir ---
+func _recalculate_valid_categories():
+	valid_category_indices.clear()
+	valid_category_indices.append(0) # "All Targets" é imortal (índice 0)
+	
+	if _get_category_count(1) > 0: valid_category_indices.append(1) # Adversaries
+	if _get_category_count(2) > 0: valid_category_indices.append(2) # Fuckers
+	if _get_category_count(3) > 0: valid_category_indices.append(3) # Environment
+	
+	valid_category_indices.sort() # Garante que fiquem na ordem original (0, 1, 2, 3)
+
+# --- CORREÇÃO DA RODAÇÃO DE ABAS: Pula as vazias! ---
 func _cycle_category(direction: int):
-	current_category_index += direction
-	if current_category_index > 3: current_category_index = 0
-	elif current_category_index < 0: current_category_index = 3
+	_recalculate_valid_categories()
+	
+	if valid_category_indices.size() <= 1:
+		print("[Targeting] Somente a aba All Targets está disponível. Ignorando input.")
+		current_category_index = 0
+		return
+		
+	# Acha onde estamos na lista de abas ativas
+	var array_pos = valid_category_indices.find(current_category_index)
+	if array_pos == -1: 
+		array_pos = 0 # Se a categoria atual sumiu do nada, reseta
+		
+	array_pos += direction
+	
+	if array_pos >= valid_category_indices.size(): array_pos = 0
+	elif array_pos < 0: array_pos = valid_category_indices.size() - 1
+	
+	current_category_index = valid_category_indices[array_pos]
 	
 	manual_target_index = 0 
 	last_selected_target = null 
 	_update_radar_and_lockon() 
 	print("[Targeting] Categoria alterada para: ", target_categories[current_category_index])
-		
+
 func _get_category_count(index: int) -> int:
 	var count = 0
 	if index == 0: return 1 
@@ -111,27 +151,36 @@ func _update_radar_and_lockon():
 	
 	var is_bot = (input and "is_bot" in input and input.is_bot)
 	
-	# --- MUDANÇA AUTOMÁTICA DE ABA (Apenas Player) ---
+	# --- MUDANÇA AUTOMÁTICA DE ABA E BLINDAGEM DE VAZIAS (Apenas Player) ---
 	if not is_bot:
+		_recalculate_valid_categories()
 		var current_adv_count = _get_category_count(1)
 		
-		# Missão Começou: Pula para Adversaries
+		# Regra 1: Missão Começou: Pula para Adversaries na marra
 		if current_adv_count > 0 and _previous_adversary_count == 0:
 			current_category_index = 1
 			manual_target_index = 0
 			last_selected_target = null
 			print("[Targeting] Novos adversários surgiram! Mudando auto para: Adversaries")
 			
-		# Missão Acabou/Cancelou: Volta para All Targets
+		# Regra 2: Missão Acabou: Volta para All Targets
 		elif current_adv_count == 0 and _previous_adversary_count > 0:
+			if current_category_index == 1: # Só reseta se ele ainda estava na aba de inimigos
+				current_category_index = 0
+				manual_target_index = 0
+				last_selected_target = null
+				print("[Targeting] Adversários zerados! Retornando auto para: All Targets")
+				
+		# Regra 3: Resgate Universal de Aba Fantasma
+		# Se a aba atual que você tá olhando sumiu (porque destruiu a última caixa ou torreta), chuta pro All Targets.
+		if not valid_category_indices.has(current_category_index):
 			current_category_index = 0
 			manual_target_index = 0
 			last_selected_target = null
-			print("[Targeting] Adversários zerados! Retornando auto para: All Targets")
+			print("[Targeting] ABA ATUAL DEIXOU DE EXISTIR! Resgatado auto para: All Targets")
 			
 		_previous_adversary_count = current_adv_count
 	# -------------------------------------------------
-
 	var all_players = get_tree().get_nodes_in_group("jogadores")
 	var all_turrets = get_tree().get_nodes_in_group("inimigos")
 	var all_props = get_tree().get_nodes_in_group("destructibles")
