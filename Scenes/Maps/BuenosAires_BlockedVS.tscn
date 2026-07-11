@@ -3102,46 +3102,57 @@ transform = Transform3D(0.26422662, 0, -0.96446073, 0, 1, 0, 0.96446073, 0, 0.26
 [node name="FloatingObject2" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -397.05716, 130.70345, -128.97119)
 mission_id = "barril_BA"
+max_health = 4.0
 
 [node name="FloatingObject3" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 96.4269, 47.534107, -282.72546)
 mission_id = "barril_BA"
+max_health = 4.0
 
 [node name="FloatingObject4" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -102.70453, 92.3004, -207.83867)
 mission_id = "barril_BA"
+max_health = 4.0
 
 [node name="FloatingObject6" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -397.05716, 126.62793, -51.571766)
 mission_id = "barril_BA"
+max_health = 4.0
 
 [node name="FloatingObject7" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -397.05716, 121.17143, 24.709354)
 mission_id = "barril_BA"
+max_health = 4.0
 
 [node name="FloatingObject8" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -397.05716, 110.025955, 99.11748)
 mission_id = "barril_BA"
+max_health = 4.0
 
 [node name="FloatingObject9" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35.54092, 155.87563, 81.02447)
 mission_id = "barril_BA"
+max_health = 4.0
 
 [node name="FloatingObject10" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 409.65503, 109.58498, -146.06691)
 mission_id = "barril_BA"
+max_health = 4.0
 
 [node name="FloatingObject11" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 409.65503, 119.5363, -49.4093)
 mission_id = "barril_BA"
+max_health = 4.0
 
 [node name="FloatingObject13" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 409.65503, 130.70345, 30.899921)
 mission_id = "barril_BA"
+max_health = 4.0
 
 [node name="FloatingObject14" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 409.65503, 117.946106, 126.92351)
 mission_id = "barril_BA"
+max_health = 4.0
 
 [node name="Pedestrians" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
 

@@ -4,7 +4,7 @@ extends Area3D
 @export_group("Movimento do Gancho")
 @export var fly_speed = 170.0
 @export var steering_force = 10.0
-@export var finish_boost_force : float = 15.0 
+@export var finish_boost_force : float = 10.0 
 @export var max_fly_time : float = 2 
 ## Altura EXTRA somada ao ponto de ancoragem quando o alvo está no chão
 @export var low_target_height_boost : float = 2.0 
@@ -230,10 +230,12 @@ func _process_impact(target_node):
 	
 	if (actual_target is Marker3D) or ("SpawnPoint" in actual_target.name): return
 		
-	if actual_target.has_method("take_damage"):
-		actual_target.take_damage(damage, self)
-		
 	_play_impact_explosion()
+	
+	# =========================================================
+	# CORREÇÃO: Passamos obrigatoriamente o 'actual_target' (o carro/inimigo real)
+	# para que o tether saiba que o alvo é dinâmico e siga ele pelo mapa!
+	# =========================================================
 	_start_tether(actual_target)
 
 func _play_impact_explosion():
@@ -291,12 +293,18 @@ func _cleanup_visuals():
 
 func _finish_grapple():
 	if is_tethered and is_instance_valid(shooter):
-		var jump_dir = (Vector3.UP * 15 + shooter.global_transform.basis.z * 0.5).normalized()
+		# 1. Dá o "Pulinho" (Boost final) no atirador
+		var jump_dir = (Vector3.UP + shooter.global_transform.basis.z * 0.2).normalized()
 		shooter.apply_central_impulse(jump_dir * finish_boost_force * shooter.mass)
 		
+		# =========================================================
+		# DANO TRANSFERIDO PARA CÁ!
+		# Agora que o gancho terminou o trajeto, aplicamos 100% do dano.
+		# =========================================================
 		if not target_is_static and is_instance_valid(target):
 			if target.has_method("take_damage"):
-				target.take_damage(damage * 0.5, self)
+				# Modificado de (damage * 0.5) para o dano integral (damage)
+				target.take_damage(damage, self)
 
 	_cleanup_visuals()
 	queue_free()
