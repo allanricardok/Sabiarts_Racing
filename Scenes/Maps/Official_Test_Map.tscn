@@ -1,4 +1,4 @@
-[gd_scene load_steps=144 format=3 uid="uid://d2rblk8h626kc"]
+[gd_scene load_steps=147 format=3 uid="uid://d2rblk8h626kc"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_mm1ty"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="1_rakfq"]
@@ -34,6 +34,7 @@
 [ext_resource type="PackedScene" uid="uid://dopugjiu2xcnc" path="res://Scenes/Prefabs/Enemies/PedestrianSpawner.tscn" id="31_2p5n0"]
 [ext_resource type="Texture2D" uid="uid://1anrat21s34g" path="res://Assets/2D/joy.png" id="31_mudyu"]
 [ext_resource type="PackedScene" uid="uid://bmljg5w8cggri" path="res://Scenes/Prefabs/Enemies/Pedestrian2.tscn" id="32_7qfue"]
+[ext_resource type="PackedScene" path="res://Scenes/Prefabs/Actors/TrainActor.tscn" id="33_train"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_a70xh"]
 material = ExtResource("1_rakfq")
@@ -410,6 +411,13 @@ emission_energy_multiplier = 0.5
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_lmn2j"]
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_spawn1_red"]
+albedo_color = Color(1, 0, 0, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_spawn1_red"]
+material = SubResource("StandardMaterial3D_spawn1_red")
+size = Vector3(5, 5, 5)
+
 [node name="OfficialTestMap" type="Node3D"]
 script = ExtResource("1_mm1ty")
 
@@ -430,6 +438,7 @@ stretch = true
 [node name="View_P1" type="SubViewport" parent="GridContainer/Cont_P1"]
 handle_input_locally = false
 size = Vector2i(912, 1026)
+audio_listener_enable_3d = true
 render_target_update_mode = 4
 
 [node name="Map" type="Node3D" parent="GridContainer/Cont_P1/View_P1"]
@@ -1664,6 +1673,35 @@ visible = false
 [node name="LevelLogic" type="Node" parent="."]
 script = ExtResource("16_li3u3")
 map_missions = ExtResource("17_x31xc")
+
+[node name="TrainActor" parent="GridContainer/Cont_P1/View_P1/Map" node_paths=PackedStringArray("waypoint_root") instance=ExtResource("33_train")]
+waypoint_root = NodePath("../TrainWaypoints")
+
+[node name="TrainWaypoints" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
+
+[node name="waypoint1" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/TrainWaypoints"]
+transform = Transform3D(-0.58651376, 0, -0.80993927, 0, 1, 0, 0.80993927, 0, -0.58651376, -211.28407, 18.507135, 191.74103)
+mesh = SubResource("BoxMesh_spawn1_red")
+
+[node name="waypoint2" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/TrainWaypoints"]
+transform = Transform3D(-0.58651376, 0, -0.80993927, 0, 1, 0, 0.80993927, 0, -0.58651376, -284.74573, 11.9313965, 172.32831)
+mesh = SubResource("BoxMesh_spawn1_red")
+
+[node name="waypoint3" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/TrainWaypoints"]
+transform = Transform3D(-0.58651376, 0, -0.80993927, 0, 1, 0, 0.80993927, 0, -0.58651376, -291.96362, 11.370188, 156.20557)
+mesh = SubResource("BoxMesh_spawn1_red")
+
+[node name="waypoint4" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/TrainWaypoints"]
+transform = Transform3D(-0.58651376, 0, -0.80993927, 0, 1, 0, 0.80993927, 0, -0.58651376, -262.1526, 12.984533, 144.55208)
+mesh = SubResource("BoxMesh_spawn1_red")
+
+[node name="waypoint5" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/TrainWaypoints"]
+transform = Transform3D(-0.58651376, 0, -0.80993927, 0, 1, 0, 0.80993927, 0, -0.58651376, -213.8114, 16.099382, 156.20557)
+mesh = SubResource("BoxMesh_spawn1_red")
+
+[node name="waypoint6" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/TrainWaypoints"]
+transform = Transform3D(-0.58651376, 0, -0.80993927, 0, 1, 0, 0.80993927, 0, -0.58651376, -184.85168, 16.099382, 179.7899)
+mesh = SubResource("BoxMesh_spawn1_red")
 
 [connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps/Gap Balcony" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps/Gap Balcony" method="_on_body_entered"]
 [connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps/Gap Balcony2" to="GridContainer/Cont_P1/View_P1/Map/V8Map/Gaps/Gap Balcony2" method="_on_body_entered"]

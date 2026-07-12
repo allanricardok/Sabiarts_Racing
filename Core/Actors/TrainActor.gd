@@ -15,6 +15,9 @@ enum EndBehavior { LOOP, TELEPORT_TO_START }
 @export_range(0, 64, 1) var wagon_count: int = 3
 @export var wagon_spacing: float = 8.0
 
+@export_group("Audio")
+@export var autoplay_train_sound: bool = true
+
 var _waypoints: Array[Node3D] = []
 var _current_waypoint_index: int = 1
 var _wagons: Array[Node3D] = []
@@ -22,12 +25,14 @@ var _history: Array[Dictionary] = []
 var _distance_traveled: float = 0.0
 
 @onready var wagon_container: Node3D = get_node_or_null("WagonContainer") as Node3D
+@onready var train_loop_sound: AudioStreamPlayer3D = get_node_or_null("TrainLoopSound") as AudioStreamPlayer3D
 
 func _ready():
 	_ensure_wagon_container()
 	_refresh_waypoints()
 	_spawn_wagons()
 	_place_at_route_start()
+	_setup_train_sound()
 
 func _physics_process(delta):
 	if _waypoints.size() < 2:
@@ -72,6 +77,20 @@ func _ensure_wagon_container():
 	wagon_container = Node3D.new()
 	wagon_container.name = "WagonContainer"
 	add_child(wagon_container)
+
+func _setup_train_sound():
+	if not autoplay_train_sound or not is_instance_valid(train_loop_sound):
+		return
+
+	if not train_loop_sound.finished.is_connected(_on_train_loop_sound_finished):
+		train_loop_sound.finished.connect(_on_train_loop_sound_finished)
+
+	if not train_loop_sound.playing:
+		train_loop_sound.play()
+
+func _on_train_loop_sound_finished():
+	if autoplay_train_sound and is_instance_valid(train_loop_sound):
+		train_loop_sound.play()
 
 func _spawn_wagons():
 	for child in wagon_container.get_children():
