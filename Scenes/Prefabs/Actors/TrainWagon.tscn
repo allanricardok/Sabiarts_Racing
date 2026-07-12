@@ -1,0 +1,16 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Core/Actors/TrainWagon.gd" id="1_q8frf"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wagon"]
+albedo_color = Color(0.12, 0.12, 0.16, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_wagon"]
+material = SubResource("StandardMaterial3D_wagon")
+size = Vector3(5, 4, 8)
+
+[node name="TrainWagon" type="Node3D"]
+script = ExtResource("1_q8frf")
+
+[node name="WagonVisual" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_wagon")

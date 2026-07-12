@@ -1,0 +1,20 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Core/Actors/TrainActor.gd" id="1_ryvwg"]
+[ext_resource type="PackedScene" path="res://Scenes/Prefabs/Actors/TrainWagon.tscn" id="2_3uvks"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_locomotive"]
+albedo_color = Color(0.86, 0.08, 0.05, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_locomotive"]
+material = SubResource("StandardMaterial3D_locomotive")
+size = Vector3(6, 5, 10)
+
+[node name="TrainActor" type="Node3D"]
+script = ExtResource("1_ryvwg")
+wagon_scene = ExtResource("2_3uvks")
+
+[node name="LocomotiveVisual" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_locomotive")
+
+[node name="WagonContainer" type="Node3D" parent="."]
