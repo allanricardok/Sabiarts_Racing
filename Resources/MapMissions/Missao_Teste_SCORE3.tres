@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="StoryMissionData" load_steps=5 format=3 uid="uid://dourr4nfgod0e"]
+
+[ext_resource type="Script" uid="uid://2oic07orss4" path="res://Core/Objectives/MissionItem.gd" id="1_0c6sx"]
+[ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="2_i362c"]
+[ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/StoryMissionData.gd" id="3_dmbn1"]
+
+[sub_resource type="Resource" id="Resource_kmhdb"]
+script = ExtResource("1_0c6sx")
+id = "69_RS_3"
+description = "Trickster 3"
+target_value = 10000.0
+metadata/_custom_type_script = "uid://2oic07orss4"
+
+[resource]
+script = ExtResource("3_dmbn1")
+mission_id = "m_06_3"
+mission_name = "Trickster 10000"
+mission_description = "Score over 10.000 points"
+time_limit = 180.0
+mission_reward_points = 3000
+classic_objective = SubResource("Resource_kmhdb")
+mission_environment = ExtResource("2_i362c")
+mission_sun_color = Color(0.54397047, 1.8659585, 1.6394595, 0.44200003)
+mission_sun_energy = 0.15
+enemy_count = 0
+required_unlock_points = 6000
+metadata/_custom_type_script = "uid://o1ox0n7mmqv"

@@ -15,7 +15,7 @@ var unlocked_ba_exploration : bool = false
 var unlocked_ba_battle : bool = false
 var collected_items_ids: Array[String] = []
 var story_total_points: int = 0
-var points_to_next_city: int = 5000 
+var points_to_next_city: int = 7000 
 var completed_story_missions : Array[String] = []
 
 # =====================================================================

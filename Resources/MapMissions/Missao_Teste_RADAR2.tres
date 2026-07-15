@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="StoryMissionData" load_steps=5 format=3 uid="uid://bsekh77o7b172"]
+
+[ext_resource type="Script" uid="uid://2oic07orss4" path="res://Core/Objectives/MissionItem.gd" id="1_31kjr"]
+[ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="2_nrt71"]
+[ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/StoryMissionData.gd" id="3_skxno"]
+
+[sub_resource type="Resource" id="Resource_r66d8"]
+script = ExtResource("1_31kjr")
+id = "radar_140_BA"
+description = "radar a 120km/h"
+type = 1
+target_value = 120.0
+metadata/_custom_type_script = "uid://2oic07orss4"
+
+[resource]
+script = ExtResource("3_skxno")
+mission_id = "m_05_2"
+mission_name = "Fuck Detran 2"
+mission_description = "Go through the Radar over 120km/h"
+time_limit = 30.0
+mission_reward_points = 1500
+classic_objective = SubResource("Resource_r66d8")
+mission_environment = ExtResource("2_nrt71")
+mission_sun_color = Color(1.179842, 0.7508126, 0.06872849, 0.32000002)
+mission_sun_energy = 0.7
+nodes_to_enable = Array[NodePath]([NodePath("../../BAMap/Mission_Items/Obake"), NodePath("../../BAMap/Mission_Items/Obake2"), NodePath("../../BAMap/Mission_Items/Obake3")])
+enemy_count = 0
+required_unlock_points = 2000
+metadata/_custom_type_script = "uid://o1ox0n7mmqv"

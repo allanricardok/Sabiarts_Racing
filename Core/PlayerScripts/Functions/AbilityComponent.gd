@@ -1,10 +1,10 @@
-# AbilityComponent.gd
 extends Node
 class_name AbilityComponent
 
 @onready var car = owner as VehicleBody3D
 @onready var input = %InputComponent
 @onready var stats = %StatsComponent
+@onready var weapons = %WeaponManager # <-- REFERÊNCIA ADICIONADA AQUI!
 
 # --- SISTEMA DE ENERGIA ---
 @export_group("Energy System")
@@ -56,15 +56,13 @@ func _ready():
 		cooldown_bar.max_value = SHARED_COOLDOWN_TIME
 
 func _process(delta):
-	# Se o carro estiver congelado, não deixa usar NENHUMA habilidade
 	if car.has_method("is_frozen") and car.is_frozen(): 
 		return
-	# --- INTEGRAÇÃO COM RAGE PARA ACELERAR A RECARGA ---
+
 	var rage = car.get_node_or_null("%RageComponent")
 	var regen_mult = rage.get_ability_recovery_mult() if rage else 1.0
 
 	if current_energy < MAX_ENERGY:
-		# Multiplicamos a taxa de regeneração base pelo multiplicador do Rage!
 		current_energy = move_toward(current_energy, MAX_ENERGY, (REGEN_RATE * regen_mult) * delta)
 		
 	if current_cooldown > 0:
@@ -94,32 +92,34 @@ func _process(delta):
 	if input.is_attribute_pressed and current_cooldown <= 0:
 		_checar_combos_habilidade()
 		
-	# --- HABILIDADES NOVAS: PULO (L1) E TURBO (DOUBLE TAP) ---
+	# --- HABILIDADES NOVAS (L1, DOUBLE TAP E TIRO PARA TRÁS) ---
 	if current_cooldown <= 0:
-		# LÊ O ESTADO DO MURO ANTES DE AGIR
 		var wall_rider = car.get_node_or_null("%WallRideComponent")
 		var is_wallriding = wall_rider and wall_rider.get("is_wallriding")
 		
 		if input.is_jump_pressed:
-			# Só executa o pulo normal se o carro NÃO estiver no muro
 			if not is_wallriding:
 				if current_energy >= COST_JUMP: 
 					_execute_jump()
 				else: 
 					_erro_falta_energia()
-			# Se estiver no muro, ele ignora o input e deixa o WallRideComponent trabalhar!
-			
-		# Turbo via Double Tap (Lê a variável do InputComponent)
+					
 		elif input.is_turbo_pressed:
 			if current_energy >= COST_BOOST: 
 				_execute_boost()
 			else: 
 				_erro_falta_energia()
-			# Força o desligamento da variável para não metralhar turbo enquanto segura o botão
 			input.is_turbo_pressed = false
+			
+		# =========================================================
+		# HABILIDADE DE TIRO PARA TRÁS MOVIDA PARA CÁ!
+		# =========================================================
+		elif input.is_fire_backwards_pressed:
+			_execute_fire_backwards()
+			# Desliga a flag para não metralhar sem querer
+			input.is_fire_backwards_pressed = false
 
 func _checar_combos_habilidade():
-	# Mantivemos apenas as habilidades do "Círculo" aqui
 	if input.ability_left and tap_count >= 2:
 		if current_energy >= COST_TELEPORT: _execute_teleport()
 		else: _erro_falta_energia()
@@ -154,7 +154,6 @@ func _execute_boost():
 	car.play_camera_shake("Turbo")
 	car.apply_central_impulse(car.global_transform.basis.z * BOOST_IMPULSE * mult * car.mass)
 	_start_cooldown()
-	
 
 func _execute_teleport():
 	var teleport_markers = get_tree().get_nodes_in_group("AbilityTeleport")
@@ -177,10 +176,8 @@ func _execute_teleport():
 		car.linear_velocity = Vector3.ZERO
 		car.angular_velocity = Vector3.ZERO
 		
-		# --- PUNIÇÃO DE TELEPORTE CORRIGIDA ---
 		var trick_manager = car.get_node_or_null("%TrickManager")
 		if trick_manager and trick_manager.has_method("reset_trick"):
-			# Chama a função certa que limpa as listas e a UI
 			trick_manager.reset_trick()
 			print("[Abilities] Teleporte ativado! Pontos de manobra cancelados.")
 			
@@ -199,6 +196,16 @@ func _execute_shield():
 		if stats: stats.is_invulnerable = false
 		_set_car_silver_effect(false)
 	)
+
+# =========================================================
+# NOVA FUNÇÃO DE EXECUÇÃO: TIRO PARA TRÁS
+# Se quiser cobrar energia por isso no futuro, é só adicionar aqui!
+# =========================================================
+func _execute_fire_backwards():
+	if is_instance_valid(weapons):
+		weapons.fire_special_weapon(true)
+		# Se quiser que o tiro para trás ative o cooldown global das habilidades, descomente a linha abaixo:
+		# _start_cooldown()
 
 func _set_car_silver_effect(active: bool):
 	var all_meshes = car.find_children("*", "MeshInstance3D", true)

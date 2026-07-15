@@ -254,11 +254,23 @@ func _reset_car_orientation():
 	var current_pos = car.global_position
 	var current_yaw = car.global_rotation.y 
 	
+	# =========================================================
+	# RESET ABSOLUTO DO COMBO ANTES DA FÍSICA AGIR
+	# Ao chamar isso aqui, ignoramos sinais e ordem de frames.
+	# O combo é aniquilado instantaneamente antes do carro ficar em pé!
+	# =========================================================
+	var trick_manager = car.get_node_or_null("%TrickManager")
+	if is_instance_valid(trick_manager) and trick_manager.has_method("reset_trick"):
+		trick_manager.reset_trick()
+	
+	# Aplica o reset físico
 	car.global_rotation = Vector3(0, current_yaw, 0)
 	car.global_position = current_pos + Vector3(0, 2.5, 0)
 	
 	car.linear_velocity = Vector3.ZERO
 	car.angular_velocity = Vector3.ZERO
+	
+	# Mantém o sinal para outros sistemas (como resetar os Gaps no BaseVehicle)
 	vehicle_reset.emit()
 
 func _apply_drag(delta):

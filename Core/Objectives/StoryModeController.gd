@@ -464,6 +464,14 @@ func resume_open_world():
 	get_tree().paused = false
 
 func _check_next_map_unlock():
+	# =======================================================
+	# TRAVA DE SEGURANÇA:
+	# Se uma missão estiver ativa, bloqueia o reaparecimento dos portais.
+	# Eles serão religados naturalmente pela função end_mission() quando acabar.
+	# =======================================================
+	if is_mission_running:
+		return
+
 	# 1. Tenta ligar missões normais recém-desbloqueadas
 	for p in get_tree().get_nodes_in_group("mission_portals"):
 		if p.has_method("activate_portal_safely"):

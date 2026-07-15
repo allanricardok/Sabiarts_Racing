@@ -55,12 +55,12 @@ func _physics_process(delta):
 	var is_on_ground = false
 	
 	# =========================================================
-	# O FIM DO DELAY DE 0.5 SEGUNDOS:
-	# O chão só é ignorado se o carro estiver ativamente surfando 
-	# OU tentando emendar um Transfer (segurando Triângulo) logo após sair.
-	# Se soltou o Triângulo e caiu livremente, o pouso é exato no frame do impacto!
+	# BLINDAGEM DE PROTEÇÃO:
+	# O chão só é ignorado se estiver surfando ou tentando um Transfer.
+	# Adicionamos 'orientation > 0.3' para garantir que, se o carro 
+	# capotar, ele perde o direito a essa proteção na mesma hora!
 	# =========================================================
-	var is_transfer_protected = (time_out_of_wall < 0.5) and input.is_stunt_pressed
+	var is_transfer_protected = (time_out_of_wall < 0.5) and input.is_stunt_pressed and (orientation > 0.3)
 	
 	if not is_wallriding and not is_transfer_protected:
 		is_on_ground = check_grounded() and (orientation > 0.3)
@@ -81,9 +81,14 @@ func _physics_process(delta):
 	if not is_on_ground:
 		max_air_height = max(max_air_height, car.global_position.y)
 		
-		# O TrickManager ainda recebe o Coyote Time de 1.0s para não cancelar o combo 
-		# por causa da "quina" do prédio, mesmo que a física não esteja protegida.
-		var is_coyote_air_active = (time_out_of_wall < 1.0)
+		# =========================================================
+		# COYOTE TIME CORRIGIDO
+		# Se a orientação for menor que 0.3 (capotado), cancelamos o Coyote.
+		# Isso obriga a lógica do ar a passar a proximidade real pro TrickManager,
+		# permitindo que ele zere o combo ANTES do reset virar o carro pra cima!
+		# =========================================================
+		var is_coyote_air_active = (time_out_of_wall < 1.0) and (orientation > 0.3)
+		
 		_handle_air_logic(delta, is_coyote_air_active)
 	else:
 		# Pousou de verdade! Sem delays artificiais de 0.5s.

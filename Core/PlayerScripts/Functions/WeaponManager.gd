@@ -84,21 +84,18 @@ func _process(delta):
 	if is_bot:
 		is_firing = input.is_action_pressed 
 	else:
-		# Tenta encontrar a Weapon Wheel na HUD do jogador atual (se ainda não encontrou)
 		if not is_instance_valid(wheel_ui_node):
 			var hud = get_tree().get_first_node_in_group("HUD" + player_suffix)
 			if hud: wheel_ui_node = hud.find_child("WeaponWheel", true, false)
 
-		var wheel_action = "WeaponWheel" + input.suffix # <-- Ação do L3
+		var wheel_action = "WeaponWheel" + input.suffix
 		
-# 1. ABRE A RODA E LIGA A CÂMERA LENTA
-		if Input.is_action_just_pressed(wheel_action): # <-- APAGAMOS A TRAVA AQUI!
+		if Input.is_action_just_pressed(wheel_action):
 			is_wheel_open = true
 			Engine.time_scale = 0.4
 			if is_instance_valid(wheel_ui_node):
 				wheel_ui_node.open_wheel(weapon_pool)
 				
-		# 2. FECHA A RODA, EQUIPA A ARMA E DESLIGA A CÂMERA LENTA
 		elif Input.is_action_just_released(wheel_action) and is_wheel_open:
 			is_wheel_open = false
 			Engine.time_scale = 1.0
@@ -106,53 +103,35 @@ func _process(delta):
 				wheel_ui_node.close_wheel()
 				equip_weapon_by_pool_index(hovered_weapon_index)
 
-# 3. LÓGICA ENQUANTO A RODA ESTÁ ABERTA (Usa o analógico)
 		if is_wheel_open:
 			var dir_left = "Left" + input.suffix
 			var dir_right = "Right" + input.suffix
-			
-			# Usando os inputs de habilidade que já estão configurados com o analógico
-			# Nota: Se o seu input.suffix já for algo como "_J1", a soma resulta perfeitamente em "AbilityUp_J1"
 			var dir_up = "AbilityUp" + input.suffix
 			var dir_down = "AbilityDown" + input.suffix
-			
-			# Se por acaso o nome no Input Map tiver um underline forçado e o suffix não, 
-			# você pode alterar para: "AbilityUp_" + input.suffix.trim_prefix("_")
 			
 			var analog_dir = Input.get_vector(dir_left, dir_right, dir_up, dir_down)
 			
 			if is_instance_valid(wheel_ui_node):
 				hovered_weapon_index = wheel_ui_node.update_selection(analog_dir)
 				
-			return # CORTA A EXECUÇÃO AQUI! Não deixa atirar nem fazer outras coisas enquanto a roda está aberta.
+			return 
+			
 		var is_doing_ability = (input.ability_up or input.ability_down or input.ability_left or input.ability_right)
 		is_firing = input.is_action_pressed and not is_doing_ability
 
-		# =========================================================
-		# LIMPEZA CONCLUÍDA: Apenas Teclado/Mouse pode usar troca sequencial agora!
-		# =========================================================
 		if input.suffix.begins_with("_K"):
 			if Input.is_action_just_pressed("prev_weapon" + input.suffix): _switch_weapon(-1)
 			if Input.is_action_just_pressed("next_weapon" + input.suffix): _switch_weapon(1)
 			
-# --- LÓGICA DE TIRO LIMPA E CORRIGIDA ---
-		var fire_backwards = input.is_fire_backwards_pressed
 		var fire_normal = Input.is_action_just_pressed("Fire" + input.suffix)
 
-		if fire_backwards:
-			fire_special_weapon(true)
-		elif fire_normal:
+		if fire_normal:
 			fire_special_weapon(false)
 
-	if not is_firing and _was_firing:
-		_is_recovering = true
+	if not is_firing:
+		_basic_fire_time = 0.0
+		_is_recovering = false
 		_recovery_timer = 0.0
-
-	if _is_recovering:
-		_recovery_timer += real_delta
-		if _recovery_timer >= 2.0:
-			_basic_fire_time = 0.0
-			_is_recovering = false
 
 	if is_firing:
 		_basic_fire_time += real_delta
@@ -174,7 +153,6 @@ func equip_special_weapon(new_weapon_res: WeaponResource):
 	else:
 		resource_name_to_check = new_weapon_res.resource_path.get_file().get_basename()
 
-	# 1. Procura se a arma já existe no inventário para somar munição
 	for i in range(weapon_pool.size()):
 		var w = weapon_pool[i]
 		var current_w_name = ""
@@ -187,7 +165,6 @@ func equip_special_weapon(new_weapon_res: WeaponResource):
 		if current_w_name == resource_name_to_check or (w.resource_path != "" and w.resource_path == new_weapon_res.resource_path):
 			w.ammo += new_weapon_res.ammo
 			
-			# MODIFICADO: Só muda o índice se o jogador estivesse completamente sem arma especial
 			if current_weapon_index == -1:
 				current_weapon_index = i
 				
@@ -196,12 +173,10 @@ func equip_special_weapon(new_weapon_res: WeaponResource):
 			get_tree().call_group("TutorialUI", "complete_task", "grab_weapon")
 			return
 
-	# 2. Se for uma arma inédita no pool
 	if weapon_pool.size() < MAX_POOL_SIZE:
 		var dup = new_weapon_res.duplicate()
 		weapon_pool.append(dup)
 		
-		# MODIFICADO: Só muda o índice se o jogador estivesse completamente sem arma especial
 		if current_weapon_index == -1:
 			current_weapon_index = weapon_pool.size() - 1
 			
@@ -233,7 +208,7 @@ func _set_weapon_highlight(weapon_name: String, is_active: bool):
 		if is_active: mesh.material_overlay = highlight_material
 		else: mesh.material_overlay = null
 
-# --- LÓGICA DE TIRO (AGORA ACEITA O PARÂMETRO BACKWARDS) ---
+# --- LÓGICA DE TIRO ---
 func fire_basic_weapon():
 	if not basic_weapon_resource: return
 	
@@ -241,15 +216,15 @@ func fire_basic_weapon():
 	var rage_mult = rage.get_fire_rate_mult() if rage else 1.0
 	
 	var heat_efficiency = 1.0
-	if _basic_fire_time > 2.0:
-		heat_efficiency = remap(clamp(_basic_fire_time, 1.0, 10.0), 1.0, 10.0, 1.0, 0.25)
+	if _basic_fire_time > 1.0:
+		heat_efficiency = remap(clamp(_basic_fire_time, 1.0, 4.0), 1.0, 4.0, 1.0, 0.25)
 		
 	basic_cooldown = fire_rate_basic / (heat_efficiency * rage_mult) 
 	
 	var weapon_name = basic_weapon_resource.nome
 	
 	_muzzle_flash_effect(weapon_name)
-	_spawn_projectile(basic_weapon_resource, weapon_name, false) # Metralhadora sempre atira pra frente
+	_spawn_projectile(basic_weapon_resource, weapon_name, false)
 
 func _remove_current_weapon():
 	weapon_pool.remove_at(current_weapon_index)
@@ -265,8 +240,6 @@ func fire_special_weapon(backwards: bool = false):
 	var active = get_active_special()
 	if not active or active.ammo <= 0: return
 	if special_cooldowns.get(active.nome, 0.0) > 0: return
-	
-	print("[DEBUG-WEAPON] Disparando especial! backwards = ", backwards) # <--- DEBUG AQUI
 	
 	var rage = car.get_node_or_null("%RageComponent")
 	var rate_mult = rage.get_fire_rate_mult() if rage else 1.0
@@ -284,30 +257,24 @@ func _spawn_projectile(res: WeaponResource, node_name: String, backwards: bool =
 	var proj = ProjectilePool.get_projectile(res.projectile_scene)
 	var muzzle = weapon_nodes[node_name].find_child("Muzzle", true, false)
 	
-	# O SEGREDO REVELADO: O seu carro usa o Eixo +Z como frente!
 	var car_forward = car.global_transform.basis.z.normalized()
 	var spawn_pos = car.global_position
 	var shoot_dir = car_forward
 	
 	if muzzle:
 		spawn_pos = muzzle.global_position
-		# Se atirar normal, usa a mira original da arma
 		shoot_dir = -muzzle.global_transform.basis.z.normalized()
 		
 	if backwards:
-		# Forçamos a direção e o tiro exatamente para as costas do carro (-Z do carro)
 		shoot_dir = -car_forward
 		spawn_pos = car.global_position + (shoot_dir * 4.0) + Vector3(0, 0.8, 0)
 		
 	proj.global_position = spawn_pos
 	
-	# Aponta o míssil visualmente na direção do tiro
 	proj.look_at(spawn_pos + shoot_dir, Vector3.UP)
 	
 	if "is_special_weapon" in proj: proj.is_special_weapon = (node_name != "MachineGun")
 	
-	# --- A MARRETA INFALÍVEL ---
-	# Injetamos a variável direto no projétil antes mesmo do setup rodar!
 	proj.set("is_shot_backwards", backwards)
 	
 	if proj.has_method("setup"):

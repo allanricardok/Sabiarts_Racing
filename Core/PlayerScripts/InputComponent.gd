@@ -111,10 +111,28 @@ func _process(delta):
 							   Input.is_action_pressed("AbilityRight" + suffix)
 
 	if is_attribute_pressed:
-		ability_up = Input.is_action_pressed("AbilityUp" + suffix)
-		ability_down = Input.is_action_pressed("AbilityDown" + suffix)
-		ability_left = Input.is_action_pressed("AbilityLeft" + suffix)
-		ability_right = Input.is_action_pressed("AbilityRight" + suffix)
+		if suffix.begins_with("_J"):
+			var ab_x = Input.get_axis("AbilityLeft" + suffix, "AbilityRight" + suffix)
+			var ab_y = Input.get_axis("AbilityUp" + suffix, "AbilityDown" + suffix)
+			
+			var normal_threshold = 0.5 
+			var strict_tolerance = 0.25 
+			
+			# =========================================================
+			# TRAVA ESTREITA APENAS PARA A ESQUERDA (TELEPORTE)
+			# Exige que o eixo Y esteja quase zerado (< 0.25)
+			# =========================================================
+			ability_left = (ab_x < -normal_threshold) and (abs(ab_y) < strict_tolerance)
+			
+			# As outras habilidades mantêm a flexibilidade padrão original
+			ability_right = (ab_x > normal_threshold)
+			ability_up = (ab_y < -normal_threshold)
+			ability_down = (ab_y > normal_threshold)
+		else:
+			ability_up = Input.is_action_pressed("AbilityUp" + suffix)
+			ability_down = Input.is_action_pressed("AbilityDown" + suffix)
+			ability_left = Input.is_action_pressed("AbilityLeft" + suffix)
+			ability_right = Input.is_action_pressed("AbilityRight" + suffix)
 	else:
 		ability_up = false
 		ability_down = false
@@ -124,16 +142,13 @@ func _process(delta):
 	# --- LÓGICA DO TIRO PARA TRÁS (Círculo + Analógico/D-Pad Baixo) ---
 	is_fire_backwards_pressed = false
 	
-	# O SEGREDO DO BUG: No Godot, Joysticks muitas vezes disparam is_action_pressed 
-	# como verdadeiro para ambos os lados do eixo Y. Ou seja, Cima ativava Baixo!
-	# Solução: Checamos a variável 'pitch' (-1.0 = Baixo, +1.0 = Cima) para os controles.
 	var is_physically_down = false
 	if suffix.begins_with("_K"):
-		# No teclado, não há confusão de eixo, confiamos direto na tecla pressionada.
 		is_physically_down = Input.is_action_pressed("AbilityDown" + suffix) or Input.is_action_pressed("Pitch_Down" + suffix)
 	else:
-		# No controle, garantimos que só atira pra trás se o analógico foi realmente puxado pra trás (menor que -0.5).
-		is_physically_down = Input.is_action_pressed("AbilityDown" + suffix) or (pitch < -0.5)
+		# Lemos a nossa variável que acabou de ser purificada matematicamente pelo eixo.
+		# Isso impede 100% que Cima ative a função de Baixo.
+		is_physically_down = ability_down
 
 	var attr_held = Input.is_action_pressed("Attribute" + suffix)
 	var attr_just_pressed = Input.is_action_just_pressed("Attribute" + suffix)

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="StoryMissionData" load_steps=3 format=3 uid="uid://dkx6wotxnp62y"]
+
+[ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="1_k4lpy"]
+[ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/StoryMissionData.gd" id="2_p2d83"]
+
+[resource]
+script = ExtResource("2_p2d83")
+mission_type = 1
+mission_id = "m_02_boss"
+mission_name = "Boss"
+mission_description = "Deguste o ânus do Boss"
+time_limit = 200.0
+mission_reward_points = 3000
+mission_environment = ExtResource("1_k4lpy")
+mission_sun_color = Color(1.5003539, 0, 0, 0.46666667)
+mission_sun_energy = 0.6
+enemy_count = 1
+enemy_damage_dealt_mult = 1.1
+enemy_damage_received_mult = 1.1
+required_unlock_points = 5000
+metadata/_custom_type_script = "uid://o1ox0n7mmqv"
