@@ -3,9 +3,9 @@ class_name RageLightningLayer
 
 # Config por tier: [raios_por_segundo, distancia_max_do_centro (0-1 da tela), max_depth_branch]
 var tier_config := {
-	1: {"rate": 5.0, "reach": 0.28, "depth": 2},
-	2: {"rate": 10.0, "reach": 0.45, "depth": 3},
-	3: {"rate": 18.0, "reach": 0.65, "depth": 3},
+	1: {"rate": 5.0, "reach": 0.42, "depth": 2},
+	2: {"rate": 10.0, "reach": 0.585, "depth": 3},
+	3: {"rate": 18.0, "reach": 0.7475, "depth": 3},
 }
 
 const COLOR_BLUE = Color(0.45, 0.7, 1.0)

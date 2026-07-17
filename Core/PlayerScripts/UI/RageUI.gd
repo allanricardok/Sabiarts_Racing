@@ -32,8 +32,6 @@ void fragment() {
 
 	float edge_mask = smoothstep(0.85 - (intensity * 0.25), 1.15, dist);
 
-	// Pulso bem mais agressivo: amplitude maior + soma de duas frequências
-	// pra parecer instabilidade elétrica errática, não só um seno liso
 	float pulse = 1.0 + 0.35 * sin(TIME * pulse_speed) + 0.15 * sin(TIME * pulse_speed * 2.7);
 
 	float angle = atan(uv.y, uv.x);
@@ -53,10 +51,7 @@ void fragment() {
 	vec3 saturated = mix(vec3(luma), aberrated, 1.0 + saturation_boost * edge_mask);
 	saturated = clamp(saturated, 0.0, 1.0);
 
-	// Escurece a borda proporcionalmente à intensidade do rage
-	saturated *= (1.0 - edge_mask * intensity * 0.35);
-
-	vec3 tint = vec3(0.03, 0.09, 0.28); // tom mais escuro que antes
+	vec3 tint = vec3(1.0, 0.85, 0.15);
 	vec3 final_color = mix(saturated, tint, edge_mask * intensity * 0.55);
 
 	COLOR = vec4(final_color, edge_mask * intensity * 0.9);
@@ -99,7 +94,7 @@ func _on_rage_updated(rage_value: float, tier: int, t3_timer: float):
 			if seconds_label: seconds_label.text = ""
 		1:
 			target_color = COLOR_T1
-			vignette_intensity = 0.45
+			vignette_intensity = 0.5
 			aberration = 0.015
 			saturation = 1.05
 			warp = 0.0108
@@ -108,7 +103,7 @@ func _on_rage_updated(rage_value: float, tier: int, t3_timer: float):
 			if seconds_label: seconds_label.text = ""
 		2:
 			target_color = COLOR_T2
-			vignette_intensity = 0.7
+			vignette_intensity = 0.8
 			aberration = 0.022
 			saturation = 1.56
 			warp = 0.01755
@@ -117,7 +112,7 @@ func _on_rage_updated(rage_value: float, tier: int, t3_timer: float):
 			if seconds_label: seconds_label.text = ""
 		3:
 			target_color = COLOR_T3
-			vignette_intensity = 1.0
+			vignette_intensity = 1
 			aberration = 0.034
 			saturation = 1.7
 			warp = 0.0195

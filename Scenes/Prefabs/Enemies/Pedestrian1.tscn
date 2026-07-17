@@ -44,6 +44,7 @@ shape = SubResource("CapsuleShape3D_rckox")
 [node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="."]
 transform = Transform3D(1.8, 0, 0, 0, 1.8, 0, 0, 0, 1.8, 0, -0.31030536, 0)
 billboard = 2
+alpha_cut = 1
 sprite_frames = SubResource("SpriteFrames_x3qfs")
 frame_progress = 0.19735187
 

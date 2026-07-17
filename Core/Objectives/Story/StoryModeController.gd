@@ -1,3 +1,4 @@
+# StoryModeController.gd
 extends Node
 class_name StoryModeController
 
@@ -26,6 +27,11 @@ var combat_targets: Array[Node] = []
 var spawned_bots: Array[Node] = []
 var original_transforms: Dictionary = {}
 
+var completed_tiers_this_run: Array[int] = []
+
+# --- VARIÁVEL QUE VAI SALVAR A SUA VIDA ---
+var current_tracked_score: float = 0.0
+
 func _ready():
 	process_mode = Node.PROCESS_MODE_ALWAYS 
 	add_to_group("StoryController")
@@ -35,8 +41,16 @@ func _ready():
 		original_sun_color = sun_light.light_color
 		original_sun_energy = sun_light.light_energy
 		
+	# Conecta diretamente ao ScoreManager sem precisar adivinhar o nome da variável
+	if is_instance_valid(ScoreManager) and ScoreManager.has_signal("score_changed"):
+		ScoreManager.score_changed.connect(_on_global_score_changed)
+		
 	call_deferred("_setup_inicial_seguro")
 	call_deferred("_check_next_map_unlock")
+
+# Toda vez que você fizer um trick, o ScoreManager avisa aqui, e nós guardamos!
+func _on_global_score_changed(_player_id: int, new_score: int):
+	current_tracked_score = float(new_score)
 
 func _setup_inicial_seguro():
 	get_tree().call_group("HUD", "atualizar_timer", 0.0)
@@ -44,15 +58,9 @@ func _setup_inicial_seguro():
 	get_tree().call_group("HUD", "esconder_missao_ativa")
 
 func _process(delta):
-	# Se o jogo estiver pausado, aborta
 	if get_tree().paused: return
-	
-	# =======================================================
-	# SENSOR LIBERADO: Checa a morte o tempo todo (Missão ou Free Roam)
-	# =======================================================
 	if _check_player_death(): return
 	
-	# SEGURANÇA MÁXIMA: Daqui pra baixo, só roda se a missão for válida!
 	if not is_mission_running or not current_mission: return
 	
 	if current_mission.time_limit > 0:
@@ -60,13 +68,22 @@ func _process(delta):
 		get_tree().call_group("HUD", "atualizar_timer", mission_timer)
 		
 		if mission_timer <= 0:
-			end_mission(false) 
+			var won_any_tier = completed_tiers_this_run.size() > 0
+			if current_mission.mission_tiers.is_empty(): won_any_tier = false
+			end_mission(won_any_tier) 
 			return
+
+	var current_progress_value = _get_current_mission_progress()
+	_update_tiers_progress(current_progress_value)
 
 	match current_mission.mission_type:
 		StoryMissionData.MissionType.CLASSIC_OBJECTIVE:
+			# BLINDAGEM DO ITEM SECRETO: 
+			# Se tiver Tiers (Missão de Score), ignora o fato de o MissionManager 
+			# achar que acabou a missão porque você pegou um item secreto solto no mapa.
 			if active_classic_objective and active_classic_objective.is_completed:
-				end_mission(true)
+				if current_mission.mission_tiers.is_empty():
+					end_mission(true)
 				
 		StoryMissionData.MissionType.COMBAT_DESTROY:
 			var all_destroyed = true
@@ -85,6 +102,54 @@ func _process(delta):
 			if all_destroyed and combat_targets.size() > 0:
 				end_mission(true)
 
+func _get_current_mission_progress() -> float:
+	if not current_mission: return 0.0
+	
+	if current_mission.mission_type == StoryMissionData.MissionType.COMBAT_DESTROY:
+		var dead_count = 0
+		for t in combat_targets:
+			if not is_instance_valid(t) or t.is_queued_for_deletion():
+				dead_count += 1
+			elif "_is_dead" in t and t._is_dead:
+				dead_count += 1
+			else:
+				var stats = t.find_child("StatsComponent", true, false)
+				if stats and "is_dead" in stats and stats.is_dead:
+					dead_count += 1
+		return float(dead_count)
+		
+	elif current_mission.mission_type == StoryMissionData.MissionType.CLASSIC_OBJECTIVE:
+		var prog = 0.0
+		if active_classic_objective and "current_progress" in active_classic_objective:
+			prog = float(active_classic_objective.current_progress)
+			
+		# Usa o Score rastreado perfeitamente pelo Sinal, sem adivinhação!
+		var desc = str(current_mission.mission_description).to_upper()
+		var m_name = str(current_mission.mission_name).to_upper()
+		if "SCORE" in desc or "PONTO" in desc or "TRICK" in m_name:
+			prog = max(prog, current_tracked_score)
+				
+		return prog
+		
+	return 0.0
+
+func _update_tiers_progress(current_value: float):
+	if not current_mission or current_mission.mission_tiers.is_empty(): return
+	
+	for i in range(current_mission.mission_tiers.size()):
+		if completed_tiers_this_run.has(i): continue
+		
+		var tier = current_mission.mission_tiers[i]
+		if current_value >= tier.target_value:
+			completed_tiers_this_run.append(i)
+			
+			get_tree().call_group("HUD", "riscar_objetivo_tier", i, tier.tier_name)
+			get_tree().call_group("HUD", "criar_toast", "🏆 TIER " + str(i + 1) + " ATINGIDO: " + tier.tier_name + "!", Color.GOLD)
+			
+			if completed_tiers_this_run.size() == current_mission.mission_tiers.size():
+				end_mission(true)
+				return
+
 func _restore_all_health_and_energy():
 	var vehicles = get_tree().get_nodes_in_group("jogadores") + get_tree().get_nodes_in_group("inimigos")
 	for v in vehicles:
@@ -101,7 +166,6 @@ func request_mission_start(portal: StoryMissionPortal, data: StoryMissionData):
 		push_error("[StoryController] UI da missão não configurada!")
 
 func decline_mission():
-	# Modificado para respeitar o bloqueio de pontos
 	for p in get_tree().get_nodes_in_group("mission_portals"):
 		if p.has_method("activate_portal_safely"):
 			p.activate_portal_safely()
@@ -111,12 +175,13 @@ func decline_mission():
 	get_tree().paused = false
 
 func accept_mission():
-# --- NOVO: Grava na memória para o botão de Restart ---
 	last_played_mission = current_mission
 	last_played_portal = active_portal
 	combat_targets.clear()
 	spawned_bots.clear()
 	active_classic_objective = null
+	completed_tiers_this_run.clear()
+	current_tracked_score = 0.0 # Zera o score da missão ao aceitar
 	
 	if is_instance_valid(ScoreManager):
 		if ScoreManager.has_method("reset_score"): ScoreManager.reset_score()
@@ -196,7 +261,7 @@ func accept_mission():
 			if current_mission.mission_type == StoryMissionData.MissionType.COMBAT_DESTROY and not combat_targets.has(node):
 				combat_targets.append(node)
 
-	get_tree().call_group("HUD", "mostrar_missao_ativa", current_mission.mission_name)
+	get_tree().call_group("HUD", "mostrar_missao_ativa_com_tiers", current_mission.mission_name, current_mission.mission_tiers)
 	
 	if current_mission.time_limit <= 0:
 		get_tree().call_group("HUD", "atualizar_timer", 0.0)
@@ -222,14 +287,10 @@ func restart_current_mission():
 	
 	is_mission_running = false
 	
-	# =========================================================
-	# --- NOVO: Trava os portais antes de teleportar o carro ---
 	for p in get_tree().get_nodes_in_group("mission_portals"):
 		p.is_active = false
 		p.set_deferred("monitoring", false)
-	# =========================================================
 	
-	# 1. Limpa a arena antiga
 	for bot in spawned_bots:
 		if is_instance_valid(bot) and not bot.is_queued_for_deletion():
 			bot.queue_free()
@@ -261,14 +322,10 @@ func restart_current_mission():
 		true_player.freeze = true
 		true_player.set_physics_process(false)
 		
-# 1. Pega a direção e normaliza para ignorar distorções de escala
 		var direcao_frente = active_portal.global_transform.basis.z.normalized()
-		
-		# 2. Afasta exatos 3 metros reais na direção calculada
 		var spawn_pos = active_portal.global_position + (direcao_frente * 4.5)
 		spawn_pos.y += 1.2 
 		
-		# 3. Alinha o carro
 		var z_axis = direcao_frente
 		z_axis.y = 0.0
 		if z_axis.length_squared() < 0.01: z_axis = active_portal.global_transform.basis.x.cross(Vector3.UP)
@@ -302,14 +359,10 @@ func _check_player_death() -> bool:
 			is_dead = true
 				
 		if is_dead:
-			# O reset físico (Teleporte e Cura) acontece incondicionalmente!
 			_executar_reset_fisico_veiculo(p1)
-			
-			# Se estiver numa missão, encerra ela com falha.
 			if is_mission_running:
 				is_mission_running = false
 				end_mission(false)
-				
 			return true
 			
 	return false
@@ -317,11 +370,7 @@ func _check_player_death() -> bool:
 func _executar_reset_fisico_veiculo(vehicle: Node3D):
 	var spawn_transform : Transform3D
 	
-	# =======================================================
-	# ESCOLHA DO DESTINO: Portal da Missão OU Spawn Central?
-	# =======================================================
 	if is_mission_running and is_instance_valid(active_portal):
-		# LÓGICA ORIGINAL: Usa o portal atual com offset
 		var z_axis = active_portal.global_transform.basis.z
 		var spawn_pos = active_portal.global_position + (z_axis * 15.0)
 		spawn_pos.y += 2.0 
@@ -334,23 +383,16 @@ func _executar_reset_fisico_veiculo(vehicle: Node3D):
 		
 		spawn_transform = Transform3D(Basis(x_axis, y_axis, z_axis), spawn_pos)
 	else:
-		# LÓGICA FREE ROAM: Busca os spawns na estrutura do seu mapa
 		var spawn_point = get_tree().get_first_node_in_group("SpawnPoint")
-		
-		# PLANO B: Se não achou pelo grupo, busca diretamente pela árvore usando o nó '%' que vimos na imagem
 		if not spawn_point:
 			var container_spawns = get_tree().current_scene.find_child("SpawnPoints", true, false)
 			if container_spawns and container_spawns.get_child_count() > 0:
-				# Pega o primeiro spawn disponível (Spawn1)
 				spawn_point = container_spawns.get_child(0)
 		
-		# Aplica o transform se encontrou o ponto, senão mantém a posição atual como fallback
 		if spawn_point:
 			spawn_transform = spawn_point.global_transform
 		else:
-			print("[StoryModeController] AVISO: Nenhum SpawnPoint foi encontrado!")
 			spawn_transform = vehicle.global_transform
-	# =======================================================
 	
 	vehicle.freeze = true
 	vehicle.global_transform = spawn_transform
@@ -383,7 +425,6 @@ func end_mission(success: bool):
 		sun_light.light_color = original_sun_color
 		sun_light.light_energy = original_sun_energy
 
-	# Modificado para respeitar o bloqueio de pontos
 	for p in get_tree().get_nodes_in_group("mission_portals"):
 		if p.has_method("activate_portal_safely"):
 			p.activate_portal_safely()
@@ -393,30 +434,68 @@ func end_mission(success: bool):
 	var tokens_earned = 0 
 	var status_tipo = "LOCKED" 
 	
+	var is_all_tiers_completed = false
+	var won_first_time_tier = false
+	var won_repeated_tier = false
+	
 	if current_mission:
 		mission_name_temp = current_mission.mission_name
+		
 		if success:
 			var m_id = current_mission.mission_id
-			var is_first_time = not Global.completed_story_missions.has(m_id)
-			var already_repeated_this_run = Global.missions_repeated_this_run.has(m_id)
 			
-			points_earned = current_mission.mission_reward_points
-			
-			if is_first_time:
-				tokens_earned = int(points_earned * 0.20)
-				status_tipo = "FIRST_TIME"
+			if current_mission.mission_tiers.is_empty():
+				is_all_tiers_completed = true
+				var is_first_time = not Global.completed_story_missions.has(m_id)
+				var already_repeated = Global.missions_repeated_this_run.has(m_id)
 				
-				Global.story_total_points += points_earned
-				Global.completed_story_missions.append(m_id)
-				if Global.has_method("save_story_progress"): Global.save_story_progress()
-				if active_portal: active_portal.make_semitransparent()
+				var rew_pts = current_mission.get("mission_reward_points")
+				if rew_pts == null: rew_pts = 0
 				
-			elif not already_repeated_this_run:
-				tokens_earned = int(points_earned * 0.10)
-				status_tipo = "REPEATED"
-				Global.missions_repeated_this_run.append(m_id)
+				if is_first_time:
+					won_first_time_tier = true
+					points_earned += rew_pts
+					tokens_earned += int(rew_pts * 0.20)
+					Global.completed_story_missions.append(m_id)
+				elif not already_repeated:
+					won_repeated_tier = true
+					tokens_earned += int(rew_pts * 0.10)
+					Global.missions_repeated_this_run.append(m_id)
 			else:
-				tokens_earned = 0
+				is_all_tiers_completed = completed_tiers_this_run.size() == current_mission.mission_tiers.size()
+				for tier_index in completed_tiers_this_run:
+					var tier_data = current_mission.mission_tiers[tier_index]
+					var tier_key = m_id + "_tier_" + str(tier_index)
+					
+					var is_tier_first_time = not Global.completed_mission_tiers.has(tier_key)
+					var already_repeated_this_run = Global.missions_repeated_this_run.has(tier_key)
+					
+					if is_tier_first_time:
+						won_first_time_tier = true
+						points_earned += tier_data.reward_points
+						tokens_earned += int(tier_data.reward_points * 0.20)
+						Global.completed_mission_tiers.append(tier_key)
+					elif not already_repeated_this_run:
+						won_repeated_tier = true
+						tokens_earned += int(tier_data.reward_points * 0.10)
+						Global.missions_repeated_this_run.append(tier_key)
+				
+				if is_all_tiers_completed and not Global.completed_story_missions.has(m_id):
+					Global.completed_story_missions.append(m_id)
+
+			if points_earned > 0:
+				Global.story_total_points += points_earned
+				
+			if won_first_time_tier:
+				status_tipo = "FIRST_TIME"
+				if Global.has_method("save_story_progress"): 
+					Global.save_story_progress()
+				if active_portal and active_portal.has_method("is_fully_completed"):
+					if active_portal.is_fully_completed():
+						active_portal.make_semitransparent()
+			elif won_repeated_tier:
+				status_tipo = "REPEATED"
+			else:
 				status_tipo = "LOCKED"
 
 			if tokens_earned > 0:
@@ -453,31 +532,23 @@ func end_mission(success: bool):
 			token_ui.exibir_extrato(mission_name_temp, status_tipo, tokens_earned, self)
 			return 
 	
-	if result_ui and result_ui.has_method("show_result"):
-		result_ui.show_result(success, mission_name_temp, points_earned, self)
+	if result_ui and result_ui.has_method("show_result_with_tiers"):
+		result_ui.show_result_with_tiers(success, is_all_tiers_completed, mission_name_temp, points_earned, self)
 
 func resume_open_world():
-	# Garante que nenhuma lógica de missão tente rodar de fundo ao voltar pro Free Roam
 	is_mission_running = false
 	current_mission = null
 	active_portal = null
 	get_tree().paused = false
 
 func _check_next_map_unlock():
-	# =======================================================
-	# TRAVA DE SEGURANÇA:
-	# Se uma missão estiver ativa, bloqueia o reaparecimento dos portais.
-	# Eles serão religados naturalmente pela função end_mission() quando acabar.
-	# =======================================================
 	if is_mission_running:
 		return
 
-	# 1. Tenta ligar missões normais recém-desbloqueadas
 	for p in get_tree().get_nodes_in_group("mission_portals"):
 		if p.has_method("activate_portal_safely"):
 			p.activate_portal_safely()
 			
-	# 2. Checa o desbloqueio do portal da próxima cidade
 	if is_instance_valid(Global) and "story_total_points" in Global and "points_to_next_city" in Global:
 		if Global.story_total_points >= Global.points_to_next_city:
 			get_tree().call_group("next_map_portals", "activate_portal")
@@ -490,12 +561,8 @@ func start_last_played_mission():
 	if not last_played_mission or not is_instance_valid(last_played_portal): 
 		return
 	
-	# Injeta os dados da memória de volta para as variáveis ativas
 	current_mission = last_played_mission
 	active_portal = last_played_portal
-	
-	# Engana a função de restart para ela achar que estamos no meio da partida
 	is_mission_running = true 
 	
-	# Reaproveita 100% do seu sistema de teleporte, limpeza e recomeço!
 	restart_current_mission()

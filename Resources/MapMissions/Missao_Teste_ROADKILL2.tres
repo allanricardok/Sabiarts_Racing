@@ -1,8 +1,9 @@
-[gd_resource type="Resource" script_class="StoryMissionData" load_steps=5 format=3 uid="uid://ovx5arx7kna4"]
+[gd_resource type="Resource" script_class="StoryMissionData" load_steps=6 format=3 uid="uid://ovx5arx7kna4"]
 
 [ext_resource type="Script" uid="uid://2oic07orss4" path="res://Core/Objectives/MissionItem.gd" id="1_mxlcw"]
 [ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="2_6pvmx"]
-[ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/StoryMissionData.gd" id="3_hr1lf"]
+[ext_resource type="Script" uid="uid://dcan8ccd3nmwc" path="res://Core/Objectives/Story/StoryMissionTier.gd" id="3_6pvmx"]
+[ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/Story/StoryMissionData.gd" id="3_hr1lf"]
 
 [sub_resource type="Resource" id="Resource_esgsk"]
 script = ExtResource("1_mxlcw")
@@ -18,7 +19,6 @@ mission_id = "m_04_2"
 mission_name = "Roadkill 2"
 mission_description = "Chacine 50 Esquerdomachos"
 time_limit = 145.0
-mission_reward_points = 1500
 classic_objective = SubResource("Resource_esgsk")
 mission_environment = ExtResource("2_6pvmx")
 mission_sun_color = Color(0.15, 0, 0.004999995, 0.7019608)

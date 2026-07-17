@@ -12,7 +12,7 @@ var pode_pausar: bool = true
 
 var camera_select_btn: OptionButton
 var abort_mission_btn: Button 
-var reset_mission_btn: Button # --- NOVO: Referência do botão de reiniciar ---
+var reset_mission_btn: Button
 
 func _ready():
 	_setup_dynamic_buttons()
@@ -21,7 +21,6 @@ func _setup_dynamic_buttons():
 	var vbox = $Control/VBoxContainer
 	if not vbox: return
 	
-	# --- INSTANCIAÇÃO DO ABORTAR MISSÃO ---
 	abort_mission_btn = Button.new()
 	abort_mission_btn.name = "AbortMissionBtn"
 	abort_mission_btn.text = "Abortar Missão"
@@ -38,7 +37,6 @@ func _setup_dynamic_buttons():
 	abort_mission_btn.pressed.connect(_on_abort_mission_btn_pressed)
 	vbox.add_child(abort_mission_btn)
 	
-	# --- NOVO: INSTANCIAÇÃO DO REINICIAR MISSÃO ---
 	reset_mission_btn = Button.new()
 	reset_mission_btn.name = "ResetMissionBtn"
 	reset_mission_btn.text = "Reiniciar Missão"
@@ -55,7 +53,6 @@ func _setup_dynamic_buttons():
 	reset_mission_btn.pressed.connect(_on_reset_mission_btn_pressed)
 	vbox.add_child(reset_mission_btn)
 	
-	# --- CONFIGURAÇÃO DA CÂMERA ---
 	camera_select_btn = OptionButton.new()
 	camera_select_btn.name = "CameraSelectBtn"
 	camera_select_btn.add_item("Opções de Câmera", 999) 
@@ -76,7 +73,6 @@ func _setup_dynamic_buttons():
 	camera_select_btn.item_selected.connect(_on_camera_selected)
 	vbox.add_child(camera_select_btn)
 	
-	# Ordenação visual dos nós dentro da VBox
 	vbox.move_child(abort_mission_btn, 0)
 	vbox.move_child(reset_mission_btn, 1)
 	vbox.move_child(camera_select_btn, 2)
@@ -114,12 +110,10 @@ func _toggle_pause():
 			abort_mission_btn.visible = has_mission
 			abort_mission_btn.disabled = not has_mission
 			
-		# --- NOVO: Controla exibição do botão de reset ---
 		if reset_mission_btn:
 			reset_mission_btn.visible = has_mission
 			reset_mission_btn.disabled = not has_mission
 		
-		# Define onde o foco inicial do controle/teclado vai pousar ao abrir o menu
 		if has_mission and reset_mission_btn:
 			reset_mission_btn.grab_focus()
 		elif camera_select_btn:
@@ -137,24 +131,19 @@ func _atualizar_lista_missoes():
 		_atualizar_lista_classica()
 
 func _atualizar_lista_historia():
-	# 1. Limpa a lista de missões (Esquerda)
 	for child in mission_container.get_children():
 		child.queue_free()
 		
-	# 2. Limpa o botão antigo de Restart (Direita) para não duplicar!
 	var old_btn = main_button_container.get_node_or_null("DynamicRestartBtn")
 	if is_instance_valid(old_btn):
 		old_btn.queue_free()
 		
 	var controller = get_tree().get_first_node_in_group("StoryController")
 	
-	# =====================================================================
-	# --- GERADOR AUTOMÁTICO DO RESTART LAST MISSION (LADO DIREITO) ---
-	# =====================================================================
 	if controller:
 		if not controller.is_mission_running and controller.last_played_mission != null:
 			var restart_btn = Button.new()
-			restart_btn.name = "DynamicRestartBtn" # Dá um nome fixo para acharmos e apagarmos depois
+			restart_btn.name = "DynamicRestartBtn"
 			restart_btn.text = "Restart Last Mission"
 			restart_btn.add_theme_color_override("font_color", Color.ORANGE)
 			
@@ -164,17 +153,9 @@ func _atualizar_lista_historia():
 				controller.start_last_played_mission()
 			)
 			
-			# Adiciona no container de botões principais (Direita)
 			main_button_container.add_child(restart_btn)
-			
-			# Move o botão para o índice 1 (Ficará exatamente abaixo do "ResumeBtn", que é o índice 0)
-			# Se quiser que ele seja o primeirão de todos no topo, mude para 0!
 			main_button_container.move_child(restart_btn, 1) 
-	# =====================================================================
 
-	# ---------------------------------------------------------
-	# PARTE 1: MISSÕES (O seu código original continua exatamente igual daqui para baixo)
-	# ---------------------------------------------------------
 	var portals = get_tree().get_nodes_in_group("mission_portals")
 	
 	var titulo = Label.new()
@@ -186,27 +167,44 @@ func _atualizar_lista_historia():
 		if "mission_data" in portal and portal.mission_data:
 			var m_data = portal.mission_data
 			
-			# Trava de pontos que adicionamos anteriormente
-			var required_pts = m_data.required_unlock_points if "required_unlock_points" in m_data else 0
+			var required_pts = m_data.get("required_unlock_points")
+			if required_pts == null: required_pts = 0
+			
 			var current_pts = Global.story_total_points if is_instance_valid(Global) else 0
 			if current_pts < required_pts:
 				continue
 				
-			var is_completed = Global.completed_story_missions.has(m_data.mission_id)
+			var is_completed = false
+			var total_pts = 0
+			
+			# =======================================================
+			# CORREÇÃO 4: AVALIAÇÃO DE PROGRESSO DO MENU
+			# Lê corretamente se você tem todos os tiers salvos!
+			# =======================================================
+			if "mission_tiers" in m_data and not m_data.mission_tiers.is_empty():
+				is_completed = true
+				for i in range(m_data.mission_tiers.size()):
+					if m_data.mission_tiers[i]:
+						total_pts += m_data.mission_tiers[i].reward_points
+					
+					var tier_key = m_data.mission_id + "_tier_" + str(i)
+					if not Global.completed_mission_tiers.has(tier_key):
+						is_completed = false
+			else:
+				is_completed = Global.completed_story_missions.has(m_data.mission_id)
+				var rew = m_data.get("mission_reward_points")
+				total_pts = rew if rew != null else 0
 			
 			var h_box = HBoxContainer.new()
 			var lbl = Label.new()
 			
 			var prefixo = "[✔] " if is_completed else "[ ] "
-			lbl.text = prefixo + m_data.mission_name + " (" + str(m_data.mission_reward_points) + " pts)"
+			lbl.text = prefixo + m_data.mission_name + " (Máx: " + str(total_pts) + " pts)"
 			lbl.add_theme_color_override("font_color", Color.GREEN if is_completed else Color.WHITE)
 			
 			h_box.add_child(lbl)
 			mission_container.add_child(h_box)
 
-	# ---------------------------------------------------------
-	# PARTE 2: COLETÁVEIS SECRETOS
-	# ---------------------------------------------------------
 	var coletaveis = get_tree().get_nodes_in_group("story_collectibles")
 	if coletaveis.size() > 0:
 		var sep_col = HSeparator.new()
@@ -235,9 +233,6 @@ func _atualizar_lista_historia():
 			h_box.add_child(lbl)
 			mission_container.add_child(h_box)
 	
-	# ---------------------------------------------------------
-	# PARTE 3: META DE PONTUAÇÃO
-	# ---------------------------------------------------------
 	var sep_meta = HSeparator.new()
 	mission_container.add_child(sep_meta)
 	
@@ -285,21 +280,11 @@ func _on_abort_mission_btn_pressed():
 		story_controller.abort_current_mission()
 
 func _on_reset_mission_btn_pressed():
-	print("=========================================")
-	print("[PauseMenu-DEBUG] Botão de Reiniciar Missão CLICADO!")
 	_toggle_pause()
-	
 	var story_controller = get_tree().get_first_node_in_group("StoryController")
 	if story_controller:
-		print("[PauseMenu-DEBUG] StoryController ENCONTRADO no grupo!")
 		if story_controller.has_method("restart_current_mission"):
-			print("[PauseMenu-DEBUG] Método 'restart_current_mission' EXISTE! Enviando ordem...")
 			story_controller.restart_current_mission()
-		else:
-			push_error("[PauseMenu-DEBUG] ERRO: O StoryController não tem a função 'restart_current_mission'!")
-	else:
-		push_error("[PauseMenu-DEBUG] ERRO: StoryController NÃO FOI ENCONTRADO na cena!")
-	print("=========================================")
 
 func _on_resume_btn_pressed():
 	_toggle_pause()

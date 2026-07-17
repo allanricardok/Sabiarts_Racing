@@ -37,9 +37,11 @@ var player_suffix : String = ""
 var my_player_id : int = -1
 var my_car : BaseVehicle = null 
 
+# --- VARIÁVEIS DA UI DE MISSÃO (ATUALIZADO PARA TIERS) ---
 var story_mission_panel: PanelContainer
-var story_mission_label: Label
-var story_mission_line: ColorRect
+var story_mission_title_label: Label
+var story_mission_tiers_container: VBoxContainer
+var _labels_de_tier : Dictionary = {}
 
 func _ready():
 	air_time_label.visible = false
@@ -52,9 +54,7 @@ func _ready():
 		ScoreManager.score_changed.disconnect(_on_score_updated)
 	ScoreManager.score_changed.connect(_on_score_updated)
 	
-	# Verifica se o modo atual é o Story Mode
 	if Global.current_run_mode == Global.RunMode.STORY:
-		# call_deferred garante que a HUD terminou de ser desenhada na tela antes de ocultar
 		call_deferred("esconder_timer")
 	
 	if not MissionManager.mission_completed.is_connected(_on_mission_completed):
@@ -62,6 +62,10 @@ func _ready():
 	
 	if not MissionManager.mission_updated.is_connected(_on_mission_updated):
 		MissionManager.mission_updated.connect(_on_mission_updated)
+
+# ====================================================================
+# --- LÓGICA DO CARD DA MISSÃO (ATUALIZADA) ---
+# ====================================================================
 
 func _setup_story_mission_ui():
 	story_mission_panel = PanelContainer.new()
@@ -78,7 +82,7 @@ func _setup_story_mission_ui():
 	story_mission_panel.offset_bottom = -180
 	
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.98, 0.96, 0.85)
+	style.bg_color = Color(0.98, 0.96, 0.85, 0.9)
 	style.border_color = Color(0.9, 0.4, 0.4)
 	style.border_width_left = 4
 	style.content_margin_left = 15
@@ -89,47 +93,73 @@ func _setup_story_mission_ui():
 	style.shadow_size = 4
 	story_mission_panel.add_theme_stylebox_override("panel", style)
 	
-	story_mission_label = Label.new()
-	story_mission_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	story_mission_label.add_theme_color_override("font_color", Color(0.1, 0.1, 0.2))
-	story_mission_label.add_theme_font_size_override("font_size", 22)
-	story_mission_panel.add_child(story_mission_label)
+	# Usamos um VBoxContainer para empilhar o Título e os Tiers abaixo
+	var main_vbox = VBoxContainer.new()
+	story_mission_panel.add_child(main_vbox)
 	
-	story_mission_line = ColorRect.new()
-	story_mission_line.color = Color(0.8, 0.1, 0.1, 0.8)
-	story_mission_line.custom_minimum_size.y = 4
-	story_mission_line.size.y = 4
-	story_mission_line.size.x = 0
-	story_mission_line.anchor_top = 0.5
-	story_mission_line.anchor_bottom = 0.5
-	story_mission_label.add_child(story_mission_line)
+	story_mission_title_label = Label.new()
+	story_mission_title_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	story_mission_title_label.add_theme_color_override("font_color", Color(0.1, 0.1, 0.2))
+	story_mission_title_label.add_theme_font_size_override("font_size", 22)
+	main_vbox.add_child(story_mission_title_label)
+	
+	var separator = HSeparator.new()
+	main_vbox.add_child(separator)
+	
+	story_mission_tiers_container = VBoxContainer.new()
+	main_vbox.add_child(story_mission_tiers_container)
 	
 	story_mission_panel.visible = false
 
-func mostrar_missao_ativa(nome_missao: String):
-	if story_mission_panel:
-		story_mission_label.text = "- " + nome_missao
-		story_mission_label.add_theme_color_override("font_color", Color(0.1, 0.1, 0.2))
-		story_mission_line.size.x = 0
-		story_mission_panel.visible = true
+func mostrar_missao_ativa_com_tiers(nome_missao: String, tiers: Array):
+	if not story_mission_panel: return
+	
+	story_mission_panel.visible = true
+	if story_mission_title_label: 
+		story_mission_title_label.text = nome_missao
+		story_mission_title_label.add_theme_color_override("font_color", Color(0.1, 0.1, 0.2))
+	
+	if story_mission_tiers_container:
+		for child in story_mission_tiers_container.get_children():
+			child.queue_free()
+		_labels_de_tier.clear()
+		
+		if tiers.is_empty():
+			var lbl = Label.new()
+			lbl.text = "- Completar Objetivo Clássico"
+			lbl.add_theme_color_override("font_color", Color(0.2, 0.2, 0.3))
+			story_mission_tiers_container.add_child(lbl)
+			_labels_de_tier[0] = lbl
+		else:
+			for i in range(tiers.size()):
+				var tier = tiers[i]
+				var lbl = Label.new()
+				lbl.text = "- Tier %d (%s): Meta %.0f" % [i + 1, tier.tier_name, tier.target_value]
+				lbl.add_theme_color_override("font_color", Color(0.2, 0.2, 0.3))
+				story_mission_tiers_container.add_child(lbl)
+				_labels_de_tier[i] = lbl
+
+func riscar_objetivo_tier(index: int, tier_name: String):
+	if _labels_de_tier.has(index):
+		var lbl = _labels_de_tier[index]
+		if is_instance_valid(lbl):
+			lbl.text = "[✔] Tier " + str(index + 1) + " (" + tier_name + ") Completado!"
+			lbl.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
 
 func atualizar_status_missao(sucesso: bool):
 	if story_mission_panel and story_mission_panel.visible:
 		if sucesso:
-			story_mission_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6, 0.7))
-			var font = story_mission_label.get_theme_font("font")
-			var font_size = story_mission_label.get_theme_font_size("font_size")
-			var text_width = font.get_string_size(story_mission_label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
-			
-			var tween = create_tween()
-			tween.tween_property(story_mission_line, "size:x", text_width + 10.0, 0.4).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+			story_mission_title_label.add_theme_color_override("font_color", Color(0.2, 0.6, 0.2))
+			story_mission_title_label.text = story_mission_title_label.text + " (CONCLUÍDA)"
 		else:
-			story_mission_label.add_theme_color_override("font_color", Color.RED)
-			story_mission_label.text = story_mission_label.text + " (FALHOU)"
+			story_mission_title_label.add_theme_color_override("font_color", Color.RED)
+			story_mission_title_label.text = story_mission_title_label.text + " (TEMPO ESGOTADO)"
 
 func esconder_missao_ativa():
 	if story_mission_panel:
 		story_mission_panel.visible = false
+
+# ====================================================================
 
 func setup_hud(suffix: String, real_id: int):
 	player_suffix = suffix
@@ -147,18 +177,15 @@ func setup_hud(suffix: String, real_id: int):
 		player_id_label.text = "PLAYER " + str(my_player_id + 1)
 		player_id_label.modulate = Color.CYAN if my_player_id == 0 else Color.ORANGE
 
-# --- O NOVO _PROCESS SUPER LEVE ---
 func _process(_delta):
 	_update_ui_scaling()
 	
 	if ped_kill_label and is_instance_valid(my_car):
 		ped_kill_label.text = "x" + str(my_car.pedestrians_killed)
 
-# --- RECEPTOR DE DADOS DAS GOTAS ---
 func sync_nametags(active_tags_data: Array):
 	var valid_nodes = []
 
-	# Desenha e atualiza as posições passadas pelo componente
 	for data in active_tags_data:
 		var p = data["node"]
 		valid_nodes.append(p)
@@ -192,7 +219,6 @@ func sync_nametags(active_tags_data: Array):
 			icon.modulate = Color.WHITE
 			icon.modulate.a = 0.5
 
-	# Limpa os elementos que saíram da tela ou foram destruídos
 	var keys_to_remove = []
 	for p in _nametags_dict.keys():
 		if not p in valid_nodes:
@@ -202,7 +228,6 @@ func sync_nametags(active_tags_data: Array):
 	for k in keys_to_remove: 
 		_nametags_dict.erase(k)
 
-# --- RECEPTOR DO PAINEL DE ALVO ---
 func sync_target_info(display_target: Node3D):
 	if not target_info_panel: return
 	target_info_panel.visible = true

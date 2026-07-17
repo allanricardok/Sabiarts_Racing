@@ -1,4 +1,4 @@
-[gd_scene load_steps=309 format=3 uid="uid://d1rl8sskrmddj"]
+[gd_scene load_steps=312 format=3 uid="uid://d1rl8sskrmddj"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_u8o8m"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="3_is8dr"]
@@ -44,7 +44,7 @@
 [ext_resource type="PackedScene" uid="uid://oqlfy56yme5y" path="res://Scenes/Prefabs/Vehicles/FireTruckTest.tscn" id="36_4e1cd"]
 [ext_resource type="PackedScene" uid="uid://cxnfwc3ovajua" path="res://Scenes/Prefabs/Vehicles/LakesterTest.tscn" id="37_44s4c"]
 [ext_resource type="PackedScene" uid="uid://cmcbewlv3y7he" path="res://Scenes/Prefabs/Vehicles/ShadowJetTest.tscn" id="38_jtjsh"]
-[ext_resource type="Script" uid="uid://bcqktfavkyynj" path="res://Core/Objectives/StoryMissionPortal.gd" id="40_4e1cd"]
+[ext_resource type="Script" uid="uid://bcqktfavkyynj" path="res://Core/Objectives/Story/StoryMissionPortal.gd" id="40_4e1cd"]
 [ext_resource type="Resource" uid="uid://81q5tefascy8" path="res://Resources/MapMissions/Missao_Teste_SCORE.tres" id="41_44s4c"]
 [ext_resource type="Resource" uid="uid://drit30f7ro0oc" path="res://Resources/MapMissions/Missao_Teste_CARNAGE.tres" id="42_qdutf"]
 [ext_resource type="Resource" uid="uid://dourr4nfgod0e" path="res://Resources/MapMissions/Missao_Teste_SCORE3.tres" id="43_0p4fw"]
@@ -54,13 +54,23 @@
 [ext_resource type="PackedScene" uid="uid://cpbeu41m4p3fb" path="res://Scenes/UI/StoryMissionUI.tscn" id="45_kq8oo"]
 [ext_resource type="Resource" uid="uid://ek22lkql8uy7" path="res://Resources/MapMissions/Missao_Teste_RADAR.tres" id="45_yp3g3"]
 [ext_resource type="PackedScene" uid="uid://b5uq5cu7yermy" path="res://Scenes/UI/StoryMissionResultUI.tscn" id="46_neuqn"]
-[ext_resource type="Script" uid="uid://dpmbgmu3rpmqp" path="res://Core/Objectives/StoryNextMapPortal.gd" id="46_yp3g3"]
+[ext_resource type="Script" uid="uid://dpmbgmu3rpmqp" path="res://Core/Objectives/Story/StoryNextMapPortal.gd" id="46_yp3g3"]
 [ext_resource type="Resource" uid="uid://bi8k3texgwi2q" path="res://Resources/MapMissions/Missao_Teste_SCORE2.tres" id="47_keab0"]
 [ext_resource type="PackedScene" uid="uid://c7djmj41vlc02" path="res://Scenes/Prefabs/Items/StoryCollectable.tscn" id="48_i3s4m"]
 [ext_resource type="Resource" uid="uid://ovx5arx7kna4" path="res://Resources/MapMissions/Missao_Teste_ROADKILL2.tres" id="48_ioiyf"]
-[ext_resource type="Script" uid="uid://ckpa324htfvdu" path="res://Core/Objectives/StoryModeController.gd" id="48_neuqn"]
+[ext_resource type="Script" uid="uid://ckpa324htfvdu" path="res://Core/Objectives/Story/StoryModeController.gd" id="48_neuqn"]
 [ext_resource type="Resource" uid="uid://bsekh77o7b172" path="res://Resources/MapMissions/Missao_Teste_RADAR2.tres" id="50_tqs36"]
 [ext_resource type="PackedScene" uid="uid://dpwm3nbh0pryq" path="res://Scenes/UI/TokenRewardUI.tscn" id="54_g7yph"]
+[ext_resource type="Shader" uid="uid://bd5pcb476mvpb" path="res://Core/Shaders/post_processing.gdshader" id="62_rf88v"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_tqs36"]
+render_priority = 26
+shader = ExtResource("62_rf88v")
+shader_parameter/dither_amount = 0.05999999865888
+
+[sub_resource type="QuadMesh" id="QuadMesh_rf88v"]
+flip_faces = true
+size = Vector2(2, 2)
 
 [sub_resource type="BoxMesh" id="BoxMesh_a70xh"]
 material = ExtResource("3_is8dr")
@@ -800,6 +810,9 @@ size = Vector3(12.478851, 3.2165527, 5.956909)
 radius = 4.779808
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_g7yph"]
+transparency = 2
+alpha_scissor_threshold = 0.46
+alpha_antialiasing_mode = 0
 albedo_color = Color(0.95686275, 1, 0.14901961, 1)
 
 [sub_resource type="SphereMesh" id="SphereMesh_h44hj"]
@@ -891,6 +904,13 @@ stretch = true
 handle_input_locally = false
 size = Vector2i(912, 1026)
 render_target_update_mode = 4
+
+[node name="ScreenQuad" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1"]
+visible = false
+material_override = SubResource("ShaderMaterial_tqs36")
+extra_cull_margin = 16384.0
+mesh = SubResource("QuadMesh_rf88v")
+skeleton = NodePath("../../../..")
 
 [node name="WorldEnvironment2" parent="GridContainer/Cont_P1/View_P1" instance=ExtResource("32_vj8u6")]
 
@@ -6118,6 +6138,7 @@ mesh = SubResource("SphereMesh_h44hj")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.9194775, 0)
 pixel_size = 0.05
 billboard = 1
+alpha_cut = 1
 modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
 outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
 text = "Trickster 1000"

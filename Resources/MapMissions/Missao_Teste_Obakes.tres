@@ -2,7 +2,7 @@
 
 [ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="1_k6iqc"]
 [ext_resource type="Resource" uid="uid://cqn4jos28r5ff" path="res://Resources/MapMissions/Single-Mission-Obake.tres" id="1_r66d8"]
-[ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/StoryMissionData.gd" id="2_r66d8"]
+[ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/Story/StoryMissionData.gd" id="2_r66d8"]
 
 [resource]
 script = ExtResource("2_r66d8")

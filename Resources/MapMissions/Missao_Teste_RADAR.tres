@@ -1,8 +1,9 @@
-[gd_resource type="Resource" script_class="StoryMissionData" load_steps=5 format=3 uid="uid://ek22lkql8uy7"]
+[gd_resource type="Resource" script_class="StoryMissionData" load_steps=6 format=3 uid="uid://ek22lkql8uy7"]
 
 [ext_resource type="Script" uid="uid://2oic07orss4" path="res://Core/Objectives/MissionItem.gd" id="1_0r22g"]
 [ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="2_25vq1"]
-[ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/StoryMissionData.gd" id="3_a10ft"]
+[ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/Story/StoryMissionData.gd" id="3_a10ft"]
+[ext_resource type="Script" uid="uid://dcan8ccd3nmwc" path="res://Core/Objectives/Story/StoryMissionTier.gd" id="3_fgbej"]
 
 [sub_resource type="Resource" id="Resource_r66d8"]
 script = ExtResource("1_0r22g")
@@ -18,7 +19,6 @@ mission_id = "m_05"
 mission_name = "Fuck Detran"
 mission_description = "Go through the Radar over 100km/h"
 time_limit = 30.0
-mission_reward_points = 1000
 classic_objective = SubResource("Resource_r66d8")
 mission_environment = ExtResource("2_25vq1")
 mission_sun_color = Color(1.179842, 0.7508126, 0.06872849, 0.32000002)

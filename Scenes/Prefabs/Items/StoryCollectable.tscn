@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://c7djmj41vlc02"]
 
-[ext_resource type="Script" uid="uid://dmm3kxowiavma" path="res://Core/Objectives/StoryCollectables.gd" id="1_lvmc1"]
+[ext_resource type="Script" uid="uid://dmm3kxowiavma" path="res://Core/Objectives/Story/StoryCollectables.gd" id="1_lvmc1"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lvmc1"]
 shading_mode = 0

@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="StoryMissionData" load_steps=3 format=3 uid="uid://dkx6wotxnp62y"]
 
 [ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="1_k4lpy"]
-[ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/StoryMissionData.gd" id="2_p2d83"]
+[ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/Story/StoryMissionData.gd" id="2_p2d83"]
 
 [resource]
 script = ExtResource("2_p2d83")

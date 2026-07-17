@@ -1,32 +1,40 @@
 # StoryMissionUI.gd
 extends CanvasLayer
 
-@onready var title_label = %Title # Ajuste o caminho conforme sua árvore
-@onready var desc_label = %Description   # Ajuste o caminho
-@onready var accept_btn = %Accept   # Ajuste o caminho
+@onready var title_label = %Title 
+@onready var desc_label = %Description   
+@onready var accept_btn = %Accept   
 @onready var reject_btn = %Reject
 
 var current_controller: Node = null
 
 func _ready():
-	process_mode = Node.PROCESS_MODE_ALWAYS # Precisa funcionar enquanto o jogo está pausado!
+	process_mode = Node.PROCESS_MODE_ALWAYS 
 	visible = false
 
-# Essa função é chamada pelo Controller
 func show_mission_prompt(data: StoryMissionData, controller: Node):
 	current_controller = controller
 	title_label.text = data.mission_name
-	desc_label.text = data.mission_description
+	
+	# Constrói o texto do prompt listando todas as metas dinamicamente
+	var full_desc = data.mission_description + "\n\nOBJETIVOS DE TIERS:"
+	
+	if not data.mission_tiers.is_empty():
+		for i in range(data.mission_tiers.size()):
+			var tier = data.mission_tiers[i]
+			full_desc += "\n- Tier %d (%s): Meta %.0f | Recompensa: %d pts" % [i + 1, tier.tier_name, tier.target_value, tier.reward_points]
+	else:
+		full_desc += "\n- Meta Padrão: Completar o objetivo clássico"
+		
+	desc_label.text = full_desc
 	visible = true
-	accept_btn.grab_focus() # Para funcionar no controle/teclado
+	accept_btn.grab_focus()
 
-# Conecte o sinal "pressed" do botão Aceitar nesta função
 func _on_accept_btn_pressed():
 	visible = false
 	if current_controller:
 		current_controller.accept_mission()
 
-# Conecte o sinal "pressed" do botão Recusar nesta função
 func _on_reject_btn_pressed():
 	visible = false
 	if current_controller:

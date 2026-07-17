@@ -13,9 +13,9 @@ enum MissionType { CLASSIC_OBJECTIVE, COMBAT_DESTROY }
 @export_multiline var mission_description: String = "Descrição da missão."
 @export var time_limit: float = 60.0 
 
-@export_group("Recompensa da História")
-## Quantos pontos o jogador GANHA NO FINAL ao vencer esta missão
-@export var mission_reward_points: int = 500 
+@export_group("Configuração de Tiers")
+## Defina quantos tiers quiser para esta missão e configure suas metas e recompensas no Inspetor
+@export var mission_tiers: Array[StoryMissionTier] = []
 
 @export_group("Regras por Tipo")
 ## Arraste para aqui o seu MissionItem antigo (Radar, Maleta, Obake, etc.)
