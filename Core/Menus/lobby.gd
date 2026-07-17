@@ -362,9 +362,14 @@ func _on_clear_data_pressed():
 			Global.completed_story_missions.clear()
 		if "story_total_points" in Global:
 			Global.story_total_points = 0
-		# --- NOVO: Limpa o registro dos itens coletados ---
 		if "collected_items_ids" in Global:
 			Global.collected_items_ids.clear()
+			
+		# --- NOVO: Limpando os arrays responsáveis pelos Tiers e Repetições ---
+		if "completed_mission_tiers" in Global:
+			Global.completed_mission_tiers.clear()
+		if "missions_repeated_this_run" in Global:
+			Global.missions_repeated_this_run.clear()
 			
 		# Salva o estado "zerado" no disco
 		if Global.has_method("save_story_progress"):
@@ -380,7 +385,7 @@ func _on_clear_data_pressed():
 	if btn: btn.modulate = Color(1, 0, 0)
 	
 	get_tree().create_timer(0.2).timeout.connect(_atualizar_visual_menus)
-
+	
 func _on_botao_apagar_scores_pressed():
 	SaveManager.clear_highscores()
 	var btn = find_child("ClearScoresButton", true, false)

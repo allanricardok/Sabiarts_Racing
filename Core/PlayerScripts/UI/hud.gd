@@ -37,11 +37,16 @@ var player_suffix : String = ""
 var my_player_id : int = -1
 var my_car : BaseVehicle = null 
 
-# --- VARIÁVEIS DA UI DE MISSÃO (ATUALIZADO PARA TIERS) ---
+# --- VARIÁVEIS DA UI DE MISSÃO ---
 var story_mission_panel: PanelContainer
 var story_mission_title_label: Label
 var story_mission_tiers_container: VBoxContainer
 var _labels_de_tier : Dictionary = {}
+
+# --- VARIÁVEIS DA UI DO ITEM SECRETO (INDEPENDENTE) ---
+var secret_item_panel: PanelContainer
+var secret_item_label: Label
+var secret_item_tween: Tween
 
 func _ready():
 	air_time_label.visible = false
@@ -64,10 +69,11 @@ func _ready():
 		MissionManager.mission_updated.connect(_on_mission_updated)
 
 # ====================================================================
-# --- LÓGICA DO CARD DA MISSÃO (ATUALIZADA) ---
+# --- LÓGICA DOS CARTÕES DE MISSÃO E ITENS SECRETOS ---
 # ====================================================================
 
 func _setup_story_mission_ui():
+	# 1. PAINEL DA MISSÃO PRINCIPAL
 	story_mission_panel = PanelContainer.new()
 	ui_base.add_child(story_mission_panel)
 	
@@ -93,7 +99,6 @@ func _setup_story_mission_ui():
 	style.shadow_size = 4
 	story_mission_panel.add_theme_stylebox_override("panel", style)
 	
-	# Usamos um VBoxContainer para empilhar o Título e os Tiers abaixo
 	var main_vbox = VBoxContainer.new()
 	story_mission_panel.add_child(main_vbox)
 	
@@ -110,6 +115,60 @@ func _setup_story_mission_ui():
 	main_vbox.add_child(story_mission_tiers_container)
 	
 	story_mission_panel.visible = false
+
+	# 2. NOVO PAINEL ISOLADO PARA OS ITENS SECRETOS
+	secret_item_panel = PanelContainer.new()
+	ui_base.add_child(secret_item_panel)
+
+	secret_item_panel.anchor_left = 1.0
+	secret_item_panel.anchor_top = 1.0
+	secret_item_panel.anchor_right = 1.0
+	secret_item_panel.anchor_bottom = 1.0
+	
+	# Ele fica posicionado fisicamente logo acima do painel de missão
+	secret_item_panel.offset_left = -380
+	secret_item_panel.offset_top = -510
+	secret_item_panel.offset_right = -30
+	secret_item_panel.offset_bottom = -410
+	
+	var secret_style = StyleBoxFlat.new()
+	secret_style.bg_color = Color(0.1, 0.1, 0.15, 0.95)
+	secret_style.border_color = Color(0.2, 0.8, 0.6)
+	secret_style.border_width_left = 4
+	secret_style.content_margin_left = 15
+	secret_style.content_margin_top = 15
+	secret_style.content_margin_bottom = 15
+	secret_style.content_margin_right = 15
+	secret_style.shadow_color = Color(0, 0, 0, 0.2)
+	secret_style.shadow_size = 4
+	secret_item_panel.add_theme_stylebox_override("panel", secret_style)
+	
+	secret_item_label = Label.new()
+	secret_item_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	secret_item_label.add_theme_font_size_override("font_size", 18)
+	secret_item_panel.add_child(secret_item_label)
+	
+	secret_item_panel.visible = false
+
+func mostrar_item_secreto_coletado(nome_item: String, pontos: int):
+	if not secret_item_panel: return
+	
+	secret_item_panel.visible = true
+	secret_item_label.text = "★ ITEM SECRETO ENCONTRADO!\n" + nome_item + " (+" + str(pontos) + " pts)"
+	secret_item_label.add_theme_color_override("font_color", Color.AQUAMARINE)
+	
+	if secret_item_tween and secret_item_tween.is_running():
+		secret_item_tween.kill()
+		
+	secret_item_tween = create_tween()
+	secret_item_panel.modulate.a = 0
+	# Aparece suavemente
+	secret_item_tween.tween_property(secret_item_panel, "modulate:a", 1.0, 0.3)
+	# Fica na tela por 4 segundos
+	secret_item_tween.tween_interval(4.0)
+	# Some suavemente
+	secret_item_tween.tween_property(secret_item_panel, "modulate:a", 0.0, 0.5)
+	secret_item_tween.tween_callback(func(): secret_item_panel.visible = false)
 
 func mostrar_missao_ativa_com_tiers(nome_missao: String, tiers: Array):
 	if not story_mission_panel: return
