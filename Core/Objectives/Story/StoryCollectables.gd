@@ -62,11 +62,10 @@ func _coletar_item():
 		if Global.has_method("save_story_progress"):
 			Global.save_story_progress()
 			
-	var mensagem = "Encontrado: " + collectible_name + " (+" + str(points_value) + " pts)"
-	get_tree().call_group("HUD", "mostrar_missao_ativa", mensagem)
-	
-	await get_tree().create_timer(3.0).timeout
-	get_tree().call_group("HUD", "esconder_missao_ativa")
+	# =====================================================================
+	# MUDANÇA: Chama exclusivamente o painel isolado de Itens Secretos!
+	# =====================================================================
+	get_tree().call_group("HUD", "mostrar_item_secreto_coletado", collectible_name, points_value)
 	
 	var controller = get_tree().get_first_node_in_group("StoryController")
 	if controller and controller.has_method("_check_next_map_unlock"):

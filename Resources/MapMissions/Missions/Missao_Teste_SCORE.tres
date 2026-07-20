@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="StoryMissionData" load_steps=7 format=3 uid="uid://81q5tefascy8"]
+
+[ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="1_63bwr"]
+[ext_resource type="Script" uid="uid://dcan8ccd3nmwc" path="res://Core/Objectives/Story/StoryMissionTier.gd" id="2_4kjjx"]
+[ext_resource type="Resource" uid="uid://jy3xsup483q6" path="res://Resources/MapMissions/Tiers/Tier_Teste_SCORE.tres" id="3_k65j2"]
+[ext_resource type="Resource" uid="uid://6yxhg1bn31du" path="res://Resources/MapMissions/Tiers/Tier_Teste_SCORE1.tres" id="4_evsei"]
+[ext_resource type="Resource" uid="uid://cnftfr1fx0gsd" path="res://Resources/MapMissions/Tiers/Tier_Teste_SCORE2.tres" id="5_o3g2c"]
+[ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/Story/StoryMissionData.gd" id="6_g8x4k"]
+
+[resource]
+script = ExtResource("6_g8x4k")
+mission_name = "Trickster 2000"
+mission_description = "Score points to receive completion points.
+
+Don't forget to destroy things and execute tricks!
+
+Each tier will reward you a bit more!"
+mission_tiers = Array[ExtResource("2_4kjjx")]([ExtResource("3_k65j2"), ExtResource("4_evsei"), ExtResource("5_o3g2c")])
+mission_environment = ExtResource("1_63bwr")
+mission_sun_color = Color(0.5452965, 1.86578, 2.4318616, 0.155)
+mission_sun_energy = 0.2
+enemy_count = 0
+metadata/_custom_type_script = "uid://o1ox0n7mmqv"

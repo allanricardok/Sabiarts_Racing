@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="StoryMissionTier" load_steps=2 format=3 uid="uid://bh25fotioclxa"]
+
+[ext_resource type="Script" uid="uid://dcan8ccd3nmwc" path="res://Core/Objectives/Story/StoryMissionTier.gd" id="1_64lem"]
+
+[resource]
+script = ExtResource("1_64lem")
+tier_name = "6000"
+target_value = 6000.0
+reward_points = 1000
+metadata/_custom_type_script = "uid://dcan8ccd3nmwc"

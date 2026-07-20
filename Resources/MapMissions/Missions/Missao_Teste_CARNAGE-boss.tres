@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="StoryMissionData" load_steps=5 format=3 uid="uid://dkx6wotxnp62y"]
+
+[ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="1_2j2kp"]
+[ext_resource type="Script" uid="uid://dcan8ccd3nmwc" path="res://Core/Objectives/Story/StoryMissionTier.gd" id="2_d6l0a"]
+[ext_resource type="Resource" uid="uid://xhy1kmbjv1tl" path="res://Resources/MapMissions/Tiers/Tier_Teste_CARNAGE1.tres" id="3_d6l0a"]
+[ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/Story/StoryMissionData.gd" id="3_ona7p"]
+
+[resource]
+script = ExtResource("3_ona7p")
+mission_type = 1
+mission_id = "m_02_boss"
+mission_name = "Boss"
+mission_description = "Deguste o ânus do Boss"
+time_limit = 200.0
+mission_tiers = Array[ExtResource("2_d6l0a")]([ExtResource("3_d6l0a")])
+mission_environment = ExtResource("1_2j2kp")
+mission_sun_color = Color(1.5003539, 0, 0, 0.46666667)
+mission_sun_energy = 0.6
+enemy_count = 1
+enemy_damage_dealt_mult = 1.1
+enemy_damage_received_mult = 1.1
+required_unlock_points = 4000
+metadata/_custom_type_script = "uid://o1ox0n7mmqv"

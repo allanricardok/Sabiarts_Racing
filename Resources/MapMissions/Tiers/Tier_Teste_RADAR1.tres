@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="StoryMissionTier" load_steps=2 format=3 uid="uid://bfqx410lkm4vw"]
+
+[ext_resource type="Script" uid="uid://dcan8ccd3nmwc" path="res://Core/Objectives/Story/StoryMissionTier.gd" id="1_lkst8"]
+
+[resource]
+script = ExtResource("1_lkst8")
+tier_name = "90 km/h"
+target_value = 90.0
+reward_points = 250
+metadata/_custom_type_script = "uid://dcan8ccd3nmwc"

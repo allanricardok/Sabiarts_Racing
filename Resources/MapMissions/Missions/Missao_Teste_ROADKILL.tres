@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="StoryMissionData" load_steps=9 format=3 uid="uid://blt37tt3y7nim"]
+
+[ext_resource type="Script" uid="uid://2oic07orss4" path="res://Core/Objectives/MissionItem.gd" id="1_cvvq3"]
+[ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="2_gjcum"]
+[ext_resource type="Script" uid="uid://dcan8ccd3nmwc" path="res://Core/Objectives/Story/StoryMissionTier.gd" id="3_35tpk"]
+[ext_resource type="Resource" uid="uid://dksxl8e2xwmid" path="res://Resources/MapMissions/Tiers/Tier_Teste_ROADKILL1.tres" id="4_4ylfu"]
+[ext_resource type="Resource" uid="uid://4oej0myo8phq" path="res://Resources/MapMissions/Tiers/Tier_Teste_ROADKILL2.tres" id="5_2upjf"]
+[ext_resource type="Resource" uid="uid://dxyigg66du8mg" path="res://Resources/MapMissions/Tiers/Tier_Teste_ROADKILL3.tres" id="6_0xvw2"]
+[ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/Story/StoryMissionData.gd" id="7_1h25v"]
+
+[sub_resource type="Resource" id="Resource_esgsk"]
+script = ExtResource("1_cvvq3")
+id = "chacina"
+description = "Kill Esquerdomachos"
+type = 7
+target_value = 50.0
+metadata/_custom_type_script = "uid://2oic07orss4"
+
+[resource]
+script = ExtResource("7_1h25v")
+mission_id = "m_04"
+mission_name = "Roadkill"
+mission_description = "Kill up to 50 Esquerdomachos!
+
+Each tier will give you some points"
+time_limit = 120.0
+mission_tiers = Array[ExtResource("3_35tpk")]([ExtResource("4_4ylfu"), ExtResource("5_2upjf"), ExtResource("6_0xvw2")])
+classic_objective = SubResource("Resource_esgsk")
+mission_environment = ExtResource("2_gjcum")
+mission_sun_color = Color(0.6261257, 0, 0.018082649, 0.702)
+mission_sun_energy = 0.7
+enemy_count = 0
+metadata/_custom_type_script = "uid://o1ox0n7mmqv"

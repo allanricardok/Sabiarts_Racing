@@ -7,7 +7,7 @@ extends Area3D
 @export var rotation_speed: float = 1.5 
 
 var is_collected: bool = false
-var can_be_collected: bool = true # <--- TRAVA CONTRA COLETAS INSTANTÂNEAS NO REPLAY
+var can_be_collected: bool = true
 
 func _ready():
 	await get_tree().create_timer(0.2).timeout
@@ -19,7 +19,6 @@ func _ready():
 				if grants_teleport_key:
 					_distribute_permanent_key()
 				
-				# Esconde o item logo no início (usando call_deferred por segurança)
 				call_deferred("_hide_and_disable") 
 				return
 
@@ -31,7 +30,6 @@ func _process(delta):
 		rotate_y(rotation_speed * delta)
 
 func _on_body_entered(body):
-	# Se já foi coletado ou se está no tempo de invulnerabilidade do replay, ignora!
 	if is_collected or not can_be_collected: return
 	
 	if body is BaseVehicle or body.is_in_group("jogadores"):
@@ -76,19 +74,29 @@ func _collect():
 		MissionManager.notify_progress(MissionItem.Type.COLLECT, 1.0, mission_id)
 		get_tree().call_group("HUD", "atualizar_missao_ui")
 	
-	# --- CORREÇÃO DO ERRO DA ENGINE ---
-	# Nunca desligamos física diretamente dentro de colisões, agendamos para o fim do frame!
 	call_deferred("_hide_and_disable")
 
 func _hide_and_disable():
 	visible = false
 	for child in get_children():
 		if child is CollisionShape3D or child is CollisionPolygon3D:
-			child.disabled = true # Aqui é 100% seguro desligar a física
+			child.disabled = true 
 	process_mode = Node.PROCESS_MODE_DISABLED
 	print("[DEBUG-ITEM] ", name, " foi ocultado e desativado fisicamente com sucesso.")
 
 func reset():
+	# =====================================================================
+	# TRAVA DE SEGURANÇA: IDENTIDADE DA MISSÃO
+	# Protege contra o "find_child" acordar itens da missão errada!
+	# =====================================================================
+	if Global.current_run_mode == Global.RunMode.STORY:
+		var controller = get_tree().get_first_node_in_group("StoryController")
+		if is_instance_valid(controller) and controller.get("active_classic_objective") != null:
+			# Compara o ID da missão clássica rodando com o ID deste coletável
+			if controller.active_classic_objective.id != mission_id:
+				print("[DEBUG-ITEM] Falso despertar evitado em '", name, "'. Pertence a: ", mission_id)
+				return
+	
 	print("[DEBUG-ITEM] Resetando e acordando coletável: ", name)
 	is_collected = false
 	visible = true
@@ -98,8 +106,6 @@ func reset():
 		if child is CollisionShape3D or child is CollisionPolygon3D:
 			child.set_deferred("disabled", false)
 			
-	# --- TRAVA ANTI-INSTA-COLETA ---
-	# Bloqueia a coleta por 1 segundo para o carro ter tempo de sair de cima do item
 	can_be_collected = false
 	get_tree().create_timer(1.0).timeout.connect(func():
 		can_be_collected = true

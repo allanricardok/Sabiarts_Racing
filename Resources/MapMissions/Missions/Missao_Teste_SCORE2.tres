@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="StoryMissionData" load_steps=7 format=3 uid="uid://bi8k3texgwi2q"]
+
+[ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="2_lu2fk"]
+[ext_resource type="Script" uid="uid://dcan8ccd3nmwc" path="res://Core/Objectives/Story/StoryMissionTier.gd" id="3_4axvj"]
+[ext_resource type="Resource" uid="uid://cetxw4sjv2lw4" path="res://Resources/MapMissions/Tiers/Tier_Teste_SCORE3.tres" id="3_b4p62"]
+[ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/Story/StoryMissionData.gd" id="4_b4p62"]
+[ext_resource type="Resource" uid="uid://bx3wgcn5r1p53" path="res://Resources/MapMissions/Tiers/Tier_Teste_SCORE4.tres" id="4_wmbr4"]
+[ext_resource type="Resource" uid="uid://bh25fotioclxa" path="res://Resources/MapMissions/Tiers/Tier_Teste_SCORE5.tres" id="5_rl3tp"]
+
+[resource]
+script = ExtResource("4_b4p62")
+mission_id = "m_06"
+mission_name = "PRO Trickster"
+mission_description = "Score points to receive completion points.
+
+Don't forget to destroy things and execute tricks!
+
+Each tier will reward you a bit more!"
+time_limit = 120.0
+mission_tiers = Array[ExtResource("3_4axvj")]([ExtResource("3_b4p62"), ExtResource("4_wmbr4"), ExtResource("5_rl3tp")])
+mission_environment = ExtResource("2_lu2fk")
+mission_sun_color = Color(0.54397047, 1.8659585, 1.6394595, 0.44200003)
+mission_sun_energy = 0.2
+enemy_count = 0
+required_unlock_points = 3000
+metadata/_custom_type_script = "uid://o1ox0n7mmqv"

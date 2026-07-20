@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="StoryMissionTier" load_steps=2 format=3 uid="uid://s7fib3qsak4w"]
+
+[ext_resource type="Script" uid="uid://dcan8ccd3nmwc" path="res://Core/Objectives/Story/StoryMissionTier.gd" id="1_3f02m"]
+
+[resource]
+script = ExtResource("1_3f02m")
+tier_name = "3 Obakes"
+target_value = 3.0
+reward_points = 500
+metadata/_custom_type_script = "uid://dcan8ccd3nmwc"

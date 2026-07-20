@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="StoryMissionTier" load_steps=2 format=3 uid="uid://dxyigg66du8mg"]
+
+[ext_resource type="Script" uid="uid://dcan8ccd3nmwc" path="res://Core/Objectives/Story/StoryMissionTier.gd" id="1_s44f2"]
+
+[resource]
+script = ExtResource("1_s44f2")
+tier_name = "50 Roadkills"
+target_value = 50.0
+reward_points = 500
+metadata/_custom_type_script = "uid://dcan8ccd3nmwc"
