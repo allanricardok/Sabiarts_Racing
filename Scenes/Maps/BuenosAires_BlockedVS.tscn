@@ -1,4 +1,4 @@
-[gd_scene load_steps=309 format=3 uid="uid://d1rl8sskrmddj"]
+[gd_scene load_steps=312 format=3 uid="uid://d1rl8sskrmddj"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_u8o8m"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="3_is8dr"]
@@ -23,6 +23,7 @@
 [ext_resource type="PackedScene" uid="uid://dpjwvb143dxpb" path="res://Scenes/Prefabs/Items/JumpPad.tscn" id="18_r7ole"]
 [ext_resource type="Resource" uid="uid://dxe5me0wdtt06" path="res://Resources/Items/Shield.tres" id="18_vj8u6"]
 [ext_resource type="PackedScene" uid="uid://dadt551bspl1q" path="res://Scenes/Prefabs/Items/FloatingObject.tscn" id="19_6fv6f"]
+[ext_resource type="Script" uid="uid://bhmi1nb6hyswj" path="res://Core/GeneralObjects/DestructibleSpawner.gd" id="19_ioiyf"]
 [ext_resource type="Resource" uid="uid://q47f11lrnubs" path="res://Resources/Items/SuperHealthItem.tres" id="19_t5btl"]
 [ext_resource type="PackedScene" uid="uid://dopugjiu2xcnc" path="res://Scenes/Prefabs/Enemies/PedestrianSpawner.tscn" id="20_4e1cd"]
 [ext_resource type="Material" uid="uid://cbslnqdpwr8nl" path="res://Assets/2D/grass_test.tres" id="21_g1d4t"]
@@ -37,6 +38,8 @@
 [ext_resource type="Script" uid="uid://1qg3wklklqlt" path="res://Core/Objectives/LevelController.gd" id="25_qdutf"]
 [ext_resource type="PackedScene" uid="uid://bj8bsud4h6u06" path="res://Scenes/Prefabs/MapObjects/Tree2.tscn" id="26_75jtm"]
 [ext_resource type="PackedScene" uid="uid://cj77r4qvb36bc" path="res://Scenes/Prefabs/MapObjects/Bush1.tscn" id="27_6vwi6"]
+[ext_resource type="ArrayMesh" uid="uid://bmc3u311vkflp" path="res://Assets/3D/tests/SJWheel.mesh" id="29_tqs36"]
+[ext_resource type="Script" uid="uid://b152303h177kv" path="res://Core/GeneralObjects/EditorOnly.gd" id="30_rf88v"]
 [ext_resource type="Resource" uid="uid://twwvwp5k3okx" path="res://Resources/MapMissions/BA-block.tres" id="32_ip1o4"]
 [ext_resource type="PackedScene" uid="uid://cgs7fx75kuj8v" path="res://Scenes/Maps/world_environment_test.tscn" id="32_vj8u6"]
 [ext_resource type="Script" uid="uid://eka4dkq4ub66" path="res://Core/Enemies/Bots/BotSpawner.gd" id="34_r7ole"]
@@ -3128,62 +3131,137 @@ transform = Transform3D(-0.23856732, 0, -0.97112596, 0, 1, 0, 0.97112596, 0, -0.
 [node name="JumpPad10" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("18_r7ole")]
 transform = Transform3D(0.26422662, 0, -0.96446073, 0, 1, 0, 0.96446073, 0, 0.26422662, -254.82103, 4.7455196, 0.30915165)
 
-[node name="Flying enemies" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
+[node name="FlyingSaucers" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
 
-[node name="FloatingObject2" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -397.05716, 130.70345, -128.97119)
-mission_id = "barril_BA"
-max_health = 4.0
+[node name="FlyingS-Spawner" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -397.05716, 123.16673, -138.91794)
+script = ExtResource("19_ioiyf")
+respawn_time = 5.0
+specific_scene = ExtResource("19_6fv6f")
 
-[node name="FloatingObject3" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 96.4269, 47.534107, -282.72546)
-mission_id = "barril_BA"
-max_health = 4.0
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers/FlyingS-Spawner"]
+mesh = ExtResource("29_tqs36")
+script = ExtResource("30_rf88v")
 
-[node name="FloatingObject4" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
+[node name="FlyingS-Spawner2" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers" instance=ExtResource("8_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -102.70453, 92.3004, -207.83867)
-mission_id = "barril_BA"
-max_health = 4.0
+script = ExtResource("19_ioiyf")
+respawn_time = 5.0
+specific_scene = ExtResource("19_6fv6f")
 
-[node name="FloatingObject6" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -397.05716, 126.62793, -51.571766)
-mission_id = "barril_BA"
-max_health = 4.0
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers/FlyingS-Spawner2"]
+mesh = ExtResource("29_tqs36")
+script = ExtResource("30_rf88v")
 
-[node name="FloatingObject7" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -397.05716, 121.17143, 24.709354)
-mission_id = "barril_BA"
-max_health = 4.0
+[node name="FlyingS-Spawner3" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -102.70453, 92.3004, -207.83867)
+script = ExtResource("19_ioiyf")
+respawn_time = 5.0
+specific_scene = ExtResource("19_6fv6f")
 
-[node name="FloatingObject8" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -397.05716, 110.025955, 99.11748)
-mission_id = "barril_BA"
-max_health = 4.0
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers/FlyingS-Spawner3"]
+mesh = ExtResource("29_tqs36")
+script = ExtResource("30_rf88v")
 
-[node name="FloatingObject9" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35.54092, 155.87563, 81.02447)
-mission_id = "barril_BA"
-max_health = 4.0
+[node name="FlyingS-Spawner4" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -397.05716, 126.62793, -72.256485)
+script = ExtResource("19_ioiyf")
+respawn_time = 5.0
+specific_scene = ExtResource("19_6fv6f")
 
-[node name="FloatingObject10" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 409.65503, 109.58498, -146.06691)
-mission_id = "barril_BA"
-max_health = 4.0
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers/FlyingS-Spawner4"]
+mesh = ExtResource("29_tqs36")
+script = ExtResource("30_rf88v")
 
-[node name="FloatingObject11" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
+[node name="FlyingS-Spawner5" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -397.05716, 117.208466, 2.9036179)
+script = ExtResource("19_ioiyf")
+respawn_time = 5.0
+specific_scene = ExtResource("19_6fv6f")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers/FlyingS-Spawner5"]
+mesh = ExtResource("29_tqs36")
+script = ExtResource("30_rf88v")
+
+[node name="FlyingS-Spawner6" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -397.05716, 100.88729, 80.46079)
+script = ExtResource("19_ioiyf")
+respawn_time = 5.0
+specific_scene = ExtResource("19_6fv6f")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers/FlyingS-Spawner6"]
+mesh = ExtResource("29_tqs36")
+script = ExtResource("30_rf88v")
+
+[node name="FlyingS-Spawner7" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 409.65503, 104.25746, -134.48575)
+script = ExtResource("19_ioiyf")
+respawn_time = 5.0
+specific_scene = ExtResource("19_6fv6f")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers/FlyingS-Spawner7"]
+mesh = ExtResource("29_tqs36")
+script = ExtResource("30_rf88v")
+
+[node name="FlyingS-Spawner8" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers" instance=ExtResource("8_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 409.65503, 119.5363, -49.4093)
-mission_id = "barril_BA"
-max_health = 4.0
+script = ExtResource("19_ioiyf")
+respawn_time = 5.0
+specific_scene = ExtResource("19_6fv6f")
 
-[node name="FloatingObject13" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 409.65503, 130.70345, 30.899921)
-mission_id = "barril_BA"
-max_health = 4.0
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers/FlyingS-Spawner8"]
+mesh = ExtResource("29_tqs36")
+script = ExtResource("30_rf88v")
 
-[node name="FloatingObject14" parent="GridContainer/Cont_P1/View_P1/Map/Flying enemies" instance=ExtResource("19_6fv6f")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 409.65503, 117.946106, 126.92351)
-mission_id = "barril_BA"
-max_health = 4.0
+[node name="FlyingS-Spawner9" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35.54092, 155.87563, 81.02447)
+script = ExtResource("19_ioiyf")
+respawn_time = 5.0
+specific_scene = ExtResource("19_6fv6f")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers/FlyingS-Spawner9"]
+mesh = ExtResource("29_tqs36")
+script = ExtResource("30_rf88v")
+
+[node name="FlyingS-Spawner10" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 409.65503, 119.01892, 30.899921)
+script = ExtResource("19_ioiyf")
+respawn_time = 5.0
+specific_scene = ExtResource("19_6fv6f")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers/FlyingS-Spawner10"]
+mesh = ExtResource("29_tqs36")
+script = ExtResource("30_rf88v")
+
+[node name="FlyingS-Spawner11" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 409.65503, 103.00908, 120.76219)
+script = ExtResource("19_ioiyf")
+respawn_time = 5.0
+specific_scene = ExtResource("19_6fv6f")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers/FlyingS-Spawner11"]
+mesh = ExtResource("29_tqs36")
+script = ExtResource("30_rf88v")
+
+[node name="FlyingS-Spawner12" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 25.139753, 154.60078)
+script = ExtResource("19_ioiyf")
+respawn_time = 5.0
+specific_scene = ExtResource("19_6fv6f")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers/FlyingS-Spawner12"]
+mesh = ExtResource("29_tqs36")
+script = ExtResource("30_rf88v")
+
+[node name="FlyingS-Spawner13" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 148.28436, 27.650637, -204.13377)
+script = ExtResource("19_ioiyf")
+respawn_time = 5.0
+specific_scene = ExtResource("19_6fv6f")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers/FlyingS-Spawner13"]
+mesh = ExtResource("29_tqs36")
+script = ExtResource("30_rf88v")
 
 [node name="Pedestrians" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
 

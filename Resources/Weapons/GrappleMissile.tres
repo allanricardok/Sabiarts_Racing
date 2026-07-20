@@ -11,6 +11,7 @@ projectile_scene = ExtResource("1_fhn1e")
 dano = 5.0
 fire_rate = 0.8
 lockon_range = 80.0
+max_ammo = 18
 custom_mesh = ExtResource("1_kwvig")
 mesh_scale = Vector3(1.4, 1.4, 1.4)
 item_color = Color(0.65034926, 0, 0.5664494, 1)

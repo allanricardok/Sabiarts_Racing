@@ -4,53 +4,68 @@ extends Node3D
 @export var pedestrian_scene: PackedScene
 @export var spawn_interval: float = 3.0
 @export var max_alive: int = 5
+@export var pool_size: int = 15
 
 var timer: float = 0.0
-var spawned_peds: Array = []
+
+var active_peds: Array = []
+var inactive_peds: Array = [] 
 
 func _ready():
-	# --- A SOLUÇÃO DO BLOQUEIO ---
-	# call_deferred diz: "Rode essa função assim que a árvore do jogo estiver 100% destrancada."
+	if not pedestrian_scene: return
+	
+	for i in range(pool_size):
+		var ped = pedestrian_scene.instantiate()
+		ped.process_mode = Node.PROCESS_MODE_DISABLED
+		ped.visible = false
+		
+		add_child(ped)
+		# Inicializa no cemitério para não pesar nem interferir em nada
+		ped.global_position = Vector3(0, -1000, 0) 
+		inactive_peds.append(ped)
+
 	call_deferred("_spawn_initial_batch")
 
 func _spawn_initial_batch():
-	# População instantânea com o mapa já liberado!
 	for i in range(max_alive):
 		_try_spawn(true)
 		
-	# Só depois começa a contar o tempo normal
 	timer = randf_range(1.0, spawn_interval)
 
 func _process(delta):
-	if not pedestrian_scene: return
-	
 	timer -= delta
 	if timer <= 0:
 		timer = spawn_interval
 		_try_spawn(false)
 
 func _try_spawn(is_initial: bool = false):
-	# 1. Limpa os mortos
-	for i in range(spawned_peds.size() - 1, -1, -1):
-		if not is_instance_valid(spawned_peds[i]):
-			spawned_peds.remove_at(i)
-			
-	# 2. Checa limite local
-	if spawned_peds.size() >= max_alive: return
+	if active_peds.size() >= max_alive: return
 	
-	# 3. Checa limite global
-	var all_peds = get_tree().get_nodes_in_group("pedestrians")
-	if not is_initial and all_peds.size() >= 75: return 
+	if not is_initial:
+		var all_peds_alive = 0
+		var peds = get_tree().get_nodes_in_group("pedestrians")
+		for p in peds:
+			if not p.is_dead: all_peds_alive += 1
+		if all_peds_alive >= 75: return 
+
+	var ped = null
+	if inactive_peds.size() > 0:
+		ped = inactive_peds.pop_back()
 	
-	var ped = pedestrian_scene.instantiate()
-	
-	# Espalha eles num raio de 4 metros se nascerem todos ao mesmo tempo
-	var random_offset = Vector3.ZERO
+	if not is_instance_valid(ped): return
+
+	var random_offset = Vector3(0, 0.5, 0)
 	if is_initial:
-		random_offset = Vector3(randf_range(-4.0, 4.0), 0, randf_range(-4.0, 4.0))
+		random_offset = Vector3(randf_range(-4.0, 4.0), 0.5, randf_range(-4.0, 4.0))
 	
-	# 4. Agora é 100% seguro definir a posição e dar o add_child normal!
-	ped.position = self.global_position + random_offset
-	get_tree().current_scene.add_child(ped)
+	var spawn_pos = self.global_position + random_offset
+	ped.reset(spawn_pos)
 	
-	spawned_peds.append(ped)
+	active_peds.append(ped)
+
+func recycle_pedestrian(ped_node: Node3D):
+	if active_peds.has(ped_node):
+		active_peds.erase(ped_node)
+		
+	if not inactive_peds.has(ped_node):
+		inactive_peds.append(ped_node)

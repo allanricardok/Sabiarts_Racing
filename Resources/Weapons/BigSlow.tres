@@ -10,6 +10,7 @@ nome = "BigSlow"
 projectile_scene = ExtResource("1_etxkf")
 dano = 20.0
 fire_rate = 1.0
+max_ammo = 18
 custom_mesh = ExtResource("1_r2y01")
 mesh_scale = Vector3(1.4, 1.4, 1.4)
 item_color = Color(1, 0.8627451, 0, 1)

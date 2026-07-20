@@ -146,13 +146,16 @@ func get_active_special() -> WeaponResource:
 		return weapon_pool[current_weapon_index]
 	return null
 
-func equip_special_weapon(new_weapon_res: WeaponResource):
+# (Dentro do seu WeaponManager.gd atual)
+
+func equip_special_weapon(new_weapon_res: WeaponResource) -> bool:
 	var resource_name_to_check = ""
 	if "nome" in new_weapon_res and new_weapon_res.nome != "":
 		resource_name_to_check = new_weapon_res.nome
 	else:
 		resource_name_to_check = new_weapon_res.resource_path.get_file().get_basename()
 
+	# 1. Verifica se já tem a arma no inventário
 	for i in range(weapon_pool.size()):
 		var w = weapon_pool[i]
 		var current_w_name = ""
@@ -163,7 +166,14 @@ func equip_special_weapon(new_weapon_res: WeaponResource):
 			current_w_name = w.resource_path.get_file().get_basename()
 
 		if current_w_name == resource_name_to_check or (w.resource_path != "" and w.resource_path == new_weapon_res.resource_path):
-			w.ammo += new_weapon_res.ammo
+			
+			# Lógica de Limite de Munição
+			if w.ammo >= w.max_ammo:
+				# Já está lotado!
+				return false 
+			
+			# Soma e trava no limite máximo
+			w.ammo = min(w.ammo + new_weapon_res.ammo, w.max_ammo)
 			
 			if current_weapon_index == -1:
 				current_weapon_index = i
@@ -171,19 +181,25 @@ func equip_special_weapon(new_weapon_res: WeaponResource):
 			_update_visual_selection()
 			_atualizar_interface()
 			get_tree().call_group("TutorialUI", "complete_task", "grab_weapon")
-			return
+			return true # Pegou com sucesso
 
+	# 2. Se não tem a arma, tenta adicionar um slot novo no Pool
 	if weapon_pool.size() < MAX_POOL_SIZE:
 		var dup = new_weapon_res.duplicate()
+		# Garante que não vem acima do limite logo de cara
+		dup.ammo = min(dup.ammo, dup.max_ammo)
 		weapon_pool.append(dup)
 		
 		if current_weapon_index == -1:
 			current_weapon_index = weapon_pool.size() - 1
 			
 		_update_visual_selection()
+		_atualizar_interface()
+		get_tree().call_group("TutorialUI", "complete_task", "grab_weapon")
+		return true # Pegou com sucesso
 	
-	_atualizar_interface()
-	get_tree().call_group("TutorialUI", "complete_task", "grab_weapon")
+	# Se a Pool estiver lotada de armas DIFERENTES, retorna false
+	return false
 
 func _switch_weapon(direction: int):
 	if weapon_pool.size() <= 1: return 

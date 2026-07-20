@@ -22,7 +22,6 @@ func _ready():
 	_start_y = position.y
 	_update_visuals()
 	# AUTO-TAGUEAMENTO DINÂMICO
-	# Esperamos o final do frame só para garantir que o Spawner já injetou o .tres nela
 	call_deferred("_definir_grupo_por_recurso")
 	
 	if not Engine.is_editor_hint():
@@ -33,12 +32,8 @@ func _update_visuals():
 	var mesh_inst = get_node_or_null("MeshInstance3D") as MeshInstance3D
 	if not item_data or not mesh_inst: return
 	
-	# Verifica se o Resource tem os dados visuais antes de tentar aplicar
 	if "custom_mesh" in item_data and item_data.custom_mesh:
 		mesh_inst.mesh = item_data.custom_mesh
-		
-		# --- A CURA DO BUG INVISÍVEL ---
-		# Força o manequim a ficar visível não importa como a cena foi salva!
 		mesh_inst.visible = true 
 		
 		if "mesh_scale" in item_data:
@@ -67,12 +62,21 @@ func _on_body_entered(body):
 	var collected = false
 	
 	# --- CENA 1: É UMA ARMA? ---
-	# Duck typing: se o resource tem a variável de arma (ex: 'weapon_id' ou 'damage')
 	if item_data is WeaponResource or "weapon_name" in item_data:
 		var weapon_manager = body.find_child("WeaponManager", true, false)
 		if weapon_manager and weapon_manager.has_method("equip_special_weapon"):
-			weapon_manager.equip_special_weapon(item_data)
-			collected = true
+			
+			# ==============================================================
+			# Lemos a resposta da função em vez de apenas acioná-la!
+			# ==============================================================
+			var pegou_com_sucesso = weapon_manager.equip_special_weapon(item_data)
+			
+			if pegou_com_sucesso:
+				collected = true
+			else:
+				# Bateu no limite: exibe o aviso e aborta o sumiço da caixa!
+				_mostrar_toast_limite(body)
+				return 
 			
 	# --- CENA 2: É UM STATUS (Vida/Escudo)? ---
 	elif item_data is StatusResource or "health_amount" in item_data:
@@ -88,21 +92,29 @@ func _on_body_entered(body):
 	if collected:
 		_collect_effect()
 
+# --- COMUNICAÇÃO DIRETA COM O HUD ---
+func _mostrar_toast_limite(body: Node3D):
+	# Precisamos saber se quem bateu foi o jogador ou um bot
+	var input = body.get_node_or_null("%InputComponent")
+	if input and not input.is_bot:
+		# Pega a HUD correta do jogador no multiplayer
+		var hud = get_tree().get_first_node_in_group("HUD" + input.suffix)
+		if not hud: hud = get_tree().get_first_node_in_group("HUD")
+		
+		# Solta a mensagem no padrão visual que já temos
+		if hud and hud.has_method("criar_toast"):
+			hud.criar_toast("Ammo limit met", Color(1.0, 0.6, 0.1)) # Cor laranjada de alerta
+
 func _collect_effect():
 	# TODO: Instanciar som e partículas
 	queue_free()
 
 func _definir_grupo_por_recurso():
 	if not item_data: 
-		return # Previne erros se a caixa nascer vazia
+		return 
 		
-	# --- É UMA ARMA? ---
-	# Usa a mesma checagem inteligente que você fez no _on_body_entered
 	if item_data is WeaponResource or "weapon_name" in item_data:
 		add_to_group("weapon_pickups")
-		print("[Pickup] Nasceu uma ARMA! Adicionada ao grupo weapon_pickups.")
 		
-	# --- É UM STATUS (Vida)? ---
 	elif item_data is StatusResource or "health_amount" in item_data:
 		add_to_group("health_pickups")
-		print("[Pickup] Nasceu uma VIDA! Adicionada ao grupo health_pickups.")

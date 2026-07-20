@@ -9,11 +9,12 @@ class_name WeaponResource
 @export var projectile_scene: PackedScene 
 @export var dano: float = 0
 @export var fire_rate: float = 0.2
-# --- NOVO: Distância máxima para o retículo travar no alvo ---
 @export var lockon_range: float = 120.0 
 
 @export_group("Munição")
 @export var ammo: int = 6
+# --- NOVO: Limite de Munição ---
+@export var max_ammo: int = 30 
 
 @export_group("Visual do Pickup")
 @export var custom_mesh: Mesh

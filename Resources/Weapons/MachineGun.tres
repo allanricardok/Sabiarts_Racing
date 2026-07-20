@@ -10,4 +10,5 @@ projectile_scene = ExtResource("1_mggp1")
 dano = 1.0
 fire_rate = 0.15
 ammo = -1
+max_ammo = -1
 metadata/_custom_type_script = "uid://5wgfj8fmfmgf"
