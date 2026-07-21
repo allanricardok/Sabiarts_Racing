@@ -27,6 +27,13 @@ script = ExtResource("1_0e0mj")
 max_health = 2.0
 energy_on_destroy = 5.0
 energy_on_hit = 0.5
+shard_count = 8
+explosion_force = 10.0
+upward_bias = 6.0
+shard_lifetime = 2.0
+scatter_radius = 2.0
+shard_min_size = 1.0
+shard_max_size = 3.0
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("CylinderMesh_0e0mj")

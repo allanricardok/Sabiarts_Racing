@@ -47,10 +47,13 @@ _data = {
 animation = &"bounce"
 advance_on_start = true
 
-[node name="BaseVehicle" instance=ExtResource("1_lhwup")]
+[node name="BaseVehicle" node_paths=PackedStringArray("mesh_new", "mesh_damaged", "mesh_skeleton") instance=ExtResource("1_lhwup")]
 gravity_scale = 1.32
 divisor_de_massa = 800.0
 multiplicador_dano = 1.4
+mesh_new = NodePath("Visual/New")
+mesh_damaged = NodePath("Visual/New")
+mesh_skeleton = NodePath("Visual/New")
 
 [node name="Visual" parent="." index="0"]
 transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, 0, 0, -0.41651595)

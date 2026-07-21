@@ -1,4 +1,3 @@
-# BaseVehicle.gd
 extends VehicleBody3D
 class_name BaseVehicle
 
@@ -45,6 +44,25 @@ var pode_mover : bool = true
 @export var mesh_new: MeshInstance3D
 @export var mesh_damaged: MeshInstance3D
 @export var mesh_skeleton: MeshInstance3D
+
+# ============================================================================
+# NOVO: Fragmentos de destruição ao morrer. Funciona tanto pra bots (que
+# somem de vez) quanto pra jogadores (que "morrem" visualmente e voltam com
+# revive()) — a explosão é só um efeito visual no instante da morte, não
+# afeta o ciclo de vida do carro.
+# ============================================================================
+@export_group("Fragmentos de Destruição")
+@export var spawn_debris_on_death : bool = true
+@export var shard_count : int = 14
+@export var explosion_force : float = 5.0
+@export var upward_bias : float = 4.0
+@export var shard_lifetime : float = 1.3
+## Carros são maiores que um barril, então o raio de dispersão também é maior
+@export var scatter_radius : float = 1.0
+## Tamanho mínimo de cada fragmento (aresta aproximada, em unidades do mundo)
+@export var shard_min_size : float = 0.2
+## Tamanho máximo de cada fragmento (carro inteiro: pedaços maiores que um barril)
+@export var shard_max_size : float = 0.5
 
 # --- INTERFACE ---
 @export_group("Interface")
@@ -315,6 +333,10 @@ func _on_vehicle_destroyed(attacker: Node = null):
 	var is_bot = false
 	if input and "is_bot" in input:
 		is_bot = input.is_bot
+	
+	# NOVO: explosão de fragmentos no instante da morte, antes de esconder
+	# ou destruir o carro. Funciona igual pra bot e pra jogador.
+	_spawn_debris()
 		
 	# --- CORREÇÃO DO ENDGAME ---
 	# AVISA O JOGO QUE ALGUÉM MORREU (Antes a gente só avisava se fosse o Player!)
@@ -344,6 +366,43 @@ func _on_vehicle_destroyed(attacker: Node = null):
 		collision_layer = 0
 		collision_mask = 0
 		queue_free()
+
+# NOVO: dispara a explosão de fragmentos usando o DebrisManager (autoload).
+# Usa como referência de material a malha que estiver visível no momento
+# da morte (mesh_new, mesh_damaged ou mesh_skeleton) — assim os fragmentos
+# combinam com o estado visual de dano em que o carro estava.
+func _spawn_debris() -> void:
+	if not spawn_debris_on_death:
+		return
+	if not is_instance_valid(DebrisManager):
+		push_warning("[BaseVehicle] DebrisManager não encontrado. Configure como Autoload.")
+		return
+	
+	var source_mesh: MeshInstance3D = null
+	if mesh_new and mesh_new.visible:
+		source_mesh = mesh_new
+	elif mesh_damaged and mesh_damaged.visible:
+		source_mesh = mesh_damaged
+	elif mesh_skeleton and mesh_skeleton.visible:
+		source_mesh = mesh_skeleton
+	elif mesh_new:
+		source_mesh = mesh_new
+	
+	var mat: Material = null
+	if source_mesh and source_mesh.mesh:
+		mat = source_mesh.get_active_material(0)
+	
+	DebrisManager.explode(
+		global_position,
+		mat,
+		shard_count,
+		explosion_force,
+		upward_bias,
+		shard_lifetime,
+		scatter_radius,
+		shard_min_size,
+		shard_max_size
+	)
 
 # --- SISTEMA DE DROPS SEGURO ---
 func _spawn_loot_safely(origin_pos: Vector3):

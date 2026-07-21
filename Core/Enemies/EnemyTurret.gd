@@ -1,4 +1,3 @@
-# EnemyTurret.gd
 extends StaticBody3D
 class_name EnemyTurret
 
@@ -14,6 +13,25 @@ class_name EnemyTurret
 @export var drop_item_scene : PackedScene
 ## Arraste o arquivo .tres (Weapon ou Status) que ela vai dropar aqui
 @export var drop_item_resource : Resource
+
+# ============================================================================
+# NOVO: Fragmentos de destruição ao morrer. Mesmo padrão usado em
+# DestructibleProp e BaseVehicle — a torre não sabe COMO a explosão
+# funciona, só pede pro DebrisManager (autoload) fazer acontecer.
+# ============================================================================
+@export_group("Fragmentos de Destruição")
+@export var spawn_debris_on_death : bool = true
+## Caminho pro MeshInstance3D da torre (deixe vazio pra detectar automaticamente)
+@export var mesh_instance_path : NodePath
+@export var shard_count : int = 12
+@export var explosion_force : float = 4.5
+@export var upward_bias : float = 3.5
+@export var shard_lifetime : float = 1.2
+@export var scatter_radius : float = 0.6
+## Tamanho mínimo de cada fragmento (aresta aproximada, em unidades do mundo)
+@export var shard_min_size : float = 0.15
+## Tamanho máximo de cada fragmento
+@export var shard_max_size : float = 0.4
 
 @onready var head = $Head
 @onready var muzzle = $Head/Muzzle
@@ -151,12 +169,47 @@ func _on_death(attacker: Node = null):
 	# Salva a posição exata de onde morreu antes da engine se perder
 	var death_pos = self.global_position
 	
+	# NOVO: explosão de fragmentos antes de desligar a torre
+	_spawn_debris()
+	
 	# Desliga a torre imediatamente (Fica invisível e intocável)
 	set_deferred("process_mode", Node.PROCESS_MODE_DISABLED)
 	visible = false
 	
 	# AGENDAMENTO: Pede pro Godot gerar o loot assim que for seguro (fim do frame)
 	call_deferred("_spawn_loot_safely", death_pos)
+
+# NOVO: dispara a explosão de fragmentos usando o DebrisManager (autoload).
+func _spawn_debris() -> void:
+	if not spawn_debris_on_death:
+		return
+	if not is_instance_valid(DebrisManager):
+		push_warning("[EnemyTurret] DebrisManager não encontrado. Configure como Autoload.")
+		return
+	
+	var mesh_inst := _find_mesh_instance()
+	var mat: Material = null
+	if mesh_inst and mesh_inst.mesh:
+		mat = mesh_inst.get_active_material(0)
+	
+	DebrisManager.explode(
+		global_position,
+		mat,
+		shard_count,
+		explosion_force,
+		upward_bias,
+		shard_lifetime,
+		scatter_radius,
+		shard_min_size,
+		shard_max_size
+	)
+
+func _find_mesh_instance() -> MeshInstance3D:
+	if mesh_instance_path != NodePath(""):
+		var node := get_node_or_null(mesh_instance_path)
+		if node is MeshInstance3D:
+			return node
+	return find_child("*", true, false) as MeshInstance3D
 
 # --- NOVA FUNÇÃO SEGURA PARA O LOOT ---
 func _spawn_loot_safely(origin_pos: Vector3):

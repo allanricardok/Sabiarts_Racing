@@ -26,6 +26,7 @@ MissionManager="*res://Core/Objectives/MissionManager.gd"
 SaveManager="*res://Autoload/SaveManager.gd"
 GameStats="*res://Autoload/GameStats.gd"
 ProjectilePool="*res://Autoload/ProjectilePool.gd"
+DebrisManager="*res://Core/GeneralObjects/DebrisManager.gd"
 
 [display]
 

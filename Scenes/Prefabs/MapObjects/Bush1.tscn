@@ -55,6 +55,13 @@ mass = 250.0
 script = ExtResource("1_0swlt")
 max_health = 6.0
 energy_on_destroy = 15.0
+shard_count = 20
+explosion_force = 6.0
+upward_bias = 6.0
+shard_lifetime = 1.6
+scatter_radius = 1.0
+shard_min_size = 1.0
+shard_max_size = 2.0
 
 [node name="Tree_1" type="MeshInstance3D" parent="."]
 transform = Transform3D(1.3576992e-07, -2.1213198, -2.1213207, -1.5, -1.3113416e-07, -2.5288114e-07, 4.304402e-08, 2.1213207, -2.1213198, 0, 1.0533433, 0)

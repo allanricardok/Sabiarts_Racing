@@ -156,6 +156,13 @@ drop_item_scene = ExtResource("2_4a360")
 drop_item_resource_1 = ExtResource("3_dtqej")
 drop_item_resource_2 = ExtResource("4_mafvn")
 velocidade_minima_dano = 4.0
+shard_count = 20
+explosion_force = 10.0
+upward_bias = 5.0
+shard_lifetime = 2.5
+scatter_radius = 2.0
+shard_min_size = 2.0
+shard_max_size = 5.0
 speed_label = NodePath("HUD/UI_Base/SpeedLabel")
 
 [node name="Visual" type="Node3D" parent="."]

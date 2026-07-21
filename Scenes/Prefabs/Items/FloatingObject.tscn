@@ -26,6 +26,14 @@ gravity_scale = 0.0
 freeze = true
 script = ExtResource("1_5wofp")
 max_health = 5.0
+mesh_instance_path = NodePath("MeshInstance3D")
+shard_count = 7
+explosion_force = 6.0
+upward_bias = 5.0
+shard_lifetime = 3.0
+scatter_radius = 2.0
+shard_min_size = 3.0
+shard_max_size = 4.0
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("SphereMesh_2chrp")

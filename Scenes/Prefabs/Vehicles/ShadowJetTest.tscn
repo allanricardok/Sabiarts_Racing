@@ -47,9 +47,12 @@ _data = {
 animation = &"bounce"
 advance_on_start = true
 
-[node name="BaseVehicle" instance=ExtResource("1_rdnk8")]
+[node name="BaseVehicle" node_paths=PackedStringArray("mesh_new", "mesh_damaged", "mesh_skeleton") instance=ExtResource("1_rdnk8")]
 transform = Transform3D(1, 0, 0, 0, 0.99896896, -0.04539786, 0, 0.04539786, 0.99896896, 0, 0, 0)
 mass = 330.0
+mesh_new = NodePath("Visual/New")
+mesh_damaged = NodePath("Visual/New")
+mesh_skeleton = NodePath("Visual/New")
 hood_camera_pos = Vector3(0, 1.35, 1.2)
 
 [node name="Visual" parent="." index="0"]

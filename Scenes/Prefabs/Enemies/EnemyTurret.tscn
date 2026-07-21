@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://d08nc5o3ey67t"]
+[gd_scene load_steps=9 format=3 uid="uid://d08nc5o3ey67t"]
 
 [ext_resource type="Script" uid="uid://batvbhuur18qc" path="res://Core/PlayerScripts/Functions/StatsComponent.gd" id="1_f3yil"]
 [ext_resource type="Script" uid="uid://d163sp1x1bs5" path="res://Core/Enemies/EnemyTurret.gd" id="1_qt66q"]
@@ -7,7 +7,11 @@
 [sub_resource type="BoxMesh" id="BoxMesh_hdaqv"]
 size = Vector3(0.8, 4, 0.8)
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lgbd8"]
+albedo_color = Color(0.24946035, 0.24946035, 0.24946035, 1)
+
 [sub_resource type="BoxMesh" id="BoxMesh_lgbd8"]
+material = SubResource("StandardMaterial3D_lgbd8")
 size = Vector3(0.5, 0.5, 4)
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_qt66q"]
@@ -26,6 +30,12 @@ damage = 1.0
 fire_rate = 0.3
 projectile_speed = 130.0
 enemy_group_name = "Enemies"
+mesh_instance_path = NodePath("Head/CannonMesh")
+explosion_force = 6.0
+upward_bias = 6.0
+scatter_radius = 4.0
+shard_min_size = 2.0
+shard_max_size = 4.0
 
 [node name="BaseMesh" type="MeshInstance3D" parent="."]
 mesh = SubResource("BoxMesh_hdaqv")

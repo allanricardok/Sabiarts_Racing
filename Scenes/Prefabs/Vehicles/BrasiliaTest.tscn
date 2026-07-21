@@ -123,11 +123,18 @@ albedo_color = Color(0.012617188, 0.012617188, 0.012617188, 1)
 [sub_resource type="CylinderMesh" id="CylinderMesh_v71gj"]
 material = SubResource("StandardMaterial3D_tk6n2")
 
-[node name="BaseVehicle" instance=ExtResource("1_a8bp4")]
+[node name="BaseVehicle" node_paths=PackedStringArray("mesh_new", "mesh_damaged", "mesh_skeleton") instance=ExtResource("1_a8bp4")]
 mass = 420.0
 gravity_scale = 1.32
 divisor_de_massa = 1100.0
 multiplicador_dano = 1.6
+mesh_new = NodePath("Visual/New")
+mesh_damaged = NodePath("Visual/New")
+mesh_skeleton = NodePath("Visual/New")
+upward_bias = 6.0
+shard_lifetime = 2.0
+scatter_radius = 3.0
+shard_max_size = 6.0
 
 [node name="New" type="MeshInstance3D" parent="Visual" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.67588377, 0)

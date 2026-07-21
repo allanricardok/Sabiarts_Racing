@@ -138,6 +138,12 @@ collision_mask = 11
 mass = 2000.0
 script = ExtResource("1_bdada")
 max_health = 10.0
+shard_count = 20
+explosion_force = 5.0
+upward_bias = 10.0
+shard_lifetime = 4.0
+shard_min_size = 1.0
+shard_max_size = 4.0
 
 [node name="Tree_1" type="MeshInstance3D" parent="."]
 transform = Transform3D(2.7153985e-07, -2.1213198, -2.1213207, -3, -1.3113416e-07, -2.5288114e-07, 8.608804e-08, 2.1213207, -2.1213198, 0, 11.290444, 0)

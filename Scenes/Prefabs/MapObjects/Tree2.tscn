@@ -139,6 +139,13 @@ mass = 10000.0
 script = ExtResource("1_5rdun")
 max_health = 50.0
 energy_on_destroy = 50.0
+shard_count = 30
+explosion_force = 6.0
+upward_bias = 15.0
+shard_lifetime = 5.0
+scatter_radius = 2.0
+shard_min_size = 1.0
+shard_max_size = 5.0
 
 [node name="Tree_1" type="MeshInstance3D" parent="."]
 transform = Transform3D(7.2410626e-07, -5.6568527, -5.6568556, -8, -3.496911e-07, -6.7434974e-07, 2.2956812e-07, 5.6568556, -5.6568527, 0, 20.046017, 0)
