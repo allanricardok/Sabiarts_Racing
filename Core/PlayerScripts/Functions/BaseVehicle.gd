@@ -122,6 +122,16 @@ func _ready():
 	
 	if stats:
 		stats.health_depleted.connect(_on_vehicle_destroyed)
+	
+	# NOVO: restaura a chave do teleporte se ela já foi conquistada numa run
+	# anterior. Global.has_teleport_key é persistido em disco e carregado no
+	# _ready() do próprio Global, então isso funciona tanto ao trocar de mapa
+	# na mesma sessão quanto ao reabrir o jogo depois de fechado.
+	if is_instance_valid(Global) and "has_teleport_key" in Global and Global.has_teleport_key:
+		if "has_teleportkey" in self:
+			self.has_teleportkey = true
+		elif stats and "has_teleportkey" in stats:
+			stats.has_teleportkey = true
 
 # --- PROCESSAMENTO ---
 

@@ -1,4 +1,3 @@
-# CollectibleItem.gd
 extends Area3D
 
 @export var mission_id: String = "briefcase" 
@@ -55,6 +54,15 @@ func _entregar_chave_interna(alvo):
 		var stats = alvo.get_node_or_null("%StatsComponent")
 		if stats and "has_teleportkey" in stats:
 			stats.has_teleportkey = true
+	
+	# NOVO: persiste a conquista da chave em Global e salva em disco na
+	# hora — assim ela sobrevive mesmo que o jogo feche antes de terminar
+	# a run atual, não só entre mapas dentro da mesma sessão.
+	if is_instance_valid(Global) and "has_teleport_key" in Global:
+		if not Global.has_teleport_key:
+			Global.has_teleport_key = true
+			if Global.has_method("save_story_progress"):
+				Global.save_story_progress()
 
 func _distribute_permanent_key():
 	for jogador in get_tree().get_nodes_in_group("jogadores"):

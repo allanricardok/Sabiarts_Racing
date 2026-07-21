@@ -1,4 +1,3 @@
-# StoryMissionLifecycle.gd
 extends Node
 class_name StoryMissionLifecycle
 
@@ -15,6 +14,11 @@ func accept_mission():
 	ctrl.active_classic_objective = null
 	ctrl.completed_tiers_this_run.clear()
 	ctrl.current_tracked_score = 0.0 
+	# CORREÇÃO: current_tracked_progress (usado por SPEED, COLLECT, ROADKILL
+	# via sinal mission_updated) nunca era resetado aqui — por isso o valor
+	# da tentativa anterior "vazava" pra próxima e completava os tiers na
+	# hora. current_tracked_score (do SCORE) já era resetado; faltava este.
+	ctrl.current_tracked_progress = 0.0
 	
 	if is_instance_valid(ScoreManager):
 		if ScoreManager.has_method("reset_score"): ScoreManager.reset_score()
@@ -179,6 +183,16 @@ func decline_mission():
 	get_tree().paused = false
 
 func end_mission(success: bool):
+	# CORREÇÃO: Combat Destroy podia chamar end_mission() duas vezes no
+	# mesmo frame — uma vez pelo sistema de tiers (_update_tiers_progress,
+	# ao bater a meta) e outra pelo check de "all_destroyed" logo em
+	# seguida, no mesmo _process(). Sem essa trava, a recompensa era
+	# processada duas vezes: a 1ª leitura registrava como "primeira vez"
+	# e a 2ª, rodando segundos depois, já achava tudo marcado como
+	# completo e processava como repetição (ou pior, como "sem prêmio",
+	# se já tivesse acontecido antes durante testes anteriores).
+	if not ctrl.is_mission_running:
+		return
 	ctrl.is_mission_running = false
 	ctrl.active_classic_objective = null
 	
@@ -217,7 +231,16 @@ func end_mission(success: bool):
 		mission_name_temp = ctrl.current_mission.mission_name
 		
 		if success:
+			# CORREÇÃO: se Mission ID não foi preenchido no resource (comum
+			# em missões Combat Destroy, que não precisavam de ID pra
+			# funcionar no gameplay), duas missões diferentes acabavam
+			# compartilhando a mesma chave "" de conclusão/repetição, e o
+			# progresso de uma contava como repetição da outra. Agora, se
+			# estiver vazio, usa o caminho do próprio arquivo .tres como
+			# identificador — garantido único por natureza.
 			var m_id = ctrl.current_mission.mission_id
+			if m_id == null or m_id == "":
+				m_id = ctrl.current_mission.resource_path if ctrl.current_mission.resource_path != "" else ("unnamed_" + ctrl.current_mission.mission_name)
 			
 			if ctrl.current_mission.mission_tiers.is_empty():
 				is_all_tiers_completed = true

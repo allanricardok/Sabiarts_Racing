@@ -191,13 +191,14 @@ func _check_next_map_unlock():
 		if p.has_method("activate_portal_safely"):
 			p.activate_portal_safely()
 			
-	if is_instance_valid(Global) and "story_total_points" in Global and "points_to_next_city" in Global:
-		if Global.story_total_points >= Global.points_to_next_city:
-			get_tree().call_group("next_map_portals", "activate_portal")
-			for p in get_tree().get_nodes_in_group("next_map_portals"):
-				p.visible = true
-				p.set_deferred("monitoring", true)
-				p.set_deferred("monitorable", true)
+	# ALTERADO: cada portal de próxima cidade (StoryNextMapPortal.gd) agora
+	# guarda seu próprio "points_required" no Inspector, em vez de todos
+	# compartilharem um único Global.points_to_next_city. O controller só
+	# repassa a pontuação atual pra cada portal decidir sozinho.
+	if is_instance_valid(Global) and "story_total_points" in Global:
+		for p in get_tree().get_nodes_in_group("next_map_portals"):
+			if p.has_method("try_activate"):
+				p.try_activate(Global.story_total_points)
 
 # ====================================================================
 # --- DELEGAÇÃO DE COMANDOS PARA OS COMPONENTES ---

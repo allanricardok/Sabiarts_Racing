@@ -45,10 +45,10 @@ grow_vertical = 2
 [node name="ResumeBtn" type="Button" parent="Control/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-focus_neighbor_top = NodePath("../MenuBtn")
-focus_neighbor_bottom = NodePath("../EndMatchBtn")
-focus_next = NodePath("../EndMatchBtn")
-focus_previous = NodePath("../MenuBtn")
+focus_neighbor_top = NodePath("../TogglePS1Btn")
+focus_neighbor_bottom = NodePath("../AbortMissionBtn")
+focus_next = NodePath("../AbortMissionBtn")
+focus_previous = NodePath("../TogglePS1Btn")
 theme_override_colors/icon_normal_color = Color(0, 0, 0, 1)
 theme_override_colors/icon_focus_color = Color(0, 0.1764706, 0, 1)
 theme_override_colors/icon_pressed_color = Color(0, 0.43529412, 0, 1)
@@ -59,13 +59,92 @@ theme_override_styles/focus = SubResource("StyleBoxFlat_n4i8v")
 text = "Continue"
 alignment = 2
 
+[node name="AbortMissionBtn" type="Button" parent="Control/VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+focus_neighbor_top = NodePath("../ResumeBtn")
+focus_neighbor_bottom = NodePath("../RetryLastBtn")
+focus_next = NodePath("../RetryLastBtn")
+focus_previous = NodePath("../ResumeBtn")
+theme_override_colors/icon_normal_color = Color(0, 0, 0, 1)
+theme_override_colors/icon_focus_color = Color(0, 0.1764706, 0, 1)
+theme_override_colors/icon_pressed_color = Color(0, 0.43529412, 0, 1)
+theme_override_colors/icon_hover_color = Color(0, 0.09411765, 0, 1)
+theme_override_fonts/font = ExtResource("2_etnfi")
+theme_override_font_sizes/font_size = 32
+theme_override_styles/focus = SubResource("StyleBoxFlat_n4i8v")
+text = "Cancel Mission"
+alignment = 2
+
+[node name="RetryLastBtn" type="Button" parent="Control/VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+focus_neighbor_top = NodePath("../AbortMissionBtn")
+focus_neighbor_bottom = NodePath("../ResetMissionBtn")
+focus_next = NodePath("../ResetMissionBtn")
+focus_previous = NodePath("../AbortMissionBtn")
+theme_override_colors/icon_normal_color = Color(0, 0, 0, 1)
+theme_override_colors/icon_focus_color = Color(0, 0.1764706, 0, 1)
+theme_override_colors/icon_pressed_color = Color(0, 0.43529412, 0, 1)
+theme_override_colors/icon_hover_color = Color(0, 0.09411765, 0, 1)
+theme_override_fonts/font = ExtResource("2_etnfi")
+theme_override_font_sizes/font_size = 32
+theme_override_styles/focus = SubResource("StyleBoxFlat_n4i8v")
+text = "Retry Last Mission"
+alignment = 2
+
+[node name="ResetMissionBtn" type="Button" parent="Control/VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+focus_neighbor_top = NodePath("../RetryLastBtn")
+focus_neighbor_bottom = NodePath("../CameraSelectBtn")
+focus_next = NodePath("../CameraSelectBtn")
+focus_previous = NodePath("../RetryLastBtn")
+theme_override_colors/icon_normal_color = Color(0, 0, 0, 1)
+theme_override_colors/icon_focus_color = Color(0, 0.1764706, 0, 1)
+theme_override_colors/icon_pressed_color = Color(0, 0.43529412, 0, 1)
+theme_override_colors/icon_hover_color = Color(0, 0.09411765, 0, 1)
+theme_override_fonts/font = ExtResource("2_etnfi")
+theme_override_font_sizes/font_size = 32
+theme_override_styles/focus = SubResource("StyleBoxFlat_n4i8v")
+text = "Reset Mission"
+alignment = 2
+
+[node name="CameraSelectBtn" type="OptionButton" parent="Control/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_neighbor_top = NodePath("../ResetMissionBtn")
+focus_neighbor_bottom = NodePath("../EndMatchBtn")
+focus_next = NodePath("../EndMatchBtn")
+focus_previous = NodePath("../ResetMissionBtn")
+theme_override_colors/icon_normal_color = Color(0, 0, 0, 1)
+theme_override_colors/icon_focus_color = Color(0, 0.1764706, 0, 1)
+theme_override_colors/icon_pressed_color = Color(0, 0.43529412, 0, 1)
+theme_override_colors/icon_hover_color = Color(0, 0.09411765, 0, 1)
+theme_override_fonts/font = ExtResource("2_etnfi")
+theme_override_font_sizes/font_size = 32
+theme_override_styles/focus = SubResource("StyleBoxFlat_n4i8v")
+alignment = 2
+selected = 0
+item_count = 3
+popup/item_0/text = "Normal Camera"
+popup/item_0/id = 0
+popup/item_0/disabled = true
+popup/item_1/text = "Far Camera"
+popup/item_1/id = 1
+popup/item_2/text = "Close Camera"
+popup/item_2/id = 2
+
 [node name="EndMatchBtn" type="Button" parent="Control/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-focus_neighbor_top = NodePath("../ResumeBtn")
-focus_neighbor_bottom = NodePath("../MenuBtn")
-focus_next = NodePath("../MenuBtn")
-focus_previous = NodePath("../ResumeBtn")
+focus_neighbor_top = NodePath("../CameraSelectBtn")
+focus_neighbor_bottom = NodePath("../TogglePS1Btn")
+focus_next = NodePath("../TogglePS1Btn")
+focus_previous = NodePath("../CameraSelectBtn")
 theme_override_colors/icon_normal_color = Color(0, 0, 0, 1)
 theme_override_colors/icon_focus_color = Color(0, 0.1764706, 0, 1)
 theme_override_colors/icon_pressed_color = Color(0, 0.43529412, 0, 1)
@@ -76,7 +155,7 @@ theme_override_styles/focus = SubResource("StyleBoxFlat_n4i8v")
 text = "End Run"
 alignment = 2
 
-[node name="MenuBtn" type="Button" parent="Control/VBoxContainer"]
+[node name="TogglePS1Btn" type="CheckButton" parent="Control/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 focus_neighbor_top = NodePath("../EndMatchBtn")
@@ -90,7 +169,7 @@ theme_override_colors/icon_hover_color = Color(0, 0.09411765, 0, 1)
 theme_override_fonts/font = ExtResource("2_etnfi")
 theme_override_font_sizes/font_size = 32
 theme_override_styles/focus = SubResource("StyleBoxFlat_n4i8v")
-text = "Quit (back to menu)"
+text = "PS1 Graphics"
 alignment = 2
 
 [node name="ScrollContainer" type="ScrollContainer" parent="Control"]
@@ -107,6 +186,8 @@ layout_mode = 2
 
 [connection signal="pressed" from="Control/VBoxContainer/ResumeBtn" to="." method="_on_resume_btn_pressed"]
 [connection signal="pressed" from="Control/VBoxContainer/ResumeBtn" to="Control" method="_on_resume_btn_pressed"]
+[connection signal="pressed" from="Control/VBoxContainer/AbortMissionBtn" to="." method="_on_abort_mission_btn_pressed"]
+[connection signal="pressed" from="Control/VBoxContainer/RetryLastBtn" to="." method="_on_retry_last_btn_pressed"]
+[connection signal="pressed" from="Control/VBoxContainer/ResetMissionBtn" to="." method="_on_reset_mission_btn_pressed"]
+[connection signal="pressed" from="Control/VBoxContainer/CameraSelectBtn" to="." method="_on_camera_select_btn_pressed"]
 [connection signal="pressed" from="Control/VBoxContainer/EndMatchBtn" to="." method="_on_end_match_btn_pressed"]
-[connection signal="pressed" from="Control/VBoxContainer/MenuBtn" to="." method="_on_menu_btn_pressed"]
-[connection signal="pressed" from="Control/VBoxContainer/MenuBtn" to="Control" method="_on_menu_btn_pressed"]

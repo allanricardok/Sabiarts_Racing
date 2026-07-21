@@ -27,6 +27,5 @@ classic_objective = SubResource("Resource_r66d8")
 mission_environment = ExtResource("2_tvbml")
 mission_sun_color = Color(1.179842, 0.7508126, 0.06872849, 0.32000002)
 mission_sun_energy = 0.7
-nodes_to_enable = Array[NodePath]([NodePath("../../BAMap/Mission_Items/Obake"), NodePath("../../BAMap/Mission_Items/Obake2"), NodePath("../../BAMap/Mission_Items/Obake3")])
 enemy_count = 0
 metadata/_custom_type_script = "uid://o1ox0n7mmqv"

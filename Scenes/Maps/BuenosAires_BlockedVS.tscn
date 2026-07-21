@@ -1,4 +1,4 @@
-[gd_scene load_steps=312 format=3 uid="uid://d1rl8sskrmddj"]
+[gd_scene load_steps=313 format=3 uid="uid://d1rl8sskrmddj"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_u8o8m"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="3_is8dr"]
@@ -463,16 +463,20 @@ size = Vector3(16.995, 12.45, 79.4)
 data = PackedVector3Array(-8.497499, 6.225, 39.7, 8.497499, 6.225, 39.7, -8.497499, -6.225, 39.7, 8.497499, 6.225, 39.7, 8.497499, -6.225, 39.7, -8.497499, -6.225, 39.7, 8.497499, 6.225, -39.7, -8.497499, 6.225, -39.7, 8.497499, -6.225, -39.7, -8.497499, 6.225, -39.7, -8.497499, -6.225, -39.7, 8.497499, -6.225, -39.7, 8.497499, 6.225, 39.7, 8.497499, 6.225, -39.7, 8.497499, -6.225, 39.7, 8.497499, 6.225, -39.7, 8.497499, -6.225, -39.7, 8.497499, -6.225, 39.7, -8.497499, 6.225, -39.7, -8.497499, 6.225, 39.7, -8.497499, -6.225, -39.7, -8.497499, 6.225, 39.7, -8.497499, -6.225, 39.7, -8.497499, -6.225, -39.7, 8.497499, 6.225, 39.7, -8.497499, 6.225, 39.7, 8.497499, 6.225, -39.7, -8.497499, 6.225, 39.7, -8.497499, 6.225, -39.7, 8.497499, 6.225, -39.7, -8.497499, -6.225, 39.7, 8.497499, -6.225, 39.7, -8.497499, -6.225, -39.7, 8.497499, -6.225, 39.7, 8.497499, -6.225, -39.7, -8.497499, -6.225, -39.7)
 
 [sub_resource type="BoxMesh" id="BoxMesh_0wot0"]
-size = Vector3(1, 20, 20)
+size = Vector3(1, 17.11, 18.95)
 
-[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_pimv2"]
-data = PackedVector3Array(-0.5, 10, 10, 0.5, 10, 10, -0.5, -10, 10, 0.5, 10, 10, 0.5, -10, 10, -0.5, -10, 10, 0.5, 10, -10, -0.5, 10, -10, 0.5, -10, -10, -0.5, 10, -10, -0.5, -10, -10, 0.5, -10, -10, 0.5, 10, 10, 0.5, 10, -10, 0.5, -10, 10, 0.5, 10, -10, 0.5, -10, -10, 0.5, -10, 10, -0.5, 10, -10, -0.5, 10, 10, -0.5, -10, -10, -0.5, 10, 10, -0.5, -10, 10, -0.5, -10, -10, 0.5, 10, 10, -0.5, 10, 10, 0.5, 10, -10, -0.5, 10, 10, -0.5, 10, -10, 0.5, 10, -10, -0.5, -10, 10, 0.5, -10, 10, -0.5, -10, -10, 0.5, -10, 10, 0.5, -10, -10, -0.5, -10, -10)
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_rf88v"]
+points = PackedVector3Array(-0.5, -8.555, -9.475, 0.5, -8.555, -9.475, -0.5, -8.555, 9.473146, -0.5, 8.555, -9.475, 0.5, 8.555, -9.475, 0.5, -8.555, 9.473146, -0.5, 8.555, 9.473146, 0.5, 8.555, 9.473146)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ynl81"]
+albedo_color = Color(0.8784058, 0.8784058, 0.8784058, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_xwm8e"]
+material = SubResource("StandardMaterial3D_ynl81")
 size = Vector3(4.03, 29.805, 43.17)
 
-[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_1dwuk"]
-data = PackedVector3Array(-2.0149999, 14.902499, 21.585, 2.0149999, 14.902499, 21.585, -2.0149999, -14.902499, 21.585, 2.0149999, 14.902499, 21.585, 2.0149999, -14.902499, 21.585, -2.0149999, -14.902499, 21.585, 2.0149999, 14.902499, -21.585, -2.0149999, 14.902499, -21.585, 2.0149999, -14.902499, -21.585, -2.0149999, 14.902499, -21.585, -2.0149999, -14.902499, -21.585, 2.0149999, -14.902499, -21.585, 2.0149999, 14.902499, 21.585, 2.0149999, 14.902499, -21.585, 2.0149999, -14.902499, 21.585, 2.0149999, 14.902499, -21.585, 2.0149999, -14.902499, -21.585, 2.0149999, -14.902499, 21.585, -2.0149999, 14.902499, -21.585, -2.0149999, 14.902499, 21.585, -2.0149999, -14.902499, -21.585, -2.0149999, 14.902499, 21.585, -2.0149999, -14.902499, 21.585, -2.0149999, -14.902499, -21.585, 2.0149999, 14.902499, 21.585, -2.0149999, 14.902499, 21.585, 2.0149999, 14.902499, -21.585, -2.0149999, 14.902499, 21.585, -2.0149999, 14.902499, -21.585, 2.0149999, 14.902499, -21.585, -2.0149999, -14.902499, 21.585, 2.0149999, -14.902499, 21.585, -2.0149999, -14.902499, -21.585, 2.0149999, -14.902499, 21.585, 2.0149999, -14.902499, -21.585, -2.0149999, -14.902499, -21.585)
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_ynl81"]
+points = PackedVector3Array(-2.015, -14.9025, -21.585, 2.015, -14.9025, -21.585, -2.015, -14.9025, 21.580776, -2.015, 14.899584, -21.585, 2.015, 14.899584, -21.585, 2.015, -14.9025, 21.580776, -2.015, 14.899584, 21.580776, 2.015, 14.899584, 21.580776)
 
 [sub_resource type="BoxMesh" id="BoxMesh_0p4fw"]
 size = Vector3(12.555, 1, 129.925)
@@ -905,7 +909,7 @@ handle_input_locally = false
 size = Vector2i(912, 1026)
 render_target_update_mode = 4
 
-[node name="ScreenQuad" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1"]
+[node name="PS1Shader" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1" groups=["ps1_shaders"]]
 visible = false
 material_override = SubResource("ShaderMaterial_tqs36")
 extra_cull_margin = 16384.0
@@ -965,150 +969,336 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -279.33347, 0, -191.01471)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril_BA"
-shard_count = 6
-upward_bias = 4.0
-scatter_radius = 0.8
-shard_max_size = 2.0
+causes_aoe_damage = true
+aoe_damage_amount = 10.0
+aoe_radius = 20.0
+aoe_knockback_force = 10.0
+shard_count = 10
+explosion_force = 20.0
+upward_bias = 8.0
+shard_lifetime = 4.0
+scatter_radius = 4.0
+shard_max_size = 4.0
 
 [node name="ObjectBase2" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -279.33347, 0, -197.61166)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril_BA"
-shard_count = 6
-upward_bias = 4.0
-scatter_radius = 0.8
-shard_max_size = 2.0
+causes_aoe_damage = true
+aoe_damage_amount = 10.0
+aoe_radius = 20.0
+aoe_knockback_force = 10.0
+shard_count = 10
+explosion_force = 20.0
+upward_bias = 8.0
+shard_lifetime = 4.0
+scatter_radius = 4.0
+shard_max_size = 4.0
 
 [node name="ObjectBase3" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -279.33347, 0, -204.84268)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril_BA"
-shard_count = 6
-upward_bias = 4.0
-scatter_radius = 0.8
-shard_max_size = 2.0
+causes_aoe_damage = true
+aoe_damage_amount = 10.0
+aoe_radius = 20.0
+aoe_knockback_force = 10.0
+shard_count = 10
+explosion_force = 20.0
+upward_bias = 8.0
+shard_lifetime = 4.0
+scatter_radius = 4.0
+shard_max_size = 4.0
 
 [node name="ObjectBase4" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -23.944672, 0, -291.6039)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril_BA"
-shard_count = 6
-upward_bias = 4.0
-scatter_radius = 0.8
-shard_max_size = 2.0
+causes_aoe_damage = true
+aoe_damage_amount = 10.0
+aoe_radius = 20.0
+aoe_knockback_force = 10.0
+shard_count = 10
+explosion_force = 20.0
+upward_bias = 8.0
+shard_lifetime = 4.0
+scatter_radius = 4.0
+shard_max_size = 4.0
 
 [node name="ObjectBase5" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -23.944672, 0, -298.20084)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril_BA"
-shard_count = 6
-upward_bias = 4.0
-scatter_radius = 0.8
-shard_max_size = 2.0
+causes_aoe_damage = true
+aoe_damage_amount = 10.0
+aoe_radius = 20.0
+aoe_knockback_force = 10.0
+shard_count = 10
+explosion_force = 20.0
+upward_bias = 8.0
+shard_lifetime = 4.0
+scatter_radius = 4.0
+shard_max_size = 4.0
 
 [node name="ObjectBase6" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -23.944672, 0, -305.43185)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril_BA"
-shard_count = 6
-upward_bias = 4.0
-scatter_radius = 0.8
-shard_max_size = 2.0
+causes_aoe_damage = true
+aoe_damage_amount = 10.0
+aoe_radius = 20.0
+aoe_knockback_force = 10.0
+shard_count = 10
+explosion_force = 20.0
+upward_bias = 8.0
+shard_lifetime = 4.0
+scatter_radius = 4.0
+shard_max_size = 4.0
 
 [node name="ObjectBase7" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 353.57477, 0, -295.38586)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril_BA"
-shard_count = 6
-upward_bias = 4.0
-scatter_radius = 0.8
-shard_max_size = 2.0
+causes_aoe_damage = true
+aoe_damage_amount = 10.0
+aoe_radius = 20.0
+aoe_knockback_force = 10.0
+shard_count = 10
+explosion_force = 20.0
+upward_bias = 8.0
+shard_lifetime = 4.0
+scatter_radius = 4.0
+shard_max_size = 4.0
 
 [node name="ObjectBase8" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 353.57477, 0, -301.9828)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril_BA"
-shard_count = 6
-upward_bias = 4.0
-scatter_radius = 0.8
-shard_max_size = 2.0
+causes_aoe_damage = true
+aoe_damage_amount = 10.0
+aoe_radius = 20.0
+aoe_knockback_force = 10.0
+shard_count = 10
+explosion_force = 20.0
+upward_bias = 8.0
+shard_lifetime = 4.0
+scatter_radius = 4.0
+shard_max_size = 4.0
 
 [node name="ObjectBase9" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 353.57477, 0, -309.2138)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril_BA"
-shard_count = 6
-upward_bias = 4.0
-scatter_radius = 0.8
-shard_max_size = 2.0
+causes_aoe_damage = true
+aoe_damage_amount = 10.0
+aoe_radius = 20.0
+aoe_knockback_force = 10.0
+shard_count = 10
+explosion_force = 20.0
+upward_bias = 8.0
+shard_lifetime = 4.0
+scatter_radius = 4.0
+shard_max_size = 4.0
 
 [node name="ObjectBase10" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 353.57477, 0, -18.591042)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril_BA"
-shard_count = 6
-upward_bias = 4.0
-scatter_radius = 0.8
-shard_max_size = 2.0
+causes_aoe_damage = true
+aoe_damage_amount = 10.0
+aoe_radius = 20.0
+aoe_knockback_force = 10.0
+shard_count = 10
+explosion_force = 20.0
+upward_bias = 8.0
+shard_lifetime = 4.0
+scatter_radius = 4.0
+shard_max_size = 4.0
 
 [node name="ObjectBase11" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 353.57477, 0, -25.187965)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril_BA"
-shard_count = 6
-upward_bias = 4.0
-scatter_radius = 0.8
-shard_max_size = 2.0
+causes_aoe_damage = true
+aoe_damage_amount = 10.0
+aoe_radius = 20.0
+aoe_knockback_force = 10.0
+shard_count = 10
+explosion_force = 20.0
+upward_bias = 8.0
+shard_lifetime = 4.0
+scatter_radius = 4.0
+shard_max_size = 4.0
 
 [node name="ObjectBase12" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 353.57477, 0, -32.418983)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril_BA"
-shard_count = 6
-upward_bias = 4.0
-scatter_radius = 0.8
-shard_max_size = 2.0
+causes_aoe_damage = true
+aoe_damage_amount = 10.0
+aoe_radius = 20.0
+aoe_knockback_force = 10.0
+shard_count = 10
+explosion_force = 20.0
+upward_bias = 8.0
+shard_lifetime = 4.0
+scatter_radius = 4.0
+shard_max_size = 4.0
 
 [node name="ObjectBase13" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.046333, 30.161022, 216.72162)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril_BA"
-shard_count = 6
-upward_bias = 4.0
-scatter_radius = 0.8
-shard_max_size = 2.0
+causes_aoe_damage = true
+aoe_damage_amount = 10.0
+aoe_radius = 20.0
+aoe_knockback_force = 10.0
+shard_count = 10
+explosion_force = 20.0
+upward_bias = 8.0
+shard_lifetime = 4.0
+scatter_radius = 4.0
+shard_max_size = 4.0
 
 [node name="ObjectBase14" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.046333, 30.161022, 210.1247)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril_BA"
-shard_count = 6
-upward_bias = 4.0
-scatter_radius = 0.8
-shard_max_size = 2.0
+causes_aoe_damage = true
+aoe_damage_amount = 10.0
+aoe_radius = 20.0
+aoe_knockback_force = 10.0
+shard_count = 10
+explosion_force = 20.0
+upward_bias = 8.0
+shard_lifetime = 4.0
+scatter_radius = 4.0
+shard_max_size = 4.0
 
 [node name="ObjectBase15" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.046333, 30.161022, 202.89368)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril_BA"
-shard_count = 6
-upward_bias = 4.0
-scatter_radius = 0.8
-shard_max_size = 2.0
+causes_aoe_damage = true
+aoe_damage_amount = 10.0
+aoe_radius = 20.0
+aoe_knockback_force = 10.0
+shard_count = 10
+explosion_force = 20.0
+upward_bias = 8.0
+shard_lifetime = 4.0
+scatter_radius = 4.0
+shard_max_size = 4.0
+
+[node name="ObjectBase16" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -159.60234, 30.161022, 225.13731)
+collision_layer = 3
+collision_mask = 3
+mission_id = "barril_BA"
+causes_aoe_damage = true
+aoe_damage_amount = 10.0
+aoe_radius = 20.0
+aoe_knockback_force = 10.0
+shard_count = 10
+explosion_force = 20.0
+upward_bias = 8.0
+shard_lifetime = 4.0
+scatter_radius = 4.0
+shard_max_size = 4.0
+
+[node name="ObjectBase17" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 212.54715, 3.8431778, -24.567669)
+collision_layer = 3
+collision_mask = 3
+mission_id = "barril_BA"
+causes_aoe_damage = true
+aoe_damage_amount = 10.0
+aoe_radius = 20.0
+aoe_knockback_force = 10.0
+shard_count = 10
+explosion_force = 20.0
+upward_bias = 8.0
+shard_lifetime = 4.0
+scatter_radius = 4.0
+shard_max_size = 4.0
+
+[node name="ObjectBase18" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 161.08858, 0, -25.758049)
+collision_layer = 3
+collision_mask = 3
+mission_id = "barril_BA"
+causes_aoe_damage = true
+aoe_damage_amount = 10.0
+aoe_radius = 20.0
+aoe_knockback_force = 10.0
+shard_count = 10
+explosion_force = 20.0
+upward_bias = 8.0
+shard_lifetime = 4.0
+scatter_radius = 4.0
+shard_max_size = 4.0
+
+[node name="ObjectBase19" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 161.08858, 0, -23.308908)
+collision_layer = 3
+collision_mask = 3
+mission_id = "barril_BA"
+causes_aoe_damage = true
+aoe_damage_amount = 10.0
+aoe_radius = 20.0
+aoe_knockback_force = 10.0
+shard_count = 10
+explosion_force = 20.0
+upward_bias = 8.0
+shard_lifetime = 4.0
+scatter_radius = 4.0
+shard_max_size = 4.0
+
+[node name="ObjectBase20" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 161.08858, 2.150814, -24.542082)
+collision_layer = 3
+collision_mask = 3
+mission_id = "barril_BA"
+causes_aoe_damage = true
+aoe_damage_amount = 10.0
+aoe_radius = 20.0
+aoe_knockback_force = 10.0
+shard_count = 10
+explosion_force = 20.0
+upward_bias = 8.0
+shard_lifetime = 4.0
+scatter_radius = 4.0
+shard_max_size = 4.0
+
+[node name="ObjectBase21" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 161.08858, 6.4909105, -24.542082)
+collision_layer = 3
+collision_mask = 3
+mission_id = "barril_BA"
+causes_aoe_damage = true
+aoe_damage_amount = 10.0
+aoe_radius = 20.0
+aoe_knockback_force = 10.0
+shard_count = 10
+explosion_force = 20.0
+upward_bias = 8.0
+shard_lifetime = 4.0
+scatter_radius = 4.0
+shard_max_size = 4.0
 
 [node name="Teleporters" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap"]
 
@@ -3803,7 +3993,8 @@ shape = SubResource("ConcavePolygonShape3D_vxe8i")
 
 [node name="BreakableWalls" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
 
-[node name="RigidBody3D" type="RigidBody3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/BreakableWalls"]
+[node name="RigidBody3D" type="RigidBody3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/BreakableWalls" groups=["destructibles"]]
+mass = 800.0
 freeze = true
 script = ExtResource("21_pyjdw")
 max_health = 10.0
@@ -3816,16 +4007,17 @@ shard_min_size = 4.0
 shard_max_size = 8.0
 
 [node name="MeshInstance3D14" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/BreakableWalls/RigidBody3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 79.68774, 36.091297, -317.84338)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 79.68774, 37.506397, -318.09213)
 mesh = SubResource("BoxMesh_0wot0")
 skeleton = NodePath("../..")
 surface_material_override/0 = ExtResource("23_ip1o4")
 
-[node name="CollisionShape3D8" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/BreakableWalls/RigidBody3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 79.68774, 36.091297, -317.84338)
-shape = SubResource("ConcavePolygonShape3D_pimv2")
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/BreakableWalls/RigidBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 79.68774, 37.506397, -318.09213)
+shape = SubResource("ConvexPolygonShape3D_rf88v")
 
-[node name="RigidBody3D2" type="RigidBody3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/BreakableWalls"]
+[node name="RigidBody3D2" type="RigidBody3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/BreakableWalls" groups=["destructibles"]]
+mass = 800.0
 freeze = true
 script = ExtResource("21_pyjdw")
 max_health = 10.0
@@ -3844,7 +4036,7 @@ skeleton = NodePath("../../..")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/BreakableWalls/RigidBody3D2"]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -293.47906, 37.32524, -322.31473)
-shape = SubResource("ConcavePolygonShape3D_1dwuk")
+shape = SubResource("ConvexPolygonShape3D_ynl81")
 
 [node name="Park1" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
 
@@ -4870,6 +5062,9 @@ transform = Transform3D(0.09836455, 0, 0.9951503, 0, 1, 0, -0.9951503, 0, 0.0983
 
 [node name="SmallRamp18" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Ramps1" instance=ExtResource("22_is8dr")]
 transform = Transform3D(1.311341e-07, 0, -0.99999964, 0, 1, 0, 0.99999964, 0, 1.311341e-07, 412.6158, 54.094723, -199.91312)
+
+[node name="SmallRamp21" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Ramps1" instance=ExtResource("22_is8dr")]
+transform = Transform3D(0.9999999, 0, 3.5527137e-15, 0, 1, 0, -3.5527137e-15, 0, 0.9999999, -254.89578, 32.82869, 227.19238)
 
 [node name="Ramps2" type="StaticBody3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects"]
 
@@ -6612,6 +6807,8 @@ disable_mode = 2
 collision_layer = 4
 collision_mask = 2
 script = ExtResource("46_yp3g3")
+points_required = 5000
+required_mission_id = "m_02_boss"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/EndRunPortal"]
 shape = SubResource("SphereShape3D_44s4c")

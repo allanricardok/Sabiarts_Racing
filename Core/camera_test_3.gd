@@ -41,13 +41,12 @@ var original_look_offset : float
 var current_camera_mode : int = 0
 
 func _ready():
-	set_as_top_level(true)
-	global_position = target_node.global_position
-	air_move = car.find_child("AirMovementComponent")
-	
 	original_target_offset = target_node.position
 	default_target_offset = original_target_offset
 	original_look_offset = look_offset
+	set_as_top_level(true)
+	global_position = target_node.global_position
+	air_move = car.find_child("AirMovementComponent")
 
 func set_camera_mode(mode: int):
 	current_camera_mode = mode
