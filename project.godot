@@ -26,7 +26,8 @@ MissionManager="*res://Core/Objectives/MissionManager.gd"
 SaveManager="*res://Autoload/SaveManager.gd"
 GameStats="*res://Autoload/GameStats.gd"
 ProjectilePool="*res://Autoload/ProjectilePool.gd"
-DebrisManager="*res://Core/GeneralObjects/DebrisManager.gd"
+DebrisManager="*res://Core/GeneralObjects/Destruction/DebrisManager.gd"
+ExplosionManager="*res://Core/GeneralObjects/Destruction/ExplosionManager.gd"
 
 [display]
 
@@ -685,6 +686,7 @@ WeaponWheel_J1={
 3d_physics/layer_2="Carros"
 3d_physics/layer_3="Hitbox-interac"
 3d_physics/layer_4="Projectiles"
+3d_physics/layer_5="Pedestrians"
 
 [physics]
 

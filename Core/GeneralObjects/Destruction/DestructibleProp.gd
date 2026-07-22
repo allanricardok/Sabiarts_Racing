@@ -40,6 +40,21 @@ extends RigidBody3D
 @export var aoe_min_vertical_kick : float = 1.4  # garante decolagem consistente
 @export_flags_3d_physics var aoe_collision_mask : int = 0xFFFFFFFF
 
+# ============================================================================
+# NOVO: Efeito visual da explosão (flash + luz + fumaça). Só é usado se
+# causes_aoe_damage estiver ligado — objetos que causam dano em área também
+# "explodem" visualmente; objetos comuns continuam só soltando fragmentos.
+# ============================================================================
+@export_group("Efeito Visual da Explosão")
+## Cor principal do flash/bola de fogo
+@export var explosion_visual_color : Color = Color(1.0, 0.55, 0.1)
+## Tamanho aproximado da bola de fogo (em unidades do mundo)
+@export var explosion_visual_size : float = 3.0
+## Quantos "puffs" de fumaça sobem da explosão
+@export var explosion_particle_count : int = 10
+## Intensidade máxima da luz do flash (0 desliga a luz)
+@export var explosion_light_energy : float = 8.0
+
 @onready var health : float = max_health
 
 func take_damage(amount: float, attacker: Node3D = null):
@@ -96,6 +111,11 @@ func _morrer(actual_shooter: Node3D):
 
 func _apply_aoe_damage(original_shooter: Node3D):
 	if not causes_aoe_damage: return
+	
+	# NOVO: efeito visual da explosão. Reaproveita a mesma flag
+	# causes_aoe_damage — só objetos que já causam dano em área fazem
+	# sentido "explodir" visualmente também.
+	_spawn_explosion_effect()
 
 	var space_state = get_world_3d().direct_space_state
 	var query = PhysicsShapeQueryParameters3D.new()
@@ -166,7 +186,24 @@ func _estimate_collider_radius(collider: Node3D) -> float:
 		var size = aabb.size * mesh_inst.global_transform.basis.get_scale()
 		return size.length() * 0.5
 	return 0.5  # fallback conservador
-		
+
+# NOVO: dispara o efeito visual (flash + luz + fumaça) usando o
+# ExplosionManager (autoload). Segue o mesmo princípio do DebrisManager —
+# este objeto não sabe COMO o efeito funciona, só pede pra acontecer com
+# os parâmetros configurados no Inspector.
+func _spawn_explosion_effect() -> void:
+	if not is_instance_valid(ExplosionManager):
+		push_warning("[DestructibleProp] ExplosionManager não encontrado. Configure como Autoload.")
+		return
+	
+	ExplosionManager.explode(
+		global_position,
+		explosion_visual_color,
+		explosion_visual_size,
+		explosion_particle_count,
+		explosion_light_energy
+	)
+
 func _spawn_debris() -> void:
 	if not spawn_debris_on_death:
 		return

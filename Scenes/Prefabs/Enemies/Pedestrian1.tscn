@@ -31,7 +31,7 @@ animations = [{
 size = Vector3(3.3457031, 3.1007614, 3.3574219)
 
 [node name="Pedestrian" type="CharacterBody3D" groups=["pedestrians"]]
-collision_layer = 0
+collision_layer = 16
 collision_mask = 3
 script = ExtResource("1_pv5kd")
 base_speed = 7.0

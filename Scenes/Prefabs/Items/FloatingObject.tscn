@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://dadt551bspl1q"]
 
-[ext_resource type="Script" uid="uid://dxwtvbecpphjn" path="res://Core/GeneralObjects/DestructibleProp.gd" id="1_5wofp"]
+[ext_resource type="Script" uid="uid://dxwtvbecpphjn" path="res://Core/GeneralObjects/Destruction/DestructibleProp.gd" id="1_5wofp"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5wofp"]
 albedo_color = Color(1, 0.36078432, 0, 1)

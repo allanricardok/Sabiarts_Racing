@@ -1,6 +1,6 @@
 [gd_scene load_steps=15 format=4 uid="uid://bperjhutxqnbr"]
 
-[ext_resource type="Script" uid="uid://dxwtvbecpphjn" path="res://Core/GeneralObjects/DestructibleProp.gd" id="1_bdada"]
+[ext_resource type="Script" uid="uid://dxwtvbecpphjn" path="res://Core/GeneralObjects/Destruction/DestructibleProp.gd" id="1_bdada"]
 [ext_resource type="Texture2D" uid="uid://ttuvtqb8clyh" path="res://Assets/3D/trees/2 Trees_3.png" id="1_obvfp"]
 [ext_resource type="Texture2D" uid="uid://xufbne1n2ufd" path="res://Assets/3D/trees/2 Trees_1.png" id="2_bdada"]
 [ext_resource type="Texture2D" uid="uid://kx20hm8hrnbb" path="res://Assets/3D/trees/2 Trees_2.png" id="3_7ihsq"]
