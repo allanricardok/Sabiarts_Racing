@@ -8750,6 +8750,18 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 312.72852, 14.435219, -212.67
 collectible_name = "50 Bucks"
 points_value = 50
 
+[node name="Drunk Item" parent="GridContainer/Cont_P1/View_P1/Map/StoryModeItems" instance=ExtResource("48_i3s4m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 312.72852, 0.005487442, -160.01079)
+script = ExtResource("11_6vwi6")
+mission_id = "drunk"
+score_points = 0
+grants_teleport_key = false
+rotation_speed = 1.5
+causes_drunk_effect = true
+drunk_duration = 20.0
+drunk_max_intensity = 1.0
+drunk_fade_time = 4.0
+
 [node name="StoryCollectable2" parent="GridContainer/Cont_P1/View_P1/Map/StoryModeItems" instance=ExtResource("48_i3s4m")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 314.866, 10.120236, -26.027962)
 collectible_id = "item_002"

@@ -5,6 +5,14 @@ extends Area3D
 @export var grants_teleport_key: bool = false
 @export var rotation_speed: float = 1.5 
 
+@export_group("Efeitos de Bebida")
+@export var causes_drunk_effect: bool = false
+@export var drunk_duration: float = 10.0
+## Intensidade máxima do efeito (1.0 = normal, 2.0 = fortíssimo, 0.5 = leve)
+@export var drunk_max_intensity: float = 1.0 
+## Tempo (em segundos) que demora para o efeito entrar e sair suavemente
+@export var drunk_fade_time: float = 2.0
+
 var is_collected: bool = false
 var can_be_collected: bool = true
 
@@ -33,6 +41,19 @@ func _on_body_entered(body):
 	
 	if body is BaseVehicle or body.is_in_group("jogadores"):
 		print("[DEBUG-ITEM] Jogador colidiu e coletou: ", name)
+		
+		# =======================================================
+		# NOVO: Instancia o efeito de Bebida se estiver ativado
+		# =======================================================
+		if causes_drunk_effect:
+			var drunk_node = DrunkEffect.new()
+			drunk_node.time_left = drunk_duration
+			drunk_node.max_intensity = drunk_max_intensity
+			drunk_node.fade_time = drunk_fade_time
+			drunk_node.camera = body.find_child("Camera3D", true, false)
+			
+			get_tree().current_scene.add_child(drunk_node) 
+		# =======================================================
 		
 		if grants_teleport_key:
 			_entregar_chave_interna(body)
