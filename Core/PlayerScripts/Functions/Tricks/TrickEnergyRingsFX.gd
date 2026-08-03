@@ -2,14 +2,7 @@ extends Node3D
 class_name TrickEnergyRingsFX
 
 # ============================================================================
-# SUBSTITUI o TrickTrailFX.gd. Anexe como nó filho DIRETO do carro (irmão de
-# "Scripts", NUNCA dentro dela).
-#
-# Desenha 2+ arcos de energia ovais, cada um com sua própria variação
-# orgânica (posição, formato e velocidade de giro levemente diferentes),
-# que giram numa velocidade que começa rápida e desacelera. O efeito é
-# TOP-LEVEL: segue a POSIÇÃO do carro, mas nunca a rotação — não tomba
-# junto com o carro durante frontflip/backflip.
+# SUBSTITUI o TrickTrailFX.gd. Anexe como nó filho DIRETO do carro.
 # ============================================================================
 
 @onready var car = owner as VehicleBody3D
@@ -17,14 +10,19 @@ class_name TrickEnergyRingsFX
 @export_group("Anéis de Energia (Stunt)")
 ## Diâmetro dos anéis ao redor do carro (eixo maior do oval)
 @export var ring_diameter : float = 2.4
-## Cor da energia
-@export var ring_color : Color = Color(0.1, 0.9, 1.0)
+
+# --- NOVO: Substituímos a cor única por um Degradê (Gradient) ---
+## Degradê de cor. O Alfa (transparência) das pontas agora é controlado aqui!
+@export var ring_gradient : Gradient 
+# --- NOVO: Controle de "Quadriculado" ---
+## Quantidade de blocos do anel. Valores baixos (8 a 14) dão o visual PS1!
+@export_range(4, 32, 1) var ring_segments : int = 12 
+
 ## Quantos anéis sobrepostos (2 já dá o efeito; 3 fica mais "cheio")
 @export var ring_count : int = 2
 ## Quantos graus do círculo cada anel cobre.
 @export_range(60.0, 360.0, 1.0) var ring_arc_degrees : float = 300.0
-## Espessura BASE da faixa do anel — a curva de espessura abaixo multiplica
-## este valor ao longo do trajeto
+## Espessura BASE da faixa do anel
 @export var ring_band_width : float = 0.25
 ## Deslocamento vertical do centro dos anéis em relação ao centro do carro
 @export var ring_vertical_offset : float = 0.0
@@ -34,41 +32,24 @@ class_name TrickEnergyRingsFX
 @export var fade_speed : float = 8.0
 
 @export_group("Velocidade de Giro")
-## Velocidade de giro logo no início da manobra (graus/seg) — o "arranque"
 @export var ring_spin_speed_start : float = 900.0
-## Velocidade de giro depois de estabilizar (graus/seg)
 @export var ring_spin_speed_end : float = 240.0
-## Tempo (segundos) pra ir da velocidade inicial até a final
 @export var ring_spin_decel_time : float = 0.6
-## Curva de desaceleração opcional (eixo X = progresso 0-1, eixo Y = 0-1).
-## Se vazio, usa um ease-out cúbico padrão.
 @export var ring_spin_decel_curve : Curve
 
 @export_group("Formato do Anel")
-## 1.0 = círculo perfeito. Menor que 1.0 achata o anel num oval
 @export_range(0.3, 1.0, 0.01) var ring_oval_ratio : float = 0.7
-## Desalinhamento lateral das pontas (início/fim do arco)
 @export var ring_tip_misalign_radial : float = 0.25
-## Desalinhamento vertical das pontas
 @export var ring_tip_misalign_vertical : float = 0.2
 
 @export_group("Espessura ao Longo do Trajeto")
-## Curva de multiplicador de espessura: X = progresso do arco (0-1),
-## Y = multiplicador de ring_band_width. Vazio = default 0%→0, 20%→2,
-## 50%→1, 80%→2, 100%→0.
 @export var ring_thickness_curve : Curve
 
 @export_group("Variação Orgânica")
-## 0 = tudo matematicamente perfeito e simétrico (comportamento antigo).
-## 1 = variação forte em quase todo parâmetro entre os anéis.
 @export_range(0.0, 1.0, 0.01) var organic_variation : float = 0.3
-## Quanto a LINHA do anel ondula em relação a um oval perfeito (fração do
-## raio). Faz o traçado parecer desenhado à mão em vez de geométrico.
 @export_range(0.0, 0.3, 0.005) var organic_mesh_noise : float = 0.06
 
-const SEGMENTS := 24
-
-var _rings: Array[EnergyRing] = []
+var _rings: Array = [] # Assumindo que EnergyRing é uma classe sua
 var _ring_spin_data: Array[Dictionary] = []
 var _air_move: Node = null
 var _built: bool = false
@@ -78,10 +59,13 @@ var _was_spinning: bool = false
 var _stunt_elapsed: float = 0.0
 
 func _ready() -> void:
-	# Top-level: este nó para de herdar a transform do carro. Nós mesmos
-	# sincronizamos a posição no _process, e NUNCA tocamos na rotação —
-	# é isso que impede o efeito de "tombar" durante flips.
 	top_level = true
+	
+	# Cria um Gradient padrão caso você esqueça de colocar um no Inspetor
+	if not ring_gradient:
+		ring_gradient = Gradient.new()
+		ring_gradient.set_color(0, Color(0.1, 0.9, 1.0, 0.0)) # Ponta invisível
+		ring_gradient.set_color(1, Color(0.1, 0.9, 1.0, 1.0)) # Centro sólido
 	
 	if is_instance_valid(car):
 		_air_move = car.get_node_or_null("%AirMovementComponent")
@@ -99,8 +83,6 @@ func _build_rings() -> void:
 		var pivot := Node3D.new()
 		add_child(pivot)
 		
-		# --- Cada anel puxa parâmetros levemente diferentes, então nada
-		# fica perfeitamente simétrico/repetido entre eles ---
 		var radius := _jitter_mult(ring_diameter * 0.5, 0.25)
 		var arc_deg := _jitter_mult(ring_arc_degrees, 0.15)
 		var oval := _jitter_mult(ring_oval_ratio, 0.2)
@@ -123,7 +105,7 @@ func _build_rings() -> void:
 			"radius": radius,
 			"arc_degrees": arc_deg,
 			"band_width": ring_band_width,
-			"segments": SEGMENTS,
+			"segments": ring_segments,
 			"oval_ratio": oval,
 			"tip_radial": tip_r,
 			"tip_vertical": tip_v,
@@ -133,15 +115,17 @@ func _build_rings() -> void:
 			"noise_freq_b": randf_range(5.0, 9.0),
 			"noise_phase_b": randf_range(0.0, TAU),
 		}
-		var ring_mesh := _build_arc_ring(cfg)
+		
+		var ring_mesh := _build_arc_ring_ps1(cfg)
 		
 		var spin_sign := 1.0 if i % 2 == 0 else -1.0
 		var spin_start := _jitter_mult(ring_spin_speed_start, 0.25) * spin_sign
 		var spin_end := _jitter_mult(ring_spin_speed_end, 0.25) * spin_sign
 		
-		var ring := EnergyRing.new()
+		# Instancia direto, sem firulas!
+		var ring = EnergyRing.new() 
 		ring.spin_speed_deg = spin_start
-		ring.setup(ring_mesh, ring_color)
+		ring.setup(ring_mesh, Color.WHITE) 
 		ring.visible = false
 		ring.set_fade(0.0)
 		pivot.add_child(ring)
@@ -158,7 +142,6 @@ func _process(delta: float) -> void:
 	
 	var is_spinning: bool = _air_move.get("is_doing_stunt") == true
 	
-	# Reinicia o timer de desaceleração toda vez que uma manobra começa
 	if is_spinning and not _was_spinning:
 		_stunt_elapsed = 0.0
 	if is_spinning:
@@ -172,16 +155,17 @@ func _process(delta: float) -> void:
 	_current_alpha = move_toward(_current_alpha, target_alpha, fade_speed * delta)
 	
 	for i in range(_rings.size()):
-		var r := _rings[i]
+		var r = _rings[i]
 		var data: Dictionary = _ring_spin_data[i]
 		r.spin_speed_deg = lerp(float(data["start"]), float(data["end"]), eased)
 		r.visible = _current_alpha > 0.001
-		r.set_fade(_current_alpha)
+		if r.has_method("set_fade"):
+			r.set_fade(_current_alpha)
 
 func _ease_decel(t: float) -> float:
 	if ring_spin_decel_curve:
 		return ring_spin_decel_curve.sample(t)
-	return 1.0 - pow(1.0 - t, 3.0) # ease-out cúbico padrão
+	return 1.0 - pow(1.0 - t, 3.0)
 
 func _jitter_mult(base: float, max_frac: float) -> float:
 	return base * (1.0 + randf_range(-max_frac, max_frac) * organic_variation)
@@ -201,69 +185,77 @@ func _get_thickness_curve() -> Curve:
 		_default_thickness_curve.add_point(Vector2(1.0, 0.0))
 	return _default_thickness_curve
 
-# Monta um arco OVAL, com pontas desalinhadas, espessura variável e um
-# leve "wobble" orgânico no raio (soma de 2 senoides com freq/fase
-# aleatórias, únicas por anel — é o que faz cada linha parecer única).
-func _build_arc_ring(cfg: Dictionary) -> ArrayMesh:
+# Função auxiliar para calcular o ponto geométrico no arco
+func _calc_point(t: float, cfg: Dictionary) -> Dictionary:
+	var angle := t * deg_to_rad(float(cfg["arc_degrees"]))
+	var wobble := sin(angle * cfg["noise_freq_a"] + cfg["noise_phase_a"]) * 0.65 \
+		+ sin(angle * cfg["noise_freq_b"] + cfg["noise_phase_b"]) * 0.35
+	var r := float(cfg["radius"]) * (1.0 + wobble * float(cfg["noise_amount"]))
+	
+	var ellipse_pos := Vector3(cos(angle) * r, sin(angle) * r * float(cfg["oval_ratio"]), 0.0)
+	var dir := ellipse_pos.normalized() if ellipse_pos.length() > 0.001 else Vector3(cos(angle), sin(angle), 0.0)
+	var center := ellipse_pos
+	
+	var tip_zone := 0.18
+	var tip_t := 0.0
+	var tip_side := 0.0
+	if t < tip_zone:
+		tip_t = 1.0 - (t / tip_zone)
+		tip_side = -1.0
+	elif t > 1.0 - tip_zone:
+		tip_t = (t - (1.0 - tip_zone)) / tip_zone
+		tip_side = 1.0
+	
+	center += dir * (float(cfg["tip_radial"]) * tip_t * tip_side)
+	center.z += float(cfg["tip_vertical"]) * tip_t * tip_side
+	
+	return {"center": center, "dir": dir}
+
+# ============================================================================
+# O SEGREDO DO EFEITO PS1 (FLAT SHADING)
+# ============================================================================
+func _build_arc_ring_ps1(cfg: Dictionary) -> ArrayMesh:
 	var verts := PackedVector3Array()
 	var colors := PackedColorArray()
 	var indices := PackedInt32Array()
 	
-	var radius: float = cfg["radius"]
-	var arc_rad := deg_to_rad(float(cfg["arc_degrees"]))
-	var oval_ratio: float = cfg["oval_ratio"]
-	var tip_radial: float = cfg["tip_radial"]
-	var tip_vertical: float = cfg["tip_vertical"]
-	var band_width: float = cfg["band_width"]
-	var noise_amount: float = cfg["noise_amount"]
-	var noise_freq_a: float = cfg["noise_freq_a"]
-	var noise_phase_a: float = cfg["noise_phase_a"]
-	var noise_freq_b: float = cfg["noise_freq_b"]
-	var noise_phase_b: float = cfg["noise_phase_b"]
 	var segments: int = cfg["segments"]
+	var band_width: float = cfg["band_width"]
 	var curve := _get_thickness_curve()
-	var tip_zone := 0.18
 	
-	for i in range(segments + 1):
-		var t := float(i) / float(segments)
-		var angle := t * arc_rad
+	# Em vez de ligar os pontos suavemente, nós criamos QUADRADOS independentes.
+	# Isso quebra a interpolação suave da placa de vídeo e gera o "color banding".
+	for i in range(segments):
+		var t1 := float(i) / float(segments)
+		var t2 := float(i + 1) / float(segments)
 		
-		var wobble := sin(angle * noise_freq_a + noise_phase_a) * 0.65 \
-			+ sin(angle * noise_freq_b + noise_phase_b) * 0.35
-		var r := radius * (1.0 + wobble * noise_amount)
+		# O meio do segmento dita a cor sólida daquele bloco todo
+		var t_mid := (t1 + t2) * 0.5
 		
-		var ellipse_pos := Vector3(cos(angle) * r, sin(angle) * r * oval_ratio, 0.0)
-		var dir := ellipse_pos.normalized() if ellipse_pos.length() > 0.001 else Vector3(cos(angle), sin(angle), 0.0)
-		var center := ellipse_pos
+		var p1 = _calc_point(t1, cfg)
+		var p2 = _calc_point(t2, cfg)
 		
-		var tip_t := 0.0
-		var tip_side := 0.0
-		if t < tip_zone:
-			tip_t = 1.0 - (t / tip_zone)
-			tip_side = -1.0
-		elif t > 1.0 - tip_zone:
-			tip_t = (t - (1.0 - tip_zone)) / tip_zone
-			tip_side = 1.0
-		
-		center += dir * (tip_radial * tip_t * tip_side)
-		center.z += tip_vertical * tip_t * tip_side
-		
-		var color_alpha := 1.0 - pow(t, 1.5)
-		
-		var thickness_mult: float = curve.sample(t)
+		var thickness_mult: float = curve.sample(t_mid)
 		var half_w: float = band_width * 0.5 * maxf(thickness_mult, 0.0)
 		
-		verts.append(center + dir * half_w)
-		verts.append(center - dir * half_w)
-		colors.append(Color(1, 1, 1, color_alpha))
-		colors.append(Color(1, 1, 1, color_alpha))
-	
-	for i in range(segments):
-		var a := i * 2
-		var b := i * 2 + 1
-		var c := (i + 1) * 2
-		var d := (i + 1) * 2 + 1
-		indices.append_array([a, b, c, b, d, c])
+		# Pega a cor do Degradê
+		var col: Color = ring_gradient.sample(t_mid)
+		
+		# 4 Vértices (os cantos deste bloco)
+		var v0 = p1["center"] + p1["dir"] * half_w
+		var v1 = p1["center"] - p1["dir"] * half_w
+		var v2 = p2["center"] + p2["dir"] * half_w
+		var v3 = p2["center"] - p2["dir"] * half_w
+		
+		var base_idx = verts.size()
+		verts.append_array([v0, v1, v2, v3])
+		
+		# Atribuímos a MESMA cor aos 4 cantos do bloco. 
+		# Isso garante que não haverá degradê suave dentro do próprio quadrado!
+		colors.append_array([col, col, col, col])
+		
+		# Desenha os dois triângulos que formam esse quadriculado
+		indices.append_array([base_idx, base_idx+1, base_idx+2, base_idx+1, base_idx+3, base_idx+2])
 	
 	var arrays := []
 	arrays.resize(Mesh.ARRAY_MAX)

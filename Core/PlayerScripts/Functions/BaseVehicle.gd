@@ -76,6 +76,10 @@ var pode_mover : bool = true
 ## Deslocamento extra para a câmera distante (adicionado à posição normal).
 @export var far_camera_offset: Vector3 = Vector3(0, 3.0, -5.0)
 
+@export_group("Combate: Efeitos Visuais")
+## Distância máxima (em metros) para espirrar sangue na tela ao destruir este carro
+@export var blood_splash_distance: float = 3.0
+
 # --- VARIÁVEIS INTERNAS ---
 var teleport_material : StandardMaterial3D
 var _hit_cooldowns: Dictionary = {}
@@ -344,12 +348,25 @@ func _on_vehicle_destroyed(attacker: Node = null):
 	if input and "is_bot" in input:
 		is_bot = input.is_bot
 	
-	# NOVO: explosão de fragmentos no instante da morte, antes de esconder
-	# ou destruir o carro. Funciona igual pra bot e pra jogador.
+	# NOVO: explosão de fragmentos no instante da morte
 	_spawn_debris()
+	
+	# =================================================================
+	# NOVO: CHECAGEM DE SPLASH DE SANGUE/ÓLEO NA TELA
+	# =================================================================
+	var actual_shooter = attacker
+	# Se o atacante for um projétil, pegamos o dono dele
+	if attacker and "shooter" in attacker and is_instance_valid(attacker.shooter):
+		actual_shooter = attacker.shooter
+		
+	if is_instance_valid(actual_shooter) and actual_shooter.is_in_group("jogadores"):
+		# Calcula a distância entre o carro destruído e quem atirou/bateu
+		var dist = global_position.distance_to(actual_shooter.global_position)
+		if dist <= blood_splash_distance:
+			_trigger_blood_splash_ui(actual_shooter)
+	# =================================================================
 		
 	# --- CORREÇÃO DO ENDGAME ---
-	# AVISA O JOGO QUE ALGUÉM MORREU (Antes a gente só avisava se fosse o Player!)
 	var controller = get_tree().get_first_node_in_group("LevelController")
 	if controller and controller.has_method("registrar_morte_jogador"):
 		controller.registrar_morte_jogador()
@@ -376,6 +393,24 @@ func _on_vehicle_destroyed(attacker: Node = null):
 		collision_layer = 0
 		collision_mask = 0
 		queue_free()
+
+# ============================================================================
+# COMUNICAÇÃO DE EFEITOS DE UI
+# ============================================================================
+func _trigger_blood_splash_ui(shooter: Node3D):
+	if not shooter: return
+	var input_comp = shooter.get_node_or_null("%InputComponent")
+	
+	if input_comp and not input_comp.get("is_bot"):
+		# Encontra a HUD correta em casos de multiplayer split-screen
+		var suffix = input_comp.get("suffix") if input_comp.get("suffix") != null else ""
+		var hud = get_tree().get_first_node_in_group("HUD" + suffix)
+		
+		if not hud: 
+			hud = get_tree().get_first_node_in_group("HUD")
+			
+		if hud and hud.has_method("splatter_blood_on_lens"):
+			hud.splatter_blood_on_lens()
 
 # NOVO: dispara a explosão de fragmentos usando o DebrisManager (autoload).
 # Usa como referência de material a malha que estiver visível no momento

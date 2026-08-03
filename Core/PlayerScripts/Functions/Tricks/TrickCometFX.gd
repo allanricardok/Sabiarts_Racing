@@ -33,7 +33,7 @@ class_name TrickCometTailFX
 ## Curva de largura ao longo da labareda. Vazio = formato de chama padrão.
 @export var width_curve : Curve
 
-const SEGMENTS := 10
+@export_range(3, 15, 1) var streak_segments : int = 6
 const POOL_SIZE := 24
 
 var _pool: Array[TrickBurstStreak] = []
@@ -116,6 +116,7 @@ func _jitter_direction(base_dir: Vector3, cone_degrees: float) -> Vector3:
 	dir = dir.rotated(right, pitch)
 	return dir.normalized()
 
+# Constrói a malha compartilhada usando QUADS (estilo PS1)
 func _build_shared_mesh() -> void:
 	var curve := width_curve
 	if not curve:
@@ -129,27 +130,36 @@ func _build_shared_mesh() -> void:
 	var colors := PackedColorArray()
 	var indices := PackedInt32Array()
 	
-	for i in range(SEGMENTS + 1):
-		var t := float(i) / float(SEGMENTS)
-		var w: float = (curve.sample(t) * streak_width) * 0.5
+	for i in range(streak_segments):
+		var t1 := float(i) / float(streak_segments)
+		var t2 := float(i + 1) / float(streak_segments)
+		
+		# O meio do segmento decide a cor sólida deste bloco
+		var t_mid := (t1 + t2) * 0.5
+		
+		var w1: float = (curve.sample(t1) * streak_width) * 0.5
+		var w2: float = (curve.sample(t2) * streak_width) * 0.5
 		
 		var col: Color
-		if t < 0.5:
-			col = color_hot.lerp(color_mid, t * 2.0)
+		if t_mid < 0.5:
+			col = color_hot.lerp(color_mid, t_mid * 2.0)
 		else:
-			col = color_mid.lerp(color_tip, (t - 0.5) * 2.0)
+			col = color_mid.lerp(color_tip, (t_mid - 0.5) * 2.0)
 		
-		verts.append(Vector3(-w, t, 0))
-		verts.append(Vector3(w, t, 0))
-		colors.append(col)
-		colors.append(col)
-	
-	for i in range(SEGMENTS):
-		var a := i * 2
-		var b := i * 2 + 1
-		var c := (i + 1) * 2
-		var d := (i + 1) * 2 + 1
-		indices.append_array([a, b, c, b, d, c])
+		# 4 Vértices do bloco (Trapezóide plano)
+		var v0 = Vector3(-w1, t1, 0)
+		var v1 = Vector3(w1, t1, 0)
+		var v2 = Vector3(-w2, t2, 0)
+		var v3 = Vector3(w2, t2, 0)
+		
+		var base_idx = verts.size()
+		verts.append_array([v0, v1, v2, v3])
+		
+		# Aplica a mesma cor aos 4 cantos para matar a suavização!
+		colors.append_array([col, col, col, col])
+		
+		# Desenha os dois triângulos que formam esse quadriculado
+		indices.append_array([base_idx, base_idx+1, base_idx+2, base_idx+1, base_idx+3, base_idx+2])
 	
 	var arrays := []
 	arrays.resize(Mesh.ARRAY_MAX)

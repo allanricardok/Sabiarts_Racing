@@ -315,3 +315,56 @@ func mostrar_timer():
 	if timer_label: 
 		timer_label.show()
 		timer_bg.show()
+
+# Cole isso dentro do seu script de HUD
+
+func splatter_blood_on_lens():
+	var splash_node = Control.new()
+	var vp_size = get_viewport().get_visible_rect().size
+	
+	# Posição fixa no topo esquerdo, as gotas se organizarão usando o tamanho real da tela
+	splash_node.position = Vector2.ZERO
+	add_child(splash_node)
+	
+	# Entre 6 e 12 marcas de sangue por atropelamento!
+	var drops = randi_range(6, 12) 
+	
+	for i in range(drops):
+		var drop = Panel.new()
+		
+		# O SEGREDO DO CÍRCULO/OVAL:
+		var style = StyleBoxFlat.new()
+		style.bg_color = Color(0.6, 0.0, 0.0, 0.85)
+		# Forçar um raio de 1024 em todos os cantos arredonda qualquer caixa num círculo/oval perfeito
+		style.corner_radius_top_left = 1024
+		style.corner_radius_top_right = 1024
+		style.corner_radius_bottom_right = 1024
+		style.corner_radius_bottom_left = 1024
+		drop.add_theme_stylebox_override("panel", style)
+		
+		# Variação agressiva de tamanho: 80% pequeno/médio, 20% Mancha Gigante
+		var size_val = randf_range(5.0, 25.0)
+		if randf() > 0.8:
+			size_val = randf_range(60.0, 180.0)
+			
+		# Torce levemente a proporção para virar formas ovais
+		var w = size_val * randf_range(0.7, 1.3)
+		var h = size_val * randf_range(0.7, 1.3)
+		drop.size = Vector2(w, h)
+		
+		# Distribui randomicamente pela tela (sem invadir muito as bordas extremas)
+		var cx = randf_range(vp_size.x * 0.05, vp_size.x * 0.95)
+		var cy = randf_range(vp_size.y * 0.05, vp_size.y * 0.95)
+		drop.position = Vector2(cx - w * 0.5, cy - h * 0.5)
+		
+		splash_node.add_child(drop)
+		
+		# Animação 1: O escorrimento do sangue na lente (Pingos caem em tempos diferentes)
+		var tween_drop = create_tween()
+		tween_drop.tween_property(drop, "position:y", drop.position.y + randf_range(20.0, 100.0), randf_range(1.5, 4.0)).set_ease(Tween.EASE_OUT)
+		
+	# Animação 2: O Fade-Out da tela
+	var tween = create_tween()
+	var delay = randf_range(0.5, 1.0)
+	tween.tween_property(splash_node, "modulate:a", 0.0, randf_range(1.5, 2.5)).set_delay(delay)
+	tween.chain().tween_callback(splash_node.queue_free)

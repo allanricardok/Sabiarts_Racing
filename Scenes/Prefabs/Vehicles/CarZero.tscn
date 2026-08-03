@@ -1,4 +1,4 @@
-[gd_scene load_steps=53 format=3 uid="uid://ry75iugdg8sl"]
+[gd_scene load_steps=54 format=3 uid="uid://ry75iugdg8sl"]
 
 [ext_resource type="Script" uid="uid://b0i2wvnkcrknc" path="res://Core/PlayerScripts/Functions/BaseVehicle.gd" id="1_drg00"]
 [ext_resource type="PackedScene" uid="uid://bp4khshtfj0rp" path="res://Scenes/Prefabs/Items/UniversalPickup.tscn" id="2_4a360"]
@@ -128,6 +128,10 @@ content_margin_bottom = 0.0
 bg_color = Color(18.892157, 18.892157, 18.892157, 1)
 corner_detail = 10
 
+[sub_resource type="Gradient" id="Gradient_glh28"]
+offsets = PackedFloat32Array(0, 0.19636364, 0.45454547, 1)
+colors = PackedColorArray(0.32, 0.8413335, 1, 1, 0.85, 0.96500003, 1, 1, 1, 0.8833333, 0, 1, 0.86, 0.48733333, 0, 1)
+
 [sub_resource type="Curve" id="Curve_y0tcj"]
 _data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.59800667, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
 point_count = 3
@@ -171,6 +175,7 @@ scatter_radius = 2.0
 shard_min_size = 2.0
 shard_max_size = 5.0
 speed_label = NodePath("HUD/UI_Base/SpeedLabel")
+blood_splash_distance = 25.0
 
 [node name="Visual" type="Node3D" parent="."]
 
@@ -1052,7 +1057,8 @@ max_polyphony = 5
 unique_name_in_owner = true
 script = ExtResource("28_y0tcj")
 ring_diameter = 6.6
-ring_color = Color(0.9109601, 0.80986893, 0, 0.28627452)
+ring_gradient = SubResource("Gradient_glh28")
+ring_segments = 7
 ring_count = 7
 ring_arc_degrees = 100.0
 ring_band_width = 0.2
