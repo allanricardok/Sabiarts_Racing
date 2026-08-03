@@ -1,4 +1,4 @@
-[gd_scene load_steps=50 format=3 uid="uid://ry75iugdg8sl"]
+[gd_scene load_steps=53 format=3 uid="uid://ry75iugdg8sl"]
 
 [ext_resource type="Script" uid="uid://b0i2wvnkcrknc" path="res://Core/PlayerScripts/Functions/BaseVehicle.gd" id="1_drg00"]
 [ext_resource type="PackedScene" uid="uid://bp4khshtfj0rp" path="res://Scenes/Prefabs/Items/UniversalPickup.tscn" id="2_4a360"]
@@ -27,11 +27,13 @@
 [ext_resource type="Script" uid="uid://dicgxfjk23y35" path="res://Core/PlayerScripts/Functions/Tricks/TrickManager.gd" id="17_tutdn"]
 [ext_resource type="Script" uid="uid://di8qqp2x2hico" path="res://Core/PlayerScripts/Functions/Tricks/GroundTrickManager.gd" id="18_kryjj"]
 [ext_resource type="Script" uid="uid://csrfk5ntkf731" path="res://Core/PlayerScripts/Functions/VehicleEffects.gd" id="19_drg00"]
+[ext_resource type="Script" uid="uid://bppqih0d65krw" path="res://Core/PlayerScripts/Functions/Tricks/TrickCometFX.gd" id="19_glh28"]
 [ext_resource type="Script" uid="uid://dtphvnh83nbxl" path="res://Core/PlayerScripts/Functions/Tricks/TrickBuilder.gd" id="19_xeif0"]
+[ext_resource type="Script" uid="uid://n7v83f04158v" path="res://Core/PlayerScripts/Functions/Tricks/TrickShockwaveBurstFX.gd" id="20_hsj1y"]
 [ext_resource type="Script" uid="uid://cdtih2m8pdfvb" path="res://Core/PlayerScripts/Functions/TargetingComponent.gd" id="20_mb2us"]
 [ext_resource type="Script" uid="uid://c6kscgps8kwls" path="res://Core/PlayerScripts/Functions/WeaponManager.gd" id="21_hifds"]
 [ext_resource type="Resource" uid="uid://cl6d44tjh6xry" path="res://Resources/Weapons/MachineGun.tres" id="22_3o2qt"]
-[ext_resource type="Script" uid="uid://dng74h24g4d8h" path="res://Core/PlayerScripts/Functions/Tricks/TrickTrailFX.gd" id="28_y0tcj"]
+[ext_resource type="Script" uid="uid://cie8v7vytopq5" path="res://Core/PlayerScripts/Functions/Tricks/TrickEnergyRingsFX.gd" id="28_y0tcj"]
 [ext_resource type="Script" uid="uid://cipoabink6um3" path="res://Core/PlayerScripts/Functions/WallRideComponent.gd" id="30_j5ts8"]
 [ext_resource type="Script" uid="uid://cre5uqt5tupo4" path="res://Core/PlayerScripts/Functions/UIScannerComponent.gd" id="31_ocy3r"]
 
@@ -125,6 +127,10 @@ content_margin_right = 0.0
 content_margin_bottom = 0.0
 bg_color = Color(18.892157, 18.892157, 18.892157, 1)
 corner_detail = 10
+
+[sub_resource type="Curve" id="Curve_y0tcj"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.59800667, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
 
 [sub_resource type="BoxMesh" id="BoxMesh_625mm"]
 size = Vector3(0.1, 0.1, 0.5)
@@ -1042,6 +1048,43 @@ autowrap_mode = 2
 volume_db = -8.62
 max_polyphony = 5
 
+[node name="TrickTrailFX" type="Node3D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("28_y0tcj")
+ring_diameter = 6.6
+ring_color = Color(0.9109601, 0.80986893, 0, 0.28627452)
+ring_count = 7
+ring_arc_degrees = 100.0
+ring_band_width = 0.2
+ring_tilt_variation = 0.0
+fade_speed = 15.0
+ring_spin_speed_start = 3000.0
+ring_spin_speed_end = 200.0
+ring_oval_ratio = 0.6
+ring_tip_misalign_radial = 0.2
+ring_thickness_curve = SubResource("Curve_y0tcj")
+organic_mesh_noise = 0.0
+
+[node name="TrickCometTailFX" type="Node3D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("19_glh28")
+flip_forward_axis = true
+streak_length_max = 6.0
+streak_duration = 0.2
+
+[node name="TrickShockwaveBurstFX" type="Node3D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("20_hsj1y")
+streak_count = 4
+streak_length_min = 3.5
+streak_length_max = 8.0
+streak_width = 2.0
+streak_duration = 0.7
+spread_degrees = 13.0
+origin_offset = Vector3(0, 1, 0)
+color_mid = Color(1, 0.6166667, 0, 1)
+color_tip = Color(1, 0.58000004, 0.100000024, 0.32156864)
+
 [node name="Scripts" type="Node" parent="."]
 
 [node name="RageComponent" type="Node" parent="Scripts"]
@@ -1105,14 +1148,6 @@ script = ExtResource("18_kryjj")
 [node name="TrickBuilder" type="Node" parent="Scripts"]
 unique_name_in_owner = true
 script = ExtResource("19_xeif0")
-
-[node name="TrickTrailFX" type="Node" parent="Scripts"]
-unique_name_in_owner = true
-script = ExtResource("28_y0tcj")
-trail_diameter = 3.0
-trail_color = Color(1, 1, 1, 1)
-trail_width = 0.2
-trail_fade_time = 0.3
 
 [node name="WallRideComponent" type="Node" parent="Scripts"]
 unique_name_in_owner = true

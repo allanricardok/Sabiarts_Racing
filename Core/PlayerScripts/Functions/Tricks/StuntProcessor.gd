@@ -27,6 +27,7 @@ var last_basis : Basis
 var stunt_timeout := 0.0
 var trickdone := false
 var is_invincible := false
+signal special_trick_triggered(trick_id: String)  # <-- ADICIONE ESTA LINHA no topo
 
 # --- CONTADORES DO FIREBALL ---
 var fireball_combo_count : int = 0
@@ -47,10 +48,8 @@ func initiate_stunt(axis: Vector3, trick_id: String):
 	current_trick_id = trick_id
 	var p_mult = _get_power_mult(trick_id)
 	
-	# --- TRUQUES ESPECIAIS COM CUSTO ---
 	if trick_id == "FIREBALL" or trick_id == "SHOCKWAVE":
 		
-		# --- BLOQUEIO DE 3 FIREBALLS NO AR ---
 		if trick_id == "FIREBALL":
 			if fireball_combo_count >= 3:
 				_emitir_falha_energia()
@@ -60,6 +59,7 @@ func initiate_stunt(axis: Vector3, trick_id: String):
 			car.play_camera_shake("Stunt")
 			_confirm_trick_success()
 			_apply_instant_physics(trick_id)
+			special_trick_triggered.emit(trick_id)   # <-- ADICIONE ESTA LINHA
 		else:
 			_emitir_falha_energia()
 		return

@@ -1,0 +1,161 @@
+extends Node3D
+class_name TrickCometTailFX
+
+# ============================================================================
+# Cauda de cometa/bola de fogo pro trick FIREBALL. Dispara um leque de
+# labaredas retas saindo de baixo do carro, ~45° pra trás/baixo, toda vez
+# que o StuntProcessor emite "special_trick_triggered" com "FIREBALL".
+# ============================================================================
+
+@onready var car = owner as VehicleBody3D
+
+@export_group("Direção")
+## Se a cauda sair pela FRENTE do carro em vez de por trás, marque isso
+## pra inverter qual eixo local é tratado como "traseira"
+@export var flip_forward_axis : bool = false
+## Ângulo de espalhamento (cone) entre as labaredas, em graus
+@export var spread_degrees : float = 13.0
+## Origem local em relação ao centro do carro (X=lateral, Y=altura, Z=frente/trás)
+@export var origin_offset : Vector3 = Vector3(0, -0.3, 0)
+
+@export_group("Labaredas")
+@export var streak_count : int = 4
+@export var streak_length_min : float = 3.5
+@export var streak_length_max : float = 8.0
+@export var streak_width : float = 2.0
+@export var streak_duration : float = 0.7
+## Cor perto do carro (núcleo quente - Azul Claro)
+@export var color_hot : Color = Color(0.68, 0.93, 1.0)
+## Cor no meio da labareda (Laranja)
+@export var color_mid : Color = Color(1.0, 0.6, 0.0)
+## Cor na ponta (já apagando — deixe alpha 0)
+@export var color_tip : Color = Color(1.0, 0.5, 0.0, 0.0)
+## Curva de largura ao longo da labareda. Vazio = formato de chama padrão.
+@export var width_curve : Curve
+
+const SEGMENTS := 10
+const POOL_SIZE := 24
+
+var _pool: Array[TrickBurstStreak] = []
+var _shared_mesh: ArrayMesh
+var _stunt_processor: Node = null
+
+func _ready() -> void:
+	top_level = true # segue só a POSIÇÃO do carro, nunca a rotação
+	_build_shared_mesh()
+	
+	for i in range(POOL_SIZE):
+		var s := TrickBurstStreak.new()
+		add_child(s)
+		s.visible = false
+		s.set_process(false)
+		_pool.append(s)
+	
+	# CORREÇÃO: Atrasa a conexão para garantir que os componentes de movimento já nasceram!
+	call_deferred("_conectar_sinais_com_atraso")
+
+func _conectar_sinais_com_atraso() -> void:
+	if is_instance_valid(car):
+		var air_move = car.get_node_or_null("%AirMovementComponent")
+		if not air_move:
+			air_move = car.find_child("AirMovementComponent", true, false)
+			
+		if is_instance_valid(air_move):
+			_stunt_processor = air_move.get("stunt_processor")
+			if is_instance_valid(_stunt_processor) and _stunt_processor.has_signal("special_trick_triggered"):
+				_stunt_processor.special_trick_triggered.connect(_on_special_trick)
+
+func _process(_delta: float) -> void:
+	if is_instance_valid(car):
+		global_position = car.global_position
+
+func _on_special_trick(trick_id: String) -> void:
+	if trick_id != "FIREBALL":
+		return
+	_burst()
+
+func _burst() -> void:
+	if not is_instance_valid(car):
+		return
+	
+	# Achata a componente vertical do "eixo traseiro" antes de misturar com
+	# DOWN — assim o ângulo fica sempre ~45° de verdade, mesmo se o carro
+	# estiver levemente inclinado no momento do disparo.
+	var back: Vector3 = car.global_transform.basis.z if not flip_forward_axis else -car.global_transform.basis.z
+	back.y = 0
+	if back.length() < 0.001:
+		back = Vector3.FORWARD
+	back = back.normalized()
+	var base_dir: Vector3 = (back + Vector3.DOWN).normalized() # bissetriz = 45°
+
+	var origin: Vector3 = car.global_position + car.global_transform.basis * origin_offset
+	for i in range(streak_count):
+		var s := _get_free_streak()
+		if not s: continue
+		var dir := _jitter_direction(base_dir, spread_degrees)
+		var length := randf_range(streak_length_min, streak_length_max)
+		s.launch(origin, dir, length, _shared_mesh, Color(1, 1, 1, 1), streak_duration * randf_range(0.85, 1.15))
+
+func _get_free_streak() -> TrickBurstStreak:
+	for s in _pool:
+		if not s.active:
+			return s
+	return null
+
+func _jitter_direction(base_dir: Vector3, cone_degrees: float) -> Vector3:
+	var right := base_dir.cross(Vector3.UP)
+	if right.length() < 0.01:
+		right = base_dir.cross(Vector3.RIGHT)
+	right = right.normalized()
+	var up := right.cross(base_dir).normalized()
+	
+	var yaw := deg_to_rad(randf_range(-cone_degrees, cone_degrees))
+	var pitch := deg_to_rad(randf_range(-cone_degrees, cone_degrees))
+	
+	var dir := base_dir.rotated(up, yaw)
+	dir = dir.rotated(right, pitch)
+	return dir.normalized()
+
+func _build_shared_mesh() -> void:
+	var curve := width_curve
+	if not curve:
+		curve = Curve.new()
+		curve.add_point(Vector2(0.0, 0.55))
+		curve.add_point(Vector2(0.1, 1.0))
+		curve.add_point(Vector2(0.4, 0.6))
+		curve.add_point(Vector2(1.0, 0.0))
+	
+	var verts := PackedVector3Array()
+	var colors := PackedColorArray()
+	var indices := PackedInt32Array()
+	
+	for i in range(SEGMENTS + 1):
+		var t := float(i) / float(SEGMENTS)
+		var w: float = (curve.sample(t) * streak_width) * 0.5
+		
+		var col: Color
+		if t < 0.5:
+			col = color_hot.lerp(color_mid, t * 2.0)
+		else:
+			col = color_mid.lerp(color_tip, (t - 0.5) * 2.0)
+		
+		verts.append(Vector3(-w, t, 0))
+		verts.append(Vector3(w, t, 0))
+		colors.append(col)
+		colors.append(col)
+	
+	for i in range(SEGMENTS):
+		var a := i * 2
+		var b := i * 2 + 1
+		var c := (i + 1) * 2
+		var d := (i + 1) * 2 + 1
+		indices.append_array([a, b, c, b, d, c])
+	
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = verts
+	arrays[Mesh.ARRAY_COLOR] = colors
+	arrays[Mesh.ARRAY_INDEX] = indices
+	
+	_shared_mesh = ArrayMesh.new()
+	_shared_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
