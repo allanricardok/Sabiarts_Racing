@@ -151,6 +151,7 @@ func _execute_jump():
 	_start_cooldown()
 
 func _execute_boost():
+	# Aviso para a UI pode continuar global, pois a UI do jogador filtra ou gerencia isso
 	get_tree().call_group("TutorialUI", "complete_task", "turbo")
 	current_energy -= COST_BOOST
 	var mult = stats.speed_multiplier if stats else 1.0
@@ -161,37 +162,35 @@ func _execute_boost():
 	if cam and cam.has_method("apply_turbo_kickback"):
 		cam.apply_turbo_kickback()
 	
-	# === 1. LIGA A SEQUÊNCIA DE FOGO DO EXHAUST ===
-	# Nós vamos encadear 5 chamadas. A primeira é imediata. 
-	# As próximas 4 são agendadas para o futuro usando timers rápidos.
-	
-	# Burst 1 (Imediato - 50%)
-	get_tree().call_group("turbo_fx", "burst_fire_sequenced", 0.5) 
+	# === 1. LIGA A SEQUÊNCIA DE FOGO LOCALMENTE ===
+	# Em vez de gritar para o grupo global, chamamos a função exclusiva deste carro
+	_disparar_fogo_local(0.5) 
 
-	# Burst 2 (0.075s depois - 100%)
 	get_tree().create_timer(sequenced_burst_delay).timeout.connect(func():
-		get_tree().call_group("turbo_fx", "burst_fire_sequenced", 1.0)
+		_disparar_fogo_local(1.0)
 	)
-
-	# Burst 3 (0.150s depois - 75%)
 	get_tree().create_timer(sequenced_burst_delay * 2).timeout.connect(func():
-		get_tree().call_group("turbo_fx", "burst_fire_sequenced", 0.75)
+		_disparar_fogo_local(0.75)
 	)
-
-	# Burst 4 (0.225s depois - 50%)
 	get_tree().create_timer(sequenced_burst_delay * 3).timeout.connect(func():
-		get_tree().call_group("turbo_fx", "burst_fire_sequenced", 0.5)
+		_disparar_fogo_local(0.5)
 	)
-
-	# Burst 5 (0.300s depois - 25%)
 	get_tree().create_timer(sequenced_burst_delay * 4).timeout.connect(func():
-		get_tree().call_group("turbo_fx", "burst_fire_sequenced", 0.25)
+		_disparar_fogo_local(0.25)
 	)
 	# ===============================================
 
 	# === 2. FÍSICA ===
 	car.apply_central_impulse(car.global_transform.basis.z * BOOST_IMPULSE * mult * car.mass)
 	_start_cooldown()
+
+# NOVA FUNÇÃO AUXILIAR: Procura o nó de fogo APENAS dentro dos filhos deste carro específico
+func _disparar_fogo_local(multiplicador: float):
+	# Procura nós com a classe/script "TurboCometFX" que sejam filhos deste veículo
+	var meus_efeitos = car.find_children("*", "TurboCometFX", true, false)
+	for fx in meus_efeitos:
+		if fx.has_method("burst_fire_sequenced"):
+			fx.burst_fire_sequenced(multiplicador)
 
 func _execute_teleport():
 	var teleport_markers = get_tree().get_nodes_in_group("AbilityTeleport")

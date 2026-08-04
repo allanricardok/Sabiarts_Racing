@@ -4,6 +4,74 @@ extends Node3D
 @onready var grid = $GridContainer 
 @onready var spawn_points = %SpawnPoints
 
+# Referenciamos os Viewports DIRETAMENTE
+@onready var sub_viewports = [
+	$GridContainer/Cont_P1/View_P1,
+	$GridContainer/Cont_P2/View_P2,
+	$GridContainer/Cont_P3/View_P3,
+	$GridContainer/Cont_P4/View_P4
+]
+
+var ps1_material = preload("res://Core/Shaders/2DPixelShader.tres")
+
+# Variáveis para a memória dos botões
+var ps1_map_active: bool = false
+var ps1_ui_active: bool = false
+var canvas_layer_ui: CanvasLayer = null 
+
+func aplicar_shader_ps1(afetar_ui: bool, ativar: bool):
+	# Atualiza a memória de qual botão está ligado/desligado
+	if afetar_ui:
+		ps1_ui_active = ativar
+	else:
+		ps1_map_active = ativar
+
+	# ====================================================================
+	# 1. FAXINA GERAL (Apaga todos os shaders para evitar sobreposição)
+	# ====================================================================
+	if is_instance_valid(canvas_layer_ui):
+		canvas_layer_ui.queue_free()
+		canvas_layer_ui = null
+		
+	for vp in sub_viewports:
+		if vp == null: continue
+		var old_shader = vp.get_node_or_null("PS1_Map_Layer")
+		if is_instance_valid(old_shader):
+			old_shader.queue_free()
+
+	# ====================================================================
+	# 2. APLICA O SHADER CORRETO (O botão "Tudo" tem prioridade máxima)
+	# ====================================================================
+	if ps1_ui_active:
+		# Pega TUDO de uma vez (Mapa, UI do carro e Menus). Layer 100
+		canvas_layer_ui = CanvasLayer.new()
+		canvas_layer_ui.layer = 100 
+		
+		var cr = ColorRect.new()
+		cr.set_anchors_preset(Control.PRESET_FULL_RECT)
+		cr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		cr.material = ps1_material
+		
+		canvas_layer_ui.add_child(cr)
+		add_child(canvas_layer_ui)
+		
+	elif ps1_map_active:
+		# Pega APENAS o mapa (Fica atrás da UI do carro). Layer -1
+		for vp in sub_viewports:
+			if vp == null: continue
+			
+			var cl = CanvasLayer.new()
+			cl.name = "PS1_Map_Layer"
+			cl.layer = -1 
+			
+			var cr = ColorRect.new()
+			cr.set_anchors_preset(Control.PRESET_FULL_RECT)
+			cr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			cr.material = ps1_material
+			
+			cl.add_child(cr)
+			vp.add_child(cl)
+
 func _ready():
 	_configurar_tela_e_spawn()
 	_auto_categorizar_objetos()

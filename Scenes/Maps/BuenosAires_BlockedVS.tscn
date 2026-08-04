@@ -887,7 +887,7 @@ albedo_color = Color(1.0444838, 1.0444838, 0, 1)
 material = SubResource("StandardMaterial3D_i3s4m")
 size = Vector3(3, 1.8, 0.2)
 
-[node name="BA-block" type="Node3D"]
+[node name="BA-block" type="Node3D" groups=["mapa"]]
 script = ExtResource("1_u8o8m")
 
 [node name="GridContainer" type="GridContainer" parent="."]
@@ -909,7 +909,7 @@ handle_input_locally = false
 size = Vector2i(912, 1026)
 render_target_update_mode = 4
 
-[node name="PS1Shader" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1" groups=["ps1_shaders"]]
+[node name="EX_PS1Shader" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1"]
 visible = false
 material_override = SubResource("ShaderMaterial_tqs36")
 extra_cull_margin = 16384.0

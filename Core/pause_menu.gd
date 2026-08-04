@@ -288,7 +288,7 @@ func _on_end_match_btn_pressed():
 	if controller and controller.has_method("encerrar_partida"):
 		controller.encerrar_partida()
 
-func _process(_delta):
+func _process(delta):
 	if visible:
 		for esquema in ["K1", "J1", "J2", "J3", "J4"]:
 			if Input.is_action_just_pressed("Action_" + esquema):
@@ -296,4 +296,12 @@ func _process(_delta):
 				if focused_node is OptionButton:
 					focused_node.show_popup()
 				elif focused_node is Button:
-					focused_node.pressed.emit()
+					focused_node.pressed.emit() # Voltou a ser exatamente o que você tinha!
+
+# Conectado ao TogglePS1Btn (Apenas Mapa)
+func _on_toggle_ps1_btn_toggled(toggled_on: bool):
+	get_tree().call_group("mapa", "aplicar_shader_ps1", false, toggled_on)
+
+# Conectado ao TogglePS1BtnUI (Tela Cheia)
+func _on_toggle_ps1_btn_ui_toggled(toggled_on: bool):
+	get_tree().call_group("mapa", "aplicar_shader_ps1", true, toggled_on)

@@ -39,7 +39,6 @@ func _ready() -> void:
 	# REMOVIDO o top_level = true! Agora ele é um filho normal do carro
 	# e vai rotacionar e se mover grudado nele.
 	
-	add_to_group("turbo_fx")
 	_build_shared_mesh()
 	
 	for i in range(POOL_SIZE):

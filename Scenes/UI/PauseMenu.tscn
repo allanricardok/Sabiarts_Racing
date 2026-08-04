@@ -159,8 +159,8 @@ alignment = 2
 unique_name_in_owner = true
 layout_mode = 2
 focus_neighbor_top = NodePath("../EndMatchBtn")
-focus_neighbor_bottom = NodePath("../ResumeBtn")
-focus_next = NodePath("../ResumeBtn")
+focus_neighbor_bottom = NodePath("../TogglePS1BtnUI")
+focus_next = NodePath("../TogglePS1BtnUI")
 focus_previous = NodePath("../EndMatchBtn")
 theme_override_colors/icon_normal_color = Color(0, 0, 0, 1)
 theme_override_colors/icon_focus_color = Color(0, 0.1764706, 0, 1)
@@ -170,6 +170,23 @@ theme_override_fonts/font = ExtResource("2_etnfi")
 theme_override_font_sizes/font_size = 32
 theme_override_styles/focus = SubResource("StyleBoxFlat_n4i8v")
 text = "PS1 Graphics"
+alignment = 2
+
+[node name="TogglePS1BtnUI" type="CheckButton" parent="Control/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_neighbor_top = NodePath("../TogglePS1Btn")
+focus_neighbor_bottom = NodePath("../ResumeBtn")
+focus_next = NodePath("../ResumeBtn")
+focus_previous = NodePath("../TogglePS1Btn")
+theme_override_colors/icon_normal_color = Color(0, 0, 0, 1)
+theme_override_colors/icon_focus_color = Color(0, 0.1764706, 0, 1)
+theme_override_colors/icon_pressed_color = Color(0, 0.43529412, 0, 1)
+theme_override_colors/icon_hover_color = Color(0, 0.09411765, 0, 1)
+theme_override_fonts/font = ExtResource("2_etnfi")
+theme_override_font_sizes/font_size = 32
+theme_override_styles/focus = SubResource("StyleBoxFlat_n4i8v")
+text = "PS1 Graphics affects UI?"
 alignment = 2
 
 [node name="ScrollContainer" type="ScrollContainer" parent="Control"]
@@ -191,3 +208,5 @@ layout_mode = 2
 [connection signal="pressed" from="Control/VBoxContainer/ResetMissionBtn" to="." method="_on_reset_mission_btn_pressed"]
 [connection signal="pressed" from="Control/VBoxContainer/CameraSelectBtn" to="." method="_on_camera_select_btn_pressed"]
 [connection signal="pressed" from="Control/VBoxContainer/EndMatchBtn" to="." method="_on_end_match_btn_pressed"]
+[connection signal="toggled" from="Control/VBoxContainer/TogglePS1Btn" to="." method="_on_toggle_ps1_btn_toggled"]
+[connection signal="toggled" from="Control/VBoxContainer/TogglePS1BtnUI" to="." method="_on_toggle_ps1_btn_ui_toggled"]
