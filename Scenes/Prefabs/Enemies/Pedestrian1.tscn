@@ -36,6 +36,7 @@ collision_mask = 3
 script = ExtResource("1_pv5kd")
 base_speed = 7.0
 blood_splash_distance = 20.0
+blood_stain_scale = 5.0
 max_wander_radius = 100.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]

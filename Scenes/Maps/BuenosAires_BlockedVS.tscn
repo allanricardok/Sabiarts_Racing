@@ -927,7 +927,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -4, 0)
 mesh = SubResource("BoxMesh_a70xh")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Floor"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -3, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.89, 0)
 shape = SubResource("ConvexPolygonShape3D_hvv5t")
 
 [node name="SpawnPoints" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]

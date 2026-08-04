@@ -1085,7 +1085,6 @@ ring_count = 9
 ring_arc_degrees = 100.0
 ring_vertical_offset = 0.2
 ring_tilt_variation = 0.0
-fade_speed = 15.0
 ring_spin_speed_start = 3000.0
 ring_spin_speed_end = 200.0
 ring_oval_ratio = 0.6

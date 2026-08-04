@@ -208,10 +208,27 @@ func request_mission_start(portal: StoryMissionPortal, data: StoryMissionData):
 	active_portal = portal
 	current_mission = data
 	
+	# Garante que a morte do jogador reprove a missão ativa
+	_conectar_morte_jogador()
+	
 	if mission_ui and mission_ui.has_method("show_mission_prompt"):
 		mission_ui.show_mission_prompt(data, self)
 	else:
 		push_error("[StoryController] UI da missão não configurada!")
+		
+func _conectar_morte_jogador():
+	# Busca o carro do player através do grupo que você já usa no portal
+	var players = get_tree().get_nodes_in_group("jogadores")
+	for p in players:
+		var stats = p.find_child("StatsComponent*", true, false)
+		# Conecta o sinal health_depleted (que envia o attacker) para a nossa nova função
+		if stats and not stats.is_connected("health_depleted", _on_player_died):
+			stats.health_depleted.connect(_on_player_died)
+
+func _on_player_died(_attacker):
+	if is_mission_running:
+		print("[StoryController] O jogador foi destruído! Encerrando a missão com falha...")
+		end_mission(false)
 
 func accept_mission():
 	lifecycle.accept_mission()
