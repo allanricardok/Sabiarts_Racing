@@ -33,6 +33,22 @@ var air_mode_weight : float = 0.0
 @onready var input = car.get_node("%InputComponent")
 @onready var trick_manager = car.get_node("%TrickManager")
 
+@export_group("Efeitos de Velocidade e Turbo")
+@export var speed_pullback_max := 2.0 
+@export var speed_pullback_min_kmh := 40.0
+@export var speed_pullback_max_kmh := 150.0
+@export var reverse_pullback_mult := 0.2 
+@export var turbo_kickback_recovery := 0.8 
+
+# === NOVOS CONTROLES DO TURBO ===
+## Força do tranco da câmera para trás no momento do turbo
+@export var turbo_kickback_force := 3.0 
+## Quantidade extra de FOV (abertura de lente) durante o turbo
+@export var turbo_fov_increase := 20.0 
+
+var current_turbo_kickback := 0.0
+var current_turbo_fov := 0.0
+
 var air_move : Node = null
 var default_target_offset : Vector3
 
@@ -76,6 +92,12 @@ func set_camera_mode(mode: int):
 func _physics_process(delta):
 	if not car or not target_node or not air_move or not input: return
 
+	# =================================================================
+	# 1. ATUALIZA O EFEITO DO TURBO PRIMEIRO (Afeta todas as câmeras)
+	# =================================================================
+	current_turbo_kickback = lerp(current_turbo_kickback, 0.0, delta * turbo_kickback_recovery)
+	current_turbo_fov = lerp(current_turbo_fov, 0.0, delta * turbo_kickback_recovery)
+
 	# --- CÂMERA DO CAPÔ (MÓDULO RÍGIDO) ---
 	if current_camera_mode == 1:
 		var hood_global = car.global_transform * default_target_offset
@@ -87,8 +109,11 @@ func _physics_process(delta):
 		else:
 			look_at(hood_global + (car.global_transform.basis.z * 10.0), Vector3.UP)
 			
+		# O FOV da câmera do capô agora reage ao Turbo!
 		var spd = car.linear_velocity.length()
-		fov = lerpf(fov, remap(clamp(spd, 0, 60), 0, 100, 100, 100), 0.1)
+		var base_fov = remap(clamp(spd, 0, 60), 0, 100, 100, 100)
+		fov = lerpf(fov, base_fov + current_turbo_fov, 0.1)
+		
 		return # Encerra o script aqui! A física de transição normal não roda no modo capô.
 
 	# --- CÂMERA NORMAL E LONGE ---
@@ -133,6 +158,24 @@ func _physics_process(delta):
 	target_local_pos.y += clamp(offset_y, min_local_y, max_local_y)
 	target_local_pos.z -= offset_y * 0.5 
 	
+	# =================================================================
+	# RECUO POR VELOCIDADE E SOCO DO TURBO
+	# =================================================================
+	var forward_vel = car.global_transform.basis.z.dot(car.linear_velocity)
+	var speed_kmh = abs(forward_vel) * 2.3
+	
+	var is_reversing = forward_vel < -1.0
+	
+	var speed_offset = 0.0
+	if speed_kmh > speed_pullback_min_kmh:
+		speed_offset = clamp(remap(speed_kmh, speed_pullback_min_kmh, speed_pullback_max_kmh, 0.0, speed_pullback_max), 0.0, speed_pullback_max)
+		if is_reversing:
+			speed_offset *= reverse_pullback_mult 
+			
+	# Soma a velocidade com o turbo e subtrai (afasta a câmera no seu sistema)
+	target_local_pos.z -= (speed_offset + current_turbo_kickback)
+	# =================================================================
+	
 	var final_local_pos : Vector3
 	if is_looking_back:
 		final_local_pos = target_local_pos
@@ -157,4 +200,10 @@ func _physics_process(delta):
 	look_at(car.global_position + Vector3.UP * look_offset, Vector3.UP)
 	
 	var speed = car.linear_velocity.length()
-	fov = lerpf(fov, remap(clamp(speed, 0, 60), 0, 100, 100, 100), 0.1)
+	# FOV reage ao Turbo também nas câmeras externas
+	var base_fov = remap(clamp(speed, 0, 60), 0, 100, 100, 100) 
+	fov = lerpf(fov, base_fov + current_turbo_fov, 0.1)
+	
+func apply_turbo_kickback():
+	current_turbo_kickback = turbo_kickback_force
+	current_turbo_fov = turbo_fov_increase

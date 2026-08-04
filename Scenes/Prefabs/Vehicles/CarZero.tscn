@@ -1,4 +1,4 @@
-[gd_scene load_steps=54 format=3 uid="uid://ry75iugdg8sl"]
+[gd_scene load_steps=55 format=3 uid="uid://ry75iugdg8sl"]
 
 [ext_resource type="Script" uid="uid://b0i2wvnkcrknc" path="res://Core/PlayerScripts/Functions/BaseVehicle.gd" id="1_drg00"]
 [ext_resource type="PackedScene" uid="uid://bp4khshtfj0rp" path="res://Scenes/Prefabs/Items/UniversalPickup.tscn" id="2_4a360"]
@@ -25,8 +25,9 @@
 [ext_resource type="Script" uid="uid://o8qqxsyxuixf" path="res://Core/PlayerScripts/Functions/Tricks/StuntProcessor.gd" id="16_hsj1y"]
 [ext_resource type="Script" uid="uid://kw65g7ldn6oi" path="res://Core/PlayerScripts/Functions/WeaponWheel.gd" id="16_ocy3r"]
 [ext_resource type="Script" uid="uid://dicgxfjk23y35" path="res://Core/PlayerScripts/Functions/Tricks/TrickManager.gd" id="17_tutdn"]
+[ext_resource type="Script" uid="uid://bjm3nj41ocqj6" path="res://Core/PlayerScripts/Functions/FX/TurboCometFX.gd" id="18_hsj1y"]
 [ext_resource type="Script" uid="uid://di8qqp2x2hico" path="res://Core/PlayerScripts/Functions/Tricks/GroundTrickManager.gd" id="18_kryjj"]
-[ext_resource type="Script" uid="uid://csrfk5ntkf731" path="res://Core/PlayerScripts/Functions/VehicleEffects.gd" id="19_drg00"]
+[ext_resource type="Script" uid="uid://csrfk5ntkf731" path="res://Core/PlayerScripts/Functions/FX/VehicleEffects.gd" id="19_drg00"]
 [ext_resource type="Script" uid="uid://bppqih0d65krw" path="res://Core/PlayerScripts/Functions/Tricks/TrickCometFX.gd" id="19_glh28"]
 [ext_resource type="Script" uid="uid://dtphvnh83nbxl" path="res://Core/PlayerScripts/Functions/Tricks/TrickBuilder.gd" id="19_xeif0"]
 [ext_resource type="Script" uid="uid://n7v83f04158v" path="res://Core/PlayerScripts/Functions/Tricks/TrickShockwaveBurstFX.gd" id="20_hsj1y"]
@@ -188,8 +189,11 @@ near = 0.392
 far = 480.0
 script = ExtResource("2_37r4d")
 follow_speed_lateral = 6.0
-follow_speed_depth = 35.0
+follow_speed_depth = 30.0
 follow_speed_vertical = 35.0
+speed_pullback_max = 1.8
+turbo_kickback_force = 0.8
+turbo_fov_increase = 12.0
 
 [node name="CameraShake" type="Node" parent="Camera3D"]
 script = ExtResource("6_mafvn")
@@ -1053,15 +1057,33 @@ autowrap_mode = 2
 volume_db = -8.62
 max_polyphony = 5
 
+[node name="TurboMarkers" type="Node3D" parent="."]
+script = ExtResource("18_hsj1y")
+spawn_markers = Array[NodePath]([NodePath("Marker3D"), NodePath("Marker3D2")])
+flip_marker_direction = true
+streak_count = 5
+streak_length_min = 2.0
+streak_length_max = 3.0
+streak_width = 1.0
+streak_duration = 0.6
+spread_degrees = 5.0
+streak_segments = 8
+
+[node name="Marker3D" type="Marker3D" parent="TurboMarkers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0.42, -2.568)
+
+[node name="Marker3D2" type="Marker3D" parent="TurboMarkers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0.42, -2.568)
+
 [node name="TrickTrailFX" type="Node3D" parent="."]
 unique_name_in_owner = true
 script = ExtResource("28_y0tcj")
-ring_diameter = 6.6
+ring_diameter = 7.5
 ring_gradient = SubResource("Gradient_glh28")
 ring_segments = 7
-ring_count = 7
+ring_count = 9
 ring_arc_degrees = 100.0
-ring_band_width = 0.2
+ring_vertical_offset = 0.2
 ring_tilt_variation = 0.0
 fade_speed = 15.0
 ring_spin_speed_start = 3000.0
@@ -1075,16 +1097,20 @@ organic_mesh_noise = 0.0
 unique_name_in_owner = true
 script = ExtResource("19_glh28")
 flip_forward_axis = true
-streak_length_max = 6.0
-streak_duration = 0.2
+spread_degrees = 10.0
+streak_length_min = 4.0
+streak_length_max = 7.0
+streak_width = 2.5
+streak_duration = 0.4
+streak_segments = 8
 
 [node name="TrickShockwaveBurstFX" type="Node3D" parent="."]
 unique_name_in_owner = true
 script = ExtResource("20_hsj1y")
 streak_count = 4
-streak_length_min = 3.5
+streak_length_min = 4.0
 streak_length_max = 8.0
-streak_width = 2.0
+streak_width = 2.5
 streak_duration = 0.7
 spread_degrees = 13.0
 origin_offset = Vector3(0, 1, 0)

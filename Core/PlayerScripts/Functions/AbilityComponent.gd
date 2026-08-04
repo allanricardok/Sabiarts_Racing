@@ -33,6 +33,9 @@ var shield_material : StandardMaterial3D
 @export var BOOST_IMPULSE : float = 65.0
 @export var SHIELD_TIME : float = 2.5
 
+## Tempo (bem rápido) entre os 5 aparecimentos do flicker de fogo do turbo
+@export var sequenced_burst_delay : float = 0.08
+
 # --- LÓGICA DE COMBO (TAP + HOLD) ---
 var _was_attribute_pressed : bool = false
 var tap_count : int = 0
@@ -151,7 +154,42 @@ func _execute_boost():
 	get_tree().call_group("TutorialUI", "complete_task", "turbo")
 	current_energy -= COST_BOOST
 	var mult = stats.speed_multiplier if stats else 1.0
+	
+	# === EFEITOS DE CÂMERA E SHAKE ===
 	car.play_camera_shake("Turbo")
+	var cam = car.find_child("Camera3D", true, false)
+	if cam and cam.has_method("apply_turbo_kickback"):
+		cam.apply_turbo_kickback()
+	
+	# === 1. LIGA A SEQUÊNCIA DE FOGO DO EXHAUST ===
+	# Nós vamos encadear 5 chamadas. A primeira é imediata. 
+	# As próximas 4 são agendadas para o futuro usando timers rápidos.
+	
+	# Burst 1 (Imediato - 50%)
+	get_tree().call_group("turbo_fx", "burst_fire_sequenced", 0.5) 
+
+	# Burst 2 (0.075s depois - 100%)
+	get_tree().create_timer(sequenced_burst_delay).timeout.connect(func():
+		get_tree().call_group("turbo_fx", "burst_fire_sequenced", 1.0)
+	)
+
+	# Burst 3 (0.150s depois - 75%)
+	get_tree().create_timer(sequenced_burst_delay * 2).timeout.connect(func():
+		get_tree().call_group("turbo_fx", "burst_fire_sequenced", 0.75)
+	)
+
+	# Burst 4 (0.225s depois - 50%)
+	get_tree().create_timer(sequenced_burst_delay * 3).timeout.connect(func():
+		get_tree().call_group("turbo_fx", "burst_fire_sequenced", 0.5)
+	)
+
+	# Burst 5 (0.300s depois - 25%)
+	get_tree().create_timer(sequenced_burst_delay * 4).timeout.connect(func():
+		get_tree().call_group("turbo_fx", "burst_fire_sequenced", 0.25)
+	)
+	# ===============================================
+
+	# === 2. FÍSICA ===
 	car.apply_central_impulse(car.global_transform.basis.z * BOOST_IMPULSE * mult * car.mass)
 	_start_cooldown()
 
