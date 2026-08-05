@@ -53,3 +53,20 @@ func _process(delta: float) -> void:
 	
 	var t := life_timer / duration
 	_mat.albedo_color.a = clamp(t * 0.85, 0.0, 0.85)
+
+func set_texture(tex: Texture2D) -> void:
+	if not _mat:
+		_mat = StandardMaterial3D.new()
+		_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		_mat.blend_mode = BaseMaterial3D.BLEND_MODE_MIX 
+		_mat.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+		
+		# O SEGREDO DO TAMANHO: Impede o billboard de ignorar a escala do Node
+		_mat.billboard_keep_scale = true 
+		
+		_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+		_mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+		material_override = _mat
+		
+	_mat.albedo_texture = tex

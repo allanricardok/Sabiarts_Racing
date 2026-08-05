@@ -17,6 +17,9 @@ size = Vector3(1, 0.6642456, 1)
 collision_layer = 8
 collision_mask = 3
 script = ExtResource("1_n5kv7")
+explosion_smoke_size = 5.0
+launch_smoke_size = 0.0
+base_shake_force = 0.5
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0.1711868, 0)

@@ -1,77 +1,71 @@
 # Missile.gd
-extends Area3D
+extends BaseProjectile
 
-@export_group("Física de Combate")
+@export_group("Física do Míssil")
 @export var speed = 80.0
 @export var steering_force = 18.0 
-## Define a força do solavanco que o alvo sofre ao ser atingido pelo míssil
-@export var knockback_force: float = 1500.0
 
-var is_shot_backwards: bool = false # <--- Recebe a ordem direta do WeaponManager
+# ============================================================================
+# EFEITOS VISUAIS
+# ============================================================================
+@export_group("Efeitos da Explosão Final")
+@export var explosion_color : Color = Color(1.0, 0.5, 0.0)
+@export var explosion_size : float = 15.0 
+@export var explosion_particles : int = 15
+@export var explosion_smoke_size : float = 20.0 
+@export var explosion_smoke_color : Color = Color(0.1, 0.1, 0.1, 1.0)
+@export var fire_duration : float = 1.0 # NOVO: Tempo do fogo na tela!
 
-var damage = 1.0
+@export_group("Efeitos de Lançamento")
+@export var launch_smoke_size : float = 4.0
+@export var launch_smoke_color : Color = Color(0.7, 0.7, 0.7, 1.0)
 
-var velocity = Vector3.ZERO
 var target : Node3D = null
-var shooter : Node3D = null 
-var can_explode : bool = false
-var time_alive : float = 0.0
-var is_special_weapon : bool = true # <--- ADICIONADO AQUI! (O Segredo!)
-# --- NOVO: A Trava de Segurança ---
-var has_exploded : bool = false 
 
 func _ready():
-	if not body_entered.is_connected(_on_body_entered):
-		body_entered.connect(_on_body_entered)
-	if not area_entered.is_connected(_on_area_entered):
-		area_entered.connect(_on_area_entered)
+	super._ready()
 
-func setup(dmg, shooter_vel, source_car, incoming_target = null):
-	damage = dmg
-	has_exploded = false
+# Sobrescrevemos o setup para aceitar o "incoming_target" do míssil
+func setup(dmg_value: float, car_velocity: Vector3, source_car: Node3D, propulsion_speed: float = 80.0, incoming_target: Node3D = null):
+	# O pai faz a matemática de inércia, tiros reversos e ativa o monitoramento
+	super.setup(dmg_value, car_velocity, source_car, propulsion_speed)
 	
-	# Blindagem de alvo
 	target = incoming_target if (is_instance_valid(incoming_target) and not incoming_target.is_queued_for_deletion()) else null
 		
-	if is_instance_valid(source_car):
-		shooter = source_car
-		
-		# A direção do míssil que o WeaponManager já arrumou
-		var forward_dir = -global_transform.basis.z.normalized()
-		var right_dir = global_transform.basis.x.normalized()
-		
-		# Se o tiro for reverso, inclinamos a ponta para cima para ele não bater no chão rápido demais
-		var tilt_angle = deg_to_rad(0) if not is_shot_backwards else deg_to_rad(0)
-		forward_dir = forward_dir.rotated(right_dir, tilt_angle).normalized()
-		
-		var propulsion = forward_dir * speed
-		
-		# --- FÍSICA LIMPA E OBJETIVA ---
-		if is_shot_backwards:
-			# Atirou para trás: o míssil usa só a própria força, ignorando a inércia que arrastava ele pra frente!
-			velocity = propulsion
-		else:
-			# Atirou para frente: soma a força do tiro com o embalo normal do carro.
-			velocity = propulsion + shooter_vel
-			
-		if velocity.length() > 0.1:
-			look_at(global_position + velocity.normalized(), Vector3.UP)
-			
-		var ignore_slowmo = source_car.is_in_group("jogadores")
-		get_tree().create_timer(5.0, false, false, ignore_slowmo).timeout.connect(_explode)
-	else:
-		queue_free()
+	# === EFEITO DE LANÇAMENTO (Apenas Fumaça) ===
+	if is_instance_valid(ExplosionManager):
+		ExplosionManager.explode(
+			global_position, 
+			launch_smoke_color, 
+			0.0,                # Tamanho do Fogo zerado
+			4,                  # Poucas partículas
+			0.0,                # Sem luz
+			launch_smoke_color, # Cor da Fumaça
+			launch_smoke_size,
+			0.2
+		)
 
 func _physics_process(delta):
+	# NOTA: Não chamamos o super._physics_process(delta) porque a movimentação 
+	# base é em linha reta, e o míssil precisa fazer curvas teleguiadas!
 	var real_delta = delta
 	if is_instance_valid(shooter) and shooter.is_in_group("jogadores"):
 		real_delta = delta / Engine.time_scale
 
-	time_alive += real_delta
-	if time_alive > 0.1: can_explode = true
+	# --- CRONÔMETRO DE RECICLAGEM ---
+	if life_timer > 0:
+		life_timer -= real_delta
+		if life_timer <= 0:
+			_deactivate_and_pool()
+			return
+			
+	if hit_done: return # Se bateu, congela no ar esperando a animação sumir
 	
-	if target and is_instance_valid(target):
+	# --- LÓGICA DE TELEGUIDO (HOMING) ---
+	if target and is_instance_valid(target) and not target.is_queued_for_deletion():
 		var target_pos = target.global_position
+		
+		# Detecção de impacto manual por proximidade (segurança contra mísseis muito rápidos)
 		if global_position.distance_to(target_pos) < 2.0:
 			_on_impact(target) 
 			return
@@ -86,43 +80,20 @@ func _physics_process(delta):
 	if velocity.length() > 0.1:
 		look_at(global_position + velocity, Vector3.UP)
 
-func _on_body_entered(body):
-	if not can_explode: return
-	_on_impact(body)
-
-func _on_area_entered(area):
-	if not can_explode: return
-	_on_impact(area)
-
-func _on_impact(target_node):
-	# --- CADEADO ATIVADO: Ignora impactos fantasmas ---
-	if has_exploded: return
-	
-	if not is_instance_valid(target_node): return
-	if target_node.is_queued_for_deletion(): return
-	
-	var actual_target = target_node
-	if target_node is Area3D:
-		if is_instance_valid(target_node.owner):
-			actual_target = target_node.owner
-		elif is_instance_valid(target_node.get_parent()):
-			actual_target = target_node.get_parent()
+func _play_impact_vfx():
+	# === A GRANDE EXPLOSÃO DO IMPACTO ===
+	if is_instance_valid(ExplosionManager):
+		ExplosionManager.explode(
+			global_position, 
+			explosion_color,         
+			explosion_size,          
+			explosion_particles,     
+			8.0,                     
+			explosion_smoke_color,   
+			explosion_smoke_size,
+			fire_duration            # Variável nova conectada!
+		)
 		
-	if is_instance_valid(shooter):
-		if actual_target == shooter or actual_target == shooter.owner: 
-			return
-
-	# TRANCA A PORTA PARA OS PRÓXIMOS HITS DO MESMO FRAME!
-	has_exploded = true
-
-	if actual_target.has_method("take_damage"):
-		actual_target.take_damage(damage, self)
-		
-	_explode()
-
-func _explode():
-	if not is_inside_tree() or not visible: return
-	set_deferred("monitoring", false)
-	visible = false
-	# TODO: Instanciar efeito de explosão aqui
-	queue_free()
+	# Chama o pai! Ele cuida de acionar o Camera Shake com a distância correta,
+	# frear o míssil, desativar a colisão, e acionar o timer pra devolver pro Pool.
+	super._play_impact_vfx()

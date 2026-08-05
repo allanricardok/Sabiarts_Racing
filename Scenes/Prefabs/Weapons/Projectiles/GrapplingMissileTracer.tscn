@@ -20,6 +20,7 @@ script = ExtResource("1_is2f3")
 steering_force = 18.0
 low_target_height_boost = 1.5
 knockback_force = 1000.0
+base_shake_force = 0.33
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("BoxMesh_vuh8p")

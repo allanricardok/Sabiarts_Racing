@@ -16,7 +16,7 @@ var velocity: Vector3 = Vector3.ZERO
 var spin: Vector3 = Vector3.ZERO
 var life_timer: float = 0.0
 var fade_time: float = 0.4
-var gravity: float = 11.76 # 9.8 + 20%
+var gravity: float = 15 # 9.8 + 20%
 var active: bool = false
 
 var _mat: StandardMaterial3D = null

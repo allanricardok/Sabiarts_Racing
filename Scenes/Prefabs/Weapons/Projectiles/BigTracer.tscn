@@ -17,7 +17,12 @@ size = Vector3(1.5893555, 1.4423828, 1)
 collision_layer = 8
 collision_mask = 3
 script = ExtResource("1_mkbs4")
+explosion_color = Color(1.3167266, 0.8833217, 0, 1)
+explosion_size = 50.0
+explosion_smoke_color = Color(0.36, 0.36, 0.36, 1)
+fire_duration = 0.33
 knockback_force = 7000.0
+base_shake_force = 2.0
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("BoxMesh_18icp")

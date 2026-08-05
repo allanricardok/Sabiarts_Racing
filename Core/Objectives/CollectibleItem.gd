@@ -45,14 +45,27 @@ func _on_body_entered(body):
 		# =======================================================
 		# NOVO: Instancia o efeito de Bebida se estiver ativado
 		# =======================================================
+# =======================================================
+		# NOVO: Instancia o efeito de Bebida apenas para quem coletou
+		# =======================================================
 		if causes_drunk_effect:
-			var drunk_node = DrunkEffect.new()
-			drunk_node.time_left = drunk_duration
-			drunk_node.max_intensity = drunk_max_intensity
-			drunk_node.fade_time = drunk_fade_time
-			drunk_node.camera = body.find_child("Camera3D", true, false)
+			var cam = body.find_child("Camera3D", true, false)
 			
-			get_tree().current_scene.add_child(drunk_node) 
+			# Se o corpo que encostou não tiver câmera direta (ex: colisores internos), 
+			# tentamos achar a câmera no owner ou no veículo base.
+			if not is_instance_valid(cam) and is_instance_valid(body.owner):
+				cam = body.owner.find_child("Camera3D", true, false)
+				
+			if is_instance_valid(cam):
+				var drunk_node = DrunkEffect.new()
+				drunk_node.time_left = drunk_duration
+				drunk_node.max_intensity = drunk_max_intensity
+				drunk_node.fade_time = drunk_fade_time
+				drunk_node.camera = cam # Vincula exclusivamente à câmera deste alvo
+				
+				get_tree().current_scene.add_child(drunk_node)
+			else:
+				print("[DEBUG-ITEM] Aviso: Tentou aplicar efeito de bebida em ", body.name, ", mas nenhuma Camera3D foi encontrada.")
 		# =======================================================
 		
 		if grants_teleport_key:

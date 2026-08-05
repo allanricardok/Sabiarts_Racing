@@ -211,33 +211,70 @@ func _spawn_debris() -> void:
 		push_warning("[DestructibleProp] DebrisManager não encontrado. Configure como Autoload.")
 		return
 	
-	var mesh_inst := _find_mesh_instance()
-	var mat: Material = null
-	var explosion_origin := global_position
+	var meshes = _get_all_mesh_instances()
 	
-	if mesh_inst:
-		explosion_origin = mesh_inst.global_position
+	if meshes.is_empty():
+		# Fallback de segurança caso o objeto seja invisível ou não tenha malhas
+		DebrisManager.explode(
+			global_position, null, shard_count, explosion_force,
+			upward_bias, shard_lifetime, scatter_radius, shard_min_size, shard_max_size
+		)
+		return
+		
+	# Para cada estilhaço que precisamos gerar, escolhemos um ponto aleatório
+	for i in range(shard_count):
+		# Escolhe uma malha aleatória do objeto (ex: pode cair no Tronco ou nas Folhas)
+		var mesh_inst = meshes[randi() % meshes.size()]
+		
+		var mat: Material = null
 		if mesh_inst.mesh:
 			mat = mesh_inst.get_active_material(0)
-	
-	DebrisManager.explode(
-		explosion_origin,
-		mat,
-		shard_count,
-		explosion_force,
-		upward_bias,
-		shard_lifetime,
-		scatter_radius,
-		shard_min_size,
-		shard_max_size
-	)
+			
+			# Calcula a caixa delimitadora (AABB) da malha para saber o volume dela
+			var aabb = mesh_inst.mesh.get_aabb()
+			
+			# Sorteia um ponto perfeitamente dentro desse volume no espaço LOCAL
+			var random_local_pos = aabb.position + Vector3(
+				randf() * aabb.size.x,
+				randf() * aabb.size.y,
+				randf() * aabb.size.z
+			)
+			
+			# Converte esse ponto local para a posição GLOBAL correta do mundo
+			var explosion_origin = mesh_inst.to_global(random_local_pos)
+			
+			# Chama o DebrisManager para soltar APENAS 1 estilhaço nesta posição exata.
+			# Como a posição já foi espalhada por nós, passamos o scatter_radius como 0.0
+			DebrisManager.explode(
+				explosion_origin,
+				mat,
+				1, # Quantidade de estilhaços por chamada
+				explosion_force,
+				upward_bias,
+				shard_lifetime,
+				0.0, # Scatter zerado, pois o espalhamento já foi feito na área da malha
+				shard_min_size,
+				shard_max_size
+			)
 
-func _find_mesh_instance() -> MeshInstance3D:
+# Substituímos a função antiga por esta que retorna uma Array com TODAS as malhas
+func _get_all_mesh_instances() -> Array[MeshInstance3D]:
+	var result: Array[MeshInstance3D] = []
+	
 	if mesh_instance_path != NodePath(""):
-		var node := get_node_or_null(mesh_instance_path)
+		var node = get_node_or_null(mesh_instance_path)
 		if node is MeshInstance3D:
-			return node
-	return find_child("*", true, false) as MeshInstance3D
+			result.append(node)
+			return result
+			
+	# Busca todas as malhas filhas (Pega o Tronco, a Base, as Folhas, etc.)
+	var children = find_children("*", "MeshInstance3D", true, false)
+	for c in children:
+		# Ignora malhas sem geometria ou invisíveis
+		if c is MeshInstance3D and c.mesh and c.visible:
+			result.append(c)
+			
+	return result
 
 func _give_energy_to_attacker(attacker: Node3D, amount: float):
 	var ability = attacker.get_node_or_null("%AbilityComponent")

@@ -1,26 +1,33 @@
 # Grappling.gd
-extends Area3D
+extends BaseProjectile
 
 @export_group("Movimento do Gancho")
 @export var fly_speed = 170.0
 @export var steering_force = 10.0
 @export var finish_boost_force : float = 10.0 
-@export var max_fly_time : float = 2 
-## Altura EXTRA somada ao ponto de ancoragem quando o alvo está no chão
+@export var max_fly_time : float = 2.0 
 @export var low_target_height_boost : float = 2.0 
 
-@export_group("Física de Combate")
-@export var knockback_force: float = 100.0
+# ============================================================================
+# EFEITOS VISUAIS
+# ============================================================================
+@export_group("Efeitos da Explosão Final (Gancho)")
+@export var explosion_color : Color = Color(0.8, 0.8, 0.8) # Fagulhas de metal
+@export var explosion_size : float = 4.0 
+@export var explosion_particles : int = 5
+@export var explosion_smoke_size : float = 5.0 
+@export var explosion_smoke_color : Color = Color(0.2, 0.2, 0.2, 1.0)
+@export var fire_duration : float = 0.4
+
+@export_group("Efeitos de Lançamento")
+@export var launch_smoke_size : float = 2.0
+@export var launch_smoke_color : Color = Color(0.5, 0.5, 0.5, 1.0)
 
 @export_group("Visuals")
 @export var cable_color : Color = Color(0.2, 0.2, 0.2)
 @export var cable_width : float = 0.05
 
-var damage : float = 0.0
-
-var velocity = Vector3.ZERO
 var target : Node3D = null
-var shooter : VehicleBody3D = null 
 var is_tethered : bool = false
 var time_alive : float = 0.0
 
@@ -37,16 +44,13 @@ var speed_multiplier : float = 1.0
 var muzzle_start_height : float = 0.0
 var anchor_offset_y : float = 0.0
 
-# --- RECEBE A ORDEM DO WEAPON MANAGER ---
-var is_shot_backwards: bool = false 
-
 func _ready():
 	cable_mesh_instance = MeshInstance3D.new()
 	immediate_mesh = ImmediateMesh.new()
 	cable_material = StandardMaterial3D.new()
 	
 	cable_material.albedo_color = cable_color
-	cable_material.shading_mode = StandardMaterial3D.SHADING_MODE_UNSHADED
+	cable_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	
 	cable_mesh_instance.mesh = immediate_mesh
 	cable_mesh_instance.material_override = cable_material
@@ -54,54 +58,41 @@ func _ready():
 	
 	get_tree().current_scene.add_child.call_deferred(cable_mesh_instance)
 	
-	if not body_entered.is_connected(_on_body_entered):
-		body_entered.connect(_on_body_entered)
-	if not area_entered.is_connected(_on_area_entered):
-		area_entered.connect(_on_area_entered)
+	super._ready()
 
-func setup(dmg, shooter_vel, source_car, incoming_target = null):
-	damage = dmg
+func setup(dmg_value: float, car_velocity: Vector3, source_car: Node3D, propulsion_speed: float = 170.0, incoming_target: Node3D = null):
+	super.setup(dmg_value, car_velocity, source_car, propulsion_speed)
+	
+	# NOVO: Garante que a linha volte a aparecer quando renascer do Pool
+	if is_instance_valid(cable_mesh_instance):
+		cable_mesh_instance.visible = true
+	
 	is_tethered = false 
-	
-	# --- BLINDAGEM CONTRA ALVOS/ATIRADORES DELETADOS ---
-	if is_instance_valid(source_car):
-		shooter = source_car
-	else:
-		shooter = null
-		
-	if is_instance_valid(incoming_target):
-		target = incoming_target
-	else:
-		target = null
-	# ----------------------------------------------------
-	
+	time_alive = 0.0
 	muzzle_start_height = global_position.y
 	anchor_offset_y = 0.0
 	
-	if is_instance_valid(shooter):
-		# --- CORREÇÃO DO EIXO ---
-		var forward_dir = -global_transform.basis.z.normalized()
-		var right_dir = global_transform.basis.x.normalized()
-		
-		# --- INCLINAÇÃO ZERADA COMO PEDIDO ---
-		var tilt_angle = deg_to_rad(0) if not is_shot_backwards else deg_to_rad(0)
-		forward_dir = forward_dir.rotated(right_dir, tilt_angle).normalized()
-		
-		var propulsion = forward_dir * fly_speed
-		
-		# --- FÍSICA LIMPA ---
-		if is_shot_backwards:
-			velocity = propulsion
-		else:
-			velocity = propulsion + shooter_vel
-		
-		if velocity.length() > 0.1:
-			look_at(global_position + velocity.normalized(), Vector3.UP)
+	target = incoming_target if (is_instance_valid(incoming_target) and not incoming_target.is_queued_for_deletion()) else null
+
+	if is_instance_valid(ExplosionManager):
+		ExplosionManager.explode(
+			global_position, 
+			launch_smoke_color, 
+			0.0, 
+			3, 
+			0.0, 
+			launch_smoke_color, 
+			launch_smoke_size,
+			0.2
+		)
 
 func _physics_process(delta):
+	# NOVO: Trava de segurança. Se o gancho está invisível no Pool, não faz nada!
+	if not visible: return
+
 	if not is_instance_valid(shooter):
 		_cleanup_visuals()
-		queue_free()
+		_deactivate_and_pool()
 		return
 
 	var real_delta = delta
@@ -130,10 +121,10 @@ func _state_flying(delta):
 		_finish_grapple()
 		return
 
-	if target and is_instance_valid(target):
+	if target and is_instance_valid(target) and not target.is_queued_for_deletion():
 		var target_pos = target.global_position
 		if global_position.distance_to(target_pos) < 2.5:
-			_process_impact(target)
+			_on_impact(target)
 			return
 
 		var desired_dir = (target_pos - global_position).normalized()
@@ -154,7 +145,7 @@ func _state_tethered(delta):
 
 	var pull_target_pos = fixed_impact_point
 	if not target_is_static:
-		if is_instance_valid(target):
+		if is_instance_valid(target) and not target.is_queued_for_deletion():
 			pull_target_pos = target.global_position
 		else:
 			_finish_grapple()
@@ -196,20 +187,14 @@ func _state_tethered(delta):
 	if current_dist < 10.0:
 		_finish_grapple()
 
-func _on_body_entered(body):
-	if not is_tethered: _process_impact(body)
-
-func _on_area_entered(area):
-	if not is_tethered: _process_impact(area)
-
-func _process_impact(target_node):
+# ============================================================================
+# LÓGICA DE IMPACTO REESCRITA PARA BURLAR O BASE PROJECTILE
+# ============================================================================
+func _on_impact(target_node):
 	if is_tethered: return
 
-	if not is_instance_valid(target_node): return
-	if target_node.is_queued_for_deletion(): return
-
-	if target_node.is_in_group("ignorar_gancho"):
-		return
+	if not is_instance_valid(target_node) or target_node.is_queued_for_deletion(): return
+	if target_node.is_in_group("ignorar_gancho"): return
 
 	var actual_target = target_node
 	if target_node is Area3D:
@@ -230,16 +215,21 @@ func _process_impact(target_node):
 	
 	if (actual_target is Marker3D) or ("SpawnPoint" in actual_target.name): return
 		
-	_play_impact_explosion()
-	
-	# =========================================================
-	# CORREÇÃO: Passamos obrigatoriamente o 'actual_target' (o carro/inimigo real)
-	# para que o tether saiba que o alvo é dinâmico e siga ele pelo mapa!
-	# =========================================================
+	_play_impact_vfx()
 	_start_tether(actual_target)
 
-func _play_impact_explosion():
-	pass
+func _play_impact_vfx():
+	if is_instance_valid(ExplosionManager):
+		ExplosionManager.explode(
+			global_position, 
+			explosion_color,         
+			explosion_size,          
+			explosion_particles,     
+			3.0, # Pouca luz para o gancho prendendo
+			explosion_smoke_color,   
+			explosion_smoke_size,
+			fire_duration            
+		)
 
 func _start_tether(body):
 	is_tethered = true
@@ -261,8 +251,10 @@ func _start_tether(body):
 	
 	var q_tgt = PhysicsRayQueryParameters3D.create(target_pos + Vector3.UP * 1.0, target_pos + Vector3.DOWN * 20.0)
 	q_tgt.exclude = [shooter.get_rid(), get_rid()]
+	
 	if not target_is_static and is_instance_valid(target):
 		q_tgt.exclude.append(target.get_rid())
+		
 	var res_tgt = space_state.intersect_ray(q_tgt)
 	
 	if res_car and res_tgt:
@@ -288,23 +280,38 @@ func _is_path_blocked(pull_target_pos) -> bool:
 	return false
 
 func _cleanup_visuals():
+	if is_instance_valid(immediate_mesh):
+		immediate_mesh.clear_surfaces()
+	# Esconde o nó que está solto na cena
+	if is_instance_valid(cable_mesh_instance):
+		cable_mesh_instance.visible = false
+
+# ============================================================================
+# CICLO DE VIDA E LIMPEZA
+# ============================================================================
+
+# Sobrescrevemos a reciclagem para apagar o cabo antes de guardar a bala
+func _deactivate_and_pool():
+	_cleanup_visuals()
+	super._deactivate_and_pool()
+
+# Previne vazamento de memória: se a fase acabar ou o jogo fechar, o cabo é destruído
+func _exit_tree():
 	if is_instance_valid(cable_mesh_instance):
 		cable_mesh_instance.queue_free()
 
 func _finish_grapple():
 	if is_tethered and is_instance_valid(shooter):
-		# 1. Dá o "Pulinho" (Boost final) no atirador
 		var jump_dir = (Vector3.UP + shooter.global_transform.basis.z * 0.2).normalized()
 		shooter.apply_central_impulse(jump_dir * finish_boost_force * shooter.mass)
 		
-		# =========================================================
-		# DANO TRANSFERIDO PARA CÁ!
-		# Agora que o gancho terminou o trajeto, aplicamos 100% do dano.
-		# =========================================================
-		if not target_is_static and is_instance_valid(target):
+		if not target_is_static and is_instance_valid(target) and not target.is_queued_for_deletion():
 			if target.has_method("take_damage"):
-				# Modificado de (damage * 0.5) para o dano integral (damage)
 				target.take_damage(damage, self)
 
+	# NOVO: Destrava a variável para ele não tentar arrastar o carro da memória
+	is_tethered = false 
 	_cleanup_visuals()
-	queue_free()
+	
+	# Devolve o gancho pro Pool!
+	_deactivate_and_pool()

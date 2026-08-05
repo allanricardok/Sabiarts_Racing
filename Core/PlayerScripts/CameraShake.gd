@@ -71,9 +71,16 @@ func trigger_event(event_name: String, modifier: float = 1.0):
 		"Stunt":
 			force = stunt_force; duration = stunt_duration
 		"CarCollision":
-			# O modifier aqui será o dano sofrido (de 8 a 50)
 			force = clamp(remap(modifier, 8.0, 50.0, car_collision_min_force, car_collision_max_force), car_collision_min_force, car_collision_max_force)
 			duration = car_collision_duration
+			
+		# === NOVOS EVENTOS PARA PROJÉTEIS ===
+		"CustomFire":
+			force = modifier # O projétil envia a força exata
+			duration = weapon_fire_duration 
+		"Explosion":
+			force = modifier # A força já chega calculada com a distância
+			duration = 0.6 # Explosões costumam tremer a tela por um pouco mais de tempo
 	
 	print("[SHAKE] Evento: '", event_name, "' | Força: ", int(force * 100), "% | Duração: ", duration, "s")
 	

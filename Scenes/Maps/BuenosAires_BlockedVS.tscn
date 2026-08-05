@@ -1,4 +1,4 @@
-[gd_scene load_steps=313 format=3 uid="uid://d1rl8sskrmddj"]
+[gd_scene load_steps=310 format=3 uid="uid://d1rl8sskrmddj"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_u8o8m"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="3_is8dr"]
@@ -61,16 +61,6 @@
 [ext_resource type="PackedScene" uid="uid://c7djmj41vlc02" path="res://Scenes/Prefabs/Items/StoryCollectable.tscn" id="48_i3s4m"]
 [ext_resource type="Script" uid="uid://ckpa324htfvdu" path="res://Core/Objectives/Story/StoryModeController.gd" id="48_neuqn"]
 [ext_resource type="PackedScene" uid="uid://dpwm3nbh0pryq" path="res://Scenes/UI/TokenRewardUI.tscn" id="54_g7yph"]
-[ext_resource type="Shader" uid="uid://bd5pcb476mvpb" path="res://Core/Shaders/post_processing.gdshader" id="62_rf88v"]
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_tqs36"]
-render_priority = 26
-shader = ExtResource("62_rf88v")
-shader_parameter/dither_amount = 0.05999999865888
-
-[sub_resource type="QuadMesh" id="QuadMesh_rf88v"]
-flip_faces = true
-size = Vector2(2, 2)
 
 [sub_resource type="BoxMesh" id="BoxMesh_a70xh"]
 material = ExtResource("3_is8dr")
@@ -909,13 +899,6 @@ handle_input_locally = false
 size = Vector2i(912, 1026)
 render_target_update_mode = 4
 
-[node name="EX_PS1Shader" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1"]
-visible = false
-material_override = SubResource("ShaderMaterial_tqs36")
-extra_cull_margin = 16384.0
-mesh = SubResource("QuadMesh_rf88v")
-skeleton = NodePath("../../../..")
-
 [node name="WorldEnvironment2" parent="GridContainer/Cont_P1/View_P1" instance=ExtResource("32_vj8u6")]
 
 [node name="Map" type="Node3D" parent="GridContainer/Cont_P1/View_P1"]
@@ -973,11 +956,9 @@ causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
 aoe_knockback_force = 16.0
-mesh_instance_path = null
 shard_lifetime = 3.5
 scatter_radius = 3.0
 shard_max_size = 4.0
-aoe_min_vertical_kick = null
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -993,11 +974,9 @@ causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
 aoe_knockback_force = 16.0
-mesh_instance_path = null
 shard_lifetime = 3.5
 scatter_radius = 3.0
 shard_max_size = 4.0
-aoe_min_vertical_kick = null
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1013,11 +992,9 @@ causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
 aoe_knockback_force = 16.0
-mesh_instance_path = null
 shard_lifetime = 3.5
 scatter_radius = 3.0
 shard_max_size = 4.0
-aoe_min_vertical_kick = null
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1033,11 +1010,9 @@ causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
 aoe_knockback_force = 16.0
-mesh_instance_path = null
 shard_lifetime = 3.5
 scatter_radius = 3.0
 shard_max_size = 4.0
-aoe_min_vertical_kick = null
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1053,11 +1028,9 @@ causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
 aoe_knockback_force = 16.0
-mesh_instance_path = null
 shard_lifetime = 3.5
 scatter_radius = 3.0
 shard_max_size = 4.0
-aoe_min_vertical_kick = null
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1073,11 +1046,9 @@ causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
 aoe_knockback_force = 16.0
-mesh_instance_path = null
 shard_lifetime = 3.5
 scatter_radius = 3.0
 shard_max_size = 4.0
-aoe_min_vertical_kick = null
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1093,11 +1064,9 @@ causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
 aoe_knockback_force = 16.0
-mesh_instance_path = null
 shard_lifetime = 3.5
 scatter_radius = 3.0
 shard_max_size = 4.0
-aoe_min_vertical_kick = null
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1113,11 +1082,9 @@ causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
 aoe_knockback_force = 16.0
-mesh_instance_path = null
 shard_lifetime = 3.5
 scatter_radius = 3.0
 shard_max_size = 4.0
-aoe_min_vertical_kick = null
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1133,11 +1100,9 @@ causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
 aoe_knockback_force = 16.0
-mesh_instance_path = null
 shard_lifetime = 3.5
 scatter_radius = 3.0
 shard_max_size = 4.0
-aoe_min_vertical_kick = null
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1153,11 +1118,9 @@ causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
 aoe_knockback_force = 16.0
-mesh_instance_path = null
 shard_lifetime = 3.5
 scatter_radius = 3.0
 shard_max_size = 4.0
-aoe_min_vertical_kick = null
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1173,11 +1136,9 @@ causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
 aoe_knockback_force = 16.0
-mesh_instance_path = null
 shard_lifetime = 3.5
 scatter_radius = 3.0
 shard_max_size = 4.0
-aoe_min_vertical_kick = null
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1193,11 +1154,9 @@ causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
 aoe_knockback_force = 16.0
-mesh_instance_path = null
 shard_lifetime = 3.5
 scatter_radius = 3.0
 shard_max_size = 4.0
-aoe_min_vertical_kick = null
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1213,11 +1172,9 @@ causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
 aoe_knockback_force = 16.0
-mesh_instance_path = null
 shard_lifetime = 3.5
 scatter_radius = 3.0
 shard_max_size = 4.0
-aoe_min_vertical_kick = null
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1233,11 +1190,9 @@ causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
 aoe_knockback_force = 16.0
-mesh_instance_path = null
 shard_lifetime = 3.5
 scatter_radius = 3.0
 shard_max_size = 4.0
-aoe_min_vertical_kick = null
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1253,11 +1208,9 @@ causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
 aoe_knockback_force = 16.0
-mesh_instance_path = null
 shard_lifetime = 3.5
 scatter_radius = 3.0
 shard_max_size = 4.0
-aoe_min_vertical_kick = null
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1273,11 +1226,9 @@ causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
 aoe_knockback_force = 16.0
-mesh_instance_path = null
 shard_lifetime = 3.5
 scatter_radius = 3.0
 shard_max_size = 4.0
-aoe_min_vertical_kick = null
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1293,11 +1244,9 @@ causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
 aoe_knockback_force = 16.0
-mesh_instance_path = null
 shard_lifetime = 3.5
 scatter_radius = 3.0
 shard_max_size = 4.0
-aoe_min_vertical_kick = null
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1313,11 +1262,9 @@ causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
 aoe_knockback_force = 16.0
-mesh_instance_path = null
 shard_lifetime = 3.5
 scatter_radius = 3.0
 shard_max_size = 4.0
-aoe_min_vertical_kick = null
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1333,11 +1280,9 @@ causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
 aoe_knockback_force = 16.0
-mesh_instance_path = null
 shard_lifetime = 3.5
 scatter_radius = 3.0
 shard_max_size = 4.0
-aoe_min_vertical_kick = null
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1353,11 +1298,9 @@ causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
 aoe_knockback_force = 16.0
-mesh_instance_path = null
 shard_lifetime = 3.5
 scatter_radius = 3.0
 shard_max_size = 4.0
-aoe_min_vertical_kick = null
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1373,11 +1316,9 @@ causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
 aoe_knockback_force = 16.0
-mesh_instance_path = null
 shard_lifetime = 3.5
 scatter_radius = 3.0
 shard_max_size = 4.0
-aoe_min_vertical_kick = null
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1393,11 +1334,9 @@ causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
 aoe_knockback_force = 16.0
-mesh_instance_path = null
 shard_lifetime = 3.5
 scatter_radius = 3.0
 shard_max_size = 4.0
-aoe_min_vertical_kick = null
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1413,11 +1352,9 @@ causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
 aoe_knockback_force = 16.0
-mesh_instance_path = null
 shard_lifetime = 3.5
 scatter_radius = 3.0
 shard_max_size = 4.0
-aoe_min_vertical_kick = null
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1433,11 +1370,9 @@ causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
 aoe_knockback_force = 16.0
-mesh_instance_path = null
 shard_lifetime = 3.5
 scatter_radius = 3.0
 shard_max_size = 4.0
-aoe_min_vertical_kick = null
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1453,11 +1388,153 @@ causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
 aoe_knockback_force = 16.0
-mesh_instance_path = null
 shard_lifetime = 3.5
 scatter_radius = 3.0
 shard_max_size = 4.0
-aoe_min_vertical_kick = null
+aoe_collision_mask = 31
+explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
+explosion_visual_size = 60.0
+explosion_particle_count = 30
+explosion_light_energy = 140.0
+
+[node name="ObjectBase26" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 212.54715, 3.8431778, -42.865547)
+collision_layer = 3
+collision_mask = 3
+mission_id = "barril_BA"
+causes_aoe_damage = true
+aoe_damage_amount = 10.0
+aoe_radius = 35.0
+aoe_knockback_force = 16.0
+shard_lifetime = 3.5
+scatter_radius = 3.0
+shard_max_size = 4.0
+aoe_collision_mask = 31
+explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
+explosion_visual_size = 60.0
+explosion_particle_count = 30
+explosion_light_energy = 140.0
+
+[node name="ObjectBase27" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 212.54715, 3.8431778, -64.12985)
+collision_layer = 3
+collision_mask = 3
+mission_id = "barril_BA"
+causes_aoe_damage = true
+aoe_damage_amount = 10.0
+aoe_radius = 35.0
+aoe_knockback_force = 16.0
+shard_lifetime = 3.5
+scatter_radius = 3.0
+shard_max_size = 4.0
+aoe_collision_mask = 31
+explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
+explosion_visual_size = 60.0
+explosion_particle_count = 30
+explosion_light_energy = 140.0
+
+[node name="ObjectBase28" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 212.54715, 3.8431778, -87.25706)
+collision_layer = 3
+collision_mask = 3
+mission_id = "barril_BA"
+causes_aoe_damage = true
+aoe_damage_amount = 10.0
+aoe_radius = 35.0
+aoe_knockback_force = 16.0
+shard_lifetime = 3.5
+scatter_radius = 3.0
+shard_max_size = 4.0
+aoe_collision_mask = 31
+explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
+explosion_visual_size = 60.0
+explosion_particle_count = 30
+explosion_light_energy = 140.0
+
+[node name="ObjectBase29" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 212.54715, 3.8431778, -134.44765)
+collision_layer = 3
+collision_mask = 3
+mission_id = "barril_BA"
+causes_aoe_damage = true
+aoe_damage_amount = 10.0
+aoe_radius = 35.0
+aoe_knockback_force = 16.0
+shard_lifetime = 3.5
+scatter_radius = 3.0
+shard_max_size = 4.0
+aoe_collision_mask = 31
+explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
+explosion_visual_size = 60.0
+explosion_particle_count = 30
+explosion_light_energy = 140.0
+
+[node name="ObjectBase30" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 239.70346, 3.8431778, -42.865547)
+collision_layer = 3
+collision_mask = 3
+mission_id = "barril_BA"
+causes_aoe_damage = true
+aoe_damage_amount = 10.0
+aoe_radius = 35.0
+aoe_knockback_force = 16.0
+shard_lifetime = 3.5
+scatter_radius = 3.0
+shard_max_size = 4.0
+aoe_collision_mask = 31
+explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
+explosion_visual_size = 60.0
+explosion_particle_count = 30
+explosion_light_energy = 140.0
+
+[node name="ObjectBase31" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 239.70346, 3.8431778, -64.12985)
+collision_layer = 3
+collision_mask = 3
+mission_id = "barril_BA"
+causes_aoe_damage = true
+aoe_damage_amount = 10.0
+aoe_radius = 35.0
+aoe_knockback_force = 16.0
+shard_lifetime = 3.5
+scatter_radius = 3.0
+shard_max_size = 4.0
+aoe_collision_mask = 31
+explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
+explosion_visual_size = 60.0
+explosion_particle_count = 30
+explosion_light_energy = 140.0
+
+[node name="ObjectBase32" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 239.70346, 3.8431778, -87.25706)
+collision_layer = 3
+collision_mask = 3
+mission_id = "barril_BA"
+causes_aoe_damage = true
+aoe_damage_amount = 10.0
+aoe_radius = 35.0
+aoe_knockback_force = 16.0
+shard_lifetime = 3.5
+scatter_radius = 3.0
+shard_max_size = 4.0
+aoe_collision_mask = 31
+explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
+explosion_visual_size = 60.0
+explosion_particle_count = 30
+explosion_light_energy = 140.0
+
+[node name="ObjectBase33" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 239.70346, 3.8431778, -134.44765)
+collision_layer = 3
+collision_mask = 3
+mission_id = "barril_BA"
+causes_aoe_damage = true
+aoe_damage_amount = 10.0
+aoe_radius = 35.0
+aoe_knockback_force = 16.0
+shard_lifetime = 3.5
+scatter_radius = 3.0
+shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -4171,26 +4248,14 @@ shape = SubResource("ConcavePolygonShape3D_vxe8i")
 mass = 800.0
 freeze = true
 script = ExtResource("21_pyjdw")
-mission_id = null
 max_health = 10.0
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
 mesh_instance_path = NodePath("MeshInstance3D14")
 shard_count = 5
-explosion_force = null
 upward_bias = 5.0
 shard_lifetime = 2.0
 scatter_radius = 1.0
 shard_min_size = 4.0
 shard_max_size = 8.0
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="MeshInstance3D14" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/BreakableWalls/RigidBody3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 79.68774, 37.506397, -318.09213)
@@ -4206,26 +4271,14 @@ shape = SubResource("ConvexPolygonShape3D_rf88v")
 mass = 800.0
 freeze = true
 script = ExtResource("21_pyjdw")
-mission_id = null
 max_health = 10.0
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
 mesh_instance_path = NodePath("MeshInstance3D15")
 shard_count = 5
-explosion_force = null
 upward_bias = 5.0
 shard_lifetime = 2.0
 scatter_radius = 1.0
 shard_min_size = 4.0
 shard_max_size = 8.0
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="MeshInstance3D15" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/BreakableWalls/RigidBody3D2"]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -293.47906, 37.32524, -322.31473)
@@ -4259,323 +4312,63 @@ shape = SubResource("ConcavePolygonShape3D_ulkw6")
 
 [node name="Tree1" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park1" instance=ExtResource("25_haj77")]
 transform = Transform3D(0.96052223, 0, -0.27820328, 0, 1, 0, 0.27820328, 0, 0.96052223, 214.07062, -3.8146973e-06, 184.66946)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree2" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park1" instance=ExtResource("25_haj77")]
 transform = Transform3D(0.97740114, 0, -0.21139303, 0, 1, 0, 0.21139303, 0, 0.97740114, 214.07062, -3.8146973e-06, 204.0812)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree3" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park1" instance=ExtResource("25_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 214.07062, -3.8146973e-06, 223.68137)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree4" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park1" instance=ExtResource("25_haj77")]
 transform = Transform3D(0.49689817, 0, -0.8678088, 0, 1, 0, 0.8678088, 0, 0.49689817, 214.07062, -3.8146973e-06, 242.43593)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree5" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park1" instance=ExtResource("25_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 214.07062, -3.8146973e-06, 262.9478)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree6" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park1" instance=ExtResource("25_haj77")]
 transform = Transform3D(0.95948136, 0, 0.28177214, 0, 1, 0, -0.28177214, 0, 0.95948136, 214.07062, -3.8146973e-06, 284.43274)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree7" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park1" instance=ExtResource("25_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 214.07062, -3.8146973e-06, 163.94423)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree8" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park1" instance=ExtResource("25_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 166.33661, -3.8146973e-06, 249.88571)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree9" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park1" instance=ExtResource("25_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 185.38857, -3.8146973e-06, 270.65347)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree10" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park1" instance=ExtResource("25_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 146.37103, -3.8146973e-06, 228.21057)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree11" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park1" instance=ExtResource("25_haj77")]
 transform = Transform3D(-0.29509097, 0, -0.9554691, 0, 1, 0, 0.9554691, 0, -0.29509097, 161.37541, -3.8146973e-06, 332.48944)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree12" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park1" instance=ExtResource("25_haj77")]
 transform = Transform3D(-0.22858867, 0, -0.9735232, 0, 1, 0, 0.9735232, 0, -0.22858867, 141.96667, -3.8146973e-06, 332.14728)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree13" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park1" instance=ExtResource("25_haj77")]
 transform = Transform3D(-0.01762683, 0, -0.9998447, 0, 1, 0, 0.9998447, 0, -0.01762683, 122.369576, -3.8146973e-06, 331.80182)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree14" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park1" instance=ExtResource("25_haj77")]
 transform = Transform3D(-0.87643266, 0, -0.48152432, 0, 1, 0, 0.48152432, 0, -0.87643266, 103.61793, -3.8146973e-06, 331.47122)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree15" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park1" instance=ExtResource("25_haj77")]
 transform = Transform3D(-0.01762683, 0, -0.9998447, 0, 1, 0, 0.9998447, 0, -0.01762683, 83.10924, -3.8146973e-06, 331.10965)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree16" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park1" instance=ExtResource("25_haj77")]
 transform = Transform3D(0.26481575, 0, -0.96429896, 0, 1, 0, 0.96429896, 0, 0.26481575, 61.627647, -3.8146973e-06, 330.73096)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree17" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park1" instance=ExtResource("25_haj77")]
 transform = Transform3D(-0.01762683, 0, -0.9998447, 0, 1, 0, 0.9998447, 0, -0.01762683, 182.09744, -3.8146973e-06, 332.8548)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree18" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park1" instance=ExtResource("25_haj77")]
 transform = Transform3D(-0.01762683, 0, -0.9998447, 0, 1, 0, 0.9998447, 0, -0.01762683, 154.83533, -3.8146973e-06, 303.86966)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree19" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park1" instance=ExtResource("25_haj77")]
 transform = Transform3D(-0.01762683, 0, -0.9998447, 0, 1, 0, 0.9998447, 0, -0.01762683, 134.40988, -3.8146973e-06, 285.8353)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree20" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park1" instance=ExtResource("25_haj77")]
 transform = Transform3D(-0.01762683, 0, -0.9998447, 0, 1, 0, 0.9998447, 0, -0.01762683, 112.24196, -3.8146973e-06, 264.74915)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Circle" type="StaticBody3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 180, 0, 207)
@@ -4603,99 +4396,21 @@ shape = SubResource("ConcavePolygonShape3D_7xu7v")
 
 [node name="Tree15" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park2" instance=ExtResource("25_haj77")]
 transform = Transform3D(-0.01762683, 0, -0.9998447, 0, 1, 0, 0.9998447, 0, -0.01762683, -154.79941, -3.8146973e-06, 302.10638)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree16" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park2" instance=ExtResource("25_haj77")]
 transform = Transform3D(0.26481575, 0, -0.96429896, 0, 1, 0, 0.96429896, 0, 0.26481575, -138.96063, -3.8146973e-06, 327.83066)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree17" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park2" instance=ExtResource("25_haj77")]
 transform = Transform3D(-0.01762683, 0, -0.9998447, 0, 1, 0, 0.9998447, 0, -0.01762683, -122.671326, -3.8146973e-06, 301.348)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree18" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park2" instance=ExtResource("25_haj77")]
 transform = Transform3D(-0.01762683, 0, -0.9998447, 0, 1, 0, 0.9998447, 0, -0.01762683, -107.52637, -3.8146973e-06, 324.3834)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree19" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park2" instance=ExtResource("25_haj77")]
 transform = Transform3D(-0.01762683, 0, -0.9998447, 0, 1, 0, 0.9998447, 0, -0.01762683, -92.57463, -3.8146973e-06, 303.89502)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree20" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park2" instance=ExtResource("25_haj77")]
 transform = Transform3D(-0.01762683, 0, -0.9998447, 0, 1, 0, 0.9998447, 0, -0.01762683, -27.447815, -3.8146973e-06, 314.5485)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Circle" type="StaticBody3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/Park2"]
 transform = Transform3D(0.6, 0, 0, 0, 0.6, 0, 0, 0, 0.6, -53.88617, 0, 316.2875)
@@ -4713,1419 +4428,299 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.2261915, 0)
 
 [node name="Tree1" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/CentralTrees" instance=ExtResource("26_75jtm")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 125.80272, -0.25377095, 5.5732174)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree3" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/CentralTrees" instance=ExtResource("26_75jtm")]
 transform = Transform3D(0.926121, 0, -0.37722665, 0, 1, 0, 0.37722665, 0, 0.926121, 60.314003, -0.25377095, 5.5732174)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree4" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/CentralTrees" instance=ExtResource("26_75jtm")]
 transform = Transform3D(0.9689381, 0, 0.24730343, 0, 1, 0, -0.24730343, 0, 0.9689381, -45.32542, -0.25377095, 5.5732174)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree5" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/CentralTrees" instance=ExtResource("26_75jtm")]
 transform = Transform3D(0.98114455, 0, -0.1932755, 0, 1, 0, 0.1932755, 0, 0.98114455, 125.80272, -0.25377095, -56.80284)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree6" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/CentralTrees" instance=ExtResource("26_75jtm")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60.314003, -0.25377095, -56.80284)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree7" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/CentralTrees" instance=ExtResource("26_75jtm")]
 transform = Transform3D(0.99675924, 0, 0.08044248, 0, 1, 0, -0.08044248, 0, 0.99675924, -45.32542, -0.25377095, -56.80284)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree2" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/CentralTrees" instance=ExtResource("25_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95.01867, 0, 4.9537354)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree8" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/CentralTrees" instance=ExtResource("25_haj77")]
 transform = Transform3D(0.9911253, 0, 0.13293105, 0, 1, 0, -0.13293105, 0, 0.9911253, 30.837662, 0, 4.9537354)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree9" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/CentralTrees" instance=ExtResource("25_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.905876, 0, 4.9537354)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree10" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/CentralTrees" instance=ExtResource("25_haj77")]
 transform = Transform3D(0.7922896, 0, -0.61014515, 0, 1, 0, 0.61014515, 0, 0.7922896, -19.083336, 0, 4.9537354)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree11" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/CentralTrees" instance=ExtResource("25_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95.01867, 0, -54.19538)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree12" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/CentralTrees" instance=ExtResource("25_haj77")]
 transform = Transform3D(0.9962658, 0, -0.086338535, 0, 1, 0, 0.086338535, 0, 0.9962658, 30.837662, 0, -54.19538)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree13" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/CentralTrees" instance=ExtResource("25_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.905876, 0, -54.19538)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree14" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/CentralTrees" instance=ExtResource("25_haj77")]
 transform = Transform3D(0.89562637, 0, -0.4448071, 0, 1, 0, 0.4448071, 0, 0.89562637, -19.083336, 0, -54.19538)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="LateralTrees" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.1326714, 0)
 
 [node name="Tree13" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/LateralTrees" instance=ExtResource("25_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.905876, 0, 113.13125)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree14" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/LateralTrees" instance=ExtResource("25_haj77")]
 transform = Transform3D(0.89562637, 0, -0.4448071, 0, 1, 0, 0.4448071, 0, 0.89562637, -51.7761, 0, 113.13125)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree15" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/LateralTrees" instance=ExtResource("25_haj77")]
 transform = Transform3D(0.89562637, 0, -0.4448071, 0, 1, 0, 0.4448071, 0, 0.89562637, -103.64842, 0, 113.13125)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree16" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/LateralTrees" instance=ExtResource("25_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 160.15503, 0, 113.13125)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree17" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/LateralTrees" instance=ExtResource("25_haj77")]
 transform = Transform3D(0.89562637, 0, -0.4448071, 0, 1, 0, 0.4448071, 0, 0.89562637, 103.47306, 0, 113.13125)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree18" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/LateralTrees" instance=ExtResource("25_haj77")]
 transform = Transform3D(0.89562637, 0, -0.4448071, 0, 1, 0, 0.4448071, 0, 0.89562637, 51.60074, 0, 113.13125)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree19" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/LateralTrees" instance=ExtResource("25_haj77")]
 transform = Transform3D(0.89562637, 0, -0.4448071, 0, 1, 0, 0.4448071, 0, 0.89562637, -150.92851, 0, 81.532295)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree20" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/LateralTrees" instance=ExtResource("25_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 211.79988, 0, 81.532295)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree21" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/LateralTrees" instance=ExtResource("25_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.905876, 0, -164.96658)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree22" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/LateralTrees" instance=ExtResource("25_haj77")]
 transform = Transform3D(0.89562637, 0, -0.4448071, 0, 1, 0, 0.4448071, 0, 0.89562637, -51.7761, 0, -164.96658)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree23" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/LateralTrees" instance=ExtResource("25_haj77")]
 transform = Transform3D(0.89562637, 0, -0.4448071, 0, 1, 0, 0.4448071, 0, 0.89562637, -103.64842, 0, -164.96658)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree24" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/LateralTrees" instance=ExtResource("25_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 160.15503, 0, -164.96658)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree25" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/LateralTrees" instance=ExtResource("25_haj77")]
 transform = Transform3D(0.89562637, 0, -0.4448071, 0, 1, 0, 0.4448071, 0, 0.89562637, 103.47306, 0, -164.96658)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree26" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/LateralTrees" instance=ExtResource("25_haj77")]
 transform = Transform3D(0.89562637, 0, -0.4448071, 0, 1, 0, 0.4448071, 0, 0.89562637, 51.60074, 0, -164.96658)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree27" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/LateralTrees" instance=ExtResource("25_haj77")]
 transform = Transform3D(0.89562637, 0, -0.4448071, 0, 1, 0, 0.4448071, 0, 0.89562637, -150.92851, 0, -133.50876)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree28" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/LateralTrees" instance=ExtResource("25_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 211.79988, 0, -133.50876)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="EndBushes" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
 
 [node name="Tree1" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -78.430405, 0, 12.829548)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree2" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.97068715, 0, -0.24034664, 0, 1, 0, 0.24034664, 0, 0.97068715, -78.430405, 0, -0.6670437)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree3" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -78.430405, 0, -49.500454)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree4" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.97068715, 0, -0.24034664, 0, 1, 0, 0.24034664, 0, 0.97068715, -78.430405, 0, -62.997047)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree5" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.97068715, 0, -0.24034664, 0, 1, 0, 0.24034664, 0, 0.97068715, -166.13531, 0, -72.95566)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree6" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.9149526, 0, -0.40356123, 0, 1, 0, 0.40356123, 0, 0.9149526, -166.13531, 0, 22.463417)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree19" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("25_haj77")]
 transform = Transform3D(0.89562637, 0, -0.4448071, 0, 1, 0, 0.4448071, 0, 0.89562637, -309.1195, 0, 81.532295)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree20" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("25_haj77")]
 transform = Transform3D(0.7306987, 0, -0.68270004, 0, 1, 0, 0.68270004, 0, 0.7306987, -398.44586, 0, 81.532295)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree21" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("25_haj77")]
 transform = Transform3D(0.89562637, 0, -0.4448071, 0, 1, 0, 0.4448071, 0, 0.89562637, -309.1195, 0, -133.64117)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree22" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("25_haj77")]
 transform = Transform3D(0.7306987, 0, -0.68270004, 0, 1, 0, 0.68270004, 0, 0.7306987, -398.44586, 0, -133.64117)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree7" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.97068715, 0, -0.24034664, 0, 1, 0, 0.24034664, 0, 0.97068715, -244.436, -7.6293945e-06, -136.37447)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree8" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.99957365, 0, 0.029195204, 0, 1, 0, -0.029195204, 0, 0.99957365, -258.71387, -7.6293945e-06, -129.15872)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree9" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.97068715, 0, -0.24034664, 0, 1, 0, 0.24034664, 0, 0.97068715, -276.21786, -7.6293945e-06, -136.37447)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree10" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.99957365, 0, 0.029195204, 0, 1, 0, -0.029195204, 0, 0.99957365, -290.49573, -7.6293945e-06, -129.15872)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree11" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.97068715, 0, -0.24034664, 0, 1, 0, 0.24034664, 0, 0.97068715, -330.13943, -7.6293945e-06, -136.37447)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree12" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.99957365, 0, 0.029195204, 0, 1, 0, -0.029195204, 0, 0.99957365, -344.41727, -7.6293945e-06, -129.15872)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree13" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.97068715, 0, -0.24034664, 0, 1, 0, 0.24034664, 0, 0.97068715, -362.7801, -7.6293945e-06, -136.37447)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree14" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.99957365, 0, 0.029195204, 0, 1, 0, -0.029195204, 0, 0.99957365, -377.05792, -7.6293945e-06, -129.15872)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree15" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.97068715, 0, -0.24034664, 0, 1, 0, 0.24034664, 0, 0.97068715, -418.72513, -7.6293945e-06, -136.37447)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree16" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.99957365, 0, 0.029195204, 0, 1, 0, -0.029195204, 0, 0.99957365, -433.00296, -7.6293945e-06, -129.15872)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree17" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.97068715, 0, -0.24034664, 0, 1, 0, 0.24034664, 0, 0.97068715, -244.436, -7.6293945e-06, 80.73357)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree18" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.99957365, 0, 0.029195204, 0, 1, 0, -0.029195204, 0, 0.99957365, -258.71387, -7.6293945e-06, 87.94931)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree23" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.97068715, 0, -0.24034664, 0, 1, 0, 0.24034664, 0, 0.97068715, -276.21786, -7.6293945e-06, 80.73357)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree24" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.99957365, 0, 0.029195204, 0, 1, 0, -0.029195204, 0, 0.99957365, -290.49573, -7.6293945e-06, 87.94931)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree25" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.97068715, 0, -0.24034664, 0, 1, 0, 0.24034664, 0, 0.97068715, -330.13943, -7.6293945e-06, 80.73357)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree26" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.99957365, 0, 0.029195204, 0, 1, 0, -0.029195204, 0, 0.99957365, -344.41727, -7.6293945e-06, 87.94931)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree27" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.97068715, 0, -0.24034664, 0, 1, 0, 0.24034664, 0, 0.97068715, -362.7801, -7.6293945e-06, 80.73357)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree28" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.99957365, 0, 0.029195204, 0, 1, 0, -0.029195204, 0, 0.99957365, -377.05792, -7.6293945e-06, 87.94931)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree29" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.97068715, 0, -0.24034664, 0, 1, 0, 0.24034664, 0, 0.97068715, -418.72513, -7.6293945e-06, 80.73357)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree30" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.99957365, 0, 0.029195204, 0, 1, 0, -0.029195204, 0, 0.99957365, -433.00296, -7.6293945e-06, 87.94931)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree31" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -277.2238, 0, 16.455647)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree32" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.96705484, 0, -0.2545682, 0, 1, 0, 0.2545682, 0, 0.96705484, -322.1743, 0, 16.455647)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree33" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -368.82275, 0, 16.455647)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree34" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.96705484, 0, -0.2545682, 0, 1, 0, 0.2545682, 0, 0.96705484, -413.77325, 0, 16.455647)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree35" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -277.2238, 0, -64.93338)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree36" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.96705484, 0, -0.2545682, 0, 1, 0, 0.2545682, 0, 0.96705484, -322.1743, 0, -64.93338)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree37" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -368.82275, 0, -64.93338)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree38" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.96705484, 0, -0.2545682, 0, 1, 0, 0.2545682, 0, 0.96705484, -413.77325, 0, -64.93338)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="EndBushes2" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/Buildings"]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -48.700737)
 
 [node name="Tree1" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes2" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -78.430405, 0, 12.829548)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree2" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes2" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.97068715, 0, -0.24034664, 0, 1, 0, 0.24034664, 0, 0.97068715, -78.430405, 0, -0.6670437)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree3" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes2" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -78.430405, 0, -49.500454)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree4" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes2" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.97068715, 0, -0.24034664, 0, 1, 0, 0.24034664, 0, 0.97068715, -78.430405, 0, -62.997047)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree5" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes2" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.97068715, 0, -0.24034664, 0, 1, 0, 0.24034664, 0, 0.97068715, -221.70547, -7.6293945e-06, -70.505554)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree6" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes2" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.9149526, 0, -0.40356123, 0, 1, 0, 0.40356123, 0, 0.9149526, -220.5946, 0, 25.776276)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree19" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes2" instance=ExtResource("25_haj77")]
 transform = Transform3D(0.89562637, 0, -0.4448071, 0, 1, 0, 0.4448071, 0, 0.89562637, -316.72012, 0, 81.532295)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree20" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes2" instance=ExtResource("25_haj77")]
 transform = Transform3D(0.7306987, 0, -0.68270004, 0, 1, 0, 0.68270004, 0, 0.7306987, -398.44586, 0, 81.532295)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree21" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes2" instance=ExtResource("25_haj77")]
 transform = Transform3D(0.89562637, 0, -0.4448071, 0, 1, 0, 0.4448071, 0, 0.89562637, -309.1195, 0, -133.64117)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree22" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes2" instance=ExtResource("25_haj77")]
 transform = Transform3D(0.7306987, 0, -0.68270004, 0, 1, 0, 0.68270004, 0, 0.7306987, -398.44586, 0, -133.64117)
-mission_id = null
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-scatter_radius = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree11" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes2" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.97068715, 0, -0.24034664, 0, 1, 0, 0.24034664, 0, 0.97068715, -330.13943, -7.6293945e-06, -136.37447)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree12" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes2" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.99957365, 0, 0.029195204, 0, 1, 0, -0.029195204, 0, 0.99957365, -344.41727, -7.6293945e-06, -129.15872)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree13" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes2" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.97068715, 0, -0.24034664, 0, 1, 0, 0.24034664, 0, 0.97068715, -362.7801, -7.6293945e-06, -136.37447)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree14" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes2" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.99957365, 0, 0.029195204, 0, 1, 0, -0.029195204, 0, 0.99957365, -377.05792, -7.6293945e-06, -129.15872)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree15" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes2" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.97068715, 0, -0.24034664, 0, 1, 0, 0.24034664, 0, 0.97068715, -418.72513, -7.6293945e-06, -136.37447)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree16" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes2" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.99957365, 0, 0.029195204, 0, 1, 0, -0.029195204, 0, 0.99957365, -433.00296, -7.6293945e-06, -129.15872)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree25" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes2" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.97068715, 0, -0.24034664, 0, 1, 0, 0.24034664, 0, 0.97068715, -330.13943, -7.6293945e-06, 80.73357)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree26" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes2" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.99957365, 0, 0.029195204, 0, 1, 0, -0.029195204, 0, 0.99957365, -344.41727, -7.6293945e-06, 87.94931)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree27" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes2" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.97068715, 0, -0.24034664, 0, 1, 0, 0.24034664, 0, 0.97068715, -362.7801, -7.6293945e-06, 80.73357)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree28" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes2" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.99957365, 0, 0.029195204, 0, 1, 0, -0.029195204, 0, 0.99957365, -377.05792, -7.6293945e-06, 87.94931)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree29" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes2" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.97068715, 0, -0.24034664, 0, 1, 0, 0.24034664, 0, 0.97068715, -418.72513, -7.6293945e-06, 80.73357)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree30" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes2" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.99957365, 0, 0.029195204, 0, 1, 0, -0.029195204, 0, 0.99957365, -433.00296, -7.6293945e-06, 87.94931)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree32" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes2" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.96705484, 0, -0.2545682, 0, 1, 0, 0.2545682, 0, 0.96705484, -322.1743, 0, 16.455647)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree33" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes2" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -368.82275, 0, 16.455647)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree34" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes2" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.96705484, 0, -0.2545682, 0, 1, 0, 0.2545682, 0, 0.96705484, -413.77325, 0, 16.455647)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree36" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes2" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.96705484, 0, -0.2545682, 0, 1, 0, 0.2545682, 0, 0.96705484, -322.1743, 0, -64.93338)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree37" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes2" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -368.82275, 0, -64.93338)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Tree38" parent="GridContainer/Cont_P1/View_P1/Map/Buildings/EndBushes2" instance=ExtResource("27_6vwi6")]
 transform = Transform3D(0.96705484, 0, -0.2545682, 0, 1, 0, 0.2545682, 0, 0.96705484, -413.77325, 0, -64.93338)
-mission_id = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="Grass details" type="StaticBody3D" parent="GridContainer/Cont_P1/View_P1/Map"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.18, 0)
@@ -7221,26 +5816,13 @@ shape = SubResource("ConcavePolygonShape3D_n5bpv")
 transform = Transform3D(0.94950217, 0, 0.31376046, 0, 1, 0, -0.31376046, 0, 0.94950217, -312.18994, 0.061641455, 97.54309)
 mass = 250.0
 script = ExtResource("21_pyjdw")
-mission_id = null
 max_health = 15.0
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-shard_count = null
 explosion_force = 6.0
 upward_bias = 6.0
 shard_lifetime = 2.0
 scatter_radius = 1.0
 shard_min_size = 2.0
 shard_max_size = 5.0
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Cars/BrokenCar"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.005874634, 0.26308346, 0.07183838)
@@ -7350,26 +5932,13 @@ shape = SubResource("ConcavePolygonShape3D_n5bpv")
 transform = Transform3D(0.8358073, 0, 0.5490228, 0, 1, 0, -0.5490228, 0, 0.8358073, -190.75786, 0.061649084, 154.34398)
 mass = 250.0
 script = ExtResource("21_pyjdw")
-mission_id = null
 max_health = 15.0
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-shard_count = null
 explosion_force = 6.0
 upward_bias = 6.0
 shard_lifetime = 2.0
 scatter_radius = 1.0
 shard_min_size = 2.0
 shard_max_size = 5.0
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Cars/BrokenCar2"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.005874634, 0.26308346, 0.07183838)
@@ -7767,26 +6336,13 @@ shape = SubResource("ConcavePolygonShape3D_n5bpv")
 transform = Transform3D(0.98207736, 0, -0.18847843, 0, 1, 0, 0.18847843, 0, 0.98207736, -103.74, 2.143897, 88.51)
 mass = 250.0
 script = ExtResource("21_pyjdw")
-mission_id = null
 max_health = 15.0
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-shard_count = null
 explosion_force = 6.0
 upward_bias = 6.0
 shard_lifetime = 2.0
 scatter_radius = 1.0
 shard_min_size = 2.0
 shard_max_size = 5.0
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Cars/BrokenCar3"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.005874634, 0.26308346, 0.07183838)
@@ -7800,26 +6356,13 @@ mesh = SubResource("BoxMesh_h16if")
 transform = Transform3D(0.72488165, 0, 0.68887347, 0, 1, 0, -0.68887347, 0, 0.72488165, -52.62695, 0.061649084, 176.55879)
 mass = 250.0
 script = ExtResource("21_pyjdw")
-mission_id = null
 max_health = 15.0
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-shard_count = null
 explosion_force = 6.0
 upward_bias = 6.0
 shard_lifetime = 2.0
 scatter_radius = 1.0
 shard_min_size = 2.0
 shard_max_size = 5.0
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Cars/BrokenCar4"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.005874634, 0.26308346, 0.07183838)
@@ -7833,26 +6376,13 @@ mesh = SubResource("BoxMesh_h16if")
 transform = Transform3D(0.9764958, 0, 0.21553639, 0, 1, 0, -0.21553639, 0, 0.9764958, -69.93703, 0.061649084, 190.71507)
 mass = 250.0
 script = ExtResource("21_pyjdw")
-mission_id = null
 max_health = 15.0
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-shard_count = null
 explosion_force = 6.0
 upward_bias = 6.0
 shard_lifetime = 2.0
 scatter_radius = 1.0
 shard_min_size = 2.0
 shard_max_size = 5.0
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Cars/BrokenCar5"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.005874634, 0.26308346, 0.07183838)
@@ -7866,26 +6396,13 @@ mesh = SubResource("BoxMesh_h16if")
 transform = Transform3D(0.9764958, 0, 0.21553639, 0, 1, 0, -0.21553639, 0, 0.9764958, 32.278183, 0.061649084, 295.97345)
 mass = 250.0
 script = ExtResource("21_pyjdw")
-mission_id = null
 max_health = 15.0
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-shard_count = null
 explosion_force = 6.0
 upward_bias = 6.0
 shard_lifetime = 2.0
 scatter_radius = 1.0
 shard_min_size = 2.0
 shard_max_size = 5.0
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Cars/BrokenCar6"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.005874634, 0.26308346, 0.07183838)
@@ -7899,26 +6416,13 @@ mesh = SubResource("BoxMesh_h16if")
 transform = Transform3D(0.31334606, 0, -0.94963896, 0, 1, 0, 0.94963896, 0, 0.31334606, -84.836876, 0.061649084, 262.38065)
 mass = 250.0
 script = ExtResource("21_pyjdw")
-mission_id = null
 max_health = 15.0
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-shard_count = null
 explosion_force = 6.0
 upward_bias = 6.0
 shard_lifetime = 2.0
 scatter_radius = 1.0
 shard_min_size = 2.0
 shard_max_size = 5.0
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Cars/BrokenCar7"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.005874634, 0.26308346, 0.07183838)
@@ -7932,26 +6436,13 @@ mesh = SubResource("BoxMesh_h16if")
 transform = Transform3D(0.36164084, 0, 0.9323175, 0, 1, 0, -0.9323175, 0, 0.36164084, 292.30865, 0.06165099, 251.82538)
 mass = 250.0
 script = ExtResource("21_pyjdw")
-mission_id = null
 max_health = 15.0
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-shard_count = null
 explosion_force = 6.0
 upward_bias = 6.0
 shard_lifetime = 2.0
 scatter_radius = 1.0
 shard_min_size = 2.0
 shard_max_size = 5.0
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Cars/BrokenCar8"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.005874634, 0.26308346, 0.07183838)
@@ -7965,26 +6456,13 @@ mesh = SubResource("BoxMesh_h16if")
 transform = Transform3D(0.9427638, 0, 0.3334613, 0, 1, 0, -0.3334613, 0, 0.9427638, 314.3307, 0.06165099, 102.36432)
 mass = 250.0
 script = ExtResource("21_pyjdw")
-mission_id = null
 max_health = 15.0
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-shard_count = null
 explosion_force = 6.0
 upward_bias = 6.0
 shard_lifetime = 2.0
 scatter_radius = 1.0
 shard_min_size = 2.0
 shard_max_size = 5.0
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Cars/BrokenCar9"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.005874634, 0.26308346, 0.07183838)
@@ -7998,26 +6476,13 @@ mesh = SubResource("BoxMesh_h16if")
 transform = Transform3D(0.9844971, 0, 0.17540105, 0, 1, 0, -0.17540105, 0, 0.9844971, 376.2561, 0.06165099, 23.835983)
 mass = 250.0
 script = ExtResource("21_pyjdw")
-mission_id = null
 max_health = 15.0
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-shard_count = null
 explosion_force = 6.0
 upward_bias = 6.0
 shard_lifetime = 2.0
 scatter_radius = 1.0
 shard_min_size = 2.0
 shard_max_size = 5.0
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Cars/BrokenCar10"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.005874634, 0.26308346, 0.07183838)
@@ -8031,26 +6496,13 @@ mesh = SubResource("BoxMesh_h16if")
 transform = Transform3D(0.9844971, 0, 0.17540105, 0, 1, 0, -0.17540105, 0, 0.9844971, 355.62802, 0.06165099, -147.31223)
 mass = 250.0
 script = ExtResource("21_pyjdw")
-mission_id = null
 max_health = 15.0
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-shard_count = null
 explosion_force = 6.0
 upward_bias = 6.0
 shard_lifetime = 2.0
 scatter_radius = 1.0
 shard_min_size = 2.0
 shard_max_size = 5.0
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Cars/BrokenCar11"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.005874634, 0.26308346, 0.07183838)
@@ -8064,26 +6516,13 @@ mesh = SubResource("BoxMesh_h16if")
 transform = Transform3D(0.42022818, 0, -0.9074185, 0, 1, 0, 0.9074185, 0, 0.42022818, 179.63971, 0.06165862, -136.77025)
 mass = 250.0
 script = ExtResource("21_pyjdw")
-mission_id = null
 max_health = 15.0
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-shard_count = null
 explosion_force = 6.0
 upward_bias = 6.0
 shard_lifetime = 2.0
 scatter_radius = 1.0
 shard_min_size = 2.0
 shard_max_size = 5.0
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Cars/BrokenCar12"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.005874634, 0.26308346, 0.07183838)
@@ -8097,26 +6536,13 @@ mesh = SubResource("BoxMesh_h16if")
 transform = Transform3D(0.42022818, 0, -0.9074185, 0, 1, 0, 0.9074185, 0, 0.42022818, 373.68585, 0.06165099, -311.80655)
 mass = 250.0
 script = ExtResource("21_pyjdw")
-mission_id = null
 max_health = 15.0
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-shard_count = null
 explosion_force = 6.0
 upward_bias = 6.0
 shard_lifetime = 2.0
 scatter_radius = 1.0
 shard_min_size = 2.0
 shard_max_size = 5.0
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Cars/BrokenCar13"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.005874634, 0.26308346, 0.07183838)
@@ -8130,26 +6556,13 @@ mesh = SubResource("BoxMesh_h16if")
 transform = Transform3D(-0.37436393, 0, -0.92728186, 0, 1, 0, 0.92728186, 0, -0.37436393, 380.21213, 0.06165099, -302.16922)
 mass = 250.0
 script = ExtResource("21_pyjdw")
-mission_id = null
 max_health = 15.0
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-shard_count = null
 explosion_force = 6.0
 upward_bias = 6.0
 shard_lifetime = 2.0
 scatter_radius = 1.0
 shard_min_size = 2.0
 shard_max_size = 5.0
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Cars/BrokenCar14"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.005874634, 0.26308346, 0.07183838)
@@ -8163,26 +6576,13 @@ mesh = SubResource("BoxMesh_h16if")
 transform = Transform3D(0.9973438, 0, -0.07283795, 0, 1, 0, 0.07283795, 0, 0.9973438, 367.6851, 0.06165099, -289.223)
 mass = 250.0
 script = ExtResource("21_pyjdw")
-mission_id = null
 max_health = 15.0
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-shard_count = null
 explosion_force = 6.0
 upward_bias = 6.0
 shard_lifetime = 2.0
 scatter_radius = 1.0
 shard_min_size = 2.0
 shard_max_size = 5.0
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Cars/BrokenCar15"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.005874634, 0.26308346, 0.07183838)
@@ -8196,26 +6596,13 @@ mesh = SubResource("BoxMesh_h16if")
 transform = Transform3D(0.88161683, 0, 0.47196606, 0, 1, 0, -0.47196606, 0, 0.88161683, 245.89804, 0.06165099, -303.82263)
 mass = 250.0
 script = ExtResource("21_pyjdw")
-mission_id = null
 max_health = 15.0
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-shard_count = null
 explosion_force = 6.0
 upward_bias = 6.0
 shard_lifetime = 2.0
 scatter_radius = 1.0
 shard_min_size = 2.0
 shard_max_size = 5.0
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Cars/BrokenCar16"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.005874634, 0.26308346, 0.07183838)
@@ -8229,26 +6616,13 @@ mesh = SubResource("BoxMesh_h16if")
 transform = Transform3D(0.88161683, 0, 0.47196606, 0, 1, 0, -0.47196606, 0, 0.88161683, -46.51181, 0.06165862, -290.4289)
 mass = 250.0
 script = ExtResource("21_pyjdw")
-mission_id = null
 max_health = 15.0
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-shard_count = null
 explosion_force = 6.0
 upward_bias = 6.0
 shard_lifetime = 2.0
 scatter_radius = 1.0
 shard_min_size = 2.0
 shard_max_size = 5.0
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Cars/BrokenCar17"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.005874634, 0.26308346, 0.07183838)
@@ -8262,26 +6636,13 @@ mesh = SubResource("BoxMesh_h16if")
 transform = Transform3D(0.43139327, 0, 0.902164, 0, 1, 0, -0.902164, 0, 0.43139327, -194.06358, 0.06165099, -332.61362)
 mass = 250.0
 script = ExtResource("21_pyjdw")
-mission_id = null
 max_health = 15.0
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-shard_count = null
 explosion_force = 6.0
 upward_bias = 6.0
 shard_lifetime = 2.0
 scatter_radius = 1.0
 shard_min_size = 2.0
 shard_max_size = 5.0
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Cars/BrokenCar18"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.005874634, 0.26308346, 0.07183838)
@@ -8295,26 +6656,13 @@ mesh = SubResource("BoxMesh_h16if")
 transform = Transform3D(-0.4789981, 0, 0.87781596, 0, 1, 0, -0.87781596, 0, -0.4789981, -204.12303, 0.06165099, -112.80994)
 mass = 250.0
 script = ExtResource("21_pyjdw")
-mission_id = null
 max_health = 15.0
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-shard_count = null
 explosion_force = 6.0
 upward_bias = 6.0
 shard_lifetime = 2.0
 scatter_radius = 1.0
 shard_min_size = 2.0
 shard_max_size = 5.0
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Cars/BrokenCar19"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.005874634, 0.26308346, 0.07183838)
@@ -8328,26 +6676,13 @@ mesh = SubResource("BoxMesh_h16if")
 transform = Transform3D(0.86902046, 0, 0.49477616, 0, 1, 0, -0.49477616, 0, 0.86902046, -61.37188, 0.06165099, -139.7326)
 mass = 250.0
 script = ExtResource("21_pyjdw")
-mission_id = null
 max_health = 15.0
-energy_on_destroy = null
-energy_on_hit = null
-causes_aoe_damage = null
-aoe_damage_amount = null
-aoe_radius = null
-aoe_knockback_force = null
-aoe_damage_falloff = null
-spawn_debris_on_death = null
-mesh_instance_path = null
-shard_count = null
 explosion_force = 6.0
 upward_bias = 6.0
 shard_lifetime = 2.0
 scatter_radius = 1.0
 shard_min_size = 2.0
 shard_max_size = 5.0
-aoe_min_vertical_kick = null
-aoe_collision_mask = null
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/Objects/Cars/BrokenCar20"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.005874634, 0.26308346, 0.07183838)

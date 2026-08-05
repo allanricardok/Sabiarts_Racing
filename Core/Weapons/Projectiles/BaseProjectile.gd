@@ -4,6 +4,8 @@ class_name BaseProjectile
 
 @export_group("Física de Combate")
 @export var knockback_force: float = 50.0 
+# O valor base de trepidação da câmera gerado por essa munição
+@export var base_shake_force: float = 0.10 
 
 var damage: float = 0.0
 var shooter: Node3D = null
@@ -14,6 +16,12 @@ var velocity: Vector3 = Vector3.ZERO
 var pool_key: String = ""
 var life_timer: float = 0.0
 var is_special_weapon: bool = false
+
+func _ready():
+	if not body_entered.is_connected(_on_impact):
+		body_entered.connect(_on_impact)
+	if not area_entered.is_connected(_on_impact):
+		area_entered.connect(_on_impact)
 
 # Setup é chamado toda vez que a bala "nasce" (ou renasce do Pool)
 func setup(dmg_value: float, car_velocity: Vector3, source_car: Node3D, propulsion_speed: float = 50.0):
@@ -49,12 +57,13 @@ func setup(dmg_value: float, car_velocity: Vector3, source_car: Node3D, propulsi
 	visible = true
 	set_deferred("monitoring", true)
 	life_timer = 4.0 # 4 Segundos de vida até voltar pro pool
-
-func _ready():
-	if not body_entered.is_connected(_on_impact):
-		body_entered.connect(_on_impact)
-	if not area_entered.is_connected(_on_impact):
-		area_entered.connect(_on_impact)
+	
+	# === SHAKE DE LANÇAMENTO ===
+	# Só executa se for arma especial ou se quisermos filtrar a metralhadora
+	if is_special_weapon and is_instance_valid(shooter) and shooter.is_in_group("jogadores"):
+		var shake = _get_camera_shake(shooter)
+		if shake:
+			shake.trigger_event("CustomFire", base_shake_force)
 
 func _physics_process(delta):
 	var real_delta = delta
@@ -90,31 +99,57 @@ func _on_impact(target_node):
 	if actual_target.has_method("take_damage"):
 		actual_target.take_damage(damage, self) 
 		
-# --- INTEGRAÇÃO DO RAGE COMPONENT ---
-		if is_instance_valid(shooter):
-			var rage = shooter.get_node_or_null("%RageComponent")
-			if rage and rage.has_method("add_hit"):
-				# Agora passamos o alvo, o dano, e se é arma especial!
-				rage.add_hit(actual_target, damage, is_special_weapon)
+	# --- INTEGRAÇÃO DO RAGE COMPONENT ---
+	if is_instance_valid(shooter):
+		var rage = shooter.get_node_or_null("%RageComponent")
+		if rage and rage.has_method("add_hit"):
+			# Agora passamos o alvo, o dano, e se é arma especial!
+			rage.add_hit(actual_target, damage, is_special_weapon)
 	
 	_play_impact_vfx()
 
 func _play_impact_vfx():
+	# === CORREÇÃO DO SCREENSHAKE INFINITO ===
+	# Só executamos o tremor de impacto em área se a arma for uma explosão real (is_special_weapon).
+	# Isso impede que a MachineGun cause "terremotos" a cada 0.1s.
+	if is_special_weapon:
+		var jogadores = get_tree().get_nodes_in_group("jogadores")
+		
+		for jog in jogadores:
+			if is_instance_valid(jog):
+				var distance = global_position.distance_to(jog.global_position)
+				
+				if distance <= 100.0:
+					var mult = clamp(remap(distance, 5.0, 100.0, 2.0, 0.1), 0.1, 2.0)
+					var final_shake = base_shake_force * mult
+					
+					var shake = _get_camera_shake(jog)
+					if shake:
+						shake.trigger_event("Explosion", final_shake)
+			
 	set_deferred("monitoring", false)
 	visible = false
-	velocity = Vector3.ZERO # Freia a bala no ar
+	velocity = Vector3.ZERO
 	
-	# Reaproveita o cronômetro para dar um micro delay antes de guardar a bala
-	# (Útil caso a bala tenha um rastro/trail que precisa terminar de sumir)
-	life_timer = 0.1 
+	life_timer = 0.1
 
 func _deactivate_and_pool():
 	set_deferred("monitoring", false)
 	visible = false
 	velocity = Vector3.ZERO
 	is_special_weapon = false
+	
 	# Devolve a bala pro almoxarifado em vez de jogar no lixo!
 	if ProjectilePool.has_method("return_projectile"):
 		ProjectilePool.return_projectile(self)
 	else:
 		queue_free()
+
+# === FUNÇÃO AUXILIAR PARA ACHAR O NODE ===
+# Como o CameraShake é filho da câmera e não do script do carro diretamente,
+# essa função faz uma busca segura pelos filhos para garantir que vamos achar o script.
+func _get_camera_shake(car_node: Node3D) -> CameraShake:
+	var shakes = car_node.find_children("*", "CameraShake", true, false)
+	if shakes.size() > 0:
+		return shakes[0] as CameraShake
+	return null

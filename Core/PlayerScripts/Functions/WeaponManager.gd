@@ -240,7 +240,11 @@ func fire_basic_weapon():
 	var weapon_name = basic_weapon_resource.nome
 	
 	_muzzle_flash_effect(weapon_name)
-	_spawn_projectile(basic_weapon_resource, weapon_name, false)
+	var proj = _spawn_projectile(basic_weapon_resource, weapon_name, false)
+	
+	# Garante que a bala da metralhadora nunca seja considerada especial
+	if is_instance_valid(proj) and "is_special_weapon" in proj:
+		proj.is_special_weapon = false
 
 func _remove_current_weapon():
 	weapon_pool.remove_at(current_weapon_index)
@@ -263,7 +267,11 @@ func fire_special_weapon(backwards: bool = false):
 	special_cooldowns[active.nome] = active.fire_rate / rate_mult
 	_muzzle_flash_effect(active.nome)
 	_spawn_projectile(active, active.nome, backwards)
-	car.play_camera_shake("WeaponFire")
+	
+	# =======================================================
+	# APAGUE ESTA LINHA: car.play_camera_shake("WeaponFire")
+	# O BaseProjectile agora cuida disso de forma isolada!
+	# =======================================================
 	
 	active.ammo -= 1
 	if active.ammo <= 0: _remove_current_weapon()
@@ -294,11 +302,20 @@ func _spawn_projectile(res: WeaponResource, node_name: String, backwards: bool =
 	proj.set("is_shot_backwards", backwards)
 	
 	if proj.has_method("setup"):
+		var prop_speed: float = res.speed if "speed" in res else 80.0
+		
 		if node_name == "HomingMissile" or node_name == "GrapplingMissile" or node_name == "FreezingMissile":
-			var target = targeting.current_target if (is_instance_valid(targeting) and not backwards) else null
-			proj.setup(res.dano, car.linear_velocity, car, target)
+			# === CORREÇÃO DO ERRO DO ALVO DELETADO ===
+			var valid_target = null
+			if is_instance_valid(targeting) and not backwards:
+				var potential_target = targeting.current_target
+				# Garante que o alvo existe, é válido e não está no limbo da deleção
+				if is_instance_valid(potential_target) and not potential_target.is_queued_for_deletion():
+					valid_target = potential_target
+					
+			proj.setup(res.dano, car.linear_velocity, car, prop_speed, valid_target)
 		else:
-			proj.setup(res.dano, car.linear_velocity, car)
+			proj.setup(res.dano, car.linear_velocity, car, prop_speed)
 
 func _muzzle_flash_effect(node_name: String):
 	if not weapon_nodes.has(node_name) or not is_instance_valid(weapon_nodes[node_name]): 

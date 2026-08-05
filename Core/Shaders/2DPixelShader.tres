@@ -5,6 +5,6 @@
 [resource]
 shader = ExtResource("1_ckyeb")
 shader_parameter/Resolution = Vector2(720, 480)
-shader_parameter/Color_Depth = 16.645
-shader_parameter/dither_amount = 0.5999999865888
-shader_parameter/dither_scale = 2.0
+shader_parameter/Color_Depth = 26.0
+shader_parameter/dither_amount = 0.749999983236
+shader_parameter/dither_scale = 1.025
