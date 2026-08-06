@@ -1,3 +1,4 @@
+# StoryModeController.gd
 extends Node
 class_name StoryModeController
 
@@ -62,9 +63,6 @@ func _ready():
 	if is_instance_valid(ScoreManager) and ScoreManager.has_signal("score_changed"):
 		ScoreManager.score_changed.connect(_on_global_score_changed)
 	
-	# NOVO: escuta diretamente o MissionManager, igual o ScoreManager acima.
-	# Isso garante que qualquer tipo de missão (COLLECT, ROADKILL, SPEED...)
-	# alimente os tiers da mesma forma robusta que o SCORE já usava.
 	if is_instance_valid(MissionManager):
 		if MissionManager.has_signal("mission_updated"):
 			MissionManager.mission_updated.connect(_on_mission_progress_updated)
@@ -74,12 +72,36 @@ func _ready():
 	call_deferred("_setup_inicial_seguro")
 	call_deferred("_check_next_map_unlock")
 
+# ====================================================================
+# LIMPEZA OBRIGATÓRIA AO SAIR DO MAPA (END RUN)
+# ====================================================================
+func _exit_tree():
+	print("[StoryController] Mapa descarregado. Limpando dados fantasmas da memória...")
+	force_cancel_all_missions()
+
+func force_cancel_all_missions():
+	is_mission_running = false
+	current_mission = null
+	active_portal = null
+	active_classic_objective = null
+	combat_targets.clear()
+	spawned_bots.clear()
+	completed_tiers_this_run.clear()
+	current_tracked_progress = 0.0
+	current_tracked_score = 0.0
+
+	# Manda o Singleton esquecer a missão para parar os toasts
+	if is_instance_valid(MissionManager):
+		# Tenta chamar as funções mais comuns de limpeza.
+		if MissionManager.has_method("clear_active_missions"):
+			MissionManager.clear_active_missions()
+		elif MissionManager.has_method("abort_current_mission"):
+			MissionManager.abort_current_mission()
+# ====================================================================
+
 func _on_global_score_changed(_player_id: int, new_score: int):
 	current_tracked_score = float(new_score)
 
-# NOVO: recebe o progresso diretamente do MissionManager, sem depender de
-# nenhuma propriedade espelhada no resource. "mission" só é processado se
-# for exatamente o classic_objective ativo desta missão de Story Mode.
 func _on_mission_progress_updated(mission: MissionItem, current: float, _target: float):
 	if is_instance_valid(active_classic_objective) and mission == active_classic_objective:
 		current_tracked_progress = current
@@ -153,8 +175,6 @@ func _get_current_mission_progress() -> float:
 		return float(dead_count)
 		
 	elif current_mission.mission_type == StoryMissionData.MissionType.CLASSIC_OBJECTIVE:
-		# ALTERADO: prog agora vem do valor recebido via sinal
-		# (current_tracked_progress), não mais de active_classic_objective.current_progress.
 		var prog = current_tracked_progress
 			
 		var desc = str(current_mission.mission_description).to_upper()
@@ -191,10 +211,6 @@ func _check_next_map_unlock():
 		if p.has_method("activate_portal_safely"):
 			p.activate_portal_safely()
 			
-	# ALTERADO: cada portal de próxima cidade (StoryNextMapPortal.gd) agora
-	# guarda seu próprio "points_required" no Inspector, em vez de todos
-	# compartilharem um único Global.points_to_next_city. O controller só
-	# repassa a pontuação atual pra cada portal decidir sozinho.
 	if is_instance_valid(Global) and "story_total_points" in Global:
 		for p in get_tree().get_nodes_in_group("next_map_portals"):
 			if p.has_method("try_activate"):
@@ -208,7 +224,6 @@ func request_mission_start(portal: StoryMissionPortal, data: StoryMissionData):
 	active_portal = portal
 	current_mission = data
 	
-	# Garante que a morte do jogador reprove a missão ativa
 	_conectar_morte_jogador()
 	
 	if mission_ui and mission_ui.has_method("show_mission_prompt"):
@@ -217,11 +232,9 @@ func request_mission_start(portal: StoryMissionPortal, data: StoryMissionData):
 		push_error("[StoryController] UI da missão não configurada!")
 		
 func _conectar_morte_jogador():
-	# Busca o carro do player através do grupo que você já usa no portal
 	var players = get_tree().get_nodes_in_group("jogadores")
 	for p in players:
 		var stats = p.find_child("StatsComponent*", true, false)
-		# Conecta o sinal health_depleted (que envia o attacker) para a nossa nova função
 		if stats and not stats.is_connected("health_depleted", _on_player_died):
 			stats.health_depleted.connect(_on_player_died)
 

@@ -74,13 +74,18 @@ func trigger_event(event_name: String, modifier: float = 1.0):
 			force = clamp(remap(modifier, 8.0, 50.0, car_collision_min_force, car_collision_max_force), car_collision_min_force, car_collision_max_force)
 			duration = car_collision_duration
 			
-		# === NOVOS EVENTOS PARA PROJÉTEIS ===
+		# === EVENTOS DE PROJÉTEIS ===
 		"CustomFire":
-			force = modifier # O projétil envia a força exata
+			force = modifier 
 			duration = weapon_fire_duration 
 		"Explosion":
-			force = modifier # A força já chega calculada com a distância
-			duration = 0.6 # Explosões costumam tremer a tela por um pouco mais de tempo
+			force = modifier 
+			duration = 0.6 
+			
+		# === EVENTO DO BURNOUT CHARGE ===
+		"BurnoutCharge":
+			force = modifier # A força cresce em tempo real de 0.01 a 0.08
+			duration = 0.1 # Duração super curta para sumir assim que soltar o pedal
 	
 	print("[SHAKE] Evento: '", event_name, "' | Força: ", int(force * 100), "% | Duração: ", duration, "s")
 	

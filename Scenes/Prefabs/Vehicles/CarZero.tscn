@@ -1,4 +1,4 @@
-[gd_scene load_steps=55 format=3 uid="uid://ry75iugdg8sl"]
+[gd_scene load_steps=56 format=3 uid="uid://ry75iugdg8sl"]
 
 [ext_resource type="Script" uid="uid://b0i2wvnkcrknc" path="res://Core/PlayerScripts/Functions/BaseVehicle.gd" id="1_drg00"]
 [ext_resource type="PackedScene" uid="uid://bp4khshtfj0rp" path="res://Scenes/Prefabs/Items/UniversalPickup.tscn" id="2_4a360"]
@@ -34,6 +34,7 @@
 [ext_resource type="Script" uid="uid://cdtih2m8pdfvb" path="res://Core/PlayerScripts/Functions/TargetingComponent.gd" id="20_mb2us"]
 [ext_resource type="Script" uid="uid://c6kscgps8kwls" path="res://Core/PlayerScripts/Functions/WeaponManager.gd" id="21_hifds"]
 [ext_resource type="Resource" uid="uid://cl6d44tjh6xry" path="res://Resources/Weapons/MachineGun.tres" id="22_3o2qt"]
+[ext_resource type="Script" uid="uid://c68u63gsaw1g5" path="res://Core/PlayerScripts/Functions/TireBloodManager.gd" id="23_tutdn"]
 [ext_resource type="Script" uid="uid://cie8v7vytopq5" path="res://Core/PlayerScripts/Functions/Tricks/TrickEnergyRingsFX.gd" id="28_y0tcj"]
 [ext_resource type="Script" uid="uid://cipoabink6um3" path="res://Core/PlayerScripts/Functions/WallRideComponent.gd" id="30_j5ts8"]
 [ext_resource type="Script" uid="uid://cre5uqt5tupo4" path="res://Core/PlayerScripts/Functions/UIScannerComponent.gd" id="31_ocy3r"]
@@ -202,7 +203,7 @@ shake_speed = 25.0
 speed_shake_min_kmh = 66.0
 speed_shake_max_kmh = 150.0
 speed_shake_max_force = 0.1
-turbo_force = 1.0
+turbo_force = 10.0
 turbo_duration = 0.3
 hard_land_force = 2.0
 hard_land_duration = 0.8
@@ -1122,6 +1123,14 @@ color_tip = Color(1, 0.58000004, 0.100000024, 0.32156864)
 unique_name_in_owner = true
 script = ExtResource("10_j5ts8")
 
+[node name="TireBloodManager" type="Node" parent="Scripts" node_paths=PackedStringArray("wheel_front_left", "wheel_front_right", "wheel_rear_left", "wheel_rear_right")]
+unique_name_in_owner = true
+script = ExtResource("23_tutdn")
+wheel_front_left = NodePath("../../FreEsq")
+wheel_front_right = NodePath("../../FreDir")
+wheel_rear_left = NodePath("../../TrasEsq")
+wheel_rear_right = NodePath("../../TrasDir")
+
 [node name="InputComponent" type="Node" parent="Scripts"]
 unique_name_in_owner = true
 script = ExtResource("11_ocy3r")
@@ -1137,11 +1146,13 @@ START_BOOST = 5.0
 friction_rear_min = 1.8
 friction_front_min = 3.6
 friction_front_max = 4.6
+MIN_DRIFT_SPEED = 16.0
 wheel_rear_left = NodePath("../../TrasEsq")
 wheel_rear_right = NodePath("../../TrasDir")
 wheel_front_left = NodePath("../../FreEsq")
 wheel_front_right = NodePath("../../FreDir")
 STEER_TORQUE_START = 20.0
+STATIONARY_TURN_SPEED = 60.0
 
 [node name="StatsComponent" type="Node" parent="Scripts" node_paths=PackedStringArray("health_bar", "shield_bar")]
 unique_name_in_owner = true

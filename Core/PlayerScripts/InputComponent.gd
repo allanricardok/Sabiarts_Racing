@@ -46,6 +46,10 @@ var last_throttle_time : float = 0.0
 var is_turbo_pressed : bool = false 
 var is_jump_pressed: bool = false 
 
+# --- VARIÁVEIS PARA O ZERINHO (BURNOUT) ---
+var is_accelerating : bool = false
+var is_braking : bool = false
+
 func setup(input_source: String):
 	suffix = "_" + input_source
 	print("[SYSTEM] InputComponent pronto para: ", suffix)
@@ -77,6 +81,10 @@ func _process(delta):
 	else:
 		steering = Input.get_axis("Right" + suffix, "Left" + suffix)
 		pitch = Input.get_axis("Pitch_Down" + suffix, "Pitch_Up" + suffix)
+
+	# --- ATUALIZAÇÃO DOS ESTADOS DE ACELERAÇÃO E FREIO ---
+	is_accelerating = Input.is_action_pressed("Forward" + suffix)
+	is_braking = Input.is_action_pressed("Backward" + suffix)
 
 	if Input.is_action_just_pressed("Forward" + suffix):
 		var current_time = Time.get_ticks_msec() / 1000.0
@@ -118,13 +126,7 @@ func _process(delta):
 			var normal_threshold = 0.5 
 			var strict_tolerance = 0.25 
 			
-			# =========================================================
-			# TRAVA ESTREITA APENAS PARA A ESQUERDA (TELEPORTE)
-			# Exige que o eixo Y esteja quase zerado (< 0.25)
-			# =========================================================
 			ability_left = (ab_x < -normal_threshold) and (abs(ab_y) < strict_tolerance)
-			
-			# As outras habilidades mantêm a flexibilidade padrão original
 			ability_right = (ab_x > normal_threshold)
 			ability_up = (ab_y < -normal_threshold)
 			ability_down = (ab_y > normal_threshold)
@@ -139,24 +141,19 @@ func _process(delta):
 		ability_left = false
 		ability_right = false
 
-	# --- LÓGICA DO TIRO PARA TRÁS (Círculo + Analógico/D-Pad Baixo) ---
 	is_fire_backwards_pressed = false
 	
 	var is_physically_down = false
 	if suffix.begins_with("_K"):
 		is_physically_down = Input.is_action_pressed("AbilityDown" + suffix) or Input.is_action_pressed("Pitch_Down" + suffix)
 	else:
-		# Lemos a nossa variável que acabou de ser purificada matematicamente pelo eixo.
-		# Isso impede 100% que Cima ative a função de Baixo.
 		is_physically_down = ability_down
 
 	var attr_held = Input.is_action_pressed("Attribute" + suffix)
 	var attr_just_pressed = Input.is_action_just_pressed("Attribute" + suffix)
 
-	# Condição 1: Puxou pra baixo e apertou o Círculo agora
 	if is_physically_down and attr_just_pressed:
 		is_fire_backwards_pressed = true
-	# Condição 2: Já segurava Círculo e puxou o analógico pra baixo agora
 	elif attr_held and is_physically_down:
 		if Input.is_action_just_pressed("AbilityDown" + suffix) or Input.is_action_just_pressed("Pitch_Down" + suffix):
 			is_fire_backwards_pressed = true

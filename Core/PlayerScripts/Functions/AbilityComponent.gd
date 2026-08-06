@@ -192,6 +192,30 @@ func _disparar_fogo_local(multiplicador: float):
 		if fx.has_method("burst_fire_sequenced"):
 			fx.burst_fire_sequenced(multiplicador)
 
+func execute_burnout_boost(charge_multiplier: float = 1.0):
+	get_tree().call_group("TutorialUI", "complete_task", "turbo")
+	var mult = stats.speed_multiplier if stats else 1.0
+	
+	# === EFEITOS DE CÂMERA E SHAKE ===
+	if car.has_method("play_camera_shake"):
+		car.play_camera_shake("Turbo")
+		
+	var cam = car.find_child("Camera3D", true, false)
+	if cam and cam.has_method("apply_turbo_kickback"):
+		cam.apply_turbo_kickback()
+	
+	# === 1. LIGA A SEQUÊNCIA DE FOGO LOCALMENTE ===
+	_disparar_fogo_local(0.5) 
+	get_tree().create_timer(sequenced_burst_delay).timeout.connect(func(): _disparar_fogo_local(1.0))
+	get_tree().create_timer(sequenced_burst_delay * 2).timeout.connect(func(): _disparar_fogo_local(0.75))
+	get_tree().create_timer(sequenced_burst_delay * 3).timeout.connect(func(): _disparar_fogo_local(0.5))
+	get_tree().create_timer(sequenced_burst_delay * 4).timeout.connect(func(): _disparar_fogo_local(0.25))
+
+	# === 2. FÍSICA APLICADA COM O MULTIPLICADOR DO ZERINHO ===
+	var final_boost = BOOST_IMPULSE * mult * charge_multiplier
+	car.apply_central_impulse(car.global_transform.basis.z * final_boost * car.mass)
+	_start_cooldown()
+
 func _execute_teleport():
 	var teleport_markers = get_tree().get_nodes_in_group("AbilityTeleport")
 	

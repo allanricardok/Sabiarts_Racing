@@ -42,10 +42,6 @@ func _on_body_entered(body):
 	if body is BaseVehicle or body.is_in_group("jogadores"):
 		print("[DEBUG-ITEM] Jogador colidiu e coletou: ", name)
 		
-		# =======================================================
-		# NOVO: Instancia o efeito de Bebida se estiver ativado
-		# =======================================================
-# =======================================================
 		# NOVO: Instancia o efeito de Bebida apenas para quem coletou
 		# =======================================================
 		if causes_drunk_effect:

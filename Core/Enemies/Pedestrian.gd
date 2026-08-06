@@ -7,16 +7,13 @@ var is_dead: bool = false
 @export var base_speed: float = 6.0
 @export var is_invincible: bool = false
 @export var energy_on_death: float = 5.0
-## Distância máxima (em metros) para sujar a tela de sangue caso a morte seja por tiro
 @export var blood_splash_distance: float = 3.0
 
 @export_group("Efeitos Visuais")
-@export var blood_stain_scale: float = 2.0 # Multiplicador de tamanho da mancha de sangue
+@export var blood_stain_scale: float = 2.0
 
 @export_group("Wander Settings")
 @export var max_wander_radius: float = 30.0
-
-
 
 var current_direction: Vector3 = Vector3.ZERO
 var panic_timer: float = 0.0
@@ -76,7 +73,6 @@ func take_damage(amount: float, attacker: Node3D = null):
 	if is_invincible or is_dead: 
 		return 
 	
-	# Grava a posição imediatamente antes de qualquer coisa acontecer
 	var death_pos = global_position 
 	is_dead = true
 	
@@ -87,9 +83,6 @@ func take_damage(amount: float, attacker: Node3D = null):
 		actual_shooter = attacker.shooter
 		is_projectile = true 
 	
-	# =================================================================
-	# CHAMA OS EFEITOS COM AS NOVAS REGRAS E DISTÂNCIA CUSTOMIZÁVEL
-	# =================================================================
 	var impact_dir = Vector3.ZERO
 	if is_instance_valid(actual_shooter):
 		if "linear_velocity" in actual_shooter:
@@ -102,16 +95,13 @@ func take_damage(amount: float, attacker: Node3D = null):
 		
 	var trigger_splash = false
 	if not is_projectile:
-		trigger_splash = true # Atropelamento direto sempre suja a tela
+		trigger_splash = true
 	else:
-		# Valida a distância usando a nova variável exportada
 		if is_instance_valid(actual_shooter) and death_pos.distance_to(actual_shooter.global_position) <= blood_splash_distance:
 			trigger_splash = true
 			
 	if trigger_splash:
 		_trigger_blood_splash_ui(actual_shooter)
-	
-	# =================================================================
 	
 	process_mode = Node.PROCESS_MODE_DISABLED
 	visible = false
@@ -161,10 +151,6 @@ func take_damage(amount: float, attacker: Node3D = null):
 	else:
 		queue_free()
 
-
-# ============================================================================
-# NOVO GORE VISUAL (0% Física, 100% Tweens e Matemática)
-# ============================================================================
 func _spawn_gore_visuals(pos: Vector3, impact_dir: Vector3 = Vector3.ZERO):
 	var anim_sprite = find_child("AnimatedSprite3D")
 	if not anim_sprite or not anim_sprite.sprite_frames: return
@@ -175,13 +161,12 @@ func _spawn_gore_visuals(pos: Vector3, impact_dir: Vector3 = Vector3.ZERO):
 	var tex_w = current_tex.get_width()
 	var tex_h = current_tex.get_height()
 	
-	# Garante que temos uma direção base. Se não passar nada, espalha aleatoriamente.
 	var base_dir = impact_dir
 	if base_dir.length() < 0.1:
 		base_dir = Vector3(randf_range(-1, 1), 0, randf_range(-1, 1)).normalized()
 	else:
 		base_dir = base_dir.normalized()
-		base_dir.y = 0 # Achata a direção para não voar pro céu se o carro estiver numa rampa
+		base_dir.y = 0 
 	
 	for i in range(5):
 		var chunk = Sprite3D.new()
@@ -196,7 +181,6 @@ func _spawn_gore_visuals(pos: Vector3, impact_dir: Vector3 = Vector3.ZERO):
 		var ry = randf_range(0, tex_h - chunk_h)
 		chunk.region_rect = Rect2(rx, ry, chunk_w, chunk_h)
 		
-		# Partículas (mantidas iguais)
 		var rastro_sangue = CPUParticles3D.new()
 		rastro_sangue.amount = 8
 		rastro_sangue.lifetime = 0.35
@@ -219,30 +203,23 @@ func _spawn_gore_visuals(pos: Vector3, impact_dir: Vector3 = Vector3.ZERO):
 		
 		get_tree().current_scene.add_child(chunk)
 		
-		# REDUZIDO: Posição de origem mais próxima do chão/centro do corpo
 		var start_pos = pos + Vector3(randf_range(-0.5, 0.5), randf_range(0.1, 0.5), randf_range(-0.5, 0.5))
 		chunk.global_position = start_pos
 		
-		# === ANIMAÇÃO DE FÍSICA FAKE (TWEEN) CORRIGIDA ===
-		
-		# Espalha os pedaços em um "cone" de ~60 graus a partir da direção do impacto
 		var spread_angle = deg_to_rad(randf_range(-45.0, 45.0))
 		var final_dir = base_dir.rotated(Vector3.UP, spread_angle).normalized()
 		
-		# Voam mais longe para frente agora
 		var distance = randf_range(5.0, 12.0) 
 		var target_pos = start_pos + (final_dir * distance)
 		
-		# Lógica de altura: Apenas 1 em cada 5 (20% de chance) voa bem alto
 		var peak_y = start_pos.y
 		if randf() > 0.8:
-			peak_y += randf_range(2.0, 3.5) # Pedaço dramático alto
+			peak_y += randf_range(2.0, 3.5) 
 		else:
-			peak_y += randf_range(0.2, 1.2) # Pedaço rasteiro rápido (melhor para câmera do capô)
+			peak_y += randf_range(0.2, 1.2) 
 			
 		var floor_y = start_pos.y - randf_range(0.0, 1.0)
 		
-		# Pedaços que voam baixo caem mais rápido (dá mais impacto)
 		var fly_time = randf_range(0.4, 0.8)
 		
 		var tween = get_tree().create_tween().set_parallel(true)
@@ -261,15 +238,12 @@ func _spawn_gore_visuals(pos: Vector3, impact_dir: Vector3 = Vector3.ZERO):
 		var alpha_tween = get_tree().create_tween()
 		alpha_tween.tween_property(chunk, "modulate:a", 0.0, 0.2).set_delay(fly_time - 0.1)
 		alpha_tween.chain().tween_callback(chunk.queue_free)
-# ============================================================================
-# LÓGICA DE COMUNICAÇÃO DO SPLASH NA TELA
-# ============================================================================
+
 func _trigger_blood_splash_ui(shooter: Node3D):
 	if not shooter: return
 	var input = shooter.get_node_or_null("%InputComponent")
 	
 	if input and not input.is_bot:
-		# Encontra o HUD correto do jogador que atropelou
 		var hud = get_tree().get_first_node_in_group("HUD" + input.suffix)
 		if not hud: hud = get_tree().get_first_node_in_group("HUD")
 		
@@ -277,11 +251,9 @@ func _trigger_blood_splash_ui(shooter: Node3D):
 			hud.splatter_blood_on_lens()
 
 func _spawn_blood_stain(pos: Vector3):
-	# =========================================================
-	# 1. TEXTURA (Geramos apenas 1 forma oval para reciclar)
-	# =========================================================
+	print("[DEBUG-BLOOD] Pedestre morreu. Criando poça visual...")
 	var img = Image.create(64, 64, false, Image.FORMAT_RGBA8)
-	var base_color = Color(0.49, 0.0, 0.0, 0.949) # Sua cor atualizada
+	var base_color = Color("7d0000f2") 
 	
 	var r = randf_range(16.0, 24.0)
 	var oval_x = randf_range(0.7, 1.3)
@@ -298,9 +270,6 @@ func _spawn_blood_stain(pos: Vector3):
 				
 	var tex = ImageTexture.create_from_image(img)
 	
-	# =========================================================
-	# 2. RAYCAST (Feito apenas 1x para achar o chão)
-	# =========================================================
 	var ray_start = pos + Vector3(0, 0.2, 0)
 	var ray_end = pos + Vector3(0, -5.0, 0)
 	var space_state = get_tree().root.get_world_3d().direct_space_state
@@ -314,9 +283,6 @@ func _spawn_blood_stain(pos: Vector3):
 	if result:
 		floor_pos = result.position
 		
-	# =========================================================
-	# 3. CRIAÇÃO DAS 3 MANCHAS EM SEQUÊNCIA
-	# =========================================================
 	for i in range(3):
 		var stain = Sprite3D.new()
 		stain.texture = tex
@@ -326,33 +292,61 @@ func _spawn_blood_stain(pos: Vector3):
 		stain.rotation.y = randf_range(0, TAU)
 		stain.render_priority = 1
 		
-		# Começam 100% invisíveis (no momento 0 segundo)
 		stain.modulate.a = 0.0 
 		
 		get_tree().current_scene.add_child(stain)
 		
-		# Espalha as 3 manchas levemente ao redor do centro do corpo.
-		# A altura Y recebe um micro-ajuste (i * 0.001) para uma mancha não bugar
-		# entrando dentro da outra (Z-fighting).
 		var offset = Vector3(randf_range(-0.4, 0.4), 0.05 + (i * 0.001), randf_range(-0.4, 0.4)) * blood_stain_scale
 		stain.global_position = floor_pos + offset
 		
-		# --- LÓGICA DO TEMPO ---
-		# i = 0 -> 0.1s | i = 1 -> 0.2s | i = 2 -> 0.3s
 		var delay_aparecimento = (i + 1) * 0.1 
 		
 		var tween = get_tree().create_tween()
 		tween.tween_interval(delay_aparecimento)
-		
-		# Mancha aparece instantaneamente no seu exato momento
 		tween.tween_property(stain, "modulate:a", 1.0, 0.01)
-		
-		# Fica no chão por 5 segundos
 		tween.tween_interval(5.0)
-		
-		# Apaga suavemente ao longo de 1 segundo
 		tween.tween_property(stain, "modulate:a", 0.0, 1.0)
 		tween.chain().tween_callback(stain.queue_free)
+
+	# =========================================================
+	# GATILHO INVISÍVEL (CORREÇÃO DE ALTURA)
+	# =========================================================
+	var blood_trigger = Area3D.new()
+	blood_trigger.collision_layer = 0 
+	blood_trigger.collision_mask = 4294967295 
+	
+	var col_shape = CollisionShape3D.new()
+	var shape = CylinderShape3D.new()
+	
+	shape.radius = 1.5 * blood_stain_scale
+	shape.height = 4.0 # DE 1.0 PARA 4.0 METROS! Garante que pega a lataria
+	
+	col_shape.shape = shape
+	col_shape.position.y = 1.5 # Levanta o cilindro do chão para abraçar o carro
+	
+	blood_trigger.add_child(col_shape)
+	get_tree().current_scene.add_child(blood_trigger)
+	blood_trigger.global_position = floor_pos
+	
+	blood_trigger.body_entered.connect(func(body):
+		print("[DEBUG-BLOOD] Colisão detectada com: ", body.name, " (Classe: ", body.get_class(), ")")
+		
+		if body is VehicleBody3D:
+			print("[DEBUG-BLOOD] O chassi do veículo bateu na poça! Buscando TireBloodManager...")
+			var manager = body.find_child("TireBloodManager", true, false)
+			
+			if is_instance_valid(manager):
+				if manager.has_method("infect_tires"):
+					manager.infect_tires()
+			else:
+				print("[DEBUG-BLOOD] ERRO: Node TireBloodManager não encontrado.")
+	)
+	
+	var kill_timer = get_tree().create_timer(6.5)
+	kill_timer.timeout.connect(func():
+		if is_instance_valid(blood_trigger):
+			blood_trigger.queue_free()
+	)
 		
 func reset(new_global_pos: Vector3):
 	is_dead = false

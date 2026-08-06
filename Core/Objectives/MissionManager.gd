@@ -151,3 +151,18 @@ func _complete_mission(mission: MissionItem):
 
 func is_mission_completed(mission_id: String) -> bool:
 	return mission_id in completed_mission_ids
+
+# ====================================================================
+# LIMPEZA DE MISSÕES (Chamado pelo StoryModeController ao sair do mapa)
+# ====================================================================
+func clear_active_missions():
+	print("[MissionManager] Abortando missões ativas e limpando progresso temporário...")
+	
+	# 1. Zera o dicionário de progresso da run atual
+	collection_progress.clear()
+	
+	# 2. Reseta o valor atual (current_progress) de todas as missões carregadas
+	if current_map_data:
+		for m in current_map_data.missions:
+			if "current_progress" in m:
+				m.current_progress = 0.0
