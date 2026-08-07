@@ -58,14 +58,17 @@ var _drift_dir := 0.0
 var _is_doing_burnout := false 
 var _was_doing_burnout := false 
 var _burnout_charge_time := 0.0 
-var _burnout_smoke_timer := 0.0 # Controla o ritmo da fumaça para não lagar o jogo
-var _drift_smoke_timer := 0.0 # Controla a fumaça durante o cavalo de pau
+var _burnout_smoke_timer := 0.0
+var _drift_smoke_timer := 0.0 
 
 func _physics_process(delta):
 	if not car.pode_mover: return
 	
 	var is_on_ground = _check_grounded()
-	var speed_mps = car.linear_velocity.length()
+	
+	# === CORREÇÃO DA VELOCIDADE: Ignora o eixo Y (Pulos e lombadas) ===
+	var flat_velocity = Vector3(car.linear_velocity.x, 0, car.linear_velocity.z)
+	var speed_mps = flat_velocity.length()
 	var speed_kmh = speed_mps * 3.6
 	
 	if _drift_cooldown > 0:
@@ -87,7 +90,9 @@ func _physics_process(delta):
 
 func _handle_engine_and_steering(delta, is_on_ground, speed_kmh):
 	var up_dot = car.global_transform.basis.y.dot(Vector3.UP)
-	var speed_mps = car.linear_velocity.length()
+	
+	var flat_velocity = Vector3(car.linear_velocity.x, 0, car.linear_velocity.z)
+	var speed_mps = flat_velocity.length()
 	
 	if car.has_method("is_frozen") and car.is_frozen():
 		car.engine_force = 0.0
@@ -120,13 +125,20 @@ func _handle_engine_and_steering(delta, is_on_ground, speed_kmh):
 	var forward_velocity = car.linear_velocity.dot(car.global_transform.basis.z)
 	
 	# ==============================================================================
-	# LÓGICA DO ZERINHO COM SISTEMA DE CARREGAMENTO E FUMAÇA
+	# LÓGICA DO ZERINHO COM SISTEMA DE CARREGAMENTO (CORRIGIDA)
 	# ==============================================================================
 	var holding_both_pedals = false
 	if "is_accelerating" in input and "is_braking" in input:
 		holding_both_pedals = input.is_accelerating and input.is_braking
 		
-	_is_doing_burnout = holding_both_pedals and speed_kmh < 33.0
+	# === TRAVA DE ESTADO (State Lock) ===
+	# Verifica a velocidade apenas na hora de ENTRAR no estado. 
+	# Depois que entrou, só sai quando soltar os botões.
+	if holding_both_pedals:
+		if not _is_doing_burnout and speed_kmh <= 130.0:
+			_is_doing_burnout = true
+	else:
+		_is_doing_burnout = false
 
 	if _is_doing_burnout:
 		_burnout_charge_time += delta
@@ -278,7 +290,6 @@ func _apply_dynamic_friction(delta, speed_kmh):
 			# ==========================================
 			_drift_smoke_timer -= delta
 			if _drift_smoke_timer <= 0.0:
-				# Se estiver nos primeiros 0.5s (_drift_cooldown de 1.5 até 1.0), dispara 5x mais rápido!
 				if _drift_cooldown > 1.0:
 					_drift_smoke_timer = 0.04
 				else:

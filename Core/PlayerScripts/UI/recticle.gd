@@ -3,7 +3,6 @@ extends Control
 @onready var lockon_rect = $LockOnRect # Mantemos para não quebrar a sua cena
 
 # --- PARÂMETROS DO RETÍCULO PROCEDURAL ---
-# MODIFICADO: Voltamos para o Vermelho, agora com 65% de opacidade (Alpha = 0.65)
 @export var reticle_color : Color = Color(1.0, 0.0, 0.0, 0.65) 
 @export var radius : float = 20.0
 @export var line_width : float = 3.0
@@ -21,13 +20,11 @@ func _ready():
 
 func _process(delta):
 	# --- SOLUÇÃO MULTIPLAYER (SPLIT-SCREEN) ---
-	# Procura o carro que está renderizando neste Viewport específico
 	var car = null
 	var todos_jogadores = get_tree().get_nodes_in_group("jogadores")
 	
 	for c in todos_jogadores:
 		if c.get_viewport() == get_viewport():
-			# --- CORREÇÃO: Ignora o carro se ele for um Bot! ---
 			var input_comp = c.get_node_or_null("%InputComponent")
 			if input_comp and not input_comp.is_bot:
 				car = c
@@ -37,14 +34,15 @@ func _process(delta):
 		_set_locked(false)
 		return
 	
-	# Procura o WeaponManager no carro (usando wildcard * caso o nome varie ligeiramente)
-	var weapon_manager = car.find_child("WeaponManager*", true, false)
-	if not weapon_manager:
+	# === CORREÇÃO DE ARQUITETURA ===
+	# Agora o retículo busca a informação direto no TargetingComponent, ignorando as armas
+	var targeting = car.find_child("TargetingComponent*", true, false)
+	if not targeting:
 		_set_locked(false)
 		return
 		
-	# Pega o alvo atual do sistema de armas
-	var target = weapon_manager.current_target
+	# Pega o alvo atual direto da fonte
+	var target = targeting.current_target
 	
 	if target and is_instance_valid(target):
 		var cam = get_viewport().get_camera_3d()
@@ -56,7 +54,7 @@ func _process(delta):
 			# Verifica se o alvo está na frente da câmera
 			if not cam.is_position_behind(target.global_position):
 				_set_locked(true, screen_pos)
-				# Move o lockon_rect original para a posição (para lógica interna se houver)
+				# Move o lockon_rect original para a posição
 				lockon_rect.position = screen_pos - (lockon_rect.size / 2)
 			else:
 				_set_locked(false)
@@ -76,17 +74,14 @@ func _set_locked(locked: bool, pos: Vector2 = Vector2.ZERO):
 		is_locked = locked
 		target_screen_pos = pos
 		if lockon_rect: lockon_rect.visible = locked
-		if not locked: queue_redraw() # Garante que apaga o desenho se perder o lock
+		if not locked: queue_redraw() 
 
 func _draw():
 	# Só desenha o retículo procedural se tivermos um alvo travado na frente
 	if not is_locked: return
 
 	# --- MÁGICA PROCEDURAL DO GIRO ---
-	# Transformamos o espaço de desenho para centralizar no inimigo e rotacionar
 	draw_set_transform(target_screen_pos, current_rotation, Vector2.ONE)
-
-	# Usamos a reticle_color configurada (Vermelho @ 65%) para todos os desenhos abaixo:
 
 	# 1. Desenha o círculo principal vazado
 	draw_arc(Vector2.ZERO, radius, 0, TAU, 32, reticle_color, line_width, true)
@@ -106,5 +101,5 @@ func _draw():
 	# Cima
 	draw_line(Vector2(0, -radius), Vector2(0, -radius - tick_length), reticle_color, line_width, true)
 
-	# Reseta a transformação para não afetar outros desenhos da HUD
+	# Reseta a transformação
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

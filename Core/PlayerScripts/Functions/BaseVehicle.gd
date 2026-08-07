@@ -389,11 +389,52 @@ func _on_vehicle_destroyed(attacker: Node = null):
 			if g_manager and g_manager.has_method("add_custom_action"):
 				g_manager.add_custom_action("Bot Destroyed!", pontos_por_morte)
 		
+		# =================================================================
+		# NOVO: EXPLOSÃO DO BOT (VISUAL)
+		# =================================================================
+		if is_instance_valid(ExplosionManager):
+			var cor_fogo = Color(1.0, 0.4, 0.0, 1.0)
+			var cor_fumaca = Color(0.2, 0.2, 0.2, 1.0)
+			ExplosionManager.explode(global_position, cor_fogo, 0.0, 15, 0.0, cor_fumaca, 2, 0.5)
+		
+		# =================================================================
+		# NOVO: DANO EM ÁREA E SCREENSHAKE (FÍSICA)
+		# =================================================================
+		var raio_explosao = 20.0 # Distância em metros
+		var dano_explosao = 15.0
+		
+		# Pega o motor de física do mundo
+		var space_state = get_world_3d().direct_space_state
+		var sphere = SphereShape3D.new()
+		sphere.radius = raio_explosao
+		
+		var query = PhysicsShapeQueryParameters3D.new()
+		query.shape = sphere
+		query.transform = global_transform
+		
+		# Detecta tudo que está na área da explosão
+		var result = space_state.intersect_shape(query)
+		for hit in result:
+			var objeto = hit.collider
+			if objeto != self and objeto != owner: # Não dá dano em si mesmo
+				
+				# Aplica o dano
+				if objeto.has_method("take_damage"):
+					objeto.take_damage(dano_explosao, self)
+				else:
+					var stats_alvo = objeto.find_child("StatsComponent*", true, false)
+					if stats_alvo and stats_alvo.has_method("take_damage"):
+						stats_alvo.take_damage(dano_explosao, self)
+						
+				# Aplica Screenshake em quem for atingido
+				var shake = objeto.find_child("CameraShake*", true, false)
+				if shake and shake.has_method("trigger_event"):
+					shake.trigger_event("car_collision_max_force", 15) # Substitua pelo nome do seu evento de shake forte
+					
 		visible = false
 		collision_layer = 0
 		collision_mask = 0
 		queue_free()
-
 # ============================================================================
 # COMUNICAÇÃO DE EFEITOS DE UI
 # ============================================================================

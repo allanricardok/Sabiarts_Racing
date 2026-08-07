@@ -9,6 +9,7 @@ var is_invulnerable: bool = false
 signal health_depleted(attacker: Node)
 signal shield_broken
 signal stats_changed
+signal took_damage(attacker: Node) # SINAL NOVO PARA O INDICADOR DA HUD
 
 @export_group("Combat Multipliers")
 ## Multiplicador de dano que este personagem RECEBE (Ex: 0.8 = toma 20% a menos)
@@ -147,6 +148,7 @@ func take_damage(amount: float, source: Node = null):
 	if health_damage_portion > 0:
 		current_health -= health_damage_portion
 		_check_damage_state()
+		took_damage.emit(attacker_node)
 		
 		if owner is VehicleBody3D or owner is RigidBody3D:
 			if is_instance_valid(attacker_node):

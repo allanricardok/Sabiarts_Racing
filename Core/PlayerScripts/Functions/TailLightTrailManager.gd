@@ -64,7 +64,7 @@ func _create_trail_mesh() -> MeshInstance3D:
 	
 	# FORMATO DE CONE/TRIÂNGULO PARA TER A PONTA FINA
 	var prism = PrismMesh.new()
-	prism.size = Vector3(0.25, 1.0, 0.02) # Largura da lanterna, Comprimento 1m, Espessura fina
+	prism.size = Vector3(0.25, 1.0, 0.1) # Largura da lanterna, Comprimento 1m, Espessura fina
 	mesh_inst.mesh = prism
 	mesh_inst.material_override = _material
 	
@@ -93,7 +93,7 @@ func _process(delta):
 		var power_factor = factor * factor # Ease-in (Estica exponencialmente com o boost)
 		
 		target_scale = lerp(0.0, max_trail_length, power_factor)
-		target_alpha = lerp(0.0, 0.5, power_factor)
+		target_alpha = lerp(0.0, 0.2, power_factor)
 		target_glow = target_alpha * neon_power # O brilho aumenta junto com o tamanho
 		
 	if is_instance_valid(_left_pivot):

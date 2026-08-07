@@ -368,3 +368,31 @@ func splatter_blood_on_lens():
 	var delay = randf_range(0.5, 1.0)
 	tween.tween_property(splash_node, "modulate:a", 0.0, randf_range(1.5, 2.5)).set_delay(delay)
 	tween.chain().tween_callback(splash_node.queue_free)
+	
+func play_pickup_flash(success: bool):
+	if not has_node("PickupFlash"): return
+	var flash = $PickupFlash
+	
+	# Mata qualquer animação que estivesse tocando antes
+	var tween = get_tree().create_tween()
+	
+	if success:
+		# Verde quase branco (Sucesso) - Inicia em 50% de opacidade
+		flash.color = Color(0.8, 1.0, 0.8, 0.3) 
+		flash.visible = true
+		
+		# Sobe para 100% em 0.01s
+		tween.tween_property(flash, "color:a", 0.7, 0.01)
+		# Desce para 0% em 0.2s
+		tween.tween_property(flash, "color:a", 0.0, 0.2)
+	else:
+		# Vermelho (Inventário Cheio) - Dobro de transparência (25% inicial)
+		flash.color = Color(1.0, 0.2, 0.2, 0.25) 
+		flash.visible = true
+		
+		# Sobe para 50% em 0.01s
+		tween.tween_property(flash, "color:a", 0.5, 0.01)
+		# Desce para 0% em 0.2s
+		tween.tween_property(flash, "color:a", 0.0, 0.2)
+		
+	tween.tween_callback(func(): flash.visible = false)

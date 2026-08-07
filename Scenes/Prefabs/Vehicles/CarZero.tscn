@@ -1,4 +1,4 @@
-[gd_scene load_steps=59 format=3 uid="uid://ry75iugdg8sl"]
+[gd_scene load_steps=61 format=3 uid="uid://ry75iugdg8sl"]
 
 [ext_resource type="Script" uid="uid://b0i2wvnkcrknc" path="res://Core/PlayerScripts/Functions/BaseVehicle.gd" id="1_drg00"]
 [ext_resource type="PackedScene" uid="uid://bp4khshtfj0rp" path="res://Scenes/Prefabs/Items/UniversalPickup.tscn" id="2_4a360"]
@@ -12,6 +12,7 @@
 [ext_resource type="Texture2D" uid="uid://bkmid1n6i7ij6" path="res://Assets/2D/Test_Texture.jpg" id="7_66ub0"]
 [ext_resource type="Script" uid="uid://y3uxucxf1qqt" path="res://Core/PlayerScripts/UI/recticle.gd" id="8_koiev"]
 [ext_resource type="Shader" uid="uid://bprk76lxc16jb" path="res://Scenes/Prefabs/Vehicles/SpeedLines.gdshader" id="9_70m6l"]
+[ext_resource type="Script" uid="uid://bh5ckbixd0t5l" path="res://Core/PlayerScripts/UI/DirectionalDamageUI.gd" id="9_mb2us"]
 [ext_resource type="Script" uid="uid://17v2oug1wdmr" path="res://Core/PlayerScripts/Functions/VehicleHitbox.gd" id="9_yo5km"]
 [ext_resource type="Script" uid="uid://chbhmxlw1lra7" path="res://Scenes/Prefabs/Vehicles/SpeedLines.gd" id="10_66ub0"]
 [ext_resource type="Script" uid="uid://bftaf7rlmwtx" path="res://Core/PlayerScripts/Functions/RageComponent.gd" id="10_j5ts8"]
@@ -30,6 +31,7 @@
 [ext_resource type="Script" uid="uid://dy6s36dw5qnii" path="res://Core/PlayerScripts/Functions/TailLightTrailManager.gd" id="18_xeif0"]
 [ext_resource type="Script" uid="uid://csrfk5ntkf731" path="res://Core/PlayerScripts/Functions/FX/VehicleEffects.gd" id="19_drg00"]
 [ext_resource type="Script" uid="uid://bppqih0d65krw" path="res://Core/PlayerScripts/Functions/Tricks/TrickCometFX.gd" id="19_glh28"]
+[ext_resource type="Script" uid="uid://bl2sqaqtk2pol" path="res://Core/PlayerScripts/Functions/BrakeLightManager.gd" id="19_mb2us"]
 [ext_resource type="Script" uid="uid://dtphvnh83nbxl" path="res://Core/PlayerScripts/Functions/Tricks/TrickBuilder.gd" id="19_xeif0"]
 [ext_resource type="Script" uid="uid://n7v83f04158v" path="res://Core/PlayerScripts/Functions/Tricks/TrickShockwaveBurstFX.gd" id="20_hsj1y"]
 [ext_resource type="Script" uid="uid://cdtih2m8pdfvb" path="res://Core/PlayerScripts/Functions/TargetingComponent.gd" id="20_mb2us"]
@@ -315,6 +317,26 @@ shape = SubResource("BoxShape3D_bjxsa")
 
 [node name="HUD" type="CanvasLayer" parent="."]
 script = ExtResource("4_dtqej")
+
+[node name="PickupFlash" type="ColorRect" parent="HUD"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="DirectionalDamage" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("9_mb2us")
+fade_speed = 3.3
 
 [node name="RageUI" type="Control" parent="HUD"]
 layout_mode = 3
@@ -1086,13 +1108,17 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.66, 0.5228699, -2.1136467)
 [node name="MarkerLanternaDir" type="Marker3D" parent="TailLightTrailManager"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.66, 0.5228699, -2.1136467)
 
-[node name="bklightEsq" type="MeshInstance3D" parent="TailLightTrailManager"]
+[node name="bklightEsq" type="MeshInstance3D" parent="TailLightTrailManager" node_paths=PackedStringArray("left_taillight")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0.62, 0.546, -2.2379625)
 mesh = SubResource("QuadMesh_xeif0")
+script = ExtResource("19_mb2us")
+left_taillight = NodePath(".")
 
-[node name="bklightDir" type="MeshInstance3D" parent="TailLightTrailManager"]
+[node name="bklightDir" type="MeshInstance3D" parent="TailLightTrailManager" node_paths=PackedStringArray("right_taillight")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -0.62, 0.546, -2.2379625)
 mesh = SubResource("QuadMesh_xeif0")
+script = ExtResource("19_mb2us")
+right_taillight = NodePath(".")
 
 [node name="TurboMarkers" type="Node3D" parent="."]
 script = ExtResource("18_hsj1y")

@@ -284,12 +284,11 @@ func _gerenciar_armas_do_bot():
 	if current_state == State.ATTACK and is_instance_valid(alvo_atual):
 		alvo_tiro = alvo_atual
 	elif (current_state == State.FLEE or current_state == State.SEEK_HEIGHT) and radar.inimigos_proximos.size() > 0:
-		# No tiro de emergência em movimento defensivo, ele atira no mais perto ignorando a triagem de 75%
 		alvo_tiro = radar.inimigos_proximos[0]
 	
 	if is_instance_valid(alvo_tiro):
 		var wm = car.get_node_or_null("%WeaponManager")
-		if not wm: return
+		if not wm or not is_instance_valid(wm.shooter): return
 		
 		var forward = car.global_transform.basis.z
 		var dir = (alvo_tiro.global_position - car.global_position).normalized()
@@ -300,14 +299,21 @@ func _gerenciar_armas_do_bot():
 			
 			if current_state == State.FLEE or current_state == State.SEEK_HEIGHT:
 				var active_w = wm.get_active_special()
-				if active_w and wm.special_cooldowns.get(active_w.nome, 0.0) <= 0:
-					wm.fire_special_weapon() 
+				# CORREÇÃO: Acessa os cooldowns através do shooter
+				if active_w and wm.shooter.special_cooldowns.get(active_w.nome, 0.0) <= 0:
+					# CORREÇÃO: Atira através do shooter, descontando a munição se der certo
+					if wm.shooter.try_fire_special(active_w, false):
+						active_w.ammo -= 1
+						if active_w.ammo <= 0: wm._remove_current_weapon()
 					ammo_added_to_current = 0 
 		
 		if current_state == State.ATTACK and dot_p > 0.85:
 			var active_w = wm.get_active_special()
-			if active_w and wm.special_cooldowns.get(active_w.nome, 0.0) <= 0:
-				wm.fire_special_weapon() 
+			if active_w and wm.shooter.special_cooldowns.get(active_w.nome, 0.0) <= 0:
+				if wm.shooter.try_fire_special(active_w, false):
+					active_w.ammo -= 1
+					if active_w.ammo <= 0: wm._remove_current_weapon()
+					
 				ammo_added_to_current = 0 
 				
 				disparos_especiais_seguidos += 1
@@ -315,7 +321,7 @@ func _gerenciar_armas_do_bot():
 					disparos_especiais_seguidos = 0
 					if wm.weapon_pool.size() > 1:
 						wm._switch_weapon(1)
-						ammo_added_to_current = 0 
+						ammo_added_to_current = 0
 
 func _executar_estado_atual(delta) -> Dictionary:
 	var desire_throttle = 1.0
