@@ -1,4 +1,4 @@
-[gd_scene load_steps=56 format=3 uid="uid://ry75iugdg8sl"]
+[gd_scene load_steps=59 format=3 uid="uid://ry75iugdg8sl"]
 
 [ext_resource type="Script" uid="uid://b0i2wvnkcrknc" path="res://Core/PlayerScripts/Functions/BaseVehicle.gd" id="1_drg00"]
 [ext_resource type="PackedScene" uid="uid://bp4khshtfj0rp" path="res://Scenes/Prefabs/Items/UniversalPickup.tscn" id="2_4a360"]
@@ -27,6 +27,7 @@
 [ext_resource type="Script" uid="uid://dicgxfjk23y35" path="res://Core/PlayerScripts/Functions/Tricks/TrickManager.gd" id="17_tutdn"]
 [ext_resource type="Script" uid="uid://bjm3nj41ocqj6" path="res://Core/PlayerScripts/Functions/FX/TurboCometFX.gd" id="18_hsj1y"]
 [ext_resource type="Script" uid="uid://di8qqp2x2hico" path="res://Core/PlayerScripts/Functions/Tricks/GroundTrickManager.gd" id="18_kryjj"]
+[ext_resource type="Script" uid="uid://dy6s36dw5qnii" path="res://Core/PlayerScripts/Functions/TailLightTrailManager.gd" id="18_xeif0"]
 [ext_resource type="Script" uid="uid://csrfk5ntkf731" path="res://Core/PlayerScripts/Functions/FX/VehicleEffects.gd" id="19_drg00"]
 [ext_resource type="Script" uid="uid://bppqih0d65krw" path="res://Core/PlayerScripts/Functions/Tricks/TrickCometFX.gd" id="19_glh28"]
 [ext_resource type="Script" uid="uid://dtphvnh83nbxl" path="res://Core/PlayerScripts/Functions/Tricks/TrickBuilder.gd" id="19_xeif0"]
@@ -129,6 +130,17 @@ content_margin_right = 0.0
 content_margin_bottom = 0.0
 bg_color = Color(18.892157, 18.892157, 18.892157, 1)
 corner_detail = 10
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kryjj"]
+albedo_color = Color(0.87, 0, 0, 1)
+metallic = 0.46
+emission_enabled = true
+emission = Color(1, 0, 0, 1)
+emission_energy_multiplier = 20.0
+
+[sub_resource type="QuadMesh" id="QuadMesh_xeif0"]
+material = SubResource("StandardMaterial3D_kryjj")
+size = Vector2(0.4, 0.2)
 
 [sub_resource type="Gradient" id="Gradient_glh28"]
 offsets = PackedFloat32Array(0, 0.19636364, 0.45454547, 1)
@@ -1058,6 +1070,30 @@ autowrap_mode = 2
 volume_db = -8.62
 max_polyphony = 5
 
+[node name="TailLightTrailManager" type="Node3D" parent="." node_paths=PackedStringArray("left_light_marker", "right_light_marker")]
+script = ExtResource("18_xeif0")
+left_light_marker = NodePath("MarkerLanternaEsq")
+right_light_marker = NodePath("MarkerLanternaDir")
+min_speed_kmh = 88.0
+max_speed_kmh = 180.0
+max_trail_length = 5.0
+trail_color = Color(1, 0.100000024, 0.100000024, 1)
+neon_power = 12.0
+
+[node name="MarkerLanternaEsq" type="Marker3D" parent="TailLightTrailManager"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.66, 0.5228699, -2.1136467)
+
+[node name="MarkerLanternaDir" type="Marker3D" parent="TailLightTrailManager"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.66, 0.5228699, -2.1136467)
+
+[node name="bklightEsq" type="MeshInstance3D" parent="TailLightTrailManager"]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0.62, 0.546, -2.2379625)
+mesh = SubResource("QuadMesh_xeif0")
+
+[node name="bklightDir" type="MeshInstance3D" parent="TailLightTrailManager"]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -0.62, 0.546, -2.2379625)
+mesh = SubResource("QuadMesh_xeif0")
+
 [node name="TurboMarkers" type="Node3D" parent="."]
 script = ExtResource("18_hsj1y")
 spawn_markers = Array[NodePath]([NodePath("Marker3D"), NodePath("Marker3D2")])
@@ -1071,10 +1107,10 @@ spread_degrees = 5.0
 streak_segments = 8
 
 [node name="Marker3D" type="Marker3D" parent="TurboMarkers"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0.42, -2.568)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0.42, -2.2454457)
 
 [node name="Marker3D2" type="Marker3D" parent="TurboMarkers"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0.42, -2.568)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0.42, -2.2454457)
 
 [node name="TrickTrailFX" type="Node3D" parent="."]
 unique_name_in_owner = true

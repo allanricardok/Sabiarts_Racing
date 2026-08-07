@@ -318,7 +318,7 @@ func _spawn_blood_stain(pos: Vector3):
 	var col_shape = CollisionShape3D.new()
 	var shape = CylinderShape3D.new()
 	
-	shape.radius = 1.5 * blood_stain_scale
+	shape.radius = 0.8 * blood_stain_scale
 	shape.height = 4.0 # DE 1.0 PARA 4.0 METROS! Garante que pega a lataria
 	
 	col_shape.shape = shape
