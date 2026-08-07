@@ -378,11 +378,11 @@ func play_pickup_flash(success: bool):
 	
 	if success:
 		# Verde quase branco (Sucesso) - Inicia em 50% de opacidade
-		flash.color = Color(0.8, 1.0, 0.8, 0.3) 
+		flash.color = Color(1.0, 0.817, 0.0, 0.302) 
 		flash.visible = true
 		
 		# Sobe para 100% em 0.01s
-		tween.tween_property(flash, "color:a", 0.7, 0.01)
+		tween.tween_property(flash, "color:a", 0.6, 0.01)
 		# Desce para 0% em 0.2s
 		tween.tween_property(flash, "color:a", 0.0, 0.2)
 	else:
@@ -391,8 +391,38 @@ func play_pickup_flash(success: bool):
 		flash.visible = true
 		
 		# Sobe para 50% em 0.01s
-		tween.tween_property(flash, "color:a", 0.5, 0.01)
+		tween.tween_property(flash, "color:a", 0.4, 0.01)
 		# Desce para 0% em 0.2s
 		tween.tween_property(flash, "color:a", 0.0, 0.2)
 		
+	tween.tween_callback(func(): flash.visible = false)
+	
+func play_heal_flash():
+	if not has_node("PickupFlash"): return
+	var flash = $PickupFlash
+	
+	var tween = get_tree().create_tween()
+	
+	# Verde curativo neon
+	flash.color = Color(0.355, 1.0, 0.1, 0.4) 
+	flash.visible = true
+	
+	# Dá um pico rápido de brilho e depois some suavemente
+	tween.tween_property(flash, "color:a", 0.7, 0.03)
+	tween.tween_property(flash, "color:a", 0.0, 0.3)
+	tween.tween_callback(func(): flash.visible = false)
+	
+func play_shield_flash():
+	if not has_node("PickupFlash"): return
+	var flash = $PickupFlash
+	
+	var tween = get_tree().create_tween()
+	
+	# Azul/Ciano neon para representar o escudo
+	flash.color = Color(0.1, 0.6, 1.0, 0.4) 
+	flash.visible = true
+	
+	# Dá o pico rápido de brilho e depois some suavemente
+	tween.tween_property(flash, "color:a", 0.6, 0.01)
+	tween.tween_property(flash, "color:a", 0.0, 0.2)
 	tween.tween_callback(func(): flash.visible = false)

@@ -185,6 +185,13 @@ func _finalize_score():
 	# Salva a pontuação na Global (Funciona para Bots e Players)
 	ScoreManager.add_points(final_score, car.id)
 	
+	# ==============================================================
+	# NOVO: ENVIA A PONTUAÇÃO PARA A BARRA DE CURA
+	var stats = car.get_node_or_null("%StatsComponent")
+	if stats and stats.has_method("add_heal_score"):
+		stats.add_heal_score(final_score)
+	# ==============================================================
+	
 	# --- NOVO: CONVERTE PONTUAÇÃO EM ENERGIA (0.5%) COM DEBUGS ---
 	var ability = car.find_child("AbilityComponent", true, false)
 	if ability and "current_energy" in ability and "MAX_ENERGY" in ability:

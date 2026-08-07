@@ -138,9 +138,16 @@ func _finalize_ground_score():
 	for p in points_per_action: total_base += p
 	var mult = _get_dynamic_multiplier()
 	var final_score = int(total_base * mult)
-	
+
 	# Os pontos são salvos normalmente no backend (para players e bots)
 	ScoreManager.add_points(final_score, car.id)
+	
+	# ==============================================================
+	# NOVO: ENVIA A PONTUAÇÃO PARA A BARRA DE CURA
+	var stats = car.get_node_or_null("%StatsComponent")
+	if stats and stats.has_method("add_heal_score"):
+		stats.add_heal_score(final_score)
+	# ==============================================================
 	
 	# Tenta pegar a HUD. Se for Bot, ele vai retornar nulo e cortar a função visual.
 	var hud = _get_local_hud()

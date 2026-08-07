@@ -1236,7 +1236,7 @@ explosion_particle_count = 30
 explosion_light_energy = 140.0
 
 [node name="ObjectBase17" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 212.54715, 3.8431778, -24.567669)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 212.54715, 3.8431778, 13.889179)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril_BA"
@@ -1398,7 +1398,7 @@ explosion_particle_count = 30
 explosion_light_energy = 140.0
 
 [node name="ObjectBase26" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 212.54715, 3.8431778, -42.865547)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -83.91257, 3.8431778, -42.865547)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril_BA"
@@ -1434,7 +1434,7 @@ explosion_particle_count = 30
 explosion_light_energy = 140.0
 
 [node name="ObjectBase28" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 212.54715, 3.8431778, -87.25706)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 129.81995, 3.8431778, -87.25706)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril_BA"
@@ -1470,7 +1470,7 @@ explosion_particle_count = 30
 explosion_light_energy = 140.0
 
 [node name="ObjectBase30" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 239.70346, 3.8431778, -42.865547)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 272.35422, 3.8431778, -17.210754)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril_BA"
@@ -1488,7 +1488,7 @@ explosion_particle_count = 30
 explosion_light_energy = 140.0
 
 [node name="ObjectBase31" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 239.70346, 3.8431778, -64.12985)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 272.35422, 3.8431778, -65.181465)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril_BA"
@@ -1506,7 +1506,7 @@ explosion_particle_count = 30
 explosion_light_energy = 140.0
 
 [node name="ObjectBase32" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 239.70346, 3.8431778, -87.25706)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 272.35422, 3.8431778, 138.37381)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril_BA"
@@ -1524,7 +1524,7 @@ explosion_particle_count = 30
 explosion_light_energy = 140.0
 
 [node name="ObjectBase33" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 239.70346, 3.8431778, -134.44765)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 272.35422, 3.8431778, -134.44765)
 collision_layer = 3
 collision_mask = 3
 mission_id = "barril_BA"
@@ -3438,18 +3438,21 @@ specific_item = ExtResource("18_vj8u6")
 
 [node name="ItemSpawner11" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/StatusItems" instance=ExtResource("8_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -300.76202, 59.04509, -204.09152)
+visible = false
 pickup_scene = ExtResource("9_kxusw")
 respawn_time = 80.0
 specific_item = ExtResource("15_o7pxb")
 
 [node name="ItemSpawner12" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/StatusItems" instance=ExtResource("8_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -256.5948, 14.099367, -0.07910442)
+visible = false
 pickup_scene = ExtResource("9_kxusw")
 respawn_time = 80.0
 specific_item = ExtResource("15_o7pxb")
 
 [node name="ItemSpawner13" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/StatusItems" instance=ExtResource("8_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -32.374786, 13.972226, -92.9527)
+visible = false
 pickup_scene = ExtResource("9_kxusw")
 respawn_time = 80.0
 specific_item = ExtResource("15_o7pxb")
@@ -3469,12 +3472,14 @@ random_pool = Array[Resource]([ExtResource("15_o7pxb")])
 
 [node name="ItemSpawner16" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/StatusItems" instance=ExtResource("8_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 178.51263, 15.000284, 23.683535)
+visible = false
 pickup_scene = ExtResource("9_kxusw")
 respawn_time = 60.0
 specific_item = ExtResource("15_o7pxb")
 
 [node name="ItemSpawner17" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/StatusItems" instance=ExtResource("8_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -62.122055, 2.9087343, 183.42711)
+visible = false
 pickup_scene = ExtResource("9_kxusw")
 respawn_time = 80.0
 specific_item = ExtResource("15_o7pxb")

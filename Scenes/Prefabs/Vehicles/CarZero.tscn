@@ -3,7 +3,6 @@
 [ext_resource type="Script" uid="uid://b0i2wvnkcrknc" path="res://Core/PlayerScripts/Functions/BaseVehicle.gd" id="1_drg00"]
 [ext_resource type="PackedScene" uid="uid://bp4khshtfj0rp" path="res://Scenes/Prefabs/Items/UniversalPickup.tscn" id="2_4a360"]
 [ext_resource type="Script" uid="uid://cjnmai87rc2f8" path="res://Core/camera_test_3.gd" id="2_37r4d"]
-[ext_resource type="Resource" uid="uid://hv86l3gypxgx" path="res://Resources/Items/HealthItem.tres" id="3_dtqej"]
 [ext_resource type="Script" uid="uid://ca80dhy7dchio" path="res://Core/PlayerScripts/UI/hud.gd" id="4_dtqej"]
 [ext_resource type="Resource" uid="uid://b4n2n37tjg3ed" path="res://Resources/Weapons/HomingMissile.tres" id="4_mafvn"]
 [ext_resource type="Script" uid="uid://b5mtjc65y3mxc" path="res://Core/PlayerScripts/UI/RageUI.gd" id="5_mafvn"]
@@ -53,17 +52,19 @@ size = Vector3(1.1523438, 0.38419932, 1.934)
 [sub_resource type="BoxShape3D" id="BoxShape3D_bjxsa"]
 size = Vector3(3, 2.4401855, 5)
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_66ub0"]
-shader = ExtResource("9_70m6l")
-shader_parameter/line_color = Color(0.03529412, 0.03529412, 0.03529412, 0.8039216)
-shader_parameter/line_count = 25.0000007125
-shader_parameter/line_density = 0.18000000855
-shader_parameter/animation_speed = 5.0000002375
-shader_parameter/mask_radius = 0.30000001425
-shader_parameter/mask_smoothness = 0.90000004275
-shader_parameter/intensity = 0.0
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mb2us"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.33811337, 0.82, 0.114799984, 0.89411765)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+corner_detail = 6
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m0ew1"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_og6km"]
 content_margin_left = 2.0
 content_margin_top = 2.0
 content_margin_right = 2.0
@@ -75,7 +76,17 @@ corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 corner_detail = 6
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_og6km"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_66ub0"]
+shader = ExtResource("9_70m6l")
+shader_parameter/line_color = Color(0.03529412, 0.03529412, 0.03529412, 0.8039216)
+shader_parameter/line_count = 25.0000007125
+shader_parameter/line_density = 0.18000000855
+shader_parameter/animation_speed = 5.0000002375
+shader_parameter/mask_radius = 0.30000001425
+shader_parameter/mask_smoothness = 0.90000004275
+shader_parameter/intensity = 0.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m0ew1"]
 content_margin_left = 2.0
 content_margin_top = 2.0
 content_margin_right = 2.0
@@ -180,7 +191,6 @@ engine_force = 1.0
 brake = 1.0
 script = ExtResource("1_drg00")
 drop_item_scene = ExtResource("2_4a360")
-drop_item_resource_1 = ExtResource("3_dtqej")
 drop_item_resource_2 = ExtResource("4_mafvn")
 velocidade_minima_dano = 4.0
 shard_count = 20
@@ -357,6 +367,7 @@ grow_vertical = 2
 color = Color(0.011764706, 0.011764706, 0.011764706, 0)
 
 [node name="LightningLayer" type="Node2D" parent="HUD/RageUI"]
+position = Vector2(0, 80)
 script = ExtResource("10_xsuh6")
 
 [node name="ColorRect6" type="ColorRect" parent="HUD/RageUI"]
@@ -365,8 +376,8 @@ anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -108.0
-offset_top = 85.0
-offset_bottom = 208.0
+offset_top = 165.0
+offset_bottom = 288.0
 grow_horizontal = 0
 color = Color(0.011764706, 0.011764706, 0.011764706, 0.16078432)
 
@@ -376,9 +387,9 @@ anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -94.0
-offset_top = 114.0
+offset_top = 194.0
 offset_right = -52.0
-offset_bottom = 137.0
+offset_bottom = 217.0
 grow_horizontal = 0
 text = "RAGE"
 
@@ -388,9 +399,9 @@ anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -96.0
-offset_top = 135.0
+offset_top = 215.0
 offset_right = -54.0
-offset_bottom = 180.0
+offset_bottom = 260.0
 grow_horizontal = 0
 theme_override_font_sizes/font_size = 32
 text = "0X"
@@ -402,9 +413,9 @@ anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -95.0
-offset_top = 173.0
+offset_top = 253.0
 offset_right = -53.0
-offset_bottom = 192.0
+offset_bottom = 272.0
 grow_horizontal = 0
 theme_override_font_sizes/font_size = 12
 text = "10s"
@@ -416,13 +427,91 @@ anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -41.0
-offset_top = 95.0
+offset_top = 175.0
 offset_right = -7.0
-offset_bottom = 199.0
+offset_bottom = 279.0
 grow_horizontal = 0
 max_value = 300.0
 rounded = true
 fill_mode = 3
+
+[node name="HealScoreUI" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect7" type="ColorRect" parent="HUD/HealScoreUI"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -215.0
+offset_top = 82.0
+offset_right = -1.0
+offset_bottom = 152.0
+grow_horizontal = 0
+color = Color(0.011764706, 0.011764706, 0.011764706, 0.16078432)
+
+[node name="HealthScoreBar" type="ProgressBar" parent="HUD/HealScoreUI"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -205.0
+offset_top = 89.0
+offset_right = -7.0
+offset_bottom = 116.0
+grow_horizontal = 0
+theme_override_font_sizes/font_size = 16
+theme_override_styles/fill = SubResource("StyleBoxFlat_mb2us")
+step = 1.0
+show_percentage = false
+
+[node name="ScoreText" type="Label" parent="HUD/HealScoreUI/HealthScoreBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "10.000"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ScoreCooldown" type="ProgressBar" parent="HUD/HealScoreUI"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -117.0
+offset_top = 121.0
+offset_right = -9.0
+offset_bottom = 142.0
+grow_horizontal = 0
+theme_override_font_sizes/font_size = 26
+theme_override_styles/fill = SubResource("StyleBoxFlat_og6km")
+show_percentage = false
+
+[node name="CooldownText2" type="Label" parent="HUD/HealScoreUI"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -109.0
+offset_top = 122.0
+offset_right = -19.0
+offset_bottom = 142.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(1, 1, 1, 0.4117647)
+theme_override_font_sizes/font_size = 14
+text = "Cooldown"
+horizontal_alignment = 1
+vertical_alignment = 1
+clip_text = true
 
 [node name="SpeedLines" type="ColorRect" parent="HUD"]
 material = SubResource("ShaderMaterial_66ub0")
@@ -1221,6 +1310,8 @@ unique_name_in_owner = true
 script = ExtResource("13_y0tcj")
 health_bar = NodePath("../../HUD/UI_Base/health_bar")
 shield_bar = NodePath("../../HUD/UI_Base/shield_bar")
+HEAL_SCORE_MAX = 4000.0
+HEAL_AMOUNT = 10.0
 
 [node name="AbilityComponent" type="Node" parent="Scripts" node_paths=PackedStringArray("energy_bar", "cooldown_bar")]
 unique_name_in_owner = true
