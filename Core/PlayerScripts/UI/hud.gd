@@ -57,12 +57,6 @@ func _ready():
 	
 	if Global.current_run_mode == Global.RunMode.STORY:
 		call_deferred("esconder_timer")
-	
-	if not MissionManager.mission_completed.is_connected(_on_mission_completed):
-		MissionManager.mission_completed.connect(_on_mission_completed)
-	
-	if not MissionManager.mission_updated.is_connected(_on_mission_updated):
-		MissionManager.mission_updated.connect(_on_mission_updated)
 
 # ====================================================================
 # --- DELEGAÇÃO DE COMANDOS DA MISSÃO PARA O NOVO SCRIPT ---
@@ -273,14 +267,6 @@ func atualizar_timer(segundos: float):
 		timer_label.add_theme_color_override("font_color", Color.RED)
 	else:
 		timer_label.add_theme_color_override("font_color", Color.WHITE)
-
-func _on_mission_completed(mission: MissionItem):
-	criar_toast("⭐ CONCLUÍDO: " + mission.description, Color.YELLOW)
-
-func _on_mission_updated(mission: MissionItem, current: float, target: float):
-	if mission.type == MissionItem.Type.SPEED: return
-	var status = str(int(current)) + "/" + str(int(target))
-	criar_toast("📦 " + mission.description + ": " + status, Color.CYAN)
 
 func criar_toast(texto: String, cor: Color):
 	var label = Label.new()

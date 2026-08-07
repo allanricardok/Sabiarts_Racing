@@ -1,31 +1,17 @@
-[gd_resource type="Resource" script_class="StoryMissionData" load_steps=9 format=3 uid="uid://ek22lkql8uy7"]
+[gd_resource type="Resource" script_class="StoryMissionData" load_steps=6 format=3 uid="uid://ek22lkql8uy7"]
 
-[ext_resource type="Script" uid="uid://2oic07orss4" path="res://Core/Objectives/MissionItem.gd" id="1_ilmnu"]
-[ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="2_tvbml"]
 [ext_resource type="Script" uid="uid://dcan8ccd3nmwc" path="res://Core/Objectives/Story/StoryMissionTier.gd" id="3_dwe6x"]
 [ext_resource type="Resource" uid="uid://bfqx410lkm4vw" path="res://Resources/MapMissions/Tiers/Tier_Teste_RADAR1.tres" id="4_ncajd"]
 [ext_resource type="Resource" uid="uid://7mua5xd7wlej" path="res://Resources/MapMissions/Tiers/Tier_Teste_RADAR2.tres" id="5_euv4d"]
 [ext_resource type="Resource" uid="uid://dx0a4g8u1ayp7" path="res://Resources/MapMissions/Tiers/Tier_Teste_RADAR3.tres" id="6_jbxc5"]
 [ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/Story/StoryMissionData.gd" id="7_kmwgp"]
 
-[sub_resource type="Resource" id="Resource_r66d8"]
-script = ExtResource("1_ilmnu")
-id = "radar_140_BA"
-description = "radar a 100km/h"
-type = 1
-target_value = 100.0
-metadata/_custom_type_script = "uid://2oic07orss4"
-
 [resource]
 script = ExtResource("7_kmwgp")
-mission_id = "m_05"
-mission_name = "Fuck Detran"
-mission_description = "Go through the Radar over 100km/h"
-time_limit = 30.0
+mission_type = 2
+mission_id = "radar_140_BA"
+mission_name = "Detran"
 mission_tiers = Array[ExtResource("3_dwe6x")]([ExtResource("4_ncajd"), ExtResource("5_euv4d"), ExtResource("6_jbxc5")])
-classic_objective = SubResource("Resource_r66d8")
-mission_environment = ExtResource("2_tvbml")
-mission_sun_color = Color(1.179842, 0.7508126, 0.06872849, 0.32000002)
-mission_sun_energy = 0.7
-enemy_count = 0
+mission_sun_color = Color(0.52, 0.52, 0.52, 1)
+mission_sun_energy = 0.5
 metadata/_custom_type_script = "uid://o1ox0n7mmqv"

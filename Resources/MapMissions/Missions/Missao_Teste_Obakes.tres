@@ -1,6 +1,5 @@
-[gd_resource type="Resource" script_class="StoryMissionData" load_steps=8 format=3 uid="uid://bprkepyn722gt"]
+[gd_resource type="Resource" script_class="StoryMissionData" load_steps=7 format=3 uid="uid://bprkepyn722gt"]
 
-[ext_resource type="Resource" uid="uid://cqn4jos28r5ff" path="res://Resources/MapMissions/Single-Mission-Obake.tres" id="1_vs5q0"]
 [ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="2_377sa"]
 [ext_resource type="Script" uid="uid://dcan8ccd3nmwc" path="res://Core/Objectives/Story/StoryMissionTier.gd" id="3_evtlv"]
 [ext_resource type="Resource" uid="uid://cee1v5qc5bgng" path="res://Resources/MapMissions/Tiers/Tier_Teste_OBAKE1.tres" id="4_kog8m"]
@@ -10,12 +9,12 @@
 
 [resource]
 script = ExtResource("7_m686u")
-mission_id = "m_03"
+mission_type = 3
+mission_id = "obake_BA"
 mission_name = "Capture the Obakes"
 mission_description = "Capture 3 Obakes"
 time_limit = 80.0
 mission_tiers = Array[ExtResource("3_evtlv")]([ExtResource("4_kog8m"), ExtResource("5_shue1"), ExtResource("6_30ky7")])
-classic_objective = ExtResource("1_vs5q0")
 mission_environment = ExtResource("2_377sa")
 mission_sun_color = Color(0.6845989, 0.613583, 1.0184411, 0.71300006)
 mission_sun_energy = 0.5

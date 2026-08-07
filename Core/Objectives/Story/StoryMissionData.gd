@@ -1,26 +1,21 @@
-# StoryMissionData.gd
 extends Resource
 class_name StoryMissionData
 
-enum MissionType { CLASSIC_OBJECTIVE, COMBAT_DESTROY }
+# Adicionamos SCORE_COMBO no final!
+enum MissionType { COMBAT_DESTROY, SCORE, SPEED, COLLECT, GAP, EXPLORE, ROADKILL, DESTROY, SCORE_COMBO }
 
 @export_group("Configuração do Tipo")
-@export var mission_type: MissionType = MissionType.CLASSIC_OBJECTIVE
+@export var mission_type: MissionType = MissionType.SCORE
 
 @export_group("Detalhes da Missão")
 @export var mission_id: String = "m_01"
 @export var mission_name: String = "Nova Missão"
 @export_multiline var mission_description: String = "Descrição da missão."
 @export var time_limit: float = 60.0 
+@export var base_target_value: float = 0.0
 
 @export_group("Configuração de Tiers")
-## Defina quantos tiers quiser para esta missão e configure suas metas e recompensas no Inspetor
 @export var mission_tiers: Array[StoryMissionTier] = []
-
-@export_group("Regras por Tipo")
-## Arraste para aqui o seu MissionItem antigo (Radar, Maleta, Obake, etc.)
-## Obrigatório se o tipo for CLASSIC_OBJECTIVE!
-@export var classic_objective: MissionItem
 
 @export_group("Atmosfera")
 @export var mission_environment: Environment
@@ -32,11 +27,8 @@ enum MissionType { CLASSIC_OBJECTIVE, COMBAT_DESTROY }
 
 @export_group("Combate Automático")
 @export var enemy_count: int = 3
-## Multiplicador de dano que os bots CAUSAM nesta missão (1.0 = normal, 1.2 = 20% a mais)
 @export var enemy_damage_dealt_mult: float = 1.0
-## Multiplicador de dano que os bots RECEBEM nesta missão (1.0 = normal, 0.8 = 20% de resistência)
 @export var enemy_damage_received_mult: float = 1.0
 
 @export_group("Desbloqueio")
-## Quantos pontos de história o jogador precisa ter para esta missão aparecer no mapa e nos menus. (0 = sempre visível)
 @export var required_unlock_points: int = 0

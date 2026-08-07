@@ -131,9 +131,7 @@ func take_damage(amount: float, attacker: Node3D = null):
 			if "pedestrians_killed" in actual_shooter:
 				actual_shooter.pedestrians_killed += 1
 				
-			if is_instance_valid(MissionManager):
-				MissionManager.notify_progress(MissionItem.Type.ROADKILL, 1.0, "")
-				
+
 			if is_instance_valid(GameStats) and GameStats.has_method("add_pedestrian_kill"):
 				GameStats.add_pedestrian_kill()
 				
@@ -142,8 +140,12 @@ func take_damage(amount: float, attacker: Node3D = null):
 				if not hud: hud = get_tree().get_first_node_in_group("HUD")
 				if hud and hud.has_method("criar_toast"):
 					hud.criar_toast("💥 ROADKILL!", Color.RED)
-			
+
 	get_tree().call_group("TutorialUI", "complete_task", "pedestrian")
+	
+	# A PEÇA QUE FALTAVA: Avisa o controlador sobre o atropelamento!
+	# Passamos o ID em branco ("") para que qualquer pedestre conte para a missão de atropelamento genérica.
+	get_tree().call_group("StoryController", "notify_progress", StoryMissionData.MissionType.ROADKILL, 1.0, "")
 	
 	var parent_spawner = get_parent()
 	if parent_spawner and parent_spawner.has_method("recycle_pedestrian"):

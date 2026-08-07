@@ -11,41 +11,16 @@ func accept_mission():
 	ctrl.last_played_portal = ctrl.active_portal
 	ctrl.combat_targets.clear()
 	ctrl.spawned_bots.clear()
-	ctrl.active_classic_objective = null
 	ctrl.completed_tiers_this_run.clear()
 	ctrl.current_tracked_score = 0.0 
-	# CORREÇÃO: current_tracked_progress (usado por SPEED, COLLECT, ROADKILL
-	# via sinal mission_updated) nunca era resetado aqui — por isso o valor
-	# da tentativa anterior "vazava" pra próxima e completava os tiers na
-	# hora. current_tracked_score (do SCORE) já era resetado; faltava este.
-	ctrl.current_tracked_progress = 0.0
+	ctrl.current_tracked_progress = 0.0 # Zera o rastreador de coletáveis, velocidade, etc.
 	
 	if is_instance_valid(ScoreManager):
 		if ScoreManager.has_method("reset_score"): ScoreManager.reset_score()
 		elif ScoreManager.has_method("clear_score"): ScoreManager.clear_score()
 	get_tree().call_group("HUD", "clear_combo_display")
 
-	if ctrl.current_mission.mission_type == StoryMissionData.MissionType.CLASSIC_OBJECTIVE:
-		if ctrl.current_mission.classic_objective:
-			ctrl.active_classic_objective = ctrl.current_mission.classic_objective.duplicate()
-			
-			if is_instance_valid(MissionManager):
-				var fake_map_data = MapMissionData.new()
-				fake_map_data.map_name = ctrl.current_mission.mission_name
-				fake_map_data.missions.clear()
-				fake_map_data.missions.append(ctrl.active_classic_objective)
-				
-				MissionManager.setup_map(fake_map_data)
-				
-				ctrl.active_classic_objective.is_completed = false
-				if "current_progress" in ctrl.active_classic_objective:
-					ctrl.active_classic_objective.current_progress = 0.0
-					
-				if "completed_mission_ids" in MissionManager:
-					MissionManager.completed_mission_ids.erase(ctrl.active_classic_objective.id)
-				if "completed_count" in MissionManager: 
-					MissionManager.completed_count = 0
-
+	# Esconde portais
 	for p in get_tree().get_nodes_in_group("mission_portals"):
 		p.visible = false
 		p.is_active = false
@@ -57,12 +32,14 @@ func accept_mission():
 		p.set_deferred("monitoring", false)
 		p.set_deferred("monitorable", false)
 
+	# Atmosfera
 	if ctrl.current_mission.mission_environment and ctrl.world_env:
 		ctrl.world_env.environment = ctrl.current_mission.mission_environment
 	if ctrl.sun_light:
 		ctrl.sun_light.light_color = ctrl.current_mission.mission_sun_color
 		ctrl.sun_light.light_energy = ctrl.current_mission.mission_sun_energy
 
+	# Gera Bots de Combate se for a missão certa
 	if ctrl.current_mission.mission_type == StoryMissionData.MissionType.COMBAT_DESTROY:
 		if ctrl.bot_spawner and ctrl.bot_spawner.has_method("spawn_single_bot"):
 			for i in range(ctrl.current_mission.enemy_count):
@@ -78,6 +55,7 @@ func accept_mission():
 					ctrl.combat_targets.append(enemy)
 					ctrl.spawned_bots.append(enemy)
 
+	# Liga os objetos da missão (coletáveis, rampas especiais, alvos)
 	for path in ctrl.current_mission.nodes_to_enable:
 		var node = ctrl.get_node_or_null(path)
 		if not node:
@@ -194,15 +172,12 @@ func end_mission(success: bool):
 	if not ctrl.is_mission_running:
 		return
 	ctrl.is_mission_running = false
-	ctrl.active_classic_objective = null
 	
 	get_tree().call_group("HUD", "atualizar_timer", 0.0)
 	get_tree().call_group("HUD", "atualizar_status_missao", success)
 	
 	await get_tree().create_timer(.5).timeout
-	
-	if is_instance_valid(MissionManager): MissionManager.current_map_data = null
-	
+
 	for bot in ctrl.spawned_bots:
 		if is_instance_valid(bot) and not bot.is_queued_for_deletion():
 			bot.queue_free()

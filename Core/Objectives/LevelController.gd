@@ -1,7 +1,7 @@
-# LevelController.gd
 extends Node
 
-@export var map_missions : MapMissionData
+# NOVO: Substitui o MapMissionData. Coloque o tempo limite direto no Inspetor!
+@export var level_time_limit: float = 300.0
 
 var time_left : float = 0.0
 var timer_active : bool = false
@@ -30,38 +30,22 @@ func _ready():
 func _setup_free_roam():
 	timer_active = false
 	time_left = 0.0 
-	# CORREÇÃO: Não remove mais os itens aqui para não quebrar outros testes
-	if map_missions:
-		MissionManager.setup_map(map_missions)
 
 func _setup_exploration():
-	# CORREÇÃO: Mantém os itens presentes por padrão
-	if map_missions:
-		MissionManager.setup_map(map_missions)
-		time_left = map_missions.time_limit
-		_update_hud_timer()
+	time_left = level_time_limit
+	_update_hud_timer()
 
 func _setup_battle():
-	# LÓGICA INVERTIDA: Apenas o modo Batalha faz a faxina pesada no mapa!
 	_remover_itens_exploracao()
 	_remover_itens_tutorial()
-	
-	# Garante que o MissionManager não mostre UI de maletas	
-	# Desliga as missões na memória para a HUD sumir com o painel!
-	if is_instance_valid(MissionManager):
-		MissionManager.current_map_data = null 
-	
-	if map_missions:
-		time_left = map_missions.time_limit
-		_update_hud_timer()
+	time_left = level_time_limit
+	_update_hud_timer()
 
 func _setup_story():
 	timer_active = false
 	time_left = 0.0 
-	# CORREÇÃO: No Modo História os objetos NÃO são deletados, permitindo que os
-	# portais controlem a visibilidade deles dinamicamente sem conflito!
 	print("[LevelController] Modo História configurado. Objetos preservados na cena.")
-
+	
 # ==========================================
 # FUNÇÕES DE FAXINA (FILTROS DE MAPA)
 # ==========================================
@@ -144,8 +128,6 @@ func encerrar_partida():
 	var mapa_atual = "MapaDesconhecido"
 	if Global.current_map != "":
 		mapa_atual = Global.current_map
-	elif map_missions and map_missions.map_name != "":
-		mapa_atual = map_missions.map_name
 	
 	for p_id in range(4): 
 		var pts = ScoreManager.get_total_score(p_id)
@@ -215,22 +197,3 @@ func add_bonus_time(amount: float):
 	time_left += amount
 	_update_hud_timer() 
 	print("[LevelController] +", amount, " segundos!")
-
-func _enter_tree():
-	if Global.current_run_mode == Global.RunMode.FREE_ROAM:
-		if map_missions:
-			for m in map_missions.missions:
-				m.is_completed = false
-				if m.id in MissionManager.completed_mission_ids:
-					MissionManager.completed_mission_ids.erase(m.id)
-			
-			MissionManager.completed_count = 0
-			
-			if is_instance_valid(SaveManager):
-				var scores_atuais = {}
-				if "highscores" in SaveManager:
-					scores_atuais = SaveManager.highscores
-				elif "high_scores" in SaveManager:
-					scores_atuais = SaveManager.high_scores
-					
-				SaveManager.save_game(MissionManager.completed_mission_ids, scores_atuais)

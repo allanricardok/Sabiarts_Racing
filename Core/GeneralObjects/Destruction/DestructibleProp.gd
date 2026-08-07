@@ -99,9 +99,9 @@ func _morrer(actual_shooter: Node3D):
 		if gtm:
 			gtm.add_ground_action("DESTROY_OBJECT")
 			
-			# 3. Notifica o MissionManager se houver ID
-			if mission_id != "" and is_instance_valid(MissionManager):
-				MissionManager.notify_progress(MissionItem.Type.DESTROY, 1.0, mission_id)
+			# 3. Notifica o StoryController se houver ID (Sem MissionManager!)
+			if mission_id != "":
+				get_tree().call_group("StoryController", "notify_progress", StoryMissionData.MissionType.DESTROY, 1.0, mission_id)
 	
 	# === Aplica o dano em área (Reações em Cadeia!) ===
 	_apply_aoe_damage(actual_shooter)

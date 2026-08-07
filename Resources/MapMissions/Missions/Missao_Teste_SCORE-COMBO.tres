@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="StoryMissionData" load_steps=7 format=3 uid="uid://cql8hxtyc1mss"]
+
+[ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="1_d6md5"]
+[ext_resource type="Script" uid="uid://dcan8ccd3nmwc" path="res://Core/Objectives/Story/StoryMissionTier.gd" id="2_unrug"]
+[ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/Story/StoryMissionData.gd" id="6_lcblg"]
+
+[sub_resource type="Resource" id="Resource_0s0ub"]
+script = ExtResource("2_unrug")
+target_value = 500.0
+metadata/_custom_type_script = "uid://dcan8ccd3nmwc"
+
+[sub_resource type="Resource" id="Resource_vqypb"]
+script = ExtResource("2_unrug")
+tier_name = "Silver"
+target_value = 800.0
+metadata/_custom_type_script = "uid://dcan8ccd3nmwc"
+
+[sub_resource type="Resource" id="Resource_i0we1"]
+script = ExtResource("2_unrug")
+tier_name = "Gold"
+metadata/_custom_type_script = "uid://dcan8ccd3nmwc"
+
+[resource]
+script = ExtResource("6_lcblg")
+mission_type = 8
+mission_id = "scr_cmb"
+mission_name = "Score Combo"
+mission_description = "Score 1000 point on one single trick 
+"
+time_limit = 120.0
+mission_tiers = Array[ExtResource("2_unrug")]([SubResource("Resource_0s0ub"), SubResource("Resource_vqypb"), SubResource("Resource_i0we1")])
+mission_environment = ExtResource("1_d6md5")
+mission_sun_color = Color(1.1825379, 0.7892365, 0.39593527, 0.8862745)
+mission_sun_energy = 0.1
+enemy_count = 0
+metadata/_custom_type_script = "uid://o1ox0n7mmqv"

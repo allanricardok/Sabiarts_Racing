@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="StoryMissionData" load_steps=7 format=3 uid="uid://ce3l3wihc7d4n"]
+
+[ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="1_ogcv2"]
+[ext_resource type="Script" uid="uid://dcan8ccd3nmwc" path="res://Core/Objectives/Story/StoryMissionTier.gd" id="2_5am07"]
+[ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/Story/StoryMissionData.gd" id="6_8swod"]
+
+[sub_resource type="Resource" id="Resource_umikb"]
+script = ExtResource("2_5am07")
+target_value = 2.0
+metadata/_custom_type_script = "uid://dcan8ccd3nmwc"
+
+[sub_resource type="Resource" id="Resource_iplsj"]
+script = ExtResource("2_5am07")
+tier_name = "Silver"
+target_value = 5.0
+reward_points = 200
+metadata/_custom_type_script = "uid://dcan8ccd3nmwc"
+
+[sub_resource type="Resource" id="Resource_fs63h"]
+script = ExtResource("2_5am07")
+tier_name = "Gold"
+target_value = 7.0
+reward_points = 500
+metadata/_custom_type_script = "uid://dcan8ccd3nmwc"
+
+[resource]
+script = ExtResource("6_8swod")
+mission_type = 7
+mission_id = "barril_BA"
+mission_name = "Destroy the barrels"
+mission_description = "Destroy 7 fuel barrels"
+time_limit = 80.0
+mission_tiers = Array[ExtResource("2_5am07")]([SubResource("Resource_umikb"), SubResource("Resource_iplsj"), SubResource("Resource_fs63h")])
+mission_environment = ExtResource("1_ogcv2")
+mission_sun_color = Color(0.6845989, 0.613583, 1.0184411, 0.71300006)
+mission_sun_energy = 0.5
+enemy_count = 0
+metadata/_custom_type_script = "uid://o1ox0n7mmqv"

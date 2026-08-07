@@ -21,9 +21,7 @@ func add_points(amount: int, player_id: int = 0):
 	
 	score_changed.emit(player_id, current_score)
 	
-	if is_instance_valid(MissionManager):
-		MissionManager.notify_progress(MissionItem.Type.SCORE, current_score)
-		
+
 	# --- LÓGICA DE HIGHSCORE POR MAPA ---
 	# Descobre em qual mapa estamos agora
 	var current_map = get_tree().current_scene.name

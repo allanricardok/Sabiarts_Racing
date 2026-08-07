@@ -7,7 +7,7 @@
 
 [resource]
 script = ExtResource("3_ona7p")
-mission_type = 1
+mission_type = 0
 mission_id = "m_02_boss"
 mission_name = "Boss"
 mission_description = "Deguste o ânus do Boss"

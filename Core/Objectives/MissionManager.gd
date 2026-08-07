@@ -103,7 +103,7 @@ func notify_progress(type: MissionItem.Type, value: float, id: String = ""):
 				if not mission.is_completed and id == mission.id: 
 					success = true
 			
-			MissionItem.Type.COLLECT, MissionItem.Type.DESTROY:
+			MissionItem.Type.COLLECT, MissionItem.Type.COMBAT_DESTROY:
 				if id == mission.id:
 					var current_val = collection_progress.get(id, 0.0) + value
 					collection_progress[id] = current_val

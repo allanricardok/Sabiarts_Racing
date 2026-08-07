@@ -374,11 +374,6 @@ func _on_clear_data_pressed():
 		# Salva o estado "zerado" no disco
 		if Global.has_method("save_story_progress"):
 			Global.save_story_progress()
-	
-	# 4. Limpeza da Memória do Mission Manager
-	var mission_manager = get_node_or_null("/root/MissionManager")
-	if mission_manager and mission_manager.has_method("reset_missions"):
-		mission_manager.reset_missions()
 		
 	# Feedback visual do botão
 	var btn = find_child("ClearDataButton", true, false)

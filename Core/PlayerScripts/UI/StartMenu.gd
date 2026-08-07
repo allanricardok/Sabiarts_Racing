@@ -84,49 +84,33 @@ func _exibir_controles_tutorial():
 # --- LÓGICA EXISTENTE MANTIDA ---
 
 func _preencher_missoes():
-	var data = MissionManager.current_map_data
-	if not data: 
-		print("[StartMenu] Erro: Dados do mapa não encontrados no MissionManager.")
-		return
-	
-	# 1. CARREGA A DESCRIÇÃO PRIMEIRO (Para todos os modos, incluindo Tutorial)
-	var desc = data.get("map_description")
-	if desc == null or desc == "":
-		desc_label.text = data.map_name + "\nObjetivos da Fase:"
-	else:
-		desc_label.text = data.map_name + "\n" + desc
-	
-	# --- TRAVA DO TUTORIAL MUDOU PARA CÁ ---
-	# Se for Tutorial, paramos a função aqui para não gerar a lista de checkboxes!
-	if Global.current_run_mode == Global.RunMode.FREE_ROAM:
-		return
-	
-	# 2. GERA A LISTA DE CAIXINHAS (Somente para Exploration)
-	for child in mission_list.get_children(): 
-		child.queue_free()
-	
-	print("[StartMenu] Preenchendo resumo de ", data.missions.size(), " missões.")
+	# A lista de caixinhas não existe mais, pois as missões ficam nos portais 3D!
+	# Vamos apenas esconder o painel para manter a UI limpa.
+	if mission_scroll:
+		mission_scroll.visible = false
+		
+	# Deixamos a descrição genérica do mapa
+	if desc_label:
+		desc_label.text = "Objetivos da Fase:\nExplore o mapa e encontre os portais de missão!"
 
-	for i in range(data.missions.size()):
-		var m = data.missions[i]
-		var item = Label.new()
-		
-		var is_secret = i >= 6 and not MissionManager.batch_2_unlocked
-		
-		if is_secret and not m.is_completed:
-			item.text = "🔒 ??? (Bloqueada)"
-			item.add_theme_color_override("font_color", Color.DIM_GRAY)
-		else:
-			var prefixo = "✔ " if m.is_completed else "□ "
-			item.text = prefixo + m.description
-			
-			if m.is_completed:
-				item.add_theme_color_override("font_color", Color.GREEN)
-			else:
-				item.add_theme_color_override("font_color", Color.WHITE)
-		
-		item.custom_minimum_size.y = 30 
-		mission_list.add_child(item)
+func _on_clear_data_btn_pressed():
+	print("[StartMenu] Solicitando exclusão de dados do jogador.")
+	# 1. Apaga o arquivo físico
+	SaveManager.clear_data()
+	
+	# 2. Atualiza a interface
+	_preencher_missoes()
+	print("[StartMenu] Interface resetada após limpeza de dados.")
+	
+	# 3. Zera os dados Globais
+	if is_instance_valid(Global):
+		Global.total_tokens = 0
+		Global.missions_repeated_this_run.clear()
+		if "completed_story_missions" in Global:
+			Global.completed_story_missions.clear()
+		if "completed_mission_tiers" in Global:
+			Global.completed_mission_tiers.clear()
+		Global.save_player_profile()
 
 func _on_start_btn_pressed():
 	print("[StartMenu] Botão Start pressionado! Despausando jogo.")
@@ -140,27 +124,3 @@ func _on_start_btn_pressed():
 		print("[StartMenu] Cronômetro iniciado via LevelLogic.")
 	else:
 		print("[StartMenu] AVISO: LevelLogic não encontrado ou função start_timer ausente.")
-
-func _on_clear_data_btn_pressed():
-	print("[StartMenu] Solicitando exclusão de dados do jogador.")
-	# 1. Apaga o arquivo físico
-	SaveManager.clear_data()
-	
-	# 2. Reseta o estado atual das missões em memória
-	if MissionManager.current_map_data:
-		for m in MissionManager.current_map_data.missions:
-			m.is_completed = false
-	
-	MissionManager.completed_count = 0
-	MissionManager.collection_progress.clear()
-	MissionManager.batch_2_unlocked = false
-	MissionManager.completed_mission_ids.clear()
-	
-	# 3. Atualiza a interface do menu imediatamente
-	_preencher_missoes()
-	print("[StartMenu] Interface resetada após limpeza de dados.")
-	
-	if is_instance_valid(Global):
-		Global.total_tokens = 0
-		Global.missions_repeated_this_run.clear()
-		Global.save_player_profile()

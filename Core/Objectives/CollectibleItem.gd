@@ -20,14 +20,14 @@ func _ready():
 	await get_tree().create_timer(0.2).timeout
 	
 	if Global.current_run_mode != Global.RunMode.STORY:
-		if is_instance_valid(MissionManager) and MissionManager.has_method("is_mission_completed"):
-			if MissionManager.is_mission_completed(mission_id):
-				print("[Item] Missão '", mission_id, "' já está completa no Open World.")
-				if grants_teleport_key:
-					_distribute_permanent_key()
-				
-				call_deferred("_hide_and_disable") 
-				return
+		# LÊ DIRETO DO GLOBAL (Checa se a missão já foi concluída antes)
+		if is_instance_valid(Global) and Global.completed_story_missions.has(mission_id):
+			print("[Item] Missão '", mission_id, "' já está completa no Open World.")
+			if grants_teleport_key:
+				_distribute_permanent_key()
+			
+			call_deferred("_hide_and_disable") 
+			return
 
 	if not body_entered.is_connected(_on_body_entered):
 		body_entered.connect(_on_body_entered)
@@ -103,15 +103,10 @@ func _collect():
 	is_collected = true
 	can_be_collected = false
 
-	if grants_teleport_key:
-		if not MissionManager.completed_mission_ids.has(mission_id):
-			MissionManager.completed_mission_ids.append(mission_id)
-			SaveManager.save_game(MissionManager.completed_mission_ids, {})
+	# A PEÇA QUE FALTAVA: Avisa o controlador que pegamos um item!
+	get_tree().call_group("StoryController", "notify_progress", StoryMissionData.MissionType.COLLECT, 1.0, mission_id)
 
-	if is_instance_valid(MissionManager):
-		MissionManager.notify_progress(MissionItem.Type.COLLECT, 1.0, mission_id)
-		get_tree().call_group("HUD", "atualizar_missao_ui")
-	
+	# Ocultamos a maleta
 	call_deferred("_hide_and_disable")
 
 func _hide_and_disable():

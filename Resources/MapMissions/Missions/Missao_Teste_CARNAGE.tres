@@ -9,7 +9,7 @@
 
 [resource]
 script = ExtResource("3_dkcsm")
-mission_type = 1
+mission_type = 0
 mission_id = "m_02"
 mission_name = "Carnage"
 mission_description = "Deguste o ânus de 3 oponentes"

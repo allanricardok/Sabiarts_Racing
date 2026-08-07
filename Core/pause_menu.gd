@@ -218,26 +218,13 @@ func _atualizar_lista_historia():
 	mission_container.add_child(meta_lbl)
 
 func _atualizar_lista_classica():
-	var data = MissionManager.current_map_data
-	if not data: return
+	# O sistema clássico foi removido. Apenas exibimos um aviso no menu.
+	var lbl = Label.new()
+	lbl.text = "Modo Livre / Combate\n(Nenhuma missão ativa)"
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.add_theme_color_override("font_color", Color.GRAY)
 	
-	for i in range(data.missions.size()):
-		var m = data.missions[i]
-		var h_box = HBoxContainer.new()
-		var lbl = Label.new()
-		
-		var is_locked = i >= 6 and not MissionManager.batch_2_unlocked
-		
-		if is_locked and not m.is_completed:
-			lbl.text = "🔒 ??? (Secreta)"
-			lbl.add_theme_color_override("font_color", Color.DIM_GRAY)
-		else:
-			var prefixo = "[✔] " if m.is_completed else "[ ] "
-			lbl.text = prefixo + m.description
-			lbl.add_theme_color_override("font_color", Color.GREEN if m.is_completed else Color.WHITE)
-			
-		h_box.add_child(lbl)
-		mission_container.add_child(h_box)
+	mission_container.add_child(lbl)
 
 func desativar_pausa():
 	pode_pausar = false

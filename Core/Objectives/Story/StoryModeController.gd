@@ -62,12 +62,7 @@ func _ready():
 		
 	if is_instance_valid(ScoreManager) and ScoreManager.has_signal("score_changed"):
 		ScoreManager.score_changed.connect(_on_global_score_changed)
-	
-	if is_instance_valid(MissionManager):
-		if MissionManager.has_signal("mission_updated"):
-			MissionManager.mission_updated.connect(_on_mission_progress_updated)
-		if MissionManager.has_signal("mission_completed"):
-			MissionManager.mission_completed.connect(_on_mission_progress_completed)
+
 		
 	call_deferred("_setup_inicial_seguro")
 	call_deferred("_check_next_map_unlock")
@@ -90,13 +85,6 @@ func force_cancel_all_missions():
 	current_tracked_progress = 0.0
 	current_tracked_score = 0.0
 
-	# Manda o Singleton esquecer a missão para parar os toasts
-	if is_instance_valid(MissionManager):
-		# Tenta chamar as funções mais comuns de limpeza.
-		if MissionManager.has_method("clear_active_missions"):
-			MissionManager.clear_active_missions()
-		elif MissionManager.has_method("abort_current_mission"):
-			MissionManager.abort_current_mission()
 # ====================================================================
 
 func _on_global_score_changed(_player_id: int, new_score: int):
@@ -116,12 +104,101 @@ func _setup_inicial_seguro():
 	get_tree().call_group("HUD", "esconder_timer")
 	get_tree().call_group("HUD", "esconder_missao_ativa")
 
+# ============================================================================
+# O GERENTE ÚNICO DE PROGRESSO
+
+func notify_progress(type: int, raw_value, item_id: String = ""):
+	if not is_mission_running or not current_mission: return
+	
+	# Converte o valor recebido para float de forma segura (Resolve o bug do call_group!)
+	var value = float(raw_value)
+	
+	# REGRA DE PROTEÇÃO 1: O evento pertence ao tipo de missão atual?
+	if current_mission.mission_type != type: return
+	
+	# REGRA DE PROTEÇÃO 2: O ID do objeto bate com a missão?
+	if current_mission.mission_id != "" and item_id != "" and item_id != current_mission.mission_id:
+		return
+		
+	var progresso_antigo = current_tracked_progress
+		
+	# APLICAÇÃO DAS SUAS REGRAS
+	match type:
+		StoryMissionData.MissionType.SPEED, StoryMissionData.MissionType.SCORE_COMBO:
+			# Só atualiza se a nova velocidade OU o novo combo for maior que o recorde anterior
+			if value > current_tracked_progress:
+				current_tracked_progress = value
+				
+		StoryMissionData.MissionType.COLLECT, StoryMissionData.MissionType.ROADKILL, StoryMissionData.MissionType.DESTROY:
+			# Soma acumulativa
+			current_tracked_progress += value
+			
+		StoryMissionData.MissionType.GAP, StoryMissionData.MissionType.EXPLORE:
+			# Trigger único. 1.0 significa "Concluído"
+			current_tracked_progress = 1.0
+
+# ====================================================================
+	# TOAST DE PROGRESSO (Roadkill, Collect, Destroy) - Suporta Tiers!
+	# ====================================================================
+	if type in [StoryMissionData.MissionType.COLLECT, StoryMissionData.MissionType.ROADKILL, StoryMissionData.MissionType.DESTROY]:
+		var progresso_atual = int(current_tracked_progress)
+		var meta = int(current_mission.base_target_value)
+		
+		# Se a missão usa Tiers, pega a meta da próxima Tier não alcançada
+		if not current_mission.mission_tiers.is_empty():
+			for tier in current_mission.mission_tiers:
+				if tier and progresso_atual < int(tier.target_value):
+					meta = int(tier.target_value)
+					break
+			# Se já passou da última tier, pega a meta da maior tier
+			if meta == int(current_mission.base_target_value) and current_mission.mission_tiers.size() > 0:
+				var last_tier = current_mission.mission_tiers[-1]
+				if last_tier: meta = int(last_tier.target_value)
+
+		if meta > 0:
+			# Usa o nome/descrição para montar a mensagem
+			var nome_base = current_mission.mission_name if current_mission.mission_name != "" else "Progresso"
+			var texto_toast = nome_base + ": " + str(progresso_atual) + "/" + str(meta)
+			
+			get_tree().call_group("HUD", "criar_toast", texto_toast, Color.BLUE_VIOLET)
+	# Debug para você ver no console se os pontos estão entrando
+	if current_tracked_progress > progresso_antigo:
+		print("[StoryController] Progresso da Missão atualizado: ", current_tracked_progress)
+
+func _get_current_mission_progress() -> float:
+	if not current_mission: return 0.0
+	
+	match current_mission.mission_type:
+		StoryMissionData.MissionType.COMBAT_DESTROY:
+			# Regra: Combat Destroy lê automaticamente o status dos bots spawnados
+			var dead_count = 0
+			for t in combat_targets:
+				if not is_instance_valid(t) or t.is_queued_for_deletion():
+					dead_count += 1
+				elif "_is_dead" in t and t._is_dead:
+					dead_count += 1
+				else:
+					var stats = t.find_child("StatsComponent", true, false)
+					if stats and "is_dead" in stats and stats.is_dead:
+						dead_count += 1
+			return float(dead_count)
+			
+		StoryMissionData.MissionType.SCORE:
+			# Regra: Score lê direto da pontuação global acumulada da run
+			return current_tracked_score
+			
+		_:
+			# Regra: SPEED, COLLECT, ROADKILL, DESTROY, GAP e EXPLORE
+			# Lê da variável alimentada pelo notify_progress
+			return current_tracked_progress
+
 func _process(delta):
 	if get_tree().paused: return
 	if physics.check_player_death(): return
 	
 	if not is_mission_running or not current_mission: return
 	
+	# Lógica do Temporizador
 	if current_mission.time_limit > 0:
 		mission_timer -= delta
 		get_tree().call_group("HUD", "atualizar_timer", mission_timer)
@@ -132,59 +209,28 @@ func _process(delta):
 			end_mission(won_any_tier) 
 			return
 
+	# Checagem de sucesso e atualização de Tiers
 	var current_progress_value = _get_current_mission_progress()
 	_update_tiers_progress(current_progress_value)
 
-	match current_mission.mission_type:
-		StoryMissionData.MissionType.CLASSIC_OBJECTIVE:
-			if active_classic_objective and active_classic_objective.is_completed:
-				if current_mission.mission_tiers.is_empty():
+	# Validação para missões SIMPLES (Sem Tiers configuradas)
+	if current_mission.mission_tiers.is_empty():
+		match current_mission.mission_type:
+			StoryMissionData.MissionType.COMBAT_DESTROY:
+				if current_progress_value >= combat_targets.size() and combat_targets.size() > 0:
 					end_mission(true)
-				
-		StoryMissionData.MissionType.COMBAT_DESTROY:
-			var all_destroyed = true
-			for target in combat_targets:
-				if is_instance_valid(target) and not target.is_queued_for_deletion():
-					if "_is_dead" in target and target._is_dead:
-						continue 
-						
-					var target_stats = target.find_child("StatsComponent", true, false)
-					if target_stats and "is_dead" in target_stats and target_stats.is_dead:
-						continue
-						
-					all_destroyed = false
-					break
-			
-			if all_destroyed and combat_targets.size() > 0:
-				end_mission(true)
-
-func _get_current_mission_progress() -> float:
-	if not current_mission: return 0.0
-	
-	if current_mission.mission_type == StoryMissionData.MissionType.COMBAT_DESTROY:
-		var dead_count = 0
-		for t in combat_targets:
-			if not is_instance_valid(t) or t.is_queued_for_deletion():
-				dead_count += 1
-			elif "_is_dead" in t and t._is_dead:
-				dead_count += 1
-			else:
-				var stats = t.find_child("StatsComponent", true, false)
-				if stats and "is_dead" in stats and stats.is_dead:
-					dead_count += 1
-		return float(dead_count)
-		
-	elif current_mission.mission_type == StoryMissionData.MissionType.CLASSIC_OBJECTIVE:
-		var prog = current_tracked_progress
-			
-		var desc = str(current_mission.mission_description).to_upper()
-		var m_name = str(current_mission.mission_name).to_upper()
-		if "SCORE" in desc or "PONTO" in desc or "TRICK" in m_name:
-			prog = max(prog, current_tracked_score)
-				
-		return prog
-		
-	return 0.0
+					
+			StoryMissionData.MissionType.SCORE:
+				if current_tracked_score >= current_mission.base_target_value:
+					end_mission(true)
+					
+			StoryMissionData.MissionType.SPEED, StoryMissionData.MissionType.COLLECT, StoryMissionData.MissionType.ROADKILL, StoryMissionData.MissionType.DESTROY:
+				if current_tracked_progress >= current_mission.base_target_value:
+					end_mission(true)
+					
+			StoryMissionData.MissionType.GAP, StoryMissionData.MissionType.EXPLORE:
+				if current_tracked_progress >= 1.0:
+					end_mission(true)
 
 func _update_tiers_progress(current_value: float):
 	if not current_mission or current_mission.mission_tiers.is_empty(): return

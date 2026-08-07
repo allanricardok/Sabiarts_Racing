@@ -51,11 +51,10 @@ func abrir_resultados():
 		print("[FinishMenu] CurrentScoreLabel atualizado: ", current_score_label.text)
 	
 	# --- CORREÇÃO: PUXANDO O NOME DA FONTE SEGURA (GLOBAL) ---
+# --- CORREÇÃO: PUXANDO O NOME DA FONTE SEGURA (GLOBAL) ---
 	var map_name = "MAPA DESCONHECIDO"
 	if Global.current_map != "":
 		map_name = Global.current_map
-	elif MissionManager.current_map_data:
-		map_name = MissionManager.current_map_data.map_name
 	
 	if map_name_label:
 		map_name_label.text = map_name
@@ -73,29 +72,12 @@ func abrir_resultados():
 
 func _preencher_resumo_missoes():
 	if not mission_list: return
-	var data = MissionManager.current_map_data
-	if not data: return
 	
 	for child in mission_list.get_children(): 
 		child.queue_free()
-	
-	for i in range(data.missions.size()):
-		var m = data.missions[i]
-		var item = Label.new()
-		item.custom_minimum_size.y = 30
 		
-		if m.is_completed:
-			item.text = "✔ " + m.description
-			item.add_theme_color_override("font_color", Color.GREEN)
-		elif i < 6 or MissionManager.batch_2_unlocked:
-			item.text = "✘ " + m.description
-			item.add_theme_color_override("font_color", Color.GRAY)
-		else:
-			item.text = "🔒 ??? [SECRETO]"
-			item.add_theme_color_override("font_color", Color.DARK_SLATE_GRAY)
-		
-		mission_list.add_child(item)
-
+	# As missões clássicas não existem mais. 
+	# As missões de História usam uma tela de resultados própria (ResultUI).
 func _preencher_highscores(map_name: String, current_session_score: int):
 	if not highscore_list: return
 	

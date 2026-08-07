@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="StoryMissionData" load_steps=5 format=3 uid="uid://cjcprcs5iiv5u"]
+
+[ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="1_4i2xs"]
+[ext_resource type="Script" uid="uid://dcan8ccd3nmwc" path="res://Core/Objectives/Story/StoryMissionTier.gd" id="2_r7en5"]
+[ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/Story/StoryMissionData.gd" id="3_pgk5u"]
+
+[sub_resource type="Resource" id="Resource_4i2xs"]
+script = ExtResource("2_r7en5")
+tier_name = "Gap executed"
+target_value = 1.0
+reward_points = 500
+metadata/_custom_type_script = "uid://dcan8ccd3nmwc"
+
+[resource]
+script = ExtResource("3_pgk5u")
+mission_type = 4
+mission_id = "gap_BS2_BA"
+mission_name = "Gap Chanllenge"
+mission_description = "Execute the gam \"2 da bus station PLUS\"
+
+Jump the ramp and land on the bus station's rooftop"
+mission_tiers = Array[ExtResource("2_r7en5")]([SubResource("Resource_4i2xs")])
+mission_environment = ExtResource("1_4i2xs")
+mission_sun_color = Color(0.1898, 0.47790667, 0.73, 0.32156864)
+mission_sun_energy = 0.2
+enemy_count = 0
+metadata/_custom_type_script = "uid://o1ox0n7mmqv"

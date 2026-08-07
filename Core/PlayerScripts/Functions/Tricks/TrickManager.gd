@@ -216,13 +216,16 @@ func _finalize_score():
 		print("=========================================")
 	# ----------------------------------------------------
 	
-	# Avisa o gerente de missões (Apenas para Players)
+# Avisa o gerente de missões (Apenas para Players)
 	var is_bot = (car.input and "is_bot" in car.input and car.input.is_bot)
 	if not is_bot:
 		for completed_gap in _gaps_completed_this_jump:
-			if is_instance_valid(MissionManager) and not MissionManager.is_mission_completed(completed_gap):
-				MissionManager.notify_progress(MissionItem.Type.GAP, 1.0, completed_gap)
-
+			if not Global.completed_story_missions.has(completed_gap):
+				get_tree().call_group("StoryController", "notify_progress", StoryMissionData.MissionType.GAP, 1.0, completed_gap)
+				
+		# --- NOVO: AVISA A MISSÃO DE COMBO ÚNICO ---
+		# Mandamos o 'final_score' dessa manobra exata para o controlador analisar.
+		get_tree().call_group("StoryController", "notify_progress", StoryMissionData.MissionType.SCORE_COMBO, final_score, "")
 	_reset_gap_state_internal()
 	
 	# Se for bot, encerra a função visual aqui!

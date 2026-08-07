@@ -26,9 +26,7 @@ func _process_radar(car: BaseVehicle):
 	var speed_kmh = car.linear_velocity.length() * 2.3
 	
 	print("Radar: ", car.name, " passou a ", int(speed_kmh), " km/h")
-	
-	# Opcional: Dispara o flash da câmera para TODOS que passarem (Players e Bots)
-	_visual_flash()
+
 	
 	# --- FILTRO DE BOT ---
 	# Pega o Input para saber se é a IA dirigindo
@@ -38,10 +36,11 @@ func _process_radar(car: BaseVehicle):
 	if is_bot:
 		return # Se for Bot, paramos a execução aqui. Nada de UI ou Missão!
 
-	# 1. Avisa o MissionManager para checar se batemos a meta da missão (Apenas Jogadores)
-	if is_instance_valid(MissionManager):
-		MissionManager.notify_progress(MissionItem.Type.SPEED, speed_kmh, radar_mission_id)
-		
+	# ====================================================================
+	# A PEÇA QUE FALTAVA: AVISAR A MISSÃO SOBRE A VELOCIDADE!
+	# ====================================================================
+	get_tree().call_group("StoryController", "notify_progress", StoryMissionData.MissionType.SPEED, speed_kmh, radar_mission_id)
+	
 	# 2. FIX MULTIPLAYER: Chama a HUD certa que divide o Viewport com este carro
 	var my_hud = null
 	for hud in get_tree().get_nodes_in_group("HUD"):
@@ -57,7 +56,3 @@ func _process_radar(car: BaseVehicle):
 			get_tree().call_group("TutorialUI", "complete_task", "speedtrap")
 		
 		my_hud.criar_toast("SPEEDTRAP: " + str(int(speed_kmh)) + " KM/H", cor)
-
-func _visual_flash():
-	# TODO: Efeito de luz branca rápida para parecer uma foto de multa
-	print("[SpeedRadar] Flash visual disparado.")

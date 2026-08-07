@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="StoryMissionData" load_steps=5 format=3 uid="uid://r2sx4x2tp7ij"]
+
+[ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="1_blsln"]
+[ext_resource type="Script" uid="uid://dcan8ccd3nmwc" path="res://Core/Objectives/Story/StoryMissionTier.gd" id="2_a7v33"]
+[ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/Story/StoryMissionData.gd" id="6_4akg0"]
+
+[sub_resource type="Resource" id="Resource_0y6ep"]
+script = ExtResource("2_a7v33")
+tier_name = "Explore the second floor"
+target_value = 1.0
+reward_points = 500
+metadata/_custom_type_script = "uid://dcan8ccd3nmwc"
+
+[resource]
+script = ExtResource("6_4akg0")
+mission_type = 5
+mission_id = "secret_BA"
+mission_name = "Second Floor"
+mission_description = "Go to the mall's second floor.
+
+It's the green transparent thing right there"
+mission_tiers = Array[ExtResource("2_a7v33")]([SubResource("Resource_0y6ep")])
+mission_environment = ExtResource("1_blsln")
+mission_sun_color = Color(0.20019999, 0.5515766, 0.77, 0.43137255)
+mission_sun_energy = 0.2
+nodes_to_enable = Array[NodePath]([NodePath("../../BAMap/ExplorationArea")])
+enemy_count = 0
+metadata/_custom_type_script = "uid://o1ox0n7mmqv"

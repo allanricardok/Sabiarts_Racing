@@ -332,5 +332,6 @@ func restore_shield(amount: float):
 		_trigger_shield_flash()
 
 func _on_death():
-	if mission_id != "" and is_instance_valid(MissionManager):
-		MissionManager.notify_progress(MissionItem.Type.DESTROY, 1.0, mission_id)
+	if mission_id != "":
+		# Agora manda direto para o StoryController, usando o tipo DESTROY
+		get_tree().call_group("StoryController", "notify_progress", StoryMissionData.MissionType.DESTROY, 1.0, mission_id)
