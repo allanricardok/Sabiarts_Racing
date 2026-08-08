@@ -14,6 +14,7 @@ func accept_mission():
 	ctrl.completed_tiers_this_run.clear()
 	ctrl.current_tracked_score = 0.0 
 	ctrl.current_tracked_progress = 0.0 # Zera o rastreador de coletáveis, velocidade, etc.
+	ctrl.multitask_progress.clear()
 	
 	if is_instance_valid(ScoreManager):
 		if ScoreManager.has_method("reset_score"): ScoreManager.reset_score()
@@ -39,8 +40,10 @@ func accept_mission():
 		ctrl.sun_light.light_color = ctrl.current_mission.mission_sun_color
 		ctrl.sun_light.light_energy = ctrl.current_mission.mission_sun_energy
 
-	# Gera Bots de Combate se for a missão certa
-	if ctrl.current_mission.mission_type == StoryMissionData.MissionType.COMBAT_DESTROY:
+# =========================================================
+	# Gera Bots de Combate para QUALQUER missão que peça inimigos
+	# =========================================================
+	if ctrl.current_mission.enemy_count > 0:
 		if ctrl.bot_spawner and ctrl.bot_spawner.has_method("spawn_single_bot"):
 			for i in range(ctrl.current_mission.enemy_count):
 				var enemy = ctrl.bot_spawner.spawn_single_bot(i)
@@ -275,14 +278,23 @@ func end_mission(success: bool):
 				Global.total_tokens += tokens_earned
 				if Global.has_method("save_player_profile"): Global.save_player_profile()
 			
-		for path in ctrl.current_mission.nodes_to_enable:
-			var node = ctrl.get_node_or_null(path)
-			if not node:
-				var node_name = String(path).split("/")[-1]
-				node = get_tree().current_scene.find_child(node_name, true, false)
-			if node:
-				node.visible = false
-				node.process_mode = Node.PROCESS_MODE_DISABLED
+		# ====================================================================
+		# DESATIVAÇÃO DE NÓS (Com exceção para missões de presença física)
+		# ====================================================================
+		var deve_esconder = not (ctrl.current_mission.mission_type in [
+			StoryMissionData.MissionType.DEFEND, 
+			StoryMissionData.MissionType.DESTROY
+		])
+		
+		if deve_esconder:
+			for path in ctrl.current_mission.nodes_to_enable:
+				var node = ctrl.get_node_or_null(path)
+				if not node:
+					var node_name = String(path).split("/")[-1]
+					node = get_tree().current_scene.find_child(node_name, true, false)
+				if node:
+					node.visible = false
+					node.process_mode = Node.PROCESS_MODE_DISABLED
 	
 	ctrl.physics.restore_all_health_and_energy()
 	

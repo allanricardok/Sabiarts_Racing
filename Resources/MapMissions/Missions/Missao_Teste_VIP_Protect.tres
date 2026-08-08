@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="StoryMissionData" load_steps=5 format=3 uid="uid://dn8ck80rpnwhm"]
+
+[ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="1_ypl3e"]
+[ext_resource type="Script" uid="uid://dcan8ccd3nmwc" path="res://Core/Objectives/Story/StoryMissionTier.gd" id="2_r42ob"]
+[ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/Story/StoryMissionData.gd" id="3_qcw6y"]
+
+[sub_resource type="Resource" id="Resource_ypl3e"]
+script = ExtResource("2_r42ob")
+tier_name = "tst"
+reward_points = 500
+metadata/_custom_type_script = "uid://dcan8ccd3nmwc"
+
+[resource]
+script = ExtResource("3_qcw6y")
+mission_type = 10
+mission_id = "Barril_VIP"
+mission_name = "Protect the barrel"
+mission_description = "Protect the VIP Barrel
+"
+time_limit = 20.0
+mission_tiers = Array[ExtResource("2_r42ob")]([SubResource("Resource_ypl3e")])
+mission_environment = ExtResource("1_ypl3e")
+mission_sun_color = Color(0.5628662, 0.22717513, 0.6747632, 0.8)
+mission_sun_energy = 0.2
+nodes_to_enable = Array[NodePath]([NodePath("../../BAMap/Destructibles/Barril_VIP")])
+enemy_count = 4
+required_unlock_points = 4000
+metadata/_custom_type_script = "uid://o1ox0n7mmqv"

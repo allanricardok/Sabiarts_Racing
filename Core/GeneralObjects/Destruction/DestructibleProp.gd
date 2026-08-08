@@ -3,6 +3,7 @@ extends RigidBody3D
 @export_group("Mission Settings")
 ## Escreva aqui o ID para as missões (ex: barril, enemy_car)
 @export var mission_id : String = ""
+@export var is_defend_vip: bool = false
 
 @export_group("Balance")
 ## Vida máxima do objeto (usado para calcular a barra de vida no HUD)
@@ -57,6 +58,15 @@ extends RigidBody3D
 
 @onready var health : float = max_health
 
+var _initial_transform: Transform3D
+var _initial_health: float
+
+func _ready():
+	# Guarda a posição, rotação e vida originais assim que o mapa carrega
+	_initial_transform = global_transform
+	# ATENÇÃO: Troque "health" pelo nome exato da variável de vida do seu script!
+	_initial_health = health
+
 func take_damage(amount: float, attacker: Node3D = null):
 	if health <= 0: return 
 	health -= amount
@@ -89,7 +99,21 @@ func take_damage(amount: float, attacker: Node3D = null):
 	if health <= 0:
 		_morrer(actual_shooter)
 
-func _morrer(actual_shooter: Node3D):
+func _morrer(actual_shooter: Node3D = null):
+	# =========================================================
+	# LÓGICA DE MISSÃO (Independente de quem destruiu)
+	# =========================================================
+	if is_defend_vip:
+		# Grito da Defesa: Avisa que o VIP morreu (-1) e causa a falha
+		get_tree().call_group("StoryController", "notify_progress", StoryMissionData.MissionType.DEFEND, -1.0, "vip_destroyed")
+	else:
+		# Grito da Destruição Clássica: Soma 1 no progresso
+		if mission_id != "":
+			get_tree().call_group("StoryController", "notify_progress", StoryMissionData.MissionType.DESTROY, 1.0, mission_id)
+
+	# =========================================================
+	# BÔNUS DE MANOBRA E ENERGIA (Apenas se quem atacou for o Player)
+	# =========================================================
 	if actual_shooter:
 		# 1. Recupera energia por DESTRUIÇÃO
 		_give_energy_to_attacker(actual_shooter, energy_on_destroy)
@@ -99,15 +123,35 @@ func _morrer(actual_shooter: Node3D):
 		if gtm:
 			gtm.add_ground_action("DESTROY_OBJECT")
 			
-			# 3. Notifica o StoryController se houver ID (Sem MissionManager!)
-			if mission_id != "":
-				get_tree().call_group("StoryController", "notify_progress", StoryMissionData.MissionType.DESTROY, 1.0, mission_id)
-	
 	# === Aplica o dano em área (Reações em Cadeia!) ===
 	_apply_aoe_damage(actual_shooter)
 	
 	_spawn_debris()
-	queue_free()
+# Ao invés de deletar, apenas desativamos fisicamente os objetos de missão
+	if is_defend_vip or mission_id != "":
+		visible = false
+		process_mode = Node.PROCESS_MODE_DISABLED
+		
+		for child in get_children():
+			if child is CollisionShape3D or child is CollisionPolygon3D:
+				child.set_deferred("disabled", true)
+	else:
+		queue_free() # Objetos comuns do mapa continuam sumindo para sempre
+
+func reset():
+	# Restaura física e status
+	global_transform = _initial_transform
+	health = _initial_health
+	
+	visible = true
+	process_mode = Node.PROCESS_MODE_INHERIT
+	
+	# Religa todas as colisões
+	for child in get_children():
+		if child is CollisionShape3D or child is CollisionPolygon3D:
+			child.set_deferred("disabled", false)
+			
+	print("[Destructible] VIP restaurado para a posição original e com vida cheia!")
 
 func _apply_aoe_damage(original_shooter: Node3D):
 	if not causes_aoe_damage: return

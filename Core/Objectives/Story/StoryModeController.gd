@@ -20,6 +20,8 @@ var current_mission: StoryMissionData
 var active_portal: StoryMissionPortal
 var mission_timer: float = 0.0
 var is_mission_running: bool = false
+# --- VARIÁVEIS MULTI-TASK ---
+var multitask_progress: Dictionary = {}
 
 var active_classic_objective: MissionItem = null
 
@@ -83,7 +85,7 @@ func force_cancel_all_missions():
 	current_tracked_score = 0.0
 	delivery_items_held = 0
 	delivery_items_delivered = 0
-
+	multitask_progress.clear()
 # ====================================================================
 
 func _on_global_score_changed(_player_id: int, new_score: int):
@@ -113,14 +115,48 @@ func notify_progress(type: int, raw_value, item_id: String = ""):
 	if not is_mission_running or not current_mission: return
 	var value = float(raw_value)
 	
-	# REGRA DE PROTEÇÃO 1: O evento pertence ao tipo de missão atual?
-	if current_mission.mission_type != type: return
+	# REGRA DE PROTEÇÃO 1: O evento pertence ao tipo de missão atual? (Agora aceita MULTI_TASK)
+	if current_mission.mission_type != type and current_mission.mission_type != StoryMissionData.MissionType.MULTI_TASK: return
 	
-	# --- A CORREÇÃO DO FILTRO ---
-	# Abre exceção para as ações de Delivery passarem pelo porteiro!
+	# =================================================================
+	# NOVA ROTA: LÓGICA MULTI_TASK (CHECKLIST)
+	# =================================================================
+	if current_mission.mission_type == StoryMissionData.MissionType.MULTI_TASK:
+		for i in range(current_mission.mission_tiers.size()):
+			var tier = current_mission.mission_tiers[i]
+			if not tier: continue
+			
+			# Se o grito for do tipo que essa Tier está pedindo...
+			if tier.tier_mission_type == type:
+				# Verifica se a Tier exige um objeto específico
+				if tier.tier_target_id != "" and item_id != "" and item_id != tier.tier_target_id:
+					continue
+				
+				var prev_prog = multitask_progress.get(i, 0.0)
+				var new_prog = prev_prog
+				
+				# Aplica as regras de cada tipo independentemente!
+				match type:
+					StoryMissionData.MissionType.SPEED, StoryMissionData.MissionType.SCORE_COMBO:
+						if value > prev_prog: new_prog = value
+					StoryMissionData.MissionType.COLLECT, StoryMissionData.MissionType.ROADKILL, StoryMissionData.MissionType.DESTROY, StoryMissionData.MissionType.DELIVERY:
+						new_prog += value
+					StoryMissionData.MissionType.GAP, StoryMissionData.MissionType.EXPLORE:
+						new_prog = 1.0
+						
+				multitask_progress[i] = new_prog
+				
+				if new_prog > prev_prog and new_prog <= tier.target_value:
+					var texto = tier.tier_name + ": " + str(int(new_prog)) + "/" + str(int(tier.target_value))
+					get_tree().call_group("HUD", "criar_toast", texto, Color.CORNFLOWER_BLUE)
+					
+		return # Encerra aqui, pois o Multi-Task já cuidou do evento!
+	
+# --- A CORREÇÃO DO FILTRO (Agora aceita Delivery e Defend) ---
 	var is_delivery_action = (type == StoryMissionData.MissionType.DELIVERY and item_id in ["collect", "dropoff"])
+	var is_defend_action = (type == StoryMissionData.MissionType.DEFEND and item_id == "vip_destroyed")
 	
-	if not is_delivery_action:
+	if not is_delivery_action and not is_defend_action:
 		if current_mission.mission_id != "" and item_id != "" and item_id != current_mission.mission_id:
 			return
 			
@@ -148,8 +184,14 @@ func notify_progress(type: int, raw_value, item_id: String = ""):
 			
 		StoryMissionData.MissionType.GAP, StoryMissionData.MissionType.EXPLORE:
 			current_tracked_progress = 1.0
+		
+		# --- NOVA REGRA DE DEFESA ---
+		StoryMissionData.MissionType.DEFEND:
+			if item_id == "vip_destroyed" or value == -1:
+				get_tree().call_group("HUD", "criar_toast", "O alvo foi destruído! Missão Falhou.", Color.RED)
+				end_mission(false) # Falha imediata!
 			
-		# --- A CORREÇÃO DO DELIVERY ---
+# --- A CORREÇÃO DO DELIVERY ---
 		StoryMissionData.MissionType.DELIVERY:
 			if item_id == "collect":
 				delivery_items_held += int(value)
@@ -164,9 +206,7 @@ func notify_progress(type: int, raw_value, item_id: String = ""):
 					current_tracked_progress = float(delivery_items_delivered) 
 					
 					get_tree().call_group("HUD", "criar_toast", "Entregue: " + str(delivery_items_delivered) + "/" + str(meta), Color.GREEN)
-					
-					if delivery_items_delivered >= meta and meta > 0:
-						end_mission(true)
+
 
 	# TOAST DE PROGRESSO GERAL (Roadkill, Collect, Destroy)
 	if type in [StoryMissionData.MissionType.COLLECT, StoryMissionData.MissionType.ROADKILL, StoryMissionData.MissionType.DESTROY]:
@@ -212,22 +252,33 @@ func _process(delta):
 	
 	if not is_mission_running or not current_mission: return
 	
-	# Lógica do Temporizador
+# Lógica do Temporizador
 	if current_mission.time_limit > 0:
 		mission_timer -= delta
 		get_tree().call_group("HUD", "atualizar_timer", mission_timer)
 		
 		if mission_timer <= 0:
-			var won_any_tier = completed_tiers_this_run.size() > 0
-			if current_mission.mission_tiers.is_empty(): won_any_tier = false
-			end_mission(won_any_tier) 
+			# === NOVA REGRA DE DEFESA: Sobreviver ao tempo = Vitória! ===
+			if current_mission.mission_type == StoryMissionData.MissionType.DEFEND:
+				# A CORREÇÃO: Dá a tier como concluída automaticamente ao sobreviver!
+				if not current_mission.mission_tiers.is_empty():
+					for i in range(current_mission.mission_tiers.size()):
+						if not completed_tiers_this_run.has(i):
+							completed_tiers_this_run.append(i)
+				
+				end_mission(true)
+			else:
+				# Regra padrão para outras missões
+				var won_any_tier = completed_tiers_this_run.size() > 0
+				if current_mission.mission_tiers.is_empty(): won_any_tier = false
+				end_mission(won_any_tier) 
 			return
-
 	# Checagem de sucesso e atualização de Tiers
 	var current_progress_value = _get_current_mission_progress()
 	_update_tiers_progress(current_progress_value)
 
 	# Validação para missões SIMPLES (Sem Tiers configuradas)
+# Validação para missões SIMPLES (Sem Tiers configuradas)
 	if current_mission.mission_tiers.is_empty():
 		match current_mission.mission_type:
 			StoryMissionData.MissionType.COMBAT_DESTROY:
@@ -238,7 +289,8 @@ func _process(delta):
 				if current_tracked_score >= current_mission.base_target_value:
 					end_mission(true)
 					
-			StoryMissionData.MissionType.SPEED, StoryMissionData.MissionType.COLLECT, StoryMissionData.MissionType.ROADKILL, StoryMissionData.MissionType.DESTROY:
+			# ---> ADICIONE O DELIVERY AQUI NESTA LINHA! <---
+			StoryMissionData.MissionType.SPEED, StoryMissionData.MissionType.COLLECT, StoryMissionData.MissionType.ROADKILL, StoryMissionData.MissionType.DESTROY, StoryMissionData.MissionType.DELIVERY:
 				if current_tracked_progress >= current_mission.base_target_value:
 					end_mission(true)
 					
@@ -251,14 +303,42 @@ func _update_tiers_progress(current_value: float):
 	
 	for i in range(current_mission.mission_tiers.size()):
 		if completed_tiers_this_run.has(i): continue
-		
 		var tier = current_mission.mission_tiers[i]
-		if current_value >= tier.target_value:
+		
+		# Define de onde leremos o progresso (Do geral ou do Checklist?)
+		var prog_to_check = current_value
+		
+		if current_mission.mission_type == StoryMissionData.MissionType.MULTI_TASK:
+			# =========================================================
+			# LÓGICA ISOLADA: Conta os bots mortos diretamente aqui!
+			# =========================================================
+			if tier.tier_mission_type == StoryMissionData.MissionType.COMBAT_DESTROY:
+				var dead_count = 0
+				for t in combat_targets:
+					if not is_instance_valid(t) or t.is_queued_for_deletion():
+						dead_count += 1
+					elif "_is_dead" in t and t._is_dead:
+						dead_count += 1
+					else:
+						var stats = t.find_child("StatsComponent", true, false)
+						if stats and "is_dead" in stats and stats.is_dead:
+							dead_count += 1
+				prog_to_check = float(dead_count)
+				
+			elif tier.tier_mission_type == StoryMissionData.MissionType.SCORE:
+				prog_to_check = current_tracked_score
+			else:
+				# Puxa os dados dos eventos normais (Roadkill, Destroy, etc)
+				prog_to_check = multitask_progress.get(i, 0.0)
+				
+		# Se a meta da Tier foi batida
+		if prog_to_check >= tier.target_value:
 			completed_tiers_this_run.append(i)
 			
 			get_tree().call_group("HUD", "riscar_objetivo_tier", i, tier.tier_name)
-			get_tree().call_group("HUD", "criar_toast", "🏆 TIER " + str(i + 1) + " ATINGIDO: " + tier.tier_name + "!", Color.GOLD)
+			get_tree().call_group("HUD", "criar_toast", "🏆 TAREFA CONCLUÍDA: " + tier.tier_name + "!", Color.GOLD)
 			
+			# Checa se o checklist inteiro acabou
 			if completed_tiers_this_run.size() == current_mission.mission_tiers.size():
 				end_mission(true)
 				return

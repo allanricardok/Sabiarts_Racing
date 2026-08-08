@@ -14,7 +14,7 @@ metadata/_custom_type_script = "uid://dcan8ccd3nmwc"
 [resource]
 script = ExtResource("4_ulunm")
 mission_type = 9
-mission_id = "delivery"
+mission_id = "deliver"
 mission_name = "Deliver Stuff"
 mission_description = "Find the donuts and deliver them under the park marquee "
 time_limit = 200.0
