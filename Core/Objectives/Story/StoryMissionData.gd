@@ -1,8 +1,8 @@
 extends Resource
 class_name StoryMissionData
 
-# Adicionamos SCORE_COMBO no final!
-enum MissionType { COMBAT_DESTROY, SCORE, SPEED, COLLECT, GAP, EXPLORE, ROADKILL, DESTROY, SCORE_COMBO }
+# Adicionamos DELIVERY no final
+enum MissionType { COMBAT_DESTROY, SCORE, SPEED, COLLECT, GAP, EXPLORE, ROADKILL, DESTROY, SCORE_COMBO, DELIVERY }
 
 @export_group("Configuração do Tipo")
 @export var mission_type: MissionType = MissionType.SCORE

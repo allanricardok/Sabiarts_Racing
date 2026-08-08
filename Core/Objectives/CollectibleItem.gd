@@ -5,6 +5,10 @@ extends Area3D
 @export var grants_teleport_key: bool = false
 @export var rotation_speed: float = 1.5 
 
+@export_group("Tipo de Missão")
+## Se marcado, este item não pontua na hora. Ele vai para o porta-malas para ser entregue depois!
+@export var is_delivery_item: bool = false
+
 @export_group("Efeitos de Bebida")
 @export var causes_drunk_effect: bool = false
 @export var drunk_duration: float = 10.0
@@ -103,8 +107,13 @@ func _collect():
 	is_collected = true
 	can_be_collected = false
 
-	# A PEÇA QUE FALTAVA: Avisa o controlador que pegamos um item!
-	get_tree().call_group("StoryController", "notify_progress", StoryMissionData.MissionType.COLLECT, 1.0, mission_id)
+	# BIFURCAÇÃO DA MISSÃO: É coleta simples ou é entrega?
+	if is_delivery_item:
+		# Grito da Entrega: O StoryController soma no "porta-malas" usando a chave "collect"
+		get_tree().call_group("StoryController", "notify_progress", StoryMissionData.MissionType.DELIVERY, 1.0, "collect")
+	else:
+		# Grito da Coleta Clássica: O StoryController soma no progresso geral da missão
+		get_tree().call_group("StoryController", "notify_progress", StoryMissionData.MissionType.COLLECT, 1.0, mission_id)
 
 	# Ocultamos a maleta
 	call_deferred("_hide_and_disable")

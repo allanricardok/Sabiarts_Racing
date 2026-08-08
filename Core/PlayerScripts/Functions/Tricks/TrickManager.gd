@@ -220,12 +220,12 @@ func _finalize_score():
 	var is_bot = (car.input and "is_bot" in car.input and car.input.is_bot)
 	if not is_bot:
 		for completed_gap in _gaps_completed_this_jump:
-			if not Global.completed_story_missions.has(completed_gap):
-				get_tree().call_group("StoryController", "notify_progress", StoryMissionData.MissionType.GAP, 1.0, completed_gap)
+			# GRITA SEMPRE! O StoryController é quem decide se a missão precisa disso.
+			get_tree().call_group("StoryController", "notify_progress", StoryMissionData.MissionType.GAP, 1.0, completed_gap)
 				
-		# --- NOVO: AVISA A MISSÃO DE COMBO ÚNICO ---
-		# Mandamos o 'final_score' dessa manobra exata para o controlador analisar.
+		# --- AVISA A MISSÃO DE COMBO ÚNICO ---
 		get_tree().call_group("StoryController", "notify_progress", StoryMissionData.MissionType.SCORE_COMBO, final_score, "")
+
 	_reset_gap_state_internal()
 	
 	# Se for bot, encerra a função visual aqui!

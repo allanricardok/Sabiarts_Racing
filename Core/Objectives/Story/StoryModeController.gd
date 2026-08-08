@@ -28,15 +28,12 @@ var spawned_bots: Array[Node] = []
 var original_transforms: Dictionary = {}
 
 var completed_tiers_this_run: Array[int] = []
+var current_tracked_progress: float = 0.0
 var current_tracked_score: float = 0.0
 
-# ============================================================================
-# NOVO: progresso rastreado via sinal, igual ao current_tracked_score do SCORE.
-# Substitui a leitura direta de "active_classic_objective.current_progress",
-# que dependia de uma checagem silenciosa (`if "current_progress" in mission`)
-# e podia falhar sem aviso se a propriedade não existisse no MissionItem.
-# ============================================================================
-var current_tracked_progress: float = 0.0
+# --- NOVAS VARIÁVEIS PARA DELIVERY ---
+var delivery_items_held: int = 0
+var delivery_items_delivered: int = 0
 
 # --- GERENCIADORES INTERNOS (COMPOSIÇÃO) ---
 var lifecycle: StoryMissionLifecycle
@@ -84,6 +81,8 @@ func force_cancel_all_missions():
 	completed_tiers_this_run.clear()
 	current_tracked_progress = 0.0
 	current_tracked_score = 0.0
+	delivery_items_held = 0
+	delivery_items_delivered = 0
 
 # ====================================================================
 
@@ -107,64 +106,79 @@ func _setup_inicial_seguro():
 # ============================================================================
 # O GERENTE ÚNICO DE PROGRESSO
 
+# ============================================================================
+# O GERENTE ÚNICO DE PROGRESSO
+# ============================================================================
 func notify_progress(type: int, raw_value, item_id: String = ""):
 	if not is_mission_running or not current_mission: return
-	
-	# Converte o valor recebido para float de forma segura (Resolve o bug do call_group!)
 	var value = float(raw_value)
 	
 	# REGRA DE PROTEÇÃO 1: O evento pertence ao tipo de missão atual?
 	if current_mission.mission_type != type: return
 	
-	# REGRA DE PROTEÇÃO 2: O ID do objeto bate com a missão?
-	if current_mission.mission_id != "" and item_id != "" and item_id != current_mission.mission_id:
-		return
-		
+	# --- A CORREÇÃO DO FILTRO ---
+	# Abre exceção para as ações de Delivery passarem pelo porteiro!
+	var is_delivery_action = (type == StoryMissionData.MissionType.DELIVERY and item_id in ["collect", "dropoff"])
+	
+	if not is_delivery_action:
+		if current_mission.mission_id != "" and item_id != "" and item_id != current_mission.mission_id:
+			return
+			
 	var progresso_antigo = current_tracked_progress
 		
-	# APLICAÇÃO DAS SUAS REGRAS
+	# CALCULA A META CORRETA MESMO SE USAR TIERS (Correção da Imagem 3)
+	var meta = int(current_mission.base_target_value)
+	if not current_mission.mission_tiers.is_empty():
+		for tier in current_mission.mission_tiers:
+			if tier and current_tracked_progress < int(tier.target_value):
+				meta = int(tier.target_value)
+				break
+		if meta == int(current_mission.base_target_value) and current_mission.mission_tiers.size() > 0:
+			var last_tier = current_mission.mission_tiers[-1]
+			if last_tier: meta = int(last_tier.target_value)
+			
+	# APLICAÇÃO DAS REGRAS
 	match type:
 		StoryMissionData.MissionType.SPEED, StoryMissionData.MissionType.SCORE_COMBO:
-			# Só atualiza se a nova velocidade OU o novo combo for maior que o recorde anterior
 			if value > current_tracked_progress:
 				current_tracked_progress = value
 				
 		StoryMissionData.MissionType.COLLECT, StoryMissionData.MissionType.ROADKILL, StoryMissionData.MissionType.DESTROY:
-			# Soma acumulativa
 			current_tracked_progress += value
 			
 		StoryMissionData.MissionType.GAP, StoryMissionData.MissionType.EXPLORE:
-			# Trigger único. 1.0 significa "Concluído"
 			current_tracked_progress = 1.0
-
-# ====================================================================
-	# TOAST DE PROGRESSO (Roadkill, Collect, Destroy) - Suporta Tiers!
-	# ====================================================================
-	if type in [StoryMissionData.MissionType.COLLECT, StoryMissionData.MissionType.ROADKILL, StoryMissionData.MissionType.DESTROY]:
-		var progresso_atual = int(current_tracked_progress)
-		var meta = int(current_mission.base_target_value)
-		
-		# Se a missão usa Tiers, pega a meta da próxima Tier não alcançada
-		if not current_mission.mission_tiers.is_empty():
-			for tier in current_mission.mission_tiers:
-				if tier and progresso_atual < int(tier.target_value):
-					meta = int(tier.target_value)
-					break
-			# Se já passou da última tier, pega a meta da maior tier
-			if meta == int(current_mission.base_target_value) and current_mission.mission_tiers.size() > 0:
-				var last_tier = current_mission.mission_tiers[-1]
-				if last_tier: meta = int(last_tier.target_value)
-
-		if meta > 0:
-			# Usa o nome/descrição para montar a mensagem
-			var nome_base = current_mission.mission_name if current_mission.mission_name != "" else "Progresso"
-			var texto_toast = nome_base + ": " + str(progresso_atual) + "/" + str(meta)
 			
-			get_tree().call_group("HUD", "criar_toast", texto_toast, Color.BLUE_VIOLET)
-	# Debug para você ver no console se os pontos estão entrando
+		# --- A CORREÇÃO DO DELIVERY ---
+		StoryMissionData.MissionType.DELIVERY:
+			if item_id == "collect":
+				delivery_items_held += int(value)
+				get_tree().call_group("HUD", "criar_toast", "Carga recolhida! (" + str(delivery_items_held) + " no carro)", Color.YELLOW)
+				
+			elif item_id == "dropoff":
+				if delivery_items_held > 0:
+					delivery_items_delivered += delivery_items_held
+					delivery_items_held = 0
+					
+					# Sincroniza a barra visual da HUD com o que foi entregue!
+					current_tracked_progress = float(delivery_items_delivered) 
+					
+					get_tree().call_group("HUD", "criar_toast", "Entregue: " + str(delivery_items_delivered) + "/" + str(meta), Color.GREEN)
+					
+					if delivery_items_delivered >= meta and meta > 0:
+						end_mission(true)
+
+	# TOAST DE PROGRESSO GERAL (Roadkill, Collect, Destroy)
+	if type in [StoryMissionData.MissionType.COLLECT, StoryMissionData.MissionType.ROADKILL, StoryMissionData.MissionType.DESTROY]:
+		if meta > 0 and current_tracked_progress > progresso_antigo:
+			var nome_base = current_mission.mission_name if current_mission.mission_name != "" else "Progresso"
+			var texto_toast = nome_base + ": " + str(int(current_tracked_progress)) + "/" + str(meta)
+			get_tree().call_group("HUD", "criar_toast", texto_toast, Color.ORANGE)
+			
+	# Debug no console
 	if current_tracked_progress > progresso_antigo:
 		print("[StoryController] Progresso da Missão atualizado: ", current_tracked_progress)
-
+		
 func _get_current_mission_progress() -> float:
 	if not current_mission: return 0.0
 	

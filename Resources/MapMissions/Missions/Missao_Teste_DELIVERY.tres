@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="StoryMissionData" load_steps=5 format=3 uid="uid://co81ub7qh40jo"]
+
+[ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="1_br5rg"]
+[ext_resource type="Script" uid="uid://dcan8ccd3nmwc" path="res://Core/Objectives/Story/StoryMissionTier.gd" id="2_h4415"]
+[ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/Story/StoryMissionData.gd" id="4_ulunm"]
+
+[sub_resource type="Resource" id="Resource_o2hva"]
+script = ExtResource("2_h4415")
+tier_name = "Test"
+target_value = 3.0
+reward_points = 1000
+metadata/_custom_type_script = "uid://dcan8ccd3nmwc"
+
+[resource]
+script = ExtResource("4_ulunm")
+mission_type = 9
+mission_id = "delivery"
+mission_name = "Deliver Stuff"
+mission_description = "Find the donuts and deliver them under the park marquee "
+time_limit = 200.0
+mission_tiers = Array[ExtResource("2_h4415")]([SubResource("Resource_o2hva")])
+mission_environment = ExtResource("1_br5rg")
+mission_sun_color = Color(1.5003539, 0, 0, 0.46666667)
+mission_sun_energy = 0.6
+nodes_to_enable = Array[NodePath]([NodePath("../../BAMap/Mission_Items/Deliver1"), NodePath("../../BAMap/Mission_Items/Deliver2"), NodePath("../../BAMap/Mission_Items/Deliver3"), NodePath("../../BAMap/Mission_Items/Area3D")])
+enemy_count = 1
+enemy_damage_dealt_mult = 1.5
+enemy_damage_received_mult = 0.6
+required_unlock_points = 4000
+metadata/_custom_type_script = "uid://o1ox0n7mmqv"

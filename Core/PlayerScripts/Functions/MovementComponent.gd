@@ -124,7 +124,7 @@ func _handle_engine_and_steering(delta, is_on_ground, speed_kmh):
 	var turn_dir = input.steering
 	var forward_velocity = car.linear_velocity.dot(car.global_transform.basis.z)
 	
-	# ==============================================================================
+# ==============================================================================
 	# LÓGICA DO ZERINHO COM SISTEMA DE CARREGAMENTO (CORRIGIDA)
 	# ==============================================================================
 	var holding_both_pedals = false
@@ -132,16 +132,20 @@ func _handle_engine_and_steering(delta, is_on_ground, speed_kmh):
 		holding_both_pedals = input.is_accelerating and input.is_braking
 		
 	# === TRAVA DE ESTADO (State Lock) ===
-	# Verifica a velocidade apenas na hora de ENTRAR no estado. 
-	# Depois que entrou, só sai quando soltar os botões.
 	if holding_both_pedals:
 		if not _is_doing_burnout and speed_kmh <= 130.0:
 			_is_doing_burnout = true
 	else:
 		_is_doing_burnout = false
 
+	# --- VARIÁVEL QUE ALIMENTA A BARRA (0.0 até 1.0) ---
+	var charge_ratio = 0.0 
+
 	if _is_doing_burnout:
 		_burnout_charge_time += delta
+		
+		# 1.5 é o tempo máximo do boost configurado no seu clamp abaixo!
+		charge_ratio = _burnout_charge_time / 1.5 
 		
 		# --- SCREENSHAKE DE CARREGAMENTO ---
 		var shake_intensity = clamp(remap(_burnout_charge_time, 0.0, 1.5, 1, 12), 1, 12)
@@ -162,6 +166,13 @@ func _handle_engine_and_steering(delta, is_on_ground, speed_kmh):
 			_burnout_charge_time = 0.0
 			
 	_was_doing_burnout = _is_doing_burnout
+
+	# ==============================================================================
+	# COMUNICAÇÃO COM A NOVA BARRA VISUAL
+	# ==============================================================================
+	var meter = car.find_child("BurnoutMeter", true, false)
+	if is_instance_valid(meter) and meter.has_method("update_charge"):
+		meter.update_charge(charge_ratio)
 
 	if is_on_ground:
 		var is_braking_hard = (forward_velocity > 2.0 and input.throttle < -0.1)

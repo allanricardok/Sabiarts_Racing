@@ -1,4 +1,4 @@
-[gd_scene load_steps=315 format=3 uid="uid://d1rl8sskrmddj"]
+[gd_scene load_steps=324 format=3 uid="uid://d1rl8sskrmddj"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_u8o8m"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="3_is8dr"]
@@ -20,6 +20,7 @@
 [ext_resource type="PackedScene" uid="uid://d08nc5o3ey67t" path="res://Scenes/Prefabs/Enemies/EnemyTurret.tscn" id="16_af68g"]
 [ext_resource type="Script" uid="uid://dfiw2dqlt7svm" path="res://Core/Objectives/ExplorationArea.gd" id="17_ioiyf"]
 [ext_resource type="PackedScene" uid="uid://cdg3xi8hhsm0t" path="res://Scenes/Prefabs/Items/BoostPad.tscn" id="17_stypw"]
+[ext_resource type="Script" uid="uid://uicfpkggfvm4" path="res://Core/Objectives/DeliveryArea.gd" id="18_fuc6a"]
 [ext_resource type="PackedScene" uid="uid://dpjwvb143dxpb" path="res://Scenes/Prefabs/Items/JumpPad.tscn" id="18_r7ole"]
 [ext_resource type="Resource" uid="uid://dxe5me0wdtt06" path="res://Resources/Items/Shield.tres" id="18_vj8u6"]
 [ext_resource type="PackedScene" uid="uid://dadt551bspl1q" path="res://Scenes/Prefabs/Items/FloatingObject.tscn" id="19_6fv6f"]
@@ -63,6 +64,7 @@
 [ext_resource type="PackedScene" uid="uid://c7djmj41vlc02" path="res://Scenes/Prefabs/Items/StoryCollectable.tscn" id="48_i3s4m"]
 [ext_resource type="Script" uid="uid://ckpa324htfvdu" path="res://Core/Objectives/Story/StoryModeController.gd" id="48_neuqn"]
 [ext_resource type="Resource" uid="uid://ce3l3wihc7d4n" path="res://Resources/MapMissions/Missions/Missao_Teste_DESTROY.tres" id="51_ynl81"]
+[ext_resource type="Resource" uid="uid://co81ub7qh40jo" path="res://Resources/MapMissions/Missions/Missao_Teste_DELIVERY.tres" id="53_kbvtn"]
 [ext_resource type="PackedScene" uid="uid://dpwm3nbh0pryq" path="res://Scenes/UI/TokenRewardUI.tscn" id="54_g7yph"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_a70xh"]
@@ -83,13 +85,29 @@ size = Vector2(750, 900)
 [sub_resource type="BoxShape3D" id="BoxShape3D_3i0df"]
 size = Vector3(4.53, 3.93, 6.345)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vgdhx"]
-albedo_color = Color(1, 0.8392157, 0, 1)
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8dycc"]
+albedo_color = Color(0.50004447, 0.27476284, 0.07764138, 1)
 metallic = 0.68
 metallic_specular = 1.0
+emission_enabled = true
+emission = Color(0.47, 0.25865668, 0.13630001, 1)
 
 [sub_resource type="TorusMesh" id="TorusMesh_081xm"]
-material = SubResource("StandardMaterial3D_vgdhx")
+material = SubResource("StandardMaterial3D_8dycc")
+inner_radius = 0.645
+outer_radius = 1.663
+rings = 12
+ring_segments = 8
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ornq2"]
+albedo_color = Color(1.1801987, 1.0162859, 0.19672295, 1)
+metallic = 0.68
+metallic_specular = 1.0
+emission_enabled = true
+emission = Color(0.47, 0.25865668, 0.13630001, 1)
+
+[sub_resource type="TorusMesh" id="TorusMesh_6a8qd"]
+material = SubResource("StandardMaterial3D_ornq2")
 inner_radius = 0.645
 outer_radius = 1.663
 rings = 12
@@ -110,6 +128,17 @@ size = Vector3(131.855, 24.455, 211.975)
 
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_pimv2"]
 data = PackedVector3Array(-65.9275, 12.2275, 105.987495, 65.9275, 12.2275, 105.987495, -65.9275, -12.2275, 105.987495, 65.9275, 12.2275, 105.987495, 65.9275, -12.2275, 105.987495, -65.9275, -12.2275, 105.987495, 65.9275, 12.2275, -105.987495, -65.9275, 12.2275, -105.987495, 65.9275, -12.2275, -105.987495, -65.9275, 12.2275, -105.987495, -65.9275, -12.2275, -105.987495, 65.9275, -12.2275, -105.987495, 65.9275, 12.2275, 105.987495, 65.9275, 12.2275, -105.987495, 65.9275, -12.2275, 105.987495, 65.9275, 12.2275, -105.987495, 65.9275, -12.2275, -105.987495, 65.9275, -12.2275, 105.987495, -65.9275, 12.2275, -105.987495, -65.9275, 12.2275, 105.987495, -65.9275, -12.2275, -105.987495, -65.9275, 12.2275, 105.987495, -65.9275, -12.2275, 105.987495, -65.9275, -12.2275, -105.987495, 65.9275, 12.2275, 105.987495, -65.9275, 12.2275, 105.987495, 65.9275, 12.2275, -105.987495, -65.9275, 12.2275, 105.987495, -65.9275, 12.2275, -105.987495, 65.9275, 12.2275, -105.987495, -65.9275, -12.2275, 105.987495, 65.9275, -12.2275, 105.987495, -65.9275, -12.2275, -105.987495, 65.9275, -12.2275, 105.987495, 65.9275, -12.2275, -105.987495, -65.9275, -12.2275, -105.987495)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kbvtn"]
+transparency = 1
+albedo_color = Color(0.23000002, 1, 0.4225, 0.23921569)
+
+[sub_resource type="BoxMesh" id="BoxMesh_kn4vw"]
+material = SubResource("StandardMaterial3D_kbvtn")
+size = Vector3(131.78, 14.2, 20)
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_1dwuk"]
+data = PackedVector3Array(-65.89, 7.1, 10, 65.89, 7.1, 10, -65.89, -7.1, 10, 65.89, 7.1, 10, 65.89, -7.1, 10, -65.89, -7.1, 10, 65.89, 7.1, -10, -65.89, 7.1, -10, 65.89, -7.1, -10, -65.89, 7.1, -10, -65.89, -7.1, -10, 65.89, -7.1, -10, 65.89, 7.1, 10, 65.89, 7.1, -10, 65.89, -7.1, 10, 65.89, 7.1, -10, 65.89, -7.1, -10, 65.89, -7.1, 10, -65.89, 7.1, -10, -65.89, 7.1, 10, -65.89, -7.1, -10, -65.89, 7.1, 10, -65.89, -7.1, 10, -65.89, -7.1, -10, 65.89, 7.1, 10, -65.89, 7.1, 10, 65.89, 7.1, -10, -65.89, 7.1, 10, -65.89, 7.1, -10, 65.89, 7.1, -10, -65.89, -7.1, 10, 65.89, -7.1, 10, -65.89, -7.1, -10, 65.89, -7.1, 10, 65.89, -7.1, -10, -65.89, -7.1, -10)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_75jtm"]
 size = Vector3(25.628407, 46.95994, 143.23755)
@@ -864,6 +893,18 @@ albedo_color = Color(0.14901961, 1, 0.2627451, 1)
 
 [sub_resource type="SphereMesh" id="SphereMesh_kq8oo"]
 material = SubResource("StandardMaterial3D_tqs36")
+radius = 4.0
+height = 8.0
+radial_segments = 12
+rings = 12
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fuc6a"]
+albedo_color = Color(1, 0.35000002, 0.7941667, 1)
+emission_enabled = true
+emission = Color(0.9815763, 0, 0.6049374, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_8dycc"]
+material = SubResource("StandardMaterial3D_fuc6a")
 radius = 4.0
 height = 8.0
 radial_segments = 12
@@ -1707,8 +1748,60 @@ specific_item = ExtResource("11_oublg")
 
 [node name="Mission_Items" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap"]
 
+[node name="Deliver1" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items"]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -108.949814, 1.4411268, 312.26065)
+collision_layer = 4
+collision_mask = 15
+script = ExtResource("11_6vwi6")
+mission_id = "deliver"
+is_delivery_item = true
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/Deliver1"]
+shape = SubResource("BoxShape3D_3i0df")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/Deliver1"]
+mesh = SubResource("TorusMesh_081xm")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/Deliver1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5423012, 0)
+
+[node name="Deliver2" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items"]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 10.516495, 1.4411268, 295.45996)
+collision_layer = 4
+collision_mask = 15
+script = ExtResource("11_6vwi6")
+mission_id = "deliver"
+is_delivery_item = true
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/Deliver2"]
+shape = SubResource("BoxShape3D_3i0df")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/Deliver2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.915049, 22.915085, -84.5927)
+mesh = SubResource("TorusMesh_081xm")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/Deliver2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5423012, 0)
+
+[node name="Deliver3" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items"]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 256.81714, 1.4411268, 88.01073)
+collision_layer = 4
+collision_mask = 15
+script = ExtResource("11_6vwi6")
+mission_id = "deliver"
+is_delivery_item = true
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/Deliver3"]
+shape = SubResource("BoxShape3D_3i0df")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/Deliver3"]
+mesh = SubResource("TorusMesh_081xm")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/Deliver3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5423012, 0)
+
 [node name="SecretItem" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items" groups=["itens_exploracao"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70.90806, 106.30079, 229.96863)
+transform = Transform3D(1, 0, 0, 0, 0.8660254, 0.5, 0, -0.5, 0.8660254, 70.90806, 107.17884, 229.96863)
 visible = false
 collision_layer = 4
 collision_mask = 15
@@ -1719,7 +1812,7 @@ mission_id = "secret_item_BA"
 shape = SubResource("BoxShape3D_3i0df")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/SecretItem"]
-mesh = SubResource("TorusMesh_081xm")
+mesh = SubResource("TorusMesh_6a8qd")
 
 [node name="OmniLight3D" type="OmniLight3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Mission_Items/SecretItem"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5423012, 0)
@@ -1828,6 +1921,21 @@ mesh = SubResource("BoxMesh_vgdhx")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/ExplorationArea"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -57.468582, 3.619793, 35.035828)
 shape = SubResource("ConcavePolygonShape3D_pimv2")
+
+[node name="DeliverArea" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap"]
+transform = Transform3D(0.70710677, 0, 0.70710677, 0, 1, 0, -0.70710677, 0, 0.70710677, 106.43517, 0, 247.55005)
+visible = false
+collision_layer = 5
+collision_mask = 15
+script = ExtResource("18_fuc6a")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/DeliverArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23.617836, 0, -17.755661)
+mesh = SubResource("BoxMesh_kn4vw")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/DeliverArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23.617836, 0, -17.755661)
+shape = SubResource("ConcavePolygonShape3D_1dwuk")
 
 [node name="Gaps1" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap"]
 
@@ -7156,6 +7264,32 @@ font_size = 30
 outline_size = 20
 uppercase = true
 
+[node name="Delivery" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 344.0904, 12.114157, -25.118378)
+disable_mode = 2
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("40_4e1cd")
+mission_data = ExtResource("53_kbvtn")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Delivery"]
+shape = SubResource("SphereShape3D_44s4c")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Delivery"]
+mesh = SubResource("SphereMesh_8dycc")
+
+[node name="Label3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Delivery"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.9194775, 0)
+pixel_size = 0.05
+billboard = 1
+modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
+outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
+text = "Deliver Stuff
+"
+font_size = 30
+outline_size = 20
+uppercase = true
+
 [node name="Roadkill" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 98.66676, 1.9364719, -24.607231)
 disable_mode = 2
@@ -7247,6 +7381,7 @@ mission_id = "drunk"
 score_points = 0
 grants_teleport_key = false
 rotation_speed = 1.5
+is_delivery_item = false
 causes_drunk_effect = true
 drunk_duration = 20.0
 drunk_max_intensity = 1.0

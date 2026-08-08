@@ -1,4 +1,4 @@
-[gd_scene load_steps=61 format=3 uid="uid://ry75iugdg8sl"]
+[gd_scene load_steps=62 format=3 uid="uid://ry75iugdg8sl"]
 
 [ext_resource type="Script" uid="uid://b0i2wvnkcrknc" path="res://Core/PlayerScripts/Functions/BaseVehicle.gd" id="1_drg00"]
 [ext_resource type="PackedScene" uid="uid://bp4khshtfj0rp" path="res://Scenes/Prefabs/Items/UniversalPickup.tscn" id="2_4a360"]
@@ -32,6 +32,7 @@
 [ext_resource type="Script" uid="uid://bppqih0d65krw" path="res://Core/PlayerScripts/Functions/Tricks/TrickCometFX.gd" id="19_glh28"]
 [ext_resource type="Script" uid="uid://bl2sqaqtk2pol" path="res://Core/PlayerScripts/Functions/BrakeLightManager.gd" id="19_mb2us"]
 [ext_resource type="Script" uid="uid://dtphvnh83nbxl" path="res://Core/PlayerScripts/Functions/Tricks/TrickBuilder.gd" id="19_xeif0"]
+[ext_resource type="Script" uid="uid://yn5leioclq04" path="res://Core/PlayerScripts/Functions/FX/BurnoutMeter.gd" id="20_hifds"]
 [ext_resource type="Script" uid="uid://n7v83f04158v" path="res://Core/PlayerScripts/Functions/Tricks/TrickShockwaveBurstFX.gd" id="20_hsj1y"]
 [ext_resource type="Script" uid="uid://cdtih2m8pdfvb" path="res://Core/PlayerScripts/Functions/TargetingComponent.gd" id="20_mb2us"]
 [ext_resource type="Script" uid="uid://c6kscgps8kwls" path="res://Core/PlayerScripts/Functions/WeaponManager.gd" id="21_hifds"]
@@ -1208,6 +1209,10 @@ transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -0.6
 mesh = SubResource("QuadMesh_xeif0")
 script = ExtResource("19_mb2us")
 right_taillight = NodePath(".")
+
+[node name="BurnoutMeter" type="Sprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.38637033, -0.25881904, 0, 0.10352762, 0.9659258, 0, 0.5307237, -2.7300267)
+script = ExtResource("20_hifds")
 
 [node name="TurboMarkers" type="Node3D" parent="."]
 script = ExtResource("18_hsj1y")
