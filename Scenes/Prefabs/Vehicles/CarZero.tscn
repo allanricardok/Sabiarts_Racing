@@ -39,8 +39,8 @@
 [ext_resource type="Resource" uid="uid://cl6d44tjh6xry" path="res://Resources/Weapons/MachineGun.tres" id="22_3o2qt"]
 [ext_resource type="Script" uid="uid://c68u63gsaw1g5" path="res://Core/PlayerScripts/Functions/TireBloodManager.gd" id="23_tutdn"]
 [ext_resource type="Script" uid="uid://cie8v7vytopq5" path="res://Core/PlayerScripts/Functions/Tricks/TrickEnergyRingsFX.gd" id="28_y0tcj"]
-[ext_resource type="Script" uid="uid://cipoabink6um3" path="res://Core/PlayerScripts/Functions/WallRideComponent.gd" id="30_j5ts8"]
 [ext_resource type="Script" uid="uid://cre5uqt5tupo4" path="res://Core/PlayerScripts/Functions/UIScannerComponent.gd" id="31_ocy3r"]
+[ext_resource type="Script" uid="uid://b2xmtaoyrsfb7" path="res://Core/PlayerScripts/Functions/WallRide/WallRideOrchestrator.gd" id="36_mb2us"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_625mm"]
 friction = 0.01
@@ -1286,6 +1286,8 @@ wheel_front_left = NodePath("../../FreEsq")
 wheel_front_right = NodePath("../../FreDir")
 wheel_rear_left = NodePath("../../TrasEsq")
 wheel_rear_right = NodePath("../../TrasDir")
+tire_blood_duration = 4.0
+pool_size = 300
 
 [node name="InputComponent" type="Node" parent="Scripts"]
 unique_name_in_owner = true
@@ -1308,7 +1310,7 @@ wheel_rear_right = NodePath("../../TrasDir")
 wheel_front_left = NodePath("../../FreEsq")
 wheel_front_right = NodePath("../../FreDir")
 STEER_TORQUE_START = 20.0
-STATIONARY_TURN_SPEED = 60.0
+STATIONARY_TURN_SPEED = 70.0
 
 [node name="StatsComponent" type="Node" parent="Scripts" node_paths=PackedStringArray("health_bar", "shield_bar")]
 unique_name_in_owner = true
@@ -1351,7 +1353,7 @@ script = ExtResource("19_xeif0")
 
 [node name="WallRideComponent" type="Node" parent="Scripts"]
 unique_name_in_owner = true
-script = ExtResource("30_j5ts8")
+script = ExtResource("36_mb2us")
 min_speed_kmh = 12.0
 min_ground_height = 2.0
 anti_gravity_decay_time = 2.0

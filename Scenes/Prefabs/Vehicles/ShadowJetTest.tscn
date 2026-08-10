@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://cmcbewlv3y7he"]
+[gd_scene load_steps=10 format=3 uid="uid://cmcbewlv3y7he"]
 
 [ext_resource type="PackedScene" uid="uid://ry75iugdg8sl" path="res://Scenes/Prefabs/Vehicles/CarZero.tscn" id="1_rdnk8"]
 [ext_resource type="ArrayMesh" uid="uid://cs2yjwhn6epni" path="res://Assets/3D/tests/SJChassis.mesh" id="2_hfoht"]
@@ -46,6 +46,17 @@ _data = {
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_72bta"]
 animation = &"bounce"
 advance_on_start = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kryjj"]
+albedo_color = Color(0.87, 0, 0, 1)
+metallic = 0.46
+emission_enabled = true
+emission = Color(1, 0, 0, 1)
+emission_energy_multiplier = 20.0
+
+[sub_resource type="QuadMesh" id="QuadMesh_hfoht"]
+material = SubResource("StandardMaterial3D_kryjj")
+size = Vector2(0.4, 0.1)
 
 [node name="BaseVehicle" node_paths=PackedStringArray("mesh_new", "mesh_damaged", "mesh_skeleton") instance=ExtResource("1_rdnk8")]
 transform = Transform3D(1, 0, 0, 0, 0.99896896, -0.04539786, 0, 0.04539786, 0.99896896, 0, 0, 0)
@@ -129,7 +140,27 @@ mesh = ExtResource("3_lm3y0")
 [node name="NameTag" parent="." index="8"]
 transform = Transform3D(1, 0, 0, 0, 1.0000005, -7.450581e-09, 0, 7.450581e-09, 1.0000005, 0, 3.182291, -0.008696511)
 
-[node name="MovementComponent" parent="Scripts" index="2"]
+[node name="MarkerLanternaEsq" parent="TailLightTrailManager" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1.0000014, -3.3527613e-08, 0, 3.3527613e-08, 1.0000014, 0.7303677, 1.3306826, -2.1052625)
+
+[node name="MarkerLanternaDir" parent="TailLightTrailManager" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1.0000011, -2.2351742e-08, 0, 2.2351742e-08, 1.0000011, -0.73394775, 1.3361007, -2.125973)
+
+[node name="bklightEsq" parent="TailLightTrailManager" index="2"]
+transform = Transform3D(-1, 0, -8.742278e-08, -5.3290705e-15, 1.0000014, 3.3527613e-08, 8.742278e-08, 3.3527613e-08, -1.0000014, 0.6903677, 1.3538126, -2.229578)
+mesh = SubResource("QuadMesh_hfoht")
+
+[node name="bklightDir" parent="TailLightTrailManager" index="3"]
+transform = Transform3D(-1, 0, -8.742278e-08, -3.996803e-15, 1.0000011, 2.2351742e-08, 8.742278e-08, 2.2351742e-08, -1.0000011, -0.6939477, 1.3592309, -2.2502894)
+mesh = SubResource("QuadMesh_hfoht")
+
+[node name="Marker3D" parent="TurboMarkers" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1.0000002, -3.7252903e-09, 0, 3.7252903e-09, 1.0000002, 0.18, 0.44, -2)
+
+[node name="Marker3D2" parent="TurboMarkers" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.18, 0.44, -2)
+
+[node name="MovementComponent" parent="Scripts" index="3"]
 ENGINE_POWER = 2000.0
 MAX_STEER = 0.51
 START_BOOST = 3.0
@@ -137,14 +168,14 @@ BOOST_LIMIT_SPEED = 30.0
 AIR_RESISTANCE = 0.096
 EXTRA_FALL_GRAVITY = 1.0
 
-[node name="StatsComponent" parent="Scripts" index="3"]
+[node name="StatsComponent" parent="Scripts" index="4"]
 max_health = 90.0
 max_shield = 40.0
 
-[node name="AirMovementComponent" parent="Scripts" index="5"]
+[node name="AirMovementComponent" parent="Scripts" index="6"]
 AIR_TORQUE_FORCE = 40.0
 
-[node name="Guns" parent="." index="13"]
+[node name="Guns" parent="." index="19"]
 transform = Transform3D(1, 0, 0, 0, 0.9993927, 0.034847166, 0, -0.034847166, 0.9993927, 0, 0, 0)
 
 [node name="MachineGun" parent="Guns" index="0"]

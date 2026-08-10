@@ -14,4 +14,5 @@ mission_name = "Detran"
 mission_tiers = Array[ExtResource("3_dwe6x")]([ExtResource("4_ncajd"), ExtResource("5_euv4d"), ExtResource("6_jbxc5")])
 mission_sun_color = Color(0.52, 0.52, 0.52, 1)
 mission_sun_energy = 0.5
+required_unlock_points = 500
 metadata/_custom_type_script = "uid://o1ox0n7mmqv"

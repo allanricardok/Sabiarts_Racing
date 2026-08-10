@@ -232,6 +232,13 @@ func _play_impact_vfx():
 		)
 
 func _start_tether(body):
+	# =================================================================
+	# TRAVA DE SEGURANÇA 1: O atirador ainda existe? (Pode ser um bot morto!)
+	# =================================================================
+	if not is_instance_valid(shooter):
+		queue_free()
+		return
+		
 	is_tethered = true
 	time_alive = 0.0 
 	
@@ -241,6 +248,12 @@ func _start_tether(body):
 	else:
 		target_is_static = false
 		target = body
+		# =================================================================
+		# TRAVA DE SEGURANÇA 2: O alvo foi destruído exatamente no mesmo frame?
+		# =================================================================
+		if not is_instance_valid(target):
+			queue_free()
+			return
 	
 	var target_pos = fixed_impact_point if target_is_static else target.global_position
 	

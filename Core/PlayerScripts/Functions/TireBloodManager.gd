@@ -15,6 +15,7 @@ class_name TireBloodManager
 @export var stain_life_time: float = 5.0 
 @export var pool_size: int = 360 # Reduzido para melhorar a performance de memória
 
+var _is_human: bool = true
 var _current_blood_time: float = 0.0
 var _is_bleeding: bool = false
 
@@ -31,6 +32,17 @@ var _active_tweens: Dictionary = {}
 @onready var car = owner as VehicleBody3D
 
 func _ready():
+	# --- FILTRO DE OTIMIZAÇÃO: Verifica se o dono do carro é um bot ---
+	var input = car.get_node_or_null("%InputComponent")
+	if input and "is_bot" in input and input.is_bot:
+		_is_human = false
+		
+	# Se for bot, desliga o processamento de física e aborta a criação da Pool! (Salva muito FPS)
+	if not _is_human:
+		set_physics_process(false)
+		return
+		
+	# Fluxo normal apenas para o jogador
 	_last_spawn_pos_fl = Vector3.ZERO
 	_last_spawn_pos_fr = Vector3.ZERO
 	_last_spawn_pos_rl = Vector3.ZERO
@@ -38,6 +50,24 @@ func _ready():
 	
 	_generate_blood_texture()
 	_initialize_pool()
+
+func infect_tires():
+	# Trava de segurança: Se não for humano, ignora a infecção
+	if not _is_human: return
+	
+	_current_blood_time = tire_blood_duration
+	
+	if not _is_bleeding:
+		_is_bleeding = true
+		
+		if is_instance_valid(wheel_front_left):
+			_last_spawn_pos_fl = wheel_front_left.get_contact_point()
+		if is_instance_valid(wheel_front_right):
+			_last_spawn_pos_fr = wheel_front_right.get_contact_point()
+		if is_instance_valid(wheel_rear_left):
+			_last_spawn_pos_rl = wheel_rear_left.get_contact_point()
+		if is_instance_valid(wheel_rear_right):
+			_last_spawn_pos_rr = wheel_rear_right.get_contact_point()
 
 func _generate_blood_texture():
 	var img = Image.create(64, 64, false, Image.FORMAT_RGBA8)
@@ -74,20 +104,6 @@ func _initialize_pool():
 		container.add_child(sprite)
 		_sprite_pool.append(sprite)
 
-func infect_tires():
-	_current_blood_time = tire_blood_duration
-	
-	if not _is_bleeding:
-		_is_bleeding = true
-		
-		if is_instance_valid(wheel_front_left):
-			_last_spawn_pos_fl = wheel_front_left.get_contact_point()
-		if is_instance_valid(wheel_front_right):
-			_last_spawn_pos_fr = wheel_front_right.get_contact_point()
-		if is_instance_valid(wheel_rear_left):
-			_last_spawn_pos_rl = wheel_rear_left.get_contact_point()
-		if is_instance_valid(wheel_rear_right):
-			_last_spawn_pos_rr = wheel_rear_right.get_contact_point()
 
 func _physics_process(delta):
 	if not _is_bleeding or not is_instance_valid(car): return

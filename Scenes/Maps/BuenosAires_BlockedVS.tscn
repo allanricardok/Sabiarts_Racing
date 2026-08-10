@@ -1,4 +1,4 @@
-[gd_scene load_steps=330 format=3 uid="uid://d1rl8sskrmddj"]
+[gd_scene load_steps=342 format=3 uid="uid://d1rl8sskrmddj"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_u8o8m"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="3_is8dr"]
@@ -68,6 +68,8 @@
 [ext_resource type="Resource" uid="uid://ce3l3wihc7d4n" path="res://Resources/MapMissions/Missions/Missao_Teste_DESTROY.tres" id="51_ynl81"]
 [ext_resource type="Resource" uid="uid://co81ub7qh40jo" path="res://Resources/MapMissions/Missions/Missao_Teste_DELIVERY.tres" id="53_kbvtn"]
 [ext_resource type="PackedScene" uid="uid://dpwm3nbh0pryq" path="res://Scenes/UI/TokenRewardUI.tscn" id="54_g7yph"]
+[ext_resource type="Script" uid="uid://uacqxwc54p58" path="res://Core/GeneralObjects/HoloWall.gd" id="61_pe38o"]
+[ext_resource type="Shader" uid="uid://t04eyi1mmkys" path="res://Scenes/Prefabs/MapObjects/HoloWall.gdshader" id="62_d03gb"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_a70xh"]
 material = ExtResource("3_is8dr")
@@ -83,6 +85,26 @@ albedo_texture = ExtResource("5_u8o8m")
 [sub_resource type="QuadMesh" id="QuadMesh_0eu0l"]
 material = SubResource("StandardMaterial3D_bnpdo")
 size = Vector2(750, 900)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pe38o"]
+albedo_color = Color(0.95686275, 0.33333334, 0.28627452, 1)
+metallic = 0.53
+emission_enabled = true
+emission = Color(1.4164544, 0.49871317, 0.105395526, 1)
+distance_fade_mode = 2
+distance_fade_min_distance = 400.0
+distance_fade_max_distance = 300.0
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_d03gb"]
+material = SubResource("StandardMaterial3D_pe38o")
+top_radius = 3.0
+bottom_radius = 3.0
+height = 6.0
+radial_segments = 8
+rings = 2
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_ypmce"]
+data = PackedVector3Array(0, 3, 3, 2.1213, 3, 2.1213, 0, 1, 3, 2.1213, 3, 2.1213, 2.1213, 1, 2.1213, 0, 1, 3, 2.1213, 3, 2.1213, 3, 3, 0, 2.1213, 1, 2.1213, 3, 3, 0, 3, 1, 0, 2.1213, 1, 2.1213, 3, 3, 0, 2.1213, 3, -2.1213, 3, 1, 0, 2.1213, 3, -2.1213, 2.1213, 1, -2.1213, 3, 1, 0, 2.1213, 3, -2.1213, 0, 3, -3, 2.1213, 1, -2.1213, 0, 3, -3, 0, 1, -3, 2.1213, 1, -2.1213, 0, 3, -3, -2.1213, 3, -2.1213, 0, 1, -3, -2.1213, 3, -2.1213, -2.1213, 1, -2.1213, 0, 1, -3, -2.1213, 3, -2.1213, -3, 3, 0, -2.1213, 1, -2.1213, -3, 3, 0, -3, 1, 0, -2.1213, 1, -2.1213, -3, 3, 0, -2.1213, 3, 2.1213, -3, 1, 0, -2.1213, 3, 2.1213, -2.1213, 1, 2.1213, -3, 1, 0, -2.1213, 3, 2.1213, 0, 3, 3, -2.1213, 1, 2.1213, 0, 3, 3, 0, 1, 3, -2.1213, 1, 2.1213, 0, 1, 3, 2.1213, 1, 2.1213, 0, -1, 3, 2.1213, 1, 2.1213, 2.1213, -1, 2.1213, 0, -1, 3, 2.1213, 1, 2.1213, 3, 1, 0, 2.1213, -1, 2.1213, 3, 1, 0, 3, -1, 0, 2.1213, -1, 2.1213, 3, 1, 0, 2.1213, 1, -2.1213, 3, -1, 0, 2.1213, 1, -2.1213, 2.1213, -1, -2.1213, 3, -1, 0, 2.1213, 1, -2.1213, 0, 1, -3, 2.1213, -1, -2.1213, 0, 1, -3, 0, -1, -3, 2.1213, -1, -2.1213, 0, 1, -3, -2.1213, 1, -2.1213, 0, -1, -3, -2.1213, 1, -2.1213, -2.1213, -1, -2.1213, 0, -1, -3, -2.1213, 1, -2.1213, -3, 1, 0, -2.1213, -1, -2.1213, -3, 1, 0, -3, -1, 0, -2.1213, -1, -2.1213, -3, 1, 0, -2.1213, 1, 2.1213, -3, -1, 0, -2.1213, 1, 2.1213, -2.1213, -1, 2.1213, -3, -1, 0, -2.1213, 1, 2.1213, 0, 1, 3, -2.1213, -1, 2.1213, 0, 1, 3, 0, -1, 3, -2.1213, -1, 2.1213, 0, -1, 3, 2.1213, -1, 2.1213, 0, -3, 3, 2.1213, -1, 2.1213, 2.1213, -3, 2.1213, 0, -3, 3, 2.1213, -1, 2.1213, 3, -1, 0, 2.1213, -3, 2.1213, 3, -1, 0, 3, -3, 0, 2.1213, -3, 2.1213, 3, -1, 0, 2.1213, -1, -2.1213, 3, -3, 0, 2.1213, -1, -2.1213, 2.1213, -3, -2.1213, 3, -3, 0, 2.1213, -1, -2.1213, 0, -1, -3, 2.1213, -3, -2.1213, 0, -1, -3, 0, -3, -3, 2.1213, -3, -2.1213, 0, -1, -3, -2.1213, -1, -2.1213, 0, -3, -3, -2.1213, -1, -2.1213, -2.1213, -3, -2.1213, 0, -3, -3, -2.1213, -1, -2.1213, -3, -1, 0, -2.1213, -3, -2.1213, -3, -1, 0, -3, -3, 0, -2.1213, -3, -2.1213, -3, -1, 0, -2.1213, -1, 2.1213, -3, -3, 0, -2.1213, -1, 2.1213, -2.1213, -3, 2.1213, -3, -3, 0, -2.1213, -1, 2.1213, 0, -1, 3, -2.1213, -3, 2.1213, 0, -1, 3, 0, -3, 3, -2.1213, -3, 2.1213, 0, 3, 0, 2.1213, 3, 2.1213, 0, 3, 3, 0, 3, 0, 3, 3, 0, 2.1213, 3, 2.1213, 0, 3, 0, 2.1213, 3, -2.1213, 3, 3, 0, 0, 3, 0, 0, 3, -3, 2.1213, 3, -2.1213, 0, 3, 0, -2.1213, 3, -2.1213, 0, 3, -3, 0, 3, 0, -3, 3, 0, -2.1213, 3, -2.1213, 0, 3, 0, -2.1213, 3, 2.1213, -3, 3, 0, 0, 3, 0, 0, 3, 3, -2.1213, 3, 2.1213, 0, -3, 0, 0, -3, 3, 2.1213, -3, 2.1213, 0, -3, 0, 2.1213, -3, 2.1213, 3, -3, 0, 0, -3, 0, 3, -3, 0, 2.1213, -3, -2.1213, 0, -3, 0, 2.1213, -3, -2.1213, 0, -3, -3, 0, -3, 0, 0, -3, -3, -2.1213, -3, -2.1213, 0, -3, 0, -2.1213, -3, -2.1213, -3, -3, 0, 0, -3, 0, -3, -3, 0, -2.1213, -3, 2.1213, 0, -3, 0, -2.1213, -3, 2.1213, 0, -3, 3)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_3i0df"]
 size = Vector3(4.53, 3.93, 6.345)
@@ -856,6 +878,26 @@ height = 8.0
 radial_segments = 12
 rings = 12
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ioiyf"]
+albedo_color = Color(0.27439997, 0.55663985, 0.98, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_tqs36"]
+material = SubResource("StandardMaterial3D_ioiyf")
+radius = 4.0
+height = 8.0
+radial_segments = 12
+rings = 12
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tqs36"]
+albedo_color = Color(0.14901961, 1, 0.2627451, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_kq8oo"]
+material = SubResource("StandardMaterial3D_tqs36")
+radius = 4.0
+height = 8.0
+radial_segments = 12
+rings = 12
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6a8qd"]
 albedo_color = Color(0.27439997, 0.55663985, 0.98, 1)
 
@@ -876,21 +918,13 @@ height = 8.0
 radial_segments = 12
 rings = 12
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rf88v"]
-albedo_color = Color(0.92941177, 0.9764706, 0.27450982, 1)
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fuc6a"]
+albedo_color = Color(1, 0.35000002, 0.7941667, 1)
+emission_enabled = true
+emission = Color(0.9815763, 0, 0.6049374, 1)
 
-[sub_resource type="SphereMesh" id="SphereMesh_ynl81"]
-material = SubResource("StandardMaterial3D_rf88v")
-radius = 4.0
-height = 8.0
-radial_segments = 12
-rings = 12
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ioiyf"]
-albedo_color = Color(0.27439997, 0.55663985, 0.98, 1)
-
-[sub_resource type="SphereMesh" id="SphereMesh_tqs36"]
-material = SubResource("StandardMaterial3D_ioiyf")
+[sub_resource type="SphereMesh" id="SphereMesh_8dycc"]
+material = SubResource("StandardMaterial3D_fuc6a")
 radius = 4.0
 height = 8.0
 radial_segments = 12
@@ -906,23 +940,11 @@ height = 8.0
 radial_segments = 12
 rings = 12
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tqs36"]
-albedo_color = Color(0.14901961, 1, 0.2627451, 1)
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rf88v"]
+albedo_color = Color(0.92941177, 0.9764706, 0.27450982, 1)
 
-[sub_resource type="SphereMesh" id="SphereMesh_kq8oo"]
-material = SubResource("StandardMaterial3D_tqs36")
-radius = 4.0
-height = 8.0
-radial_segments = 12
-rings = 12
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fuc6a"]
-albedo_color = Color(1, 0.35000002, 0.7941667, 1)
-emission_enabled = true
-emission = Color(0.9815763, 0, 0.6049374, 1)
-
-[sub_resource type="SphereMesh" id="SphereMesh_8dycc"]
-material = SubResource("StandardMaterial3D_fuc6a")
+[sub_resource type="SphereMesh" id="SphereMesh_ynl81"]
+material = SubResource("StandardMaterial3D_rf88v")
 radius = 4.0
 height = 8.0
 radial_segments = 12
@@ -941,6 +963,20 @@ height = 8.0
 radial_segments = 12
 rings = 12
 
+[sub_resource type="ImageTexture" id="ImageTexture_pe38o"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_d03gb"]
+shading_mode = 0
+albedo_color = Color(9.687732, 0, 0.5541939, 1)
+albedo_texture = SubResource("ImageTexture_pe38o")
+
+[sub_resource type="BoxMesh" id="BoxMesh_13u8n"]
+material = SubResource("StandardMaterial3D_d03gb")
+size = Vector3(3, 1.8, 0.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_lvmc1"]
+size = Vector3(3.7138672, 2.2851563, 2.4902344)
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i3s4m"]
 shading_mode = 0
 albedo_color = Color(1.0444838, 1.0444838, 0, 1)
@@ -948,6 +984,19 @@ albedo_color = Color(1.0444838, 1.0444838, 0, 1)
 [sub_resource type="BoxMesh" id="BoxMesh_bq51w"]
 material = SubResource("StandardMaterial3D_i3s4m")
 size = Vector3(3, 1.8, 0.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_uoma7"]
+size = Vector3(500, 50, 5)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_a4dkk"]
+render_priority = 0
+shader = ExtResource("62_d03gb")
+shader_parameter/glow_color = Color(1, 0.8, 0, 1)
+shader_parameter/intensity = 0.0
+shader_parameter/stripe_scale = 10.0
+
+[sub_resource type="QuadMesh" id="QuadMesh_vuyf5"]
+size = Vector2(500, 50)
 
 [node name="BA-block" type="Node3D" groups=["mapa"]]
 script = ExtResource("1_u8o8m")
@@ -1595,25 +1644,39 @@ explosion_visual_size = 60.0
 explosion_particle_count = 30
 explosion_light_energy = 140.0
 
-[node name="Barril_VIP" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 272.35422, 0.41248798, -134.44765)
+[node name="Barril_VIP" type="RigidBody3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" groups=["destructibles"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -44.47872, 2.4874368, 113.3293)
 collision_layer = 3
 collision_mask = 3
+mass = 600.0
+gravity_scale = 2.0
+script = ExtResource("21_pyjdw")
 mission_id = "Barril_VIP"
 is_defend_vip = true
-max_health = 50.0
+max_health = 150.0
+energy_on_hit = 0.5
 causes_aoe_damage = true
-aoe_damage_amount = 10.0
-aoe_radius = 35.0
-aoe_knockback_force = 16.0
+aoe_damage_amount = 20.0
+aoe_radius = 50.0
+aoe_knockback_force = 25.0
+shard_count = 8
+explosion_force = 20.0
+upward_bias = 8.0
 shard_lifetime = 3.5
 scatter_radius = 3.0
+shard_min_size = 1.0
 shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
-explosion_visual_size = 60.0
+explosion_visual_size = 90.0
 explosion_particle_count = 30
-explosion_light_energy = 140.0
+explosion_light_energy = 200.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles/Barril_VIP"]
+mesh = SubResource("CylinderMesh_d03gb")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles/Barril_VIP"]
+shape = SubResource("ConcavePolygonShape3D_ypmce")
 
 [node name="Teleporters" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap"]
 
@@ -3956,12 +4019,12 @@ max_alive = 7
 
 [node name="PedestrianSpawner23" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 362.68317, 0, -303.4302)
-spawn_interval = 8.0
+spawn_interval = 2.0
 max_alive = 7
 
 [node name="PedestrianSpawner24" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 356.8263, 0, -311.1762)
-spawn_interval = 8.0
+spawn_interval = 2.0
 max_alive = 7
 
 [node name="PedestrianSpawner20" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
@@ -7101,136 +7164,6 @@ font_size = 30
 outline_size = 20
 uppercase = true
 
-[node name="VIP_Protect" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 223.9084, 1.9364719, -96.38939)
-disable_mode = 2
-collision_layer = 4
-collision_mask = 2
-script = ExtResource("40_4e1cd")
-mission_data = ExtResource("46_8dycc")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/VIP_Protect"]
-shape = SubResource("SphereShape3D_44s4c")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/VIP_Protect"]
-mesh = SubResource("SphereMesh_pe38o")
-
-[node name="Label3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/VIP_Protect"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.9194775, 0)
-pixel_size = 0.05
-billboard = 1
-alpha_cut = 1
-modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
-outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
-text = "Protect the barrel"
-font_size = 30
-outline_size = 20
-uppercase = true
-
-[node name="Multitask_Test_Mission" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 184.65167, 1.9364719, -73.41735)
-disable_mode = 2
-collision_layer = 4
-collision_mask = 2
-script = ExtResource("40_4e1cd")
-mission_data = ExtResource("47_ornq2")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Multitask_Test_Mission"]
-shape = SubResource("SphereShape3D_44s4c")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Multitask_Test_Mission"]
-mesh = SubResource("SphereMesh_ioiyf")
-
-[node name="Label3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Multitask_Test_Mission"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.9194775, 0)
-pixel_size = 0.05
-billboard = 1
-alpha_cut = 1
-modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
-outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
-text = "Multitask Test
-"
-font_size = 30
-outline_size = 20
-uppercase = true
-
-[node name="ScoreCOMBO" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -388.6037, 56.712433, 180.3304)
-disable_mode = 2
-collision_layer = 4
-collision_mask = 2
-script = ExtResource("40_4e1cd")
-mission_data = ExtResource("45_gxkij")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/ScoreCOMBO"]
-shape = SubResource("SphereShape3D_44s4c")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/ScoreCOMBO"]
-mesh = SubResource("SphereMesh_h44hj")
-
-[node name="Label3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/ScoreCOMBO"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.9194775, 0)
-pixel_size = 0.05
-billboard = 1
-alpha_cut = 1
-modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
-outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
-text = "Score Combo (Hard)"
-font_size = 30
-outline_size = 20
-uppercase = true
-
-[node name="Gap" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -107.46381, 1.9364719, -24.402838)
-disable_mode = 2
-collision_layer = 4
-collision_mask = 2
-script = ExtResource("40_4e1cd")
-mission_data = ExtResource("45_rf88v")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Gap"]
-shape = SubResource("SphereShape3D_44s4c")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Gap"]
-mesh = SubResource("SphereMesh_h44hj")
-
-[node name="Label3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Gap"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.9194775, 0)
-pixel_size = 0.05
-billboard = 1
-alpha_cut = 1
-modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
-outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
-text = "Gap Challenge"
-font_size = 30
-outline_size = 20
-uppercase = true
-
-[node name="Score2" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 232.88293, 33.101078, -214.58961)
-disable_mode = 2
-collision_layer = 4
-collision_mask = 2
-script = ExtResource("40_4e1cd")
-mission_data = ExtResource("47_keab0")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Score2"]
-shape = SubResource("SphereShape3D_44s4c")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Score2"]
-mesh = SubResource("SphereMesh_ynl81")
-
-[node name="Label3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Score2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.9194775, 0)
-pixel_size = 0.05
-billboard = 1
-modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
-outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
-text = "PRO Trickster"
-font_size = 30
-outline_size = 20
-uppercase = true
-
 [node name="Exporation" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -58.203762, 21.076885, -331.6214)
 disable_mode = 2
@@ -7252,56 +7185,6 @@ billboard = 1
 modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
 outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
 text = "Exploration"
-font_size = 30
-outline_size = 20
-uppercase = true
-
-[node name="CARNAGE" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -203.60689, 1.9364719, 47.982536)
-disable_mode = 2
-collision_layer = 4
-collision_mask = 2
-script = ExtResource("40_4e1cd")
-mission_data = ExtResource("42_qdutf")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/CARNAGE"]
-shape = SubResource("SphereShape3D_44s4c")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/CARNAGE"]
-mesh = SubResource("SphereMesh_ioiyf")
-
-[node name="Label3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/CARNAGE"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.9194775, 0)
-pixel_size = 0.05
-billboard = 1
-modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
-outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
-text = "Carnage"
-font_size = 30
-outline_size = 20
-uppercase = true
-
-[node name="CARNAGE BOSS" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -313.78384, 12.011772, -25.746353)
-disable_mode = 2
-collision_layer = 4
-collision_mask = 2
-script = ExtResource("40_4e1cd")
-mission_data = ExtResource("44_h44hj")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/CARNAGE BOSS"]
-shape = SubResource("SphereShape3D_44s4c")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/CARNAGE BOSS"]
-mesh = SubResource("SphereMesh_0p4fw")
-
-[node name="Label3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/CARNAGE BOSS"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.9194775, 0)
-pixel_size = 0.08
-billboard = 1
-modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
-outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
-text = "Boss"
 font_size = 30
 outline_size = 20
 uppercase = true
@@ -7357,28 +7240,53 @@ font_size = 30
 outline_size = 20
 uppercase = true
 
-[node name="Delivery" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 344.0904, 12.114157, -25.118378)
+[node name="Radar" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108.96572, 1.9364719, 82.20453)
 disable_mode = 2
 collision_layer = 4
 collision_mask = 2
 script = ExtResource("40_4e1cd")
-mission_data = ExtResource("53_kbvtn")
+mission_data = ExtResource("45_yp3g3")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Delivery"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Radar"]
 shape = SubResource("SphereShape3D_44s4c")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Delivery"]
-mesh = SubResource("SphereMesh_8dycc")
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Radar"]
+mesh = SubResource("SphereMesh_kq8oo")
 
-[node name="Label3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Delivery"]
+[node name="Label3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Radar"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.9194775, 0)
 pixel_size = 0.05
 billboard = 1
 modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
 outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
-text = "Deliver Stuff
-"
+text = "Fuck Detran"
+font_size = 30
+outline_size = 20
+uppercase = true
+
+[node name="Gap" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -107.46381, 1.9364719, -24.402838)
+disable_mode = 2
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("40_4e1cd")
+mission_data = ExtResource("45_rf88v")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Gap"]
+shape = SubResource("SphereShape3D_44s4c")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Gap"]
+mesh = SubResource("SphereMesh_h44hj")
+
+[node name="Label3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Gap"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.9194775, 0)
+pixel_size = 0.05
+billboard = 1
+alpha_cut = 1
+modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
+outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
+text = "Gap Challenge"
 font_size = 30
 outline_size = 20
 uppercase = true
@@ -7408,39 +7316,192 @@ font_size = 30
 outline_size = 20
 uppercase = true
 
-[node name="Radar" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108.96572, 1.9364719, 82.20453)
+[node name="VIP_Protect" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25.484596, 1.9364719, 112.858826)
 disable_mode = 2
 collision_layer = 4
 collision_mask = 2
 script = ExtResource("40_4e1cd")
-mission_data = ExtResource("45_yp3g3")
+mission_data = ExtResource("46_8dycc")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Radar"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/VIP_Protect"]
 shape = SubResource("SphereShape3D_44s4c")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Radar"]
-mesh = SubResource("SphereMesh_kq8oo")
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/VIP_Protect"]
+mesh = SubResource("SphereMesh_pe38o")
 
-[node name="Label3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Radar"]
+[node name="Label3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/VIP_Protect"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.9194775, 0)
+pixel_size = 0.05
+billboard = 1
+alpha_cut = 1
+modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
+outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
+text = "Protect the barrel"
+font_size = 30
+outline_size = 20
+uppercase = true
+
+[node name="Multitask_Test_Mission" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 184.65167, 1.9364719, -73.41735)
+disable_mode = 2
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("40_4e1cd")
+mission_data = ExtResource("47_ornq2")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Multitask_Test_Mission"]
+shape = SubResource("SphereShape3D_44s4c")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Multitask_Test_Mission"]
+mesh = SubResource("SphereMesh_ioiyf")
+
+[node name="Label3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Multitask_Test_Mission"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.9194775, 0)
+pixel_size = 0.05
+billboard = 1
+alpha_cut = 1
+modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
+outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
+text = "Fuck it all up!"
+font_size = 30
+outline_size = 20
+uppercase = true
+
+[node name="ScoreCOMBO" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -388.6037, 56.712433, 180.3304)
+disable_mode = 2
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("40_4e1cd")
+mission_data = ExtResource("45_gxkij")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/ScoreCOMBO"]
+shape = SubResource("SphereShape3D_44s4c")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/ScoreCOMBO"]
+mesh = SubResource("SphereMesh_h44hj")
+
+[node name="Label3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/ScoreCOMBO"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.9194775, 0)
+pixel_size = 0.05
+billboard = 1
+alpha_cut = 1
+modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
+outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
+text = "Score Combo (Hard)"
+font_size = 30
+outline_size = 20
+uppercase = true
+
+[node name="CARNAGE" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -203.60689, 1.9364719, 47.982536)
+disable_mode = 2
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("40_4e1cd")
+mission_data = ExtResource("42_qdutf")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/CARNAGE"]
+shape = SubResource("SphereShape3D_44s4c")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/CARNAGE"]
+mesh = SubResource("SphereMesh_ioiyf")
+
+[node name="Label3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/CARNAGE"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.9194775, 0)
 pixel_size = 0.05
 billboard = 1
 modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
 outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
-text = "Fuck Detran"
+text = "Carnage"
+font_size = 30
+outline_size = 20
+uppercase = true
+
+[node name="Delivery" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 344.0904, 12.114157, -25.118378)
+disable_mode = 2
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("40_4e1cd")
+mission_data = ExtResource("53_kbvtn")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Delivery"]
+shape = SubResource("SphereShape3D_44s4c")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Delivery"]
+mesh = SubResource("SphereMesh_8dycc")
+
+[node name="Label3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Delivery"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.9194775, 0)
+pixel_size = 0.05
+billboard = 1
+modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
+outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
+text = "Deliver Stuff
+"
+font_size = 30
+outline_size = 20
+uppercase = true
+
+[node name="CARNAGE BOSS" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -313.78384, 12.011772, -25.746353)
+disable_mode = 2
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("40_4e1cd")
+mission_data = ExtResource("44_h44hj")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/CARNAGE BOSS"]
+shape = SubResource("SphereShape3D_44s4c")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/CARNAGE BOSS"]
+mesh = SubResource("SphereMesh_0p4fw")
+
+[node name="Label3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/CARNAGE BOSS"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.9194775, 0)
+pixel_size = 0.08
+billboard = 1
+modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
+outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
+text = "Boss"
+font_size = 30
+outline_size = 20
+uppercase = true
+
+[node name="Score2" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 232.88293, 33.101078, -214.58961)
+disable_mode = 2
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("40_4e1cd")
+mission_data = ExtResource("47_keab0")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Score2"]
+shape = SubResource("SphereShape3D_44s4c")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Score2"]
+mesh = SubResource("SphereMesh_ynl81")
+
+[node name="Label3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/Score2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.9194775, 0)
+pixel_size = 0.05
+billboard = 1
+modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
+outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
+text = "PRO Trickster"
 font_size = 30
 outline_size = 20
 uppercase = true
 
 [node name="EndRunPortal" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions" groups=["next_map_portals"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -83.69296, 1.9364719, 115.17392)
-visible = false
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -419.6504, 1.9364719, -0.9852371)
 disable_mode = 2
 collision_layer = 4
 collision_mask = 2
 script = ExtResource("46_yp3g3")
-points_required = 5000
+points_required = 6000
 required_mission_id = "m_02_boss"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/EndRunPortal"]
@@ -7467,18 +7528,28 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 312.72852, 14.435219, -212.67
 collectible_name = "50 Bucks"
 points_value = 50
 
-[node name="Drunk Item" parent="GridContainer/Cont_P1/View_P1/Map/StoryModeItems" instance=ExtResource("48_i3s4m")]
+[node name="Drunk Item" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryModeItems"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 312.72852, 0.005487442, -160.01079)
+collision_layer = 5
+collision_mask = 15
 script = ExtResource("11_6vwi6")
 mission_id = "drunk"
 score_points = 0
-grants_teleport_key = false
-rotation_speed = 1.5
-is_delivery_item = false
 causes_drunk_effect = true
 drunk_duration = 20.0
-drunk_max_intensity = 1.0
 drunk_fade_time = 4.0
+
+[node name="Visual" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryModeItems/Drunk Item"]
+mesh = SubResource("BoxMesh_13u8n")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryModeItems/Drunk Item"]
+shape = SubResource("BoxShape3D_lvmc1")
+
+[node name="Sprite3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryModeItems/Drunk Item"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2020493, 0)
+pixel_size = 0.02
+text = "Droga experimental
+Não use"
 
 [node name="StoryCollectable2" parent="GridContainer/Cont_P1/View_P1/Map/StoryModeItems" instance=ExtResource("48_i3s4m")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 314.866, 10.120236, -26.027962)
@@ -7536,6 +7607,19 @@ points_value = 100
 
 [node name="Visual" parent="GridContainer/Cont_P1/View_P1/Map/StoryModeItems/StoryCollectable10" index="0"]
 mesh = SubResource("BoxMesh_bq51w")
+
+[node name="HoloWallSP1" type="StaticBody3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryModeItems"]
+transform = Transform3D(2, 0, 0, 0, 6, 0, 0, 0, 1, -0.40774536, 78.408325, -45.098618)
+visible = false
+script = ExtResource("61_pe38o")
+is_mission_wall = true
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryModeItems/HoloWallSP1"]
+shape = SubResource("BoxShape3D_uoma7")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryModeItems/HoloWallSP1"]
+material_override = SubResource("ShaderMaterial_a4dkk")
+mesh = SubResource("QuadMesh_vuyf5")
 
 [node name="Cont_P2" type="SubViewportContainer" parent="GridContainer"]
 visible = false
@@ -7603,6 +7687,7 @@ mission_ui = NodePath("../StoryMissionUi")
 result_ui = NodePath("../StoryMissionResultUi")
 bot_spawner = NodePath("../GridContainer/Cont_P1/View_P1/Map/BotSpawner")
 
+[connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles/Barril_VIP" to="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles/Barril_VIP" method="_on_body_entered"]
 [connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/BAMap/Gaps1/Gap Balcony" to="GridContainer/Cont_P1/View_P1/Map/BAMap/Gaps1/Gap Balcony" method="_on_body_entered"]
 [connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/BAMap/Gaps1/Gap BalconyEnd" to="GridContainer/Cont_P1/View_P1/Map/BAMap/Gaps1/Gap BalconyEnd" method="_on_body_entered"]
 [connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/BAMap/Gaps1/Gap Balcony2" to="GridContainer/Cont_P1/View_P1/Map/BAMap/Gaps1/Gap Balcony2" method="_on_body_entered"]

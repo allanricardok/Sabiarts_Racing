@@ -332,6 +332,16 @@ func restore_shield(amount: float):
 		_trigger_shield_flash()
 
 func _on_death():
+	# Checamos se o 'owner' existe para evitar erros, e lemos a meta direto do corpo do carro
+# --- SISTEMA DE DROPAR CARGA ROUBADA ---
+	if owner and owner.has_meta("maletas_roubadas"):
+		var maletas = owner.get_meta("maletas_roubadas")
+		for maleta in maletas:
+			# Usa a nossa função nova que joga a maleta exatamente onde o carro morreu!
+			if is_instance_valid(maleta) and maleta.has_method("soltar_loot_roubado"):
+				var pos_queda = owner.global_position + Vector3(0, 1.0, 0)
+				maleta.soltar_loot_roubado(pos_queda)
+				
 	if mission_id != "":
 		# Agora manda direto para o StoryController, usando o tipo DESTROY
 		get_tree().call_group("StoryController", "notify_progress", StoryMissionData.MissionType.DESTROY, 1.0, mission_id)

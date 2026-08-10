@@ -19,7 +19,7 @@ metadata/_custom_type_script = "uid://dcan8ccd3nmwc"
 [sub_resource type="Resource" id="Resource_fs63h"]
 script = ExtResource("2_5am07")
 tier_name = "Gold"
-target_value = 7.0
+target_value = 8.0
 reward_points = 500
 metadata/_custom_type_script = "uid://dcan8ccd3nmwc"
 
@@ -28,7 +28,7 @@ script = ExtResource("6_8swod")
 mission_type = 7
 mission_id = "barril_BA"
 mission_name = "Destroy the barrels"
-mission_description = "Destroy 7 fuel barrels"
+mission_description = "Destroy 8 fuel barrels"
 time_limit = 80.0
 mission_tiers = Array[ExtResource("2_5am07")]([SubResource("Resource_umikb"), SubResource("Resource_iplsj"), SubResource("Resource_fs63h")])
 mission_environment = ExtResource("1_ogcv2")

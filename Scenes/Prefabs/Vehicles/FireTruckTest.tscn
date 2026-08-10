@@ -147,7 +147,25 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.3071547, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, -4.656613e-10, 0, 1, 0, 1.2717022, -0.1481018)
 shape = SubResource("BoxShape3D_od0im")
 
-[node name="MovementComponent" parent="Scripts" index="2"]
+[node name="MarkerLanternaEsq" parent="TailLightTrailManager" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.1748483, 0.8938628, -3.6238194)
+
+[node name="MarkerLanternaDir" parent="TailLightTrailManager" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.1841851, 0.88882023, -3.6238194)
+
+[node name="bklightEsq" parent="TailLightTrailManager" index="2"]
+transform = Transform3D(4.371139e-08, 1, -1.509958e-07, 1, -4.371139e-08, 0, -6.600236e-15, -1.509958e-07, -1, 1.1449598, 0.917, -3.748)
+
+[node name="bklightDir" parent="TailLightTrailManager" index="3"]
+transform = Transform3D(4.371139e-08, 1, -1.509958e-07, 1, -4.371139e-08, 0, -6.600236e-15, -1.509958e-07, -1, -1.1441852, 0.91195035, -3.748135)
+
+[node name="Marker3D" parent="TurboMarkers" index="0"]
+transform = Transform3D(1, 0, 0, 0, 0.9659258, -0.25881904, 0, 0.25881904, 0.9659258, 0.5, 0.3475038, -3.5899873)
+
+[node name="Marker3D2" parent="TurboMarkers" index="1"]
+transform = Transform3D(1, 0, 0, 0, 0.9659258, -0.25881904, 0, 0.25881904, 0.9659258, -0.5, 0.3475038, -3.5899873)
+
+[node name="MovementComponent" parent="Scripts" index="3"]
 ENGINE_POWER = 2500.0
 BRAKE_POWER = 40.0
 BRAKE_ASSIST_FORCE = 60.0
@@ -157,26 +175,26 @@ AIR_RESISTANCE = 0.088
 FALL_FORCE_BUFFER_DISTANCE = 2.0
 EXTRA_FALL_GRAVITY = 12.0
 
-[node name="StatsComponent" parent="Scripts" index="3"]
+[node name="StatsComponent" parent="Scripts" index="4"]
 jump_multiplier = 0.8
 max_health = 150.0
 max_shield = 60.0
 
-[node name="AbilityComponent" parent="Scripts" index="4"]
+[node name="AbilityComponent" parent="Scripts" index="5"]
 REGEN_RATE = 4.0
 
-[node name="AirMovementComponent" parent="Scripts" index="5"]
+[node name="AirMovementComponent" parent="Scripts" index="6"]
 AIR_CONTROL_FORCE = 12.0
 AIR_TORQUE_FORCE = 30.0
 EXTRA_FALL_FORCE = 12.0
 
-[node name="WallRideComponent" parent="Scripts" index="9"]
+[node name="WallRideComponent" parent="Scripts" index="10"]
 max_wall_distance = 3.8
 min_ground_height = 2.5
 anti_gravity_start = 1.5
 anti_gravity_end = 0.6
 
-[node name="WeaponManager" parent="Scripts" index="12"]
+[node name="WeaponManager" parent="Scripts" index="13"]
 fire_rate_basic = 0.09
 
 [node name="MachineGun" parent="Guns" index="0"]

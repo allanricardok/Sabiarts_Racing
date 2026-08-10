@@ -187,7 +187,7 @@ func _process_wallride(delta):
 		_stop_wallride("Atingiu o chão.")
 		return
 
-# --- RADAR DE MANUTENÇÃO ---
+	# --- RADAR DE MANUTENÇÃO ---
 	var ray_start = car.global_position + (current_wall_normal * 1.5)
 	var ray_dir = -current_wall_normal * (max_wall_distance * 2.0)
 	var result = _shoot_ray_ignoring_holos(ray_start, ray_start + ray_dir)
@@ -225,8 +225,10 @@ func _process_wallride(delta):
 	
 	var car_fwd = -car.global_transform.basis.z.normalized()
 	var forward_dir = (car_fwd - current_wall_normal * car_fwd.dot(current_wall_normal))
+	
 	if forward_dir.length_squared() < 0.01:
 		forward_dir = car.global_transform.basis.y
+		
 	forward_dir = forward_dir.normalized()
 	
 	if abs(input.steering) > 0.05:
@@ -270,7 +272,6 @@ func _process_wallride(delta):
 		
 		wall_jump_combo_count += 1
 		
-		# Aplica as forças físicas mitigadas pelo decaimento
 		car.apply_central_impulse(Vector3.UP * applied_jump_force * car.mass)
 		car.apply_central_impulse(current_wall_normal * (applied_jump_force * car.mass * 0.5)) 
 		
@@ -278,13 +279,14 @@ func _process_wallride(delta):
 		_stop_wallride("Wall-Jump executado!")
 		return
 
-	# --- ROTAÇÃO VISUAL ---
+	# --- ROTAÇÃO VISUAL CORRIGIDA ---
 	var z_axis = -forward_dir
 	var y_axis = current_wall_normal 
 	var x_axis = y_axis.cross(z_axis).normalized()
 	z_axis = x_axis.cross(y_axis).normalized() 
 	
-	var target_basis = Basis(x_axis, y_axis, z_axis)
+	# O orthonormalized() aqui impede o erro "Basis must be normalized"
+	var target_basis = Basis(x_axis, y_axis, z_axis).orthonormalized()
 	car.global_transform.basis = car.global_transform.basis.slerp(target_basis, delta * 15.0)
 	
 	car.angular_velocity = Vector3.ZERO
@@ -294,7 +296,7 @@ func _process_wallride(delta):
 		if point_tick_timer >= 0.25: 
 			point_tick_timer -= 0.25
 			trick_manager.add_external_action("Wallride", 10, TrickManager.COLOR_SPECIAL)
-
+			
 func _stop_wallride(reason: String = ""):
 	print("=========================================")
 	print("[WALLRIDE DEBUG] 🛑 SAÍDA DO MURO ACIONADA!")
@@ -349,16 +351,15 @@ func _process_wallride_exit(delta):
 	var x_axis = y_axis.cross(z_axis).normalized()
 	z_axis = x_axis.cross(y_axis).normalized() 
 	
-	var upright_basis = Basis(x_axis, y_axis, z_axis)
-	
 	# =========================================================
-	# CORREÇÃO MATEMÁTICA: O "Banho" na Matriz
-	# orthonormalized() arredonda e corrige qualquer erro de ponto 
-	# flutuante acumulado durante o wallride antes do slerp.
+	# CORREÇÃO MATEMÁTICA: Limpeza dupla
+	# Garante que tanto a matriz alvo quanto a matriz atual estão
+	# perfeitamente alinhadas (Escala 1,1,1) antes de fazer a transição.
 	# =========================================================
+	var upright_basis = Basis(x_axis, y_axis, z_axis).orthonormalized()
 	var clean_current_basis = car.global_transform.basis.orthonormalized()
-	car.global_transform.basis = clean_current_basis.slerp(upright_basis, delta * 8.0)
 	
+	car.global_transform.basis = clean_current_basis.slerp(upright_basis, delta * 8.0)
 	car.angular_velocity = car.angular_velocity.lerp(Vector3.ZERO, delta * 5.0)
 
 # ==========================================

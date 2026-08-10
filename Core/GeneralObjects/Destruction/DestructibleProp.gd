@@ -41,19 +41,10 @@ extends RigidBody3D
 @export var aoe_min_vertical_kick : float = 1.4  # garante decolagem consistente
 @export_flags_3d_physics var aoe_collision_mask : int = 0xFFFFFFFF
 
-# ============================================================================
-# NOVO: Efeito visual da explosão (flash + luz + fumaça). Só é usado se
-# causes_aoe_damage estiver ligado — objetos que causam dano em área também
-# "explodem" visualmente; objetos comuns continuam só soltando fragmentos.
-# ============================================================================
 @export_group("Efeito Visual da Explosão")
-## Cor principal do flash/bola de fogo
 @export var explosion_visual_color : Color = Color(1.0, 0.55, 0.1)
-## Tamanho aproximado da bola de fogo (em unidades do mundo)
 @export var explosion_visual_size : float = 3.0
-## Quantos "puffs" de fumaça sobem da explosão
 @export var explosion_particle_count : int = 10
-## Intensidade máxima da luz do flash (0 desliga a luz)
 @export var explosion_light_energy : float = 8.0
 
 @onready var health : float = max_health
@@ -61,11 +52,19 @@ extends RigidBody3D
 var _initial_transform: Transform3D
 var _initial_health: float
 
+# === VARIÁVEIS PARA SALVAR A COLISÃO ORIGINAL ===
+var _initial_layer: int
+var _initial_mask: int
+
 func _ready():
-	# Guarda a posição, rotação e vida originais assim que o mapa carrega
+	add_to_group("destructible_vips")
+	
 	_initial_transform = global_transform
-	# ATENÇÃO: Troque "health" pelo nome exato da variável de vida do seu script!
 	_initial_health = health
+	
+	# Salva como as colisões eram antes de morrer
+	_initial_layer = collision_layer
+	_initial_mask = collision_mask
 
 func take_damage(amount: float, attacker: Node3D = null):
 	if health <= 0: return 
@@ -100,53 +99,58 @@ func take_damage(amount: float, attacker: Node3D = null):
 		_morrer(actual_shooter)
 
 func _morrer(actual_shooter: Node3D = null):
-	# =========================================================
-	# LÓGICA DE MISSÃO (Independente de quem destruiu)
-	# =========================================================
 	if is_defend_vip:
-		# Grito da Defesa: Avisa que o VIP morreu (-1) e causa a falha
 		get_tree().call_group("StoryController", "notify_progress", StoryMissionData.MissionType.DEFEND, -1.0, "vip_destroyed")
 	else:
-		# Grito da Destruição Clássica: Soma 1 no progresso
 		if mission_id != "":
 			get_tree().call_group("StoryController", "notify_progress", StoryMissionData.MissionType.DESTROY, 1.0, mission_id)
 
-	# =========================================================
-	# BÔNUS DE MANOBRA E ENERGIA (Apenas se quem atacou for o Player)
-	# =========================================================
 	if actual_shooter:
-		# 1. Recupera energia por DESTRUIÇÃO
 		_give_energy_to_attacker(actual_shooter, energy_on_destroy)
-		
-		# 2. Registra a destruição para pontos
 		var gtm = actual_shooter.get_node_or_null("%GroundTrickManager")
 		if gtm:
 			gtm.add_ground_action("DESTROY_OBJECT")
 			
-	# === Aplica o dano em área (Reações em Cadeia!) ===
 	_apply_aoe_damage(actual_shooter)
-	
 	_spawn_debris()
-# Ao invés de deletar, apenas desativamos fisicamente os objetos de missão
+	
 	if is_defend_vip or mission_id != "":
 		visible = false
 		process_mode = Node.PROCESS_MODE_DISABLED
+		
+		# =====================================================================
+		# A CORREÇÃO MÁXIMA DO RADAR: Esconde de tudo e de todos!
+		# =====================================================================
+		collision_layer = 0
+		collision_mask = 0
+		global_position = Vector3(0, -5000, 0) # Teleporta pro centro da terra!
+		
+		if is_in_group("destructible_vips"):
+			remove_from_group("destructible_vips")
+		# =====================================================================
 		
 		for child in get_children():
 			if child is CollisionShape3D or child is CollisionPolygon3D:
 				child.set_deferred("disabled", true)
 	else:
-		queue_free() # Objetos comuns do mapa continuam sumindo para sempre
+		queue_free() 
 
 func reset():
-	# Restaura física e status
 	global_transform = _initial_transform
 	health = _initial_health
 	
 	visible = true
 	process_mode = Node.PROCESS_MODE_INHERIT
 	
-	# Religa todas as colisões
+	# =====================================================================
+	# RESTAURA AS COLISÕES E GRUPOS
+	# =====================================================================
+	collision_layer = _initial_layer
+	collision_mask = _initial_mask
+	
+	if not is_in_group("destructible_vips"):
+		add_to_group("destructible_vips")
+	
 	for child in get_children():
 		if child is CollisionShape3D or child is CollisionPolygon3D:
 			child.set_deferred("disabled", false)
@@ -156,9 +160,6 @@ func reset():
 func _apply_aoe_damage(original_shooter: Node3D):
 	if not causes_aoe_damage: return
 	
-	# NOVO: efeito visual da explosão. Reaproveita a mesma flag
-	# causes_aoe_damage — só objetos que já causam dano em área fazem
-	# sentido "explodir" visualmente também.
 	_spawn_explosion_effect()
 
 	var space_state = get_world_3d().direct_space_state
@@ -173,14 +174,12 @@ func _apply_aoe_damage(original_shooter: Node3D):
 	query.collide_with_bodies = true
 	query.collide_with_areas = false
 
-	# aumenta o limite padrão (32) para não perder alvos em reações em cadeia
 	var results = space_state.intersect_shape(query, 64)
 
 	for hit in results:
 		var collider = hit["collider"]
 		if not is_instance_valid(collider): continue
 
-		# 1. Aproxima o "raio" do objeto para medir distância até a SUPERFÍCIE, não o pivot
 		var approx_radius = _estimate_collider_radius(collider)
 		var raw_dist = global_position.distance_to(collider.global_position)
 		var dist = max(0.0, raw_dist - approx_radius)
@@ -194,7 +193,9 @@ func _apply_aoe_damage(original_shooter: Node3D):
 		var final_damage = aoe_damage_amount * percent
 
 		if collider is RigidBody3D or collider is VehicleBody3D:
-			# 2. ACORDA o corpo antes de aplicar impulso — senão o impulso é perdido
+			if not collider.is_inside_tree():
+				continue
+			
 			if "sleeping" in collider:
 				collider.sleeping = false
 
@@ -206,8 +207,6 @@ func _apply_aoe_damage(original_shooter: Node3D):
 				dir_horizontal = Vector3(randf_range(-1.0, 1.0), 0, randf_range(-1.0, 1.0))
 			dir_horizontal = dir_horizontal.normalized()
 
-			# 3. Vertical mínimo garantido: força o objeto a perder contato com o chão
-			#    de forma consistente, evitando o efeito "atrito engole o impulso"
 			var vertical_component = max(0.8, aoe_min_vertical_kick * percent)
 			var push_dir = dir_horizontal
 			push_dir.y = vertical_component
@@ -221,20 +220,14 @@ func _apply_aoe_damage(original_shooter: Node3D):
 		if collider.has_method("take_damage"):
 			collider.take_damage(final_damage, original_shooter if original_shooter else self)
 
-
 func _estimate_collider_radius(collider: Node3D) -> float:
-	# Usa a AABB do primeiro MeshInstance3D como aproximação do "tamanho" do objeto
 	var mesh_inst := collider.find_child("*", true, false) as MeshInstance3D
 	if mesh_inst and mesh_inst.mesh:
 		var aabb = mesh_inst.mesh.get_aabb()
 		var size = aabb.size * mesh_inst.global_transform.basis.get_scale()
 		return size.length() * 0.5
-	return 0.5  # fallback conservador
+	return 0.5 
 
-# NOVO: dispara o efeito visual (flash + luz + fumaça) usando o
-# ExplosionManager (autoload). Segue o mesmo princípio do DebrisManager —
-# este objeto não sabe COMO o efeito funciona, só pede pra acontecer com
-# os parâmetros configurados no Inspector.
 func _spawn_explosion_effect() -> void:
 	if not is_instance_valid(ExplosionManager):
 		push_warning("[DestructibleProp] ExplosionManager não encontrado. Configure como Autoload.")
@@ -258,50 +251,40 @@ func _spawn_debris() -> void:
 	var meshes = _get_all_mesh_instances()
 	
 	if meshes.is_empty():
-		# Fallback de segurança caso o objeto seja invisível ou não tenha malhas
 		DebrisManager.explode(
 			global_position, null, shard_count, explosion_force,
 			upward_bias, shard_lifetime, scatter_radius, shard_min_size, shard_max_size
 		)
 		return
 		
-	# Para cada estilhaço que precisamos gerar, escolhemos um ponto aleatório
 	for i in range(shard_count):
-		# Escolhe uma malha aleatória do objeto (ex: pode cair no Tronco ou nas Folhas)
 		var mesh_inst = meshes[randi() % meshes.size()]
 		
 		var mat: Material = null
 		if mesh_inst.mesh:
 			mat = mesh_inst.get_active_material(0)
-			
-			# Calcula a caixa delimitadora (AABB) da malha para saber o volume dela
 			var aabb = mesh_inst.mesh.get_aabb()
 			
-			# Sorteia um ponto perfeitamente dentro desse volume no espaço LOCAL
 			var random_local_pos = aabb.position + Vector3(
 				randf() * aabb.size.x,
 				randf() * aabb.size.y,
 				randf() * aabb.size.z
 			)
 			
-			# Converte esse ponto local para a posição GLOBAL correta do mundo
 			var explosion_origin = mesh_inst.to_global(random_local_pos)
 			
-			# Chama o DebrisManager para soltar APENAS 1 estilhaço nesta posição exata.
-			# Como a posição já foi espalhada por nós, passamos o scatter_radius como 0.0
 			DebrisManager.explode(
 				explosion_origin,
 				mat,
-				1, # Quantidade de estilhaços por chamada
+				1, 
 				explosion_force,
 				upward_bias,
 				shard_lifetime,
-				0.0, # Scatter zerado, pois o espalhamento já foi feito na área da malha
+				0.0, 
 				shard_min_size,
 				shard_max_size
 			)
 
-# Substituímos a função antiga por esta que retorna uma Array com TODAS as malhas
 func _get_all_mesh_instances() -> Array[MeshInstance3D]:
 	var result: Array[MeshInstance3D] = []
 	
@@ -311,10 +294,8 @@ func _get_all_mesh_instances() -> Array[MeshInstance3D]:
 			result.append(node)
 			return result
 			
-	# Busca todas as malhas filhas (Pega o Tronco, a Base, as Folhas, etc.)
 	var children = find_children("*", "MeshInstance3D", true, false)
 	for c in children:
-		# Ignora malhas sem geometria ou invisíveis
 		if c is MeshInstance3D and c.mesh and c.visible:
 			result.append(c)
 			

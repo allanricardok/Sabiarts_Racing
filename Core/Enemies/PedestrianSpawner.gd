@@ -1,4 +1,3 @@
-# PedestrianSpawner.gd
 extends Node3D
 
 @export var pedestrian_scene: PackedScene
@@ -20,7 +19,6 @@ func _ready():
 		ped.visible = false
 		
 		add_child(ped)
-		# Inicializa no cemitério para não pesar nem interferir em nada
 		ped.global_position = Vector3(0, -1000, 0) 
 		inactive_peds.append(ped)
 
@@ -33,31 +31,31 @@ func _spawn_initial_batch():
 	timer = randf_range(1.0, spawn_interval)
 
 func _process(delta):
+	for i in range(active_peds.size() - 1, -1, -1):
+		var ped = active_peds[i]
+		if not is_instance_valid(ped) or (ped.get("is_dead") == true):
+			recycle_pedestrian(ped)
+	
 	timer -= delta
 	if timer <= 0:
 		timer = spawn_interval
-		_try_spawn(false)
+		# =====================================================================
+		# Repovoamento Acelerado: Tenta spawnar até 2 de vez a cada tick!
+		# =====================================================================
+		for i in range(2):
+			if active_peds.size() < max_alive:
+				_try_spawn(false)
 
 func _try_spawn(is_initial: bool = false):
 	if active_peds.size() >= max_alive: return
 	
-	if not is_initial:
-		var all_peds_alive = 0
-		var peds = get_tree().get_nodes_in_group("pedestrians")
-		for p in peds:
-			if not p.is_dead: all_peds_alive += 1
-		if all_peds_alive >= 75: return 
-
 	var ped = null
 	if inactive_peds.size() > 0:
 		ped = inactive_peds.pop_back()
 	
 	if not is_instance_valid(ped): return
-
-	var random_offset = Vector3(0, 0.5, 0)
-	if is_initial:
-		random_offset = Vector3(randf_range(-4.0, 4.0), 0.5, randf_range(-4.0, 4.0))
 	
+	var random_offset = Vector3(randf_range(-6.0, 6.0), 0.5, randf_range(-6.0, 6.0))
 	var spawn_pos = self.global_position + random_offset
 	ped.reset(spawn_pos)
 	

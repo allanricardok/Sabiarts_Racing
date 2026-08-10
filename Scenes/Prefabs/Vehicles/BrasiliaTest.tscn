@@ -182,10 +182,10 @@ mesh = SubResource("CylinderMesh_v71gj")
 [node name="NameTag" parent="." index="8"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.1699355, 0)
 
-[node name="AirMovementComponent" parent="Scripts" index="5"]
+[node name="AirMovementComponent" parent="Scripts" index="6"]
 EXTRA_FALL_FORCE = 12.0
 
-[node name="WallRideComponent" parent="Scripts" index="9"]
+[node name="WallRideComponent" parent="Scripts" index="10"]
 min_speed_kmh = 1.0
 anti_gravity_end = 1.2
 wall_target_distance = 0.6

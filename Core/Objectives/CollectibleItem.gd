@@ -22,7 +22,7 @@ var can_be_collected: bool = true
 
 func _ready():
 	await get_tree().create_timer(0.2).timeout
-	
+	add_to_group("itens_missao")
 	if Global.current_run_mode != Global.RunMode.STORY:
 		# LÊ DIRETO DO GLOBAL (Checa se a missão já foi concluída antes)
 		if is_instance_valid(Global) and Global.completed_story_missions.has(mission_id):
@@ -41,18 +41,27 @@ func _process(delta):
 		rotate_y(rotation_speed * delta)
 
 func _on_body_entered(body):
-	if is_collected or not can_be_collected: return
+	# === TRAVA FANTASMA: Se estiver invisível (fora de missão), não existe! ===
+	if not visible or is_collected or not can_be_collected: return
 	
-	if body is BaseVehicle or body.is_in_group("jogadores"):
+	if body is BaseVehicle or body.is_in_group("jogadores"):		
+		# --- VERIFICA SE QUEM BATEU FOI UM BOT ---
+		var is_bot = false
+		var input = body.get_node_or_null("%InputComponent")
+		if input and "is_bot" in input and input.is_bot:
+			is_bot = true
+			
+		if is_bot:
+			_bot_steal(body)
+			return
+			
+		# =======================================================
+		# FLUXO NORMAL DO JOGADOR
+		# =======================================================
 		print("[DEBUG-ITEM] Jogador colidiu e coletou: ", name)
 		
-		# NOVO: Instancia o efeito de Bebida apenas para quem coletou
-		# =======================================================
 		if causes_drunk_effect:
 			var cam = body.find_child("Camera3D", true, false)
-			
-			# Se o corpo que encostou não tiver câmera direta (ex: colisores internos), 
-			# tentamos achar a câmera no owner ou no veículo base.
 			if not is_instance_valid(cam) and is_instance_valid(body.owner):
 				cam = body.owner.find_child("Camera3D", true, false)
 				
@@ -61,25 +70,63 @@ func _on_body_entered(body):
 				drunk_node.time_left = drunk_duration
 				drunk_node.max_intensity = drunk_max_intensity
 				drunk_node.fade_time = drunk_fade_time
-				drunk_node.camera = cam # Vincula exclusivamente à câmera deste alvo
-				
+				drunk_node.camera = cam 
 				get_tree().current_scene.add_child(drunk_node)
-			else:
-				print("[DEBUG-ITEM] Aviso: Tentou aplicar efeito de bebida em ", body.name, ", mas nenhuma Camera3D foi encontrada.")
-		# =======================================================
 		
 		if grants_teleport_key:
 			_entregar_chave_interna(body)
-			print("[Item] Chave do Teleporte adquirida por ", body.name, "!")
-			
-			var input = body.get_node_or_null("%InputComponent")
 			if input and not input.is_bot:
 				var hud = get_tree().get_first_node_in_group("HUD" + input.suffix)
 				if not hud: hud = get_tree().get_first_node_in_group("HUD")
-				
 				if hud and hud.has_method("criar_toast"):
 					hud.criar_toast("Key collected. Teleporters are now unlocked!", Color.DODGER_BLUE)
+					
 		_collect()
+
+func _bot_steal(bot_body: Node3D):
+	print("[Item] O bot ", bot_body.name, " ROUBOU a maleta ", name)
+	is_collected = true
+	can_be_collected = false
+	
+	var maletas_roubadas = bot_body.get_meta("maletas_roubadas", [])
+	maletas_roubadas.append(self)
+	bot_body.set_meta("maletas_roubadas", maletas_roubadas)
+	
+	if is_delivery_item:
+		# TEXTO AMARELO
+		get_tree().call_group("HUD", "criar_toast", "OPONENTE ROUBOU A CARGA! DESTRUA-O!", Color.YELLOW)
+	
+	# Chama a rotina para colar a maleta no carro do bot
+	call_deferred("_atrelar_ao_ladrao", bot_body)
+
+func _atrelar_ao_ladrao(ladrao: Node3D):
+	for child in get_children():
+		if child is CollisionShape3D or child is CollisionPolygon3D:
+			child.set_deferred("disabled", true)
+			
+	get_parent().remove_child(self)
+	ladrao.add_child(self)
+	
+	# ALTURA CORRIGIDA: Agora a maleta fica 3 metros acima do bot!
+	position = Vector3(0, 3.0, 0)
+	rotation = Vector3.ZERO
+	visible = true 
+
+func soltar_loot_roubado(nova_posicao: Vector3):
+	# A CORREÇÃO DO CRASH: Grava quem é a cena principal ANTES de sair do carro!
+	var cena_principal = get_tree().current_scene
+	
+	get_parent().remove_child(self)
+	cena_principal.add_child(self) # Usa a variável salva!
+	
+	global_position = nova_posicao
+	rotation = Vector3.ZERO
+	
+	is_collected = false
+	can_be_collected = true
+	for child in get_children():
+		if child is CollisionShape3D or child is CollisionPolygon3D:
+			child.set_deferred("disabled", false)
 
 func _entregar_chave_interna(alvo):
 	if "has_teleportkey" in alvo:

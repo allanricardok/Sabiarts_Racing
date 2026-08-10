@@ -21,4 +21,5 @@ mission_environment = ExtResource("2_gjcum")
 mission_sun_color = Color(0.6261257, 0, 0.018082649, 0.702)
 mission_sun_energy = 0.7
 enemy_count = 0
+required_unlock_points = 1300
 metadata/_custom_type_script = "uid://o1ox0n7mmqv"

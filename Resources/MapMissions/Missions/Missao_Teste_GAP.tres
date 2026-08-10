@@ -7,7 +7,6 @@
 [sub_resource type="Resource" id="Resource_4i2xs"]
 script = ExtResource("2_r7en5")
 tier_name = "Gap executed"
-target_value = 1.0
 reward_points = 500
 metadata/_custom_type_script = "uid://dcan8ccd3nmwc"
 
@@ -24,4 +23,5 @@ mission_environment = ExtResource("1_4i2xs")
 mission_sun_color = Color(0.1898, 0.47790667, 0.73, 0.32156864)
 mission_sun_energy = 0.2
 enemy_count = 0
+required_unlock_points = 1000
 metadata/_custom_type_script = "uid://o1ox0n7mmqv"

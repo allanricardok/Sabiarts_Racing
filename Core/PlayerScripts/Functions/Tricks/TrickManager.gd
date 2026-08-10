@@ -237,12 +237,23 @@ func _finalize_score():
 	_update_final_display(hud, final_score, mult)
 
 func reset_trick():
+	# =========================================================
+	# BLINDAGEM INFALÍVEL: Busca dinâmica pelo Orquestrador do muro
+	# =========================================================
+	var orchestrator = car.find_child("WallRide*", true, false)
+	
+	if orchestrator and orchestrator.has_method("has_combo_shield"):
+		if orchestrator.has_combo_shield():
+			print("[TrickManager] Batida IGNORADA: Escudo de Transferência do Muro Ativo!")
+			return # Foge da função e IMPEDE a perda da pontuação
+	# =========================================================
+	
 	if tracking_jump:
 		print("=========================================")
 		print("[TRICK MANAGER] ❌ COMBO PERDIDO/RESETADO!")
 		print(" -> Motivo: Carro capotou, pousou de cabeça para baixo ou bateu forte.")
 		print("=========================================")
-		
+
 	tracking_jump = false
 	_reset_gap_state_internal()
 	if is_showing_final_score: return
@@ -328,6 +339,15 @@ func process_air_time(_delta: float, _is_near_ground: bool):
 
 func check_landing(is_clean: bool):
 	if tracking_jump:
+		# =========================================================
+		# BLINDAGEM INFALÍVEL: Ignora falsos pousos na parede
+		# =========================================================
+		var orchestrator = car.find_child("WallRide*", true, false)
+		if orchestrator and orchestrator.has_method("has_combo_shield"):
+			if orchestrator.has_combo_shield():
+				print("[TrickManager] Pouso IGNORADO: Carro protegido pelo Combo Shield do Muro!")
+				return 
+		# =========================================================
 		if is_clean:
 			if air_time >= AIR_TIME_THRESHOLD or tricks_done.size() > 0: 
 				_finalize_score()
@@ -335,4 +355,5 @@ func check_landing(is_clean: bool):
 				reset_trick()
 		else:
 			reset_trick()
+			
 	tracking_jump = false

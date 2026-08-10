@@ -16,7 +16,7 @@ metadata/_custom_type_script = "uid://dcan8ccd3nmwc"
 [sub_resource type="Resource" id="Resource_m53s3"]
 script = ExtResource("2_m53s3")
 tier_name = "Fuck Pedestrians"
-target_value = 20.0
+target_value = 30.0
 reward_points = 500
 tier_mission_type = 6
 metadata/_custom_type_script = "uid://dcan8ccd3nmwc"
@@ -36,10 +36,12 @@ mission_name = "Fuck it all up!"
 mission_description = "-Foda os barris
 -Foda os oponentes
 -Foda os pedestres"
+time_limit = 140.0
 mission_tiers = Array[ExtResource("2_m53s3")]([SubResource("Resource_elgyo"), SubResource("Resource_m53s3"), SubResource("Resource_jxr56")])
 mission_environment = ExtResource("1_elgyo")
 mission_sun_color = Color(0.5628662, 0.22717513, 0.6747632, 0.8)
 mission_sun_energy = 0.2
 enemy_count = 2
-required_unlock_points = 4000
+enemy_damage_received_mult = 1.2
+required_unlock_points = 2000
 metadata/_custom_type_script = "uid://o1ox0n7mmqv"

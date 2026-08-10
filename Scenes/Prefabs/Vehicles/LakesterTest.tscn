@@ -1,8 +1,9 @@
-[gd_scene load_steps=8 format=3 uid="uid://cxnfwc3ovajua"]
+[gd_scene load_steps=9 format=3 uid="uid://cxnfwc3ovajua"]
 
 [ext_resource type="PackedScene" uid="uid://ry75iugdg8sl" path="res://Scenes/Prefabs/Vehicles/CarZero.tscn" id="1_lhwup"]
 [ext_resource type="ArrayMesh" uid="uid://k0s2cicvuvb" path="res://Assets/3D/tests/Lakester.mesh.res" id="2_lhwup"]
 [ext_resource type="ArrayMesh" uid="uid://d1n5brd88al4i" path="res://Assets/3D/tests/LKSWheel.mesh.res" id="3_nospx"]
+[ext_resource type="Script" uid="uid://b2xmtaoyrsfb7" path="res://Core/PlayerScripts/Functions/WallRide/WallRideOrchestrator.gd" id="4_nospx"]
 
 [sub_resource type="Animation" id="Animation_qcxwf"]
 length = 0.001
@@ -123,7 +124,25 @@ mesh = ExtResource("3_nospx")
 [node name="NameTag" parent="." index="8"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.2676547, 0)
 
-[node name="MovementComponent" parent="Scripts" index="2"]
+[node name="MarkerLanternaEsq" parent="TailLightTrailManager" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.038438737, 0.5228699, -2.3181593)
+
+[node name="MarkerLanternaDir" parent="TailLightTrailManager" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.056981742, 0.5228699, -2.3158274)
+
+[node name="bklightEsq" parent="TailLightTrailManager" index="2"]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -0.0015612841, 0.546, -2.442475)
+
+[node name="bklightDir" parent="TailLightTrailManager" index="3"]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -0.01698172, 0.546, -2.440143)
+
+[node name="Marker3D" parent="TurboMarkers" index="0"]
+transform = Transform3D(0.49999997, -0.22414385, -0.83651614, 0, 0.9659257, -0.25881898, 0.86602545, 0.12940949, 0.4829628, 0.5, 0.2788264, -0.27327394)
+
+[node name="Marker3D2" parent="TurboMarkers" index="1"]
+transform = Transform3D(0.49999985, 0.22414383, 0.83651614, 0, 0.96592563, -0.25881898, -0.86602527, 0.12940948, 0.48296276, -0.5, 0.2788264, -0.273)
+
+[node name="MovementComponent" parent="Scripts" index="3"]
 ENGINE_POWER = 2000.0
 MAX_STEER = 0.6
 BRAKE_POWER = 30.0
@@ -132,25 +151,22 @@ BOOST_LIMIT_SPEED = 20.0
 AIR_RESISTANCE = 0.075
 EXTRA_FALL_GRAVITY = 1.0
 
-[node name="StatsComponent" parent="Scripts" index="3"]
+[node name="StatsComponent" parent="Scripts" index="4"]
 max_health = 70.0
 max_shield = 40.0
 
-[node name="AirMovementComponent" parent="Scripts" index="5"]
+[node name="AirMovementComponent" parent="Scripts" index="6"]
 AIR_CONTROL_FORCE = 18.0
 AIR_TORQUE_FORCE = 45.0
 
-[node name="WallRideComponent" parent="Scripts" index="9"]
-anti_gravity_start = 0.8
-anti_gravity_end = 0.2
-wall_magnet_speed = 6.0
-wall_forward_boost = 0.5
-wall_turn_speed = 2.2
-jump_up_force = 8.0
-wall_jump_decay_per_jump = 8.0
-min_jump_force_multiplier = 0.0
+[node name="WallRideComponent" parent="Scripts" index="10"]
+script = ExtResource("4_nospx")
+min_speed_kmh = 1.0
+min_ground_height = 1.0
+anti_gravity_decay_time = 5.0
+validation_time = 0.3
 
-[node name="Guns" parent="." index="13"]
+[node name="Guns" parent="." index="19"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.41651595)
 
 [node name="MachineGun" parent="Guns" index="0"]

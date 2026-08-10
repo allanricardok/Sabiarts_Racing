@@ -29,5 +29,11 @@ enum MissionType { COMBAT_DESTROY, SCORE, SPEED, COLLECT, GAP, EXPLORE, ROADKILL
 @export var enemy_damage_dealt_mult: float = 1.0
 @export var enemy_damage_received_mult: float = 1.0
 
+@export_group("Comportamento da IA (Bots)")
+## Faz os bots tentarem roubar as maletas com este ID (Ex: "maleta_01"):
+@export var bot_target_collect_id: String = ""
+## Faz os bots tentarem destruir o objeto VIP com este ID (Ex: "barril_vip"):
+@export var bot_target_destroy_id: String = ""
+
 @export_group("Desbloqueio")
 @export var required_unlock_points: int = 0

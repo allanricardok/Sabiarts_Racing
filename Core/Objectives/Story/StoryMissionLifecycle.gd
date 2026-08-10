@@ -55,6 +55,14 @@ func accept_mission():
 						if "damage_received_multiplier" in stats:
 							stats.damage_received_multiplier = ctrl.current_mission.enemy_damage_received_mult if "enemy_damage_received_mult" in ctrl.current_mission else 1.0
 					
+					# --- NOVO: INJETA O OBJETIVO DA MISSÃO NO CÉREBRO DO BOT ---
+					var brain = enemy.find_child("BotBrain*", true, false)
+					if brain:
+						if "mission_target_collect_id" in brain:
+							brain.mission_target_collect_id = ctrl.current_mission.bot_target_collect_id
+						if "mission_target_destroy_id" in brain:
+							brain.mission_target_destroy_id = ctrl.current_mission.bot_target_destroy_id
+					
 					ctrl.combat_targets.append(enemy)
 					ctrl.spawned_bots.append(enemy)
 

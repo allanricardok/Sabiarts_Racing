@@ -19,5 +19,5 @@ mission_sun_energy = 0.6
 enemy_count = 1
 enemy_damage_dealt_mult = 1.5
 enemy_damage_received_mult = 0.6
-required_unlock_points = 4000
+required_unlock_points = 5000
 metadata/_custom_type_script = "uid://o1ox0n7mmqv"

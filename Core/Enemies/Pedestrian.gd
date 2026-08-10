@@ -1,4 +1,3 @@
-# Pedestrian.gd
 extends CharacterBody3D
 
 var is_dead: bool = false
@@ -19,8 +18,16 @@ var current_direction: Vector3 = Vector3.ZERO
 var panic_timer: float = 0.0
 var spawn_position: Vector3 = Vector3.ZERO
 
+# === VARIÁVEIS PARA SALVAR A COLISÃO ORIGINAL ===
+var _initial_layer: int
+var _initial_mask: int
+
 func _ready():
 	add_to_group("pedestrians")
+	
+	# Salva como as colisões eram antes de morrer
+	_initial_layer = collision_layer
+	_initial_mask = collision_mask
 
 func _physics_process(delta):
 	if is_dead: return 
@@ -106,6 +113,12 @@ func take_damage(amount: float, attacker: Node3D = null):
 	process_mode = Node.PROCESS_MODE_DISABLED
 	visible = false
 	
+	# =====================================================================
+	# A CORREÇÃO DA FÍSICA: Tira o cadáver do caminho do motor de colisão!
+	# =====================================================================
+	collision_layer = 0
+	collision_mask = 0
+	
 	if is_in_group("pedestrians"):
 		remove_from_group("pedestrians")
 		
@@ -130,7 +143,6 @@ func take_damage(amount: float, attacker: Node3D = null):
 		if not is_bot:
 			if "pedestrians_killed" in actual_shooter:
 				actual_shooter.pedestrians_killed += 1
-				
 
 			if is_instance_valid(GameStats) and GameStats.has_method("add_pedestrian_kill"):
 				GameStats.add_pedestrian_kill()
@@ -142,9 +154,6 @@ func take_damage(amount: float, attacker: Node3D = null):
 					hud.criar_toast("💥 ROADKILL!", Color.RED)
 
 	get_tree().call_group("TutorialUI", "complete_task", "pedestrian")
-	
-	# A PEÇA QUE FALTAVA: Avisa o controlador sobre o atropelamento!
-	# Passamos o ID em branco ("") para que qualquer pedestre conte para a missão de atropelamento genérica.
 	get_tree().call_group("StoryController", "notify_progress", StoryMissionData.MissionType.ROADKILL, 1.0, "")
 	
 	var parent_spawner = get_parent()
@@ -310,9 +319,6 @@ func _spawn_blood_stain(pos: Vector3):
 		tween.tween_property(stain, "modulate:a", 0.0, 1.0)
 		tween.chain().tween_callback(stain.queue_free)
 
-	# =========================================================
-	# GATILHO INVISÍVEL (CORREÇÃO DE ALTURA)
-	# =========================================================
 	var blood_trigger = Area3D.new()
 	blood_trigger.collision_layer = 0 
 	blood_trigger.collision_mask = 4294967295 
@@ -321,27 +327,21 @@ func _spawn_blood_stain(pos: Vector3):
 	var shape = CylinderShape3D.new()
 	
 	shape.radius = 0.8 * blood_stain_scale
-	shape.height = 4.0 # DE 1.0 PARA 4.0 METROS! Garante que pega a lataria
+	shape.height = 4.0 
 	
 	col_shape.shape = shape
-	col_shape.position.y = 1.5 # Levanta o cilindro do chão para abraçar o carro
+	col_shape.position.y = 1.5 
 	
 	blood_trigger.add_child(col_shape)
 	get_tree().current_scene.add_child(blood_trigger)
 	blood_trigger.global_position = floor_pos
 	
 	blood_trigger.body_entered.connect(func(body):
-		print("[DEBUG-BLOOD] Colisão detectada com: ", body.name, " (Classe: ", body.get_class(), ")")
-		
 		if body is VehicleBody3D:
-			print("[DEBUG-BLOOD] O chassi do veículo bateu na poça! Buscando TireBloodManager...")
 			var manager = body.find_child("TireBloodManager", true, false)
-			
 			if is_instance_valid(manager):
 				if manager.has_method("infect_tires"):
 					manager.infect_tires()
-			else:
-				print("[DEBUG-BLOOD] ERRO: Node TireBloodManager não encontrado.")
 	)
 	
 	var kill_timer = get_tree().create_timer(6.5)
@@ -352,6 +352,12 @@ func _spawn_blood_stain(pos: Vector3):
 		
 func reset(new_global_pos: Vector3):
 	is_dead = false
+	
+	# =====================================================================
+	# RESTAURA AS COLISÕES!
+	# =====================================================================
+	collision_layer = _initial_layer
+	collision_mask = _initial_mask
 	
 	if not is_in_group("pedestrians"):
 		add_to_group("pedestrians")

@@ -8,10 +8,20 @@ func _ready():
 		body_entered.connect(_on_body_entered)
 
 func _on_body_entered(body):
-	# Se já está descarregando, ignora novas colisões
 	if is_processing_delivery: return
 	
 	if body is BaseVehicle:
+		# =========================================================
+		# TRAVA ANTI-BOT: Bloqueia a entrega se quem bateu não for humano
+		# =========================================================
+		var input = body.get_node_or_null("%InputComponent")
+		if input and "is_bot" in input and input.is_bot:
+			print("[Delivery] Bot tentou entregar carga, bloqueado!")
+			return
+		
+		# =========================================================
+		# O RESTO DA FUNÇÃO CONTINUA NORMAL...
+		# =========================================================
 		var controller = get_tree().get_first_node_in_group("StoryController")
 		
 		if is_instance_valid(controller) and controller.get("is_mission_running"):
