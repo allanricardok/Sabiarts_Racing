@@ -1,16 +1,8 @@
 extends Node3D
 class_name TurboCometFX
 
-# ============================================================================
-# Efeito visual exclusivo para o Turbo.
-# Dispara labaredas estilo PS1 (TrickBurstStreak) a partir de Marker3D 
-# especificados no Inspetor, sem nenhuma relação com o sistema de manobras.
-# ============================================================================
-
 @export_group("Spawns (Markers)")
-## Arraste os Marker3D (ex: escapamentos) para cá!
 @export var spawn_markers : Array[NodePath]
-## Marque isso se o fogo estiver saindo pela frente do escapamento ao invés de trás
 @export var flip_marker_direction : bool = false
 
 @export_group("Labaredas do Turbo")
@@ -20,8 +12,6 @@ class_name TurboCometFX
 @export var streak_width : float = 2.0
 @export var streak_duration : float = 0.7
 @export var spread_degrees : float = 10.0
-
-## NOVO: Rotação aleatória no próprio eixo (Roll) para criar volume 3D
 @export var random_roll_degrees : float = 180.0
 
 @export var color_hot : Color = Color(0.68, 0.93, 1.0)
@@ -35,10 +25,13 @@ const POOL_SIZE := 32
 var _pool: Array[TrickBurstStreak] = []
 var _shared_mesh: ArrayMesh
 
+# ============================================================================
+# OTIMIZAÇÃO: MEMÓRIA CACHE
+# ============================================================================
+var _cached_markers: Array[Node3D] = []
+var _is_bot: bool = false
+
 func _ready() -> void:
-	# REMOVIDO o top_level = true! Agora ele é um filho normal do carro
-	# e vai rotacionar e se mover grudado nele.
-	
 	_build_shared_mesh()
 	
 	for i in range(POOL_SIZE):
@@ -47,57 +40,54 @@ func _ready() -> void:
 		s.visible = false
 		s.set_process(false)
 		_pool.append(s)
+		
+	# Validação atrasada para garantir que o cérebro do Bot já configurou o Input
+	call_deferred("_late_setup")
 
-# ============================================================================
-# NOVA FUNÇÃO CHAMADA PELA SEQUÊNCIA DO TURBO (PS1 Flicker Style)
-# Substitui a burst_fire original por disparos controlados por multiplicador.
-# ============================================================================
-func burst_fire_sequenced(total_size_multiplier: float) -> void:
-	var valid_markers = []
+func _late_setup() -> void:
+	# 1. Cache da identidade (Bot ou Humano) com o método otimizado
+	var car = owner
+	if is_instance_valid(car):
+		var input_comp = car.get_node_or_null("%InputComponent")
+		if is_instance_valid(input_comp) and "is_bot" in input_comp:
+			_is_bot = input_comp.is_bot
+
+	# 2. Cache dos marcadores de escapamento (Evita get_node em tempo de execução)
 	for path in spawn_markers:
 		var node = get_node_or_null(path)
 		if node is Node3D:
-			valid_markers.append(node)
-			
-	if valid_markers.is_empty():
+			_cached_markers.append(node)
+
+func burst_fire_sequenced(total_size_multiplier: float) -> void:
+	# DESCOMENTE A LINHA ABAIXO SE QUISER QUE BOTS NÃO TENHAM VISUAL DE TURBO (Poupa muita GPU)
+	# if _is_bot: return
+
+	if _cached_markers.is_empty():
 		return
 		
-	var streaks_per_marker = max(1, streak_count / valid_markers.size())
+	var streaks_per_marker = max(1, streak_count / _cached_markers.size())
 	
-	for marker in valid_markers:
-		var dir = marker.global_transform.basis.z
-		if flip_marker_direction:
-			dir = -dir
-			
-		_spawn_streaks_sequenced(marker.global_position, dir.normalized(), streaks_per_marker, total_size_multiplier)
+	for marker in _cached_markers:
+		if is_instance_valid(marker):
+			var dir = marker.global_transform.basis.z
+			if flip_marker_direction:
+				dir = -dir
+				
+			_spawn_streaks_sequenced(marker.global_position, dir.normalized(), streaks_per_marker, total_size_multiplier)
 
-# ============================================================================
-# NOVA FUNÇÃO DE SPAWN (Aplica o escalonamento 3D total no nó do Pool)
-# ============================================================================
 func _spawn_streaks_sequenced(origin: Vector3, base_dir: Vector3, count: int, overall_multiplier: float) -> void:
 	for i in range(count):
 		var s := _get_free_streak()
 		if not s: continue
 		var dir := _jitter_direction(base_dir, spread_degrees)
 		
-		# Calcula o comprimento original e aplica o multiplicador da sequência nele
 		var original_length := randf_range(streak_length_min, streak_length_max)
 		var final_length := original_length * overall_multiplier
 		
-		# LANÇA a labareda normalmente. O script 'TrickBurstStreak' só escala o eixo Y.
 		s.launch(origin, dir, final_length, _shared_mesh, Color(1, 1, 1, 1), streak_duration * randf_range(0.85, 1.15))
 		
-		# ====================================================================
-		# O TRUQUE 3D: Escalonamos os eixos X e Z do nó NA MÃO
-		# Isso garante que a labareda fique mais gorda e volumosa junto com
-		# o aumento de comprimento do Y!
-		# ====================================================================
-		# Nós queremos que o tamanho final da labareda (em volume) 
-		# seja o multiplicador total da sequência.
 		s.scale.x = overall_multiplier
 		s.scale.z = overall_multiplier
-		# (O s.launch() lá em cima já definiu o s.scale.y = final_length!)
-		# ====================================================================
 		
 		var roll = deg_to_rad(randf_range(-random_roll_degrees, random_roll_degrees))
 		s.rotate_object_local(Vector3.UP, roll)
@@ -110,8 +100,11 @@ func _get_free_streak() -> TrickBurstStreak:
 
 func _jitter_direction(base_dir: Vector3, cone_degrees: float) -> Vector3:
 	var right := base_dir.cross(Vector3.UP)
-	if right.length() < 0.01:
+	
+	# OTIMIZAÇÃO: length_squared() poupa raiz quadrada
+	if right.length_squared() < 0.0001:
 		right = base_dir.cross(Vector3.RIGHT)
+		
 	right = right.normalized()
 	var up := right.cross(base_dir).normalized()
 	
@@ -150,13 +143,11 @@ func _build_shared_mesh() -> void:
 		else:
 			col = color_mid.lerp(color_tip, (t_mid - 0.5) * 2.0)
 		
-		# 4 Vértices originais (Plano Horizontal)
 		var v0 = Vector3(-w1, t1, 0)
 		var v1 = Vector3(w1, t1, 0)
 		var v2 = Vector3(-w2, t2, 0)
 		var v3 = Vector3(w2, t2, 0)
 		
-		# MAIS 4 Vértices cruzados em 90 graus (Plano Vertical)
 		var v4 = Vector3(0, t1, -w1)
 		var v5 = Vector3(0, t1, w1)
 		var v6 = Vector3(0, t2, -w2)
@@ -167,10 +158,9 @@ func _build_shared_mesh() -> void:
 		
 		colors.append_array([col, col, col, col, col, col, col, col])
 		
-		# Desenha os DOIS quadrados entrelaçados
 		indices.append_array([
-			base_idx, base_idx+1, base_idx+2, base_idx+1, base_idx+3, base_idx+2, # Horizontal
-			base_idx+4, base_idx+5, base_idx+6, base_idx+5, base_idx+7, base_idx+6  # Vertical
+			base_idx, base_idx+1, base_idx+2, base_idx+1, base_idx+3, base_idx+2, 
+			base_idx+4, base_idx+5, base_idx+6, base_idx+5, base_idx+7, base_idx+6  
 		])
 		
 	var arrays := []

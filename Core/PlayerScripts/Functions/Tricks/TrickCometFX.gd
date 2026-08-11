@@ -2,20 +2,14 @@ extends Node3D
 class_name TrickCometTailFX
 
 # ============================================================================
-# Cauda de cometa/bola de fogo pro trick FIREBALL. Dispara um leque de
-# labaredas retas saindo de baixo do carro, ~45° pra trás/baixo, toda vez
-# que o StuntProcessor emite "special_trick_triggered" com "FIREBALL".
+# Cauda de cometa/bola de fogo pro trick FIREBALL.
 # ============================================================================
 
 @onready var car = owner as VehicleBody3D
 
 @export_group("Direção")
-## Se a cauda sair pela FRENTE do carro em vez de por trás, marque isso
-## pra inverter qual eixo local é tratado como "traseira"
 @export var flip_forward_axis : bool = false
-## Ângulo de espalhamento (cone) entre as labaredas, em graus
 @export var spread_degrees : float = 13.0
-## Origem local em relação ao centro do carro (X=lateral, Y=altura, Z=frente/trás)
 @export var origin_offset : Vector3 = Vector3(0, -0.3, 0)
 
 @export_group("Labaredas")
@@ -24,13 +18,9 @@ class_name TrickCometTailFX
 @export var streak_length_max : float = 8.0
 @export var streak_width : float = 2.0
 @export var streak_duration : float = 0.7
-## Cor perto do carro (núcleo quente - Azul Claro)
 @export var color_hot : Color = Color(0.68, 0.93, 1.0)
-## Cor no meio da labareda (Laranja)
 @export var color_mid : Color = Color(1.0, 0.6, 0.0)
-## Cor na ponta (já apagando — deixe alpha 0)
 @export var color_tip : Color = Color(1.0, 0.5, 0.0, 0.0)
-## Curva de largura ao longo da labareda. Vazio = formato de chama padrão.
 @export var width_curve : Curve
 
 @export_range(3, 15, 1) var streak_segments : int = 6
@@ -41,7 +31,7 @@ var _shared_mesh: ArrayMesh
 var _stunt_processor: Node = null
 
 func _ready() -> void:
-	top_level = true # segue só a POSIÇÃO do carro, nunca a rotação
+	top_level = true 
 	_build_shared_mesh()
 	
 	for i in range(POOL_SIZE):
@@ -51,14 +41,12 @@ func _ready() -> void:
 		s.set_process(false)
 		_pool.append(s)
 	
-	# CORREÇÃO: Atrasa a conexão para garantir que os componentes de movimento já nasceram!
 	call_deferred("_conectar_sinais_com_atraso")
 
 func _conectar_sinais_com_atraso() -> void:
 	if is_instance_valid(car):
+		# OTIMIZAÇÃO: Busca O(1) pelo Unique Node, sem fallback lento.
 		var air_move = car.get_node_or_null("%AirMovementComponent")
-		if not air_move:
-			air_move = car.find_child("AirMovementComponent", true, false)
 			
 		if is_instance_valid(air_move):
 			_stunt_processor = air_move.get("stunt_processor")
@@ -78,15 +66,15 @@ func _burst() -> void:
 	if not is_instance_valid(car):
 		return
 	
-	# Achata a componente vertical do "eixo traseiro" antes de misturar com
-	# DOWN — assim o ângulo fica sempre ~45° de verdade, mesmo se o carro
-	# estiver levemente inclinado no momento do disparo.
 	var back: Vector3 = car.global_transform.basis.z if not flip_forward_axis else -car.global_transform.basis.z
 	back.y = 0
-	if back.length() < 0.001:
+	
+	# OTIMIZAÇÃO: length_squared() poupa o processador
+	if back.length_squared() < 0.000001:
 		back = Vector3.FORWARD
+		
 	back = back.normalized()
-	var base_dir: Vector3 = (back + Vector3.DOWN).normalized() # bissetriz = 45°
+	var base_dir: Vector3 = (back + Vector3.DOWN).normalized() 
 
 	var origin: Vector3 = car.global_position + car.global_transform.basis * origin_offset
 	for i in range(streak_count):
@@ -104,8 +92,11 @@ func _get_free_streak() -> TrickBurstStreak:
 
 func _jitter_direction(base_dir: Vector3, cone_degrees: float) -> Vector3:
 	var right := base_dir.cross(Vector3.UP)
-	if right.length() < 0.01:
+	
+	# OTIMIZAÇÃO: length_squared() novamente!
+	if right.length_squared() < 0.0001:
 		right = base_dir.cross(Vector3.RIGHT)
+		
 	right = right.normalized()
 	var up := right.cross(base_dir).normalized()
 	
@@ -116,7 +107,6 @@ func _jitter_direction(base_dir: Vector3, cone_degrees: float) -> Vector3:
 	dir = dir.rotated(right, pitch)
 	return dir.normalized()
 
-# Constrói a malha compartilhada usando QUADS (estilo PS1)
 func _build_shared_mesh() -> void:
 	var curve := width_curve
 	if not curve:
@@ -134,7 +124,6 @@ func _build_shared_mesh() -> void:
 		var t1 := float(i) / float(streak_segments)
 		var t2 := float(i + 1) / float(streak_segments)
 		
-		# O meio do segmento decide a cor sólida deste bloco
 		var t_mid := (t1 + t2) * 0.5
 		
 		var w1: float = (curve.sample(t1) * streak_width) * 0.5
@@ -146,7 +135,6 @@ func _build_shared_mesh() -> void:
 		else:
 			col = color_mid.lerp(color_tip, (t_mid - 0.5) * 2.0)
 		
-		# 4 Vértices do bloco (Trapezóide plano)
 		var v0 = Vector3(-w1, t1, 0)
 		var v1 = Vector3(w1, t1, 0)
 		var v2 = Vector3(-w2, t2, 0)
@@ -155,10 +143,8 @@ func _build_shared_mesh() -> void:
 		var base_idx = verts.size()
 		verts.append_array([v0, v1, v2, v3])
 		
-		# Aplica a mesma cor aos 4 cantos para matar a suavização!
 		colors.append_array([col, col, col, col])
 		
-		# Desenha os dois triângulos que formam esse quadriculado
 		indices.append_array([base_idx, base_idx+1, base_idx+2, base_idx+1, base_idx+3, base_idx+2])
 	
 	var arrays := []

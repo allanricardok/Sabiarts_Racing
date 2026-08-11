@@ -5,6 +5,5 @@
 [resource]
 script = ExtResource("1_n0hx5")
 tier_name = "Kill 1 Opponent"
-target_value = 1.0
 reward_points = 500
 metadata/_custom_type_script = "uid://dcan8ccd3nmwc"

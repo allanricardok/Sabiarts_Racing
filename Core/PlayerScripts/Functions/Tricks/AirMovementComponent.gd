@@ -1,4 +1,3 @@
-# AirMovementComponent.gd (Principal)
 extends Node
 class_name AirMovementComponent
 
@@ -31,35 +30,44 @@ const SLOMO_DRAIN_INTERVAL : float = 0.1
 var was_on_ground := true
 var max_air_height := 0.0
 
+# ==============================================================================
+# OTIMIZAÇÃO: MEMÓRIA CACHE (Salva milhares de buscas por segundo)
+# ==============================================================================
+var _wall_rider: Node
+var _ability_component: Node
+var _wheels: Array[VehicleWheel3D] = []
+var _car_rid: RID
+
 func _ready():
 	original_angular_damp = car.angular_damp
 	if stunt_processor:
 		stunt_processor.setup(self, car)
+		
+	# --- PREENCHE OS CACHES NA INICIALIZAÇÃO ---
+	_wall_rider = car.get_node_or_null("%WallRideComponent")
+	_ability_component = car.get_node_or_null("%AbilityComponent")
+	_car_rid = car.get_rid()
+	
+	# Filtra as rodas uma única vez
+	for child in car.get_children():
+		if child is VehicleWheel3D:
+			_wheels.append(child)
 
 func _physics_process(delta):
 	if not car.pode_mover: return
 	
 	var orientation = car.global_transform.basis.y.dot(Vector3.UP)
-	
-	var wall_rider = car.get_node_or_null("%WallRideComponent")
-	if not wall_rider: wall_rider = car.find_child("WallRideComponent", true, false)
 			
 	var is_wallriding = false
 	var time_out_of_wall = 999.0
 	
-	if is_instance_valid(wall_rider):
-		# Lemos apenas se ele está GRUDADO. Ignoramos a flag de "exiting" de 0.5s!
-		is_wallriding = wall_rider.get("is_wallriding")
-		time_out_of_wall = wall_rider.get("time_since_last_wallride")
+	# OTIMIZAÇÃO: Consulta direta da memória, sem procurar na árvore
+	if is_instance_valid(_wall_rider):
+		is_wallriding = _wall_rider.get("is_wallriding")
+		time_out_of_wall = _wall_rider.get("time_since_last_wallride")
 	
 	var is_on_ground = false
 	
-	# =========================================================
-	# BLINDAGEM DE PROTEÇÃO:
-	# O chão só é ignorado se estiver surfando ou tentando um Transfer.
-	# Adicionamos 'orientation > 0.3' para garantir que, se o carro 
-	# capotar, ele perde o direito a essa proteção na mesma hora!
-	# =========================================================
 	var is_transfer_protected = (time_out_of_wall < 0.5) and input.is_stunt_pressed and (orientation > 0.3)
 	
 	if not is_wallriding and not is_transfer_protected:
@@ -81,17 +89,10 @@ func _physics_process(delta):
 	if not is_on_ground:
 		max_air_height = max(max_air_height, car.global_position.y)
 		
-		# =========================================================
-		# COYOTE TIME CORRIGIDO
-		# Se a orientação for menor que 0.3 (capotado), cancelamos o Coyote.
-		# Isso obriga a lógica do ar a passar a proximidade real pro TrickManager,
-		# permitindo que ele zere o combo ANTES do reset virar o carro pra cima!
-		# =========================================================
 		var is_coyote_air_active = (time_out_of_wall < 1.0) and (orientation > 0.3)
 		
 		_handle_air_logic(delta, is_coyote_air_active)
 	else:
-		# Pousou de verdade! Sem delays artificiais de 0.5s.
 		if not was_on_ground:
 			var fall_distance = max_air_height - car.global_position.y
 			if fall_distance > 10.0:
@@ -117,19 +118,14 @@ func _handle_air_logic(delta, forcing_coyote: bool):
 			_set_slow_motion(false)
 		get_viewport().set_input_as_handled()
 		
-	# =========================================================
-	# BLINDAGEM DO TRICK MANAGER
-	# Se estiver no Coyote Time, forçamos o near_ground a ser FALSO.
-	# Impede que a UI feche o combo meio segundo antes do carro bater.
-	# =========================================================
 	var near_ground = false if forcing_coyote else is_near_ground()
 	
 	trick_manager.process_air_time(delta, near_ground)
 	
-	var wall_rider = car.get_node_or_null("%WallRideComponent")
-	if not wall_rider: wall_rider = car.find_child("WallRideComponent", true, false)
+	# OTIMIZAÇÃO: Consulta direta da memória
+	var is_riding = is_instance_valid(_wall_rider) and _wall_rider.get("is_wallriding")
 	
-	if not is_instance_valid(wall_rider) or not wall_rider.get("is_wallriding"):
+	if not is_riding:
 		_apply_fast_fall(delta)
 		_handle_air_control(delta)
 		
@@ -137,28 +133,22 @@ func _handle_air_logic(delta, forcing_coyote: bool):
 			stunt_processor.process_stunt_rotation(delta)
 
 func check_grounded() -> bool:
-	# =========================================================
-	# BLINDAGEM DO WALL-JUMP: Regra de Ouro da Física
-	# Se a velocidade Y é maior que 2.0 (o carro está subindo),
-	# é impossível aterrissar. Retorna falso e protege o salto!
-	# =========================================================
 	if car.linear_velocity.y > 2.0:
 		return false
 
 	var space_state = car.get_world_3d().direct_space_state
 	var valid_ground_found = false
 	
-	for child in car.get_children():
-		if child is VehicleWheel3D and child.is_in_contact():
-			# Raio míope: enxerga apenas 20cm além da roda
-			var ray_dist = child.wheel_radius + 0.2
-			var query = PhysicsRayQueryParameters3D.create(child.global_position, child.global_position + (Vector3.DOWN * ray_dist))
-			query.exclude = [car.get_rid()]
+	# OTIMIZAÇÃO: Iteramos apenas pelas 4 rodas pré-salvas!
+	for wheel in _wheels:
+		if is_instance_valid(wheel) and wheel.is_in_contact():
+			var ray_dist = wheel.wheel_radius + 0.2
+			var query = PhysicsRayQueryParameters3D.create(wheel.global_position, wheel.global_position + (Vector3.DOWN * ray_dist))
+			query.exclude = [_car_rid]
 			query.hit_from_inside = true
 			
 			var result = space_state.intersect_ray(query)
 			
-			# Chão plano ou rampa suave
 			if result and result.normal.y > 0.8:
 				valid_ground_found = true
 				break
@@ -188,16 +178,16 @@ func execute_stunt_command(axis: Vector3, trick_id: String):
 	stunt_processor.initiate_stunt(axis, trick_id)
 
 func _modify_energy(amount: float) -> bool:
-	var ability = car.get_node_or_null("%AbilityComponent")
-	if not ability: return false
+	# OTIMIZAÇÃO: Usar a referência guardada na memória
+	if not is_instance_valid(_ability_component): return false
 	
 	if amount < 0: 
-		if ability.current_energy >= abs(amount):
-			ability.current_energy -= abs(amount)
+		if _ability_component.current_energy >= abs(amount):
+			_ability_component.current_energy -= abs(amount)
 			return true
 		return false
 	
-	ability.current_energy = min(ability.current_energy + amount, ability.MAX_ENERGY)
+	_ability_component.current_energy = min(_ability_component.current_energy + amount, _ability_component.MAX_ENERGY)
 	return true
 
 func _handle_air_control(delta):
@@ -214,7 +204,8 @@ func _apply_fast_fall(_delta):
 func is_near_ground() -> bool:
 	var space_state = car.get_world_3d().direct_space_state
 	var query = PhysicsRayQueryParameters3D.create(car.global_position, car.global_position + Vector3.DOWN * FALL_FORCE_BUFFER_DISTANCE, 1)
-	query.exclude = [car.get_rid()]
+	# OTIMIZAÇÃO: RID do carro pré-cacheado
+	query.exclude = [_car_rid]
 	return space_state.intersect_ray(query).size() > 0
 
 func _set_slow_motion(active: bool):

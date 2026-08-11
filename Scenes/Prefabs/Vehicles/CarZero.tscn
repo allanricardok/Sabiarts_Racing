@@ -1,4 +1,4 @@
-[gd_scene load_steps=62 format=3 uid="uid://ry75iugdg8sl"]
+[gd_scene load_steps=63 format=3 uid="uid://ry75iugdg8sl"]
 
 [ext_resource type="Script" uid="uid://b0i2wvnkcrknc" path="res://Core/PlayerScripts/Functions/BaseVehicle.gd" id="1_drg00"]
 [ext_resource type="PackedScene" uid="uid://bp4khshtfj0rp" path="res://Scenes/Prefabs/Items/UniversalPickup.tscn" id="2_4a360"]
@@ -170,6 +170,9 @@ size = Vector3(0.1, 0.1, 0.5)
 [sub_resource type="BoxMesh" id="BoxMesh_a2eke"]
 size = Vector3(0.3, 0.2, 0.6)
 
+[sub_resource type="BoxMesh" id="BoxMesh_mb2us"]
+size = Vector3(0.4, 0.4, 1)
+
 [sub_resource type="BoxMesh" id="BoxMesh_apvhh"]
 size = Vector3(0.3, 0.26, 0.8)
 
@@ -193,7 +196,9 @@ brake = 1.0
 script = ExtResource("1_drg00")
 drop_item_scene = ExtResource("2_4a360")
 drop_item_resource_2 = ExtResource("4_mafvn")
-velocidade_minima_dano = 4.0
+multiplicador_dano = 1.2
+dano_maximo_por_batida = 30.0
+velocidade_minima_dano = 10.0
 shard_count = 20
 explosion_force = 10.0
 upward_bias = 5.0
@@ -1311,6 +1316,8 @@ wheel_front_left = NodePath("../../FreEsq")
 wheel_front_right = NodePath("../../FreDir")
 STEER_TORQUE_START = 20.0
 STATIONARY_TURN_SPEED = 70.0
+burnout_min_mult = 0.6
+burnout_max_mult = 2.6
 
 [node name="StatsComponent" type="Node" parent="Scripts" node_paths=PackedStringArray("health_bar", "shield_bar")]
 unique_name_in_owner = true
@@ -1318,16 +1325,18 @@ script = ExtResource("13_y0tcj")
 health_bar = NodePath("../../HUD/UI_Base/health_bar")
 shield_bar = NodePath("../../HUD/UI_Base/shield_bar")
 HEAL_SCORE_MAX = 4000.0
-HEAL_AMOUNT = 10.0
+HEAL_AMOUNT = 20.0
 
 [node name="AbilityComponent" type="Node" parent="Scripts" node_paths=PackedStringArray("energy_bar", "cooldown_bar")]
 unique_name_in_owner = true
 script = ExtResource("14_grwgp")
 COST_SHIELD = 40.0
+SHARED_COOLDOWN_TIME = 0.6
 energy_bar = NodePath("../../HUD/UI_Base/AbilityBar")
 cooldown_bar = NodePath("../../HUD/UI_Base/WeaponCooldown")
 JUMP_FORCE = 20.0
 BOOST_IMPULSE = 12.0
+SHIELD_TIME = 2.8
 
 [node name="AirMovementComponent" type="Node" parent="Scripts"]
 unique_name_in_owner = true
@@ -1372,6 +1381,7 @@ unique_name_in_owner = true
 script = ExtResource("21_hifds")
 basic_weapon_resource = ExtResource("22_3o2qt")
 fire_rate_basic = 0.1
+drop_item_scene = ExtResource("2_4a360")
 
 [node name="UIScannerComponent" type="Node3D" parent="Scripts"]
 unique_name_in_owner = true
@@ -1412,6 +1422,27 @@ light_energy = 7.803
 light_indirect_energy = 7.803
 light_volumetric_fog_energy = 1.252
 light_size = 0.52
+light_specular = 3.398
+
+[node name="BazookaMissile" type="Node3D" parent="Guns"]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.69780374, -1.0113753)
+
+[node name="Gun" type="MeshInstance3D" parent="Guns/BazookaMissile"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.88322675, 0.83795565, 1.2292895)
+mesh = SubResource("BoxMesh_mb2us")
+
+[node name="Muzzle" type="Node3D" parent="Guns/BazookaMissile"]
+transform = Transform3D(-0.99978435, 0.00036245174, 0.020764848, 0, 0.9998477, -0.017452406, -0.020768011, -0.017448641, -0.9996321, 0.89359033, 0.84993064, 1.6064427)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Guns/BazookaMissile/Muzzle"]
+transform = Transform3D(-1, -2.910383e-11, 8.754432e-08, 0, 0.99999994, 1.8626451e-09, -8.754432e-08, 1.8626451e-09, -1, -1.7881393e-07, 0.020218492, -0.26768327)
+visible = false
+light_color = Color(1.8247963, 0.56862915, 0.14990671, 1)
+light_energy = 20.0
+light_indirect_energy = 8.0
+light_volumetric_fog_energy = 2.0
+light_size = 0.8
 light_specular = 3.398
 
 [node name="HomingMissile" type="Node3D" parent="Guns"]

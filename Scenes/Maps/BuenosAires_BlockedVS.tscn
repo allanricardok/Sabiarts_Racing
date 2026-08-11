@@ -1,4 +1,4 @@
-[gd_scene load_steps=342 format=3 uid="uid://d1rl8sskrmddj"]
+[gd_scene load_steps=343 format=3 uid="uid://d1rl8sskrmddj"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_u8o8m"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="3_is8dr"]
@@ -15,9 +15,9 @@
 [ext_resource type="PackedScene" uid="uid://8xllk2f6a63v" path="res://Assets/3D/Obake/vigilante_v8_2nd_offence_obakes_tsunami.glb" id="12_vj8u6"]
 [ext_resource type="Resource" uid="uid://dc3tjey7savae" path="res://Resources/Weapons/FreezingMissile.tres" id="13_textq"]
 [ext_resource type="Script" uid="uid://srf4jbjqbkxl" path="res://Core/Objectives/GapPoint.gd" id="14_textq"]
+[ext_resource type="Resource" uid="uid://dbg4l707jov5u" path="res://Resources/Weapons/BazookaMissile.tres" id="15_d03gb"]
 [ext_resource type="Resource" uid="uid://hv86l3gypxgx" path="res://Resources/Items/HealthItem.tres" id="15_o7pxb"]
 [ext_resource type="Material" uid="uid://bm18uj2x8wy00" path="res://Assets/3D/tests/Material.003.tres" id="16_6fv6f"]
-[ext_resource type="PackedScene" uid="uid://d08nc5o3ey67t" path="res://Scenes/Prefabs/Enemies/EnemyTurret.tscn" id="16_af68g"]
 [ext_resource type="Script" uid="uid://dfiw2dqlt7svm" path="res://Core/Objectives/ExplorationArea.gd" id="17_ioiyf"]
 [ext_resource type="PackedScene" uid="uid://cdg3xi8hhsm0t" path="res://Scenes/Prefabs/Items/BoostPad.tscn" id="17_stypw"]
 [ext_resource type="Script" uid="uid://uicfpkggfvm4" path="res://Core/Objectives/DeliveryArea.gd" id="18_fuc6a"]
@@ -68,6 +68,7 @@
 [ext_resource type="Resource" uid="uid://ce3l3wihc7d4n" path="res://Resources/MapMissions/Missions/Missao_Teste_DESTROY.tres" id="51_ynl81"]
 [ext_resource type="Resource" uid="uid://co81ub7qh40jo" path="res://Resources/MapMissions/Missions/Missao_Teste_DELIVERY.tres" id="53_kbvtn"]
 [ext_resource type="PackedScene" uid="uid://dpwm3nbh0pryq" path="res://Scenes/UI/TokenRewardUI.tscn" id="54_g7yph"]
+[ext_resource type="Resource" uid="uid://bm5ftfnhiycvr" path="res://Resources/MapMissions/Missions/Missao_Teste_CARNAGEputaria.tres" id="57_0wot0"]
 [ext_resource type="Script" uid="uid://uacqxwc54p58" path="res://Core/GeneralObjects/HoloWall.gd" id="61_pe38o"]
 [ext_resource type="Shader" uid="uid://t04eyi1mmkys" path="res://Scenes/Prefabs/MapObjects/HoloWall.gdshader" id="62_d03gb"]
 
@@ -1820,9 +1821,19 @@ pickup_scene = ExtResource("9_kxusw")
 specific_item = ExtResource("13_textq")
 
 [node name="ItemSpawner20" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Pickups" instance=ExtResource("8_haj77")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 253.76178, 1.1229267, -132.734)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 156.97229, 1.1229267, -132.734)
 pickup_scene = ExtResource("9_kxusw")
 specific_item = ExtResource("13_textq")
+
+[node name="ItemSpawner22" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Pickups" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 234.08044, 1.1229267, -153.11302)
+pickup_scene = ExtResource("9_kxusw")
+specific_item = ExtResource("15_d03gb")
+
+[node name="ItemSpawner23" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Pickups" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -108.975044, 1.1229267, 43.805313)
+pickup_scene = ExtResource("9_kxusw")
+specific_item = ExtResource("15_d03gb")
 
 [node name="ItemSpawner21" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Pickups" instance=ExtResource("8_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 253.76178, 1.1229267, -55.033195)
@@ -3697,88 +3708,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -401.46768, 3.3173256, -135.6
 pickup_scene = ExtResource("9_kxusw")
 respawn_time = 80.0
 specific_item = ExtResource("15_o7pxb")
-
-[node name="Enemies" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap"]
-
-[node name="EnemyTurret" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Enemies" instance=ExtResource("16_af68g")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -118.67566, 0.337847, -222.67848)
-drop_item_scene = ExtResource("9_kxusw")
-drop_item_resource = ExtResource("10_75jtm")
-explosion_force = 5.0
-shard_lifetime = 1.5
-scatter_radius = 1.0
-shard_min_size = 1.3
-shard_max_size = 2.5
-
-[node name="EnemyTurret2" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Enemies" instance=ExtResource("16_af68g")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -179.46042, 0.33784318, -199.57048)
-drop_item_scene = ExtResource("9_kxusw")
-drop_item_resource = ExtResource("10_75jtm")
-explosion_force = 5.0
-shard_lifetime = 1.5
-scatter_radius = 1.0
-shard_min_size = 1.3
-shard_max_size = 2.5
-
-[node name="EnemyTurret3" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Enemies" instance=ExtResource("16_af68g")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -179.46042, 0.33784318, -284.34042)
-drop_item_scene = ExtResource("9_kxusw")
-drop_item_resource = ExtResource("10_75jtm")
-explosion_force = 5.0
-shard_lifetime = 1.5
-scatter_radius = 1.0
-shard_min_size = 1.3
-shard_max_size = 2.5
-
-[node name="EnemyTurret4" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Enemies" instance=ExtResource("16_af68g")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -114.14749, 0.3378451, -223.14473)
-drop_item_scene = ExtResource("9_kxusw")
-drop_item_resource = ExtResource("10_75jtm")
-explosion_force = 5.0
-shard_lifetime = 1.5
-scatter_radius = 1.0
-shard_min_size = 1.3
-shard_max_size = 2.5
-
-[node name="EnemyTurret5" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Enemies" instance=ExtResource("16_af68g")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -149.58037, 19.089838, -264.41394)
-drop_item_scene = ExtResource("9_kxusw")
-drop_item_resource = ExtResource("10_75jtm")
-explosion_force = 5.0
-shard_lifetime = 1.5
-scatter_radius = 1.0
-shard_min_size = 1.3
-shard_max_size = 2.5
-
-[node name="EnemyTurret6" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Enemies" instance=ExtResource("16_af68g")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -149.58037, 19.089838, -223.63168)
-drop_item_scene = ExtResource("9_kxusw")
-drop_item_resource = ExtResource("10_75jtm")
-explosion_force = 5.0
-shard_lifetime = 1.5
-scatter_radius = 1.0
-shard_min_size = 1.3
-shard_max_size = 2.5
-
-[node name="EnemyTurret7" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Enemies" instance=ExtResource("16_af68g")]
-transform = Transform3D(0.9096498, -0.14723182, -0.3884071, 0, 0.9350734, -0.35445425, 0.41537607, 0.32242924, 0.8505893, -109.684845, 52.989742, -200.63474)
-drop_item_scene = ExtResource("9_kxusw")
-drop_item_resource = ExtResource("10_75jtm")
-explosion_force = 5.0
-shard_lifetime = 1.5
-scatter_radius = 1.0
-shard_min_size = 1.3
-shard_max_size = 2.5
-
-[node name="EnemyTurret8" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Enemies" instance=ExtResource("16_af68g")]
-transform = Transform3D(0.71920645, 0.24627352, 0.6496857, -1.3554838e-08, 0.9350734, -0.35445425, -0.6947965, 0.25492576, 0.67251074, 18.3152, 38.26361, -19.700027)
-drop_item_scene = ExtResource("9_kxusw")
-drop_item_resource = ExtResource("10_75jtm")
-explosion_force = 5.0
-shard_lifetime = 1.5
-scatter_radius = 1.0
-shard_min_size = 1.3
-shard_max_size = 2.5
 
 [node name="AbilityTeleportMarkers" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap"]
 
@@ -7415,6 +7344,31 @@ billboard = 1
 modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
 outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
 text = "Carnage"
+font_size = 30
+outline_size = 20
+uppercase = true
+
+[node name="CARNAGE2" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -252.69234, 1.9364719, 47.982536)
+disable_mode = 2
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("40_4e1cd")
+mission_data = ExtResource("57_0wot0")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/CARNAGE2"]
+shape = SubResource("SphereShape3D_44s4c")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/CARNAGE2"]
+mesh = SubResource("SphereMesh_ioiyf")
+
+[node name="Label3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/CARNAGE2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.9194775, 0)
+pixel_size = 0.05
+billboard = 1
+modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
+outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
+text = "Carnage Putaria"
 font_size = 30
 outline_size = 20
 uppercase = true

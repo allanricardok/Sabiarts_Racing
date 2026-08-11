@@ -1,4 +1,3 @@
-# BaseProjectile.gd
 extends Area3D
 class_name BaseProjectile
 
@@ -6,6 +5,21 @@ class_name BaseProjectile
 @export var knockback_force: float = 50.0 
 # O valor base de trepidação da câmera gerado por essa munição
 @export var base_shake_force: float = 0.10 
+
+# ============================================================================
+# NOVO: SISTEMA DE EXPLOSÃO EM ÁREA (AoE)
+# ============================================================================
+@export_group("Area of Effect (AoE)")
+## Se ativo, o projétil explode e causa dano/empurrão em área no impacto
+@export var causes_aoe_damage: bool = false
+## Raio de alcance da explosão em metros
+@export var aoe_radius: float = 5.0
+## Dano causado a quem estiver dentro da área
+@export var aoe_damage: float = 5.0
+## Força do empurrão da explosão
+@export var aoe_knockback: float = 20.0
+## Porcentagem do dano em área que o PRÓPRIO ATIRADOR recebe (0.0 = 0% | 1.0 = 100%)
+@export_range(0.0, 1.0) var self_damage_multiplier: float = 0.25
 
 var damage: float = 0.0
 var shooter: Node3D = null
@@ -96,6 +110,7 @@ func _on_impact(target_node):
 			
 	hit_done = true
 	
+	# 1. Aplica o Dano Direto na "vítima principal"
 	if actual_target.has_method("take_damage"):
 		actual_target.take_damage(damage, self) 
 		
@@ -103,15 +118,18 @@ func _on_impact(target_node):
 	if is_instance_valid(shooter):
 		var rage = shooter.get_node_or_null("%RageComponent")
 		if rage and rage.has_method("add_hit"):
-			# Agora passamos o alvo, o dano, e se é arma especial!
 			rage.add_hit(actual_target, damage, is_special_weapon)
+	
+	# =====================================================================
+	# GATILHO DA EXPLOSÃO EM ÁREA
+	# =====================================================================
+	if causes_aoe_damage:
+		_apply_aoe_damage(actual_target)
 	
 	_play_impact_vfx()
 
 func _play_impact_vfx():
 	# === CORREÇÃO DO SCREENSHAKE INFINITO ===
-	# Só executamos o tremor de impacto em área se a arma for uma explosão real (is_special_weapon).
-	# Isso impede que a MachineGun cause "terremotos" a cada 0.1s.
 	if is_special_weapon:
 		var jogadores = get_tree().get_nodes_in_group("jogadores")
 		
@@ -139,17 +157,81 @@ func _deactivate_and_pool():
 	velocity = Vector3.ZERO
 	is_special_weapon = false
 	
-	# Devolve a bala pro almoxarifado em vez de jogar no lixo!
 	if ProjectilePool.has_method("return_projectile"):
 		ProjectilePool.return_projectile(self)
 	else:
 		queue_free()
 
-# === FUNÇÃO AUXILIAR PARA ACHAR O NODE ===
-# Como o CameraShake é filho da câmera e não do script do carro diretamente,
-# essa função faz uma busca segura pelos filhos para garantir que vamos achar o script.
 func _get_camera_shake(car_node: Node3D) -> CameraShake:
 	var shakes = car_node.find_children("*", "CameraShake", true, false)
 	if shakes.size() > 0:
 		return shakes[0] as CameraShake
 	return null
+
+# ============================================================================
+# FÍSICA E DANO DA EXPLOSÃO EM ÁREA
+# ============================================================================
+func _apply_aoe_damage(direct_target: Node3D):
+	var space_state = get_world_3d().direct_space_state
+	var query = PhysicsShapeQueryParameters3D.new()
+	var sphere = SphereShape3D.new()
+	sphere.radius = aoe_radius
+	
+	query.shape = sphere
+	query.transform = global_transform
+	query.exclude = [self.get_rid()]
+	
+	# Detecta tudo dentro do raio da explosão
+	var results = space_state.intersect_shape(query, 32)
+	
+	for hit in results:
+		var collider = hit.collider
+		if not is_instance_valid(collider): continue
+		
+		var damage_mult = 1.0
+		
+# --- REGRA 1: O ATIRADOR ---
+		var is_shooter = false
+		if is_instance_valid(shooter):
+			if collider == shooter or collider == shooter.owner:
+				is_shooter = true
+				
+		if is_shooter:
+			if self_damage_multiplier <= 0.0:
+				continue # Se for 0, o atirador sai ileso (ignora dano e física)
+			damage_mult = self_damage_multiplier
+			
+		# --- REGRA 2: O ALVO PRIMÁRIO ---
+		elif collider == direct_target:
+			damage_mult = 0.25 # Alvo que tomou na cara recebe +25% de dano da explosão
+			
+		var final_splash_damage = aoe_damage * damage_mult
+		var final_splash_knockback = aoe_knockback * damage_mult
+		
+# --- APLICA O EMPURRÃO (FÍSICA) ---
+		if collider is RigidBody3D or collider is VehicleBody3D:
+			# =========================================================
+			# Trava de segurança MÁXIMA do Jolt Physics! 
+			# Ignora fantasmas e objetos na fila de exclusão
+			# =========================================================
+			if not is_instance_valid(collider) or collider.is_queued_for_deletion() or not collider.is_inside_tree(): 
+				continue
+				
+			if "sleeping" in collider: collider.sleeping = false
+			
+			var push_dir = (collider.global_position - global_position).normalized()
+			push_dir.y = max(0.5, push_dir.y) # Garante que a explosão joga as coisas pra cima
+			
+			var obj_mass = collider.mass if "mass" in collider else 1.0
+			var final_impulse = push_dir * (final_splash_knockback * obj_mass)
+			
+			collider.apply_impulse(final_impulse)
+			
+		# --- APLICA O DANO SPLASH ---
+		if collider.has_method("take_damage"):
+			collider.take_damage(final_splash_damage, shooter)
+		else:
+			# Procura o componente de status se for um objeto segmentado
+			var stats = collider.find_child("StatsComponent*", true, false)
+			if stats and stats.has_method("take_damage"):
+				stats.take_damage(final_splash_damage, shooter)

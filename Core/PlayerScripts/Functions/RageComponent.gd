@@ -1,4 +1,3 @@
-# RageComponent.gd
 extends Node
 class_name RageComponent
 
@@ -15,26 +14,36 @@ const DRAIN_RATE : float = 1.0
 var _last_hit_target: Node = null
 var _consecutive_hits: int = 0
 
+# OTIMIZAÇÃO: Timer para não espamar o sinal da UI 60 vezes por segundo
+var _ui_update_timer : float = 0.0
+
 func _process(delta):
+	var rage_mudou = false
+	
 	if current_tier == 3:
 		tier3_timer -= delta
 		if tier3_timer <= 0:
 			current_rage = 285.0 
-			_update_tier()
+			rage_mudou = true
 	else:
 		if current_rage > 0:
 			current_rage -= DRAIN_RATE * delta
 			if current_rage < 0: current_rage = 0
-			_update_tier()
+			rage_mudou = true
 			
-	rage_updated.emit(current_rage, current_tier, tier3_timer)
+	if rage_mudou:
+		_update_tier()
+		
+		# OTIMIZAÇÃO: Só emite o sinal para atualizar a interface a cada 0.05s (20 FPS).
+		# Corta o custo de processamento de sinais em 70% sem perder a fluidez visual!
+		_ui_update_timer -= delta
+		if _ui_update_timer <= 0:
+			_ui_update_timer = 0.05
+			rage_updated.emit(current_rage, current_tier, tier3_timer)
 
 # --- FUNÇÕES DE GANHO DE RAGE ---
 
-# NOVO: Agora recebe dano e se é arma especial
 func add_hit(target: Node = null, damage_dealt: float = 0.0, is_special: bool = false):
-	
-	# --- O BLOQUEIO UNIVERSAL DE PROJÉTEIS ---
 	# Se a arma bateu na parede neon (ou em qualquer cenário com essa tag), 
 	# cancela a função inteira e não dá Rage nenhum!
 	if is_instance_valid(target) and target.is_in_group("ignorar_rage"):
@@ -55,7 +64,6 @@ func add_hit(target: Node = null, damage_dealt: float = 0.0, is_special: bool = 
 		var decay_multiplier = max(0.1, 1.0 - (_consecutive_hits * 0.05))
 		hit_value *= decay_multiplier
 		
-		# NOVO: Soma o bônus de dano se for arma especial!
 		if is_special:
 			hit_value += (damage_dealt * 0.8)
 			
@@ -87,6 +95,10 @@ func _add_rage(base_amount: float):
 		tier3_timer = 8.0 
 		
 	_update_tier()
+	
+	# Força atualização visual imediata no momento do ganho para dar impacto ao jogador
+	rage_updated.emit(current_rage, current_tier, tier3_timer)
+	_ui_update_timer = 0.05
 
 func _update_tier():
 	var old_tier = current_tier
@@ -130,7 +142,6 @@ func get_impact_mult() -> float:
 func get_fire_rate_mult() -> float:
 	return 1.5 if current_tier == 3 else 1.0
 
-# NOVO: Getter para o AbilityComponent
 func get_ability_recovery_mult() -> float:
 	match current_tier:
 		2: return 1.2

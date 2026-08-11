@@ -1,4 +1,3 @@
-# GroundTrickManager.gd
 extends Node
 class_name GroundTrickManager
 
@@ -23,15 +22,48 @@ const GROUND_DATA = {
 var actions_done : Array = []
 var points_per_action : Array = []
 var tracking_combo := false
-var last_action_time := 0
 var display_version : int = 0
+
+# ==============================================================================
+# OTIMIZAÇÃO: MEMÓRIA CACHE E TIMERS
+# ==============================================================================
+var _trick_manager: Node
+var _stats_component: Node
+var _is_bot: bool = false
+var _cached_hud: Node
+var _combo_timer: float = 0.0
+
+func _ready():
+	# Armazena os nós pesados na memória uma vez
+	_trick_manager = car.get_node_or_null("%TrickManager")
+	_stats_component = car.get_node_or_null("%StatsComponent")
+	
+	call_deferred("_setup_cache")
+
+func _setup_cache():
+	var input_comp = car.get_node_or_null("%InputComponent")
+	if is_instance_valid(input_comp) and "is_bot" in input_comp:
+		_is_bot = input_comp.is_bot
+		
+	if not _is_bot:
+		for hud in get_tree().get_nodes_in_group("HUD"):
+			if is_instance_valid(car) and hud.get_viewport() == car.get_viewport():
+				_cached_hud = hud
+				break
+
+func _process(delta):
+	# OTIMIZAÇÃO: Em vez de criar instâncias de timers no GetTree para cada batida,
+	# nós simplesmente rodamos um contador regressivo direto na memória.
+	if tracking_combo and _combo_timer > 0:
+		_combo_timer -= delta
+		if _combo_timer <= 0:
+			_finalize_ground_score()
 
 func add_ground_action(id: String):
 	if not GROUND_DATA.has(id): return
 	
-	var air_tricks = car.get_node_or_null("%TrickManager") as TrickManager
-	if air_tricks and air_tricks.tracking_jump:
-		air_tricks.add_external_action(GROUND_DATA[id].name, GROUND_DATA[id].points, COLOR_GROUND)
+	if is_instance_valid(_trick_manager) and _trick_manager.tracking_jump:
+		_trick_manager.add_external_action(GROUND_DATA[id].name, GROUND_DATA[id].points, COLOR_GROUND)
 		return
 		
 	if not tracking_combo: _start_combo()
@@ -40,9 +72,8 @@ func add_ground_action(id: String):
 	_restart_inactivity_timer()
 
 func add_custom_action(custom_name: String, points: int):
-	var air_tricks = car.get_node_or_null("%TrickManager") as TrickManager
-	if air_tricks and air_tricks.tracking_jump:
-		air_tricks.add_external_action(custom_name, points, COLOR_GROUND)
+	if is_instance_valid(_trick_manager) and _trick_manager.tracking_jump:
+		_trick_manager.add_external_action(custom_name, points, COLOR_GROUND)
 		return
 		
 	if not tracking_combo: _start_combo()
@@ -85,21 +116,13 @@ func _get_dynamic_multiplier() -> float:
 			
 	return min(mult, MAX_COMBO_MULTIPLIER)
 
-# --- CORREÇÃO: Filtro Anti-Bot ---
 func _get_local_hud() -> Node:
-	# Se for um bot, NÃO retorna HUD nenhuma. O combo acontece silenciosamente no background.
-	var input_comp = car.get_node_or_null("%InputComponent")
-	if input_comp and "is_bot" in input_comp and input_comp.is_bot:
-		return null
-		
-	for hud in get_tree().get_nodes_in_group("HUD"):
-		if hud.get_viewport() == car.get_viewport():
-			return hud
-	return null
+	if _is_bot: return null
+	return _cached_hud
 
 func _update_live_display():
 	var hud = _get_local_hud()
-	if not hud: return # Se for o Bot, ele para a função de UI aqui!
+	if not is_instance_valid(hud): return 
 	
 	var grouped = {}
 	var order = []
@@ -139,19 +162,13 @@ func _finalize_ground_score():
 	var mult = _get_dynamic_multiplier()
 	var final_score = int(total_base * mult)
 
-	# Os pontos são salvos normalmente no backend (para players e bots)
 	ScoreManager.add_points(final_score, car.id)
 	
-	# ==============================================================
-	# NOVO: ENVIA A PONTUAÇÃO PARA A BARRA DE CURA
-	var stats = car.get_node_or_null("%StatsComponent")
-	if stats and stats.has_method("add_heal_score"):
-		stats.add_heal_score(final_score)
-	# ==============================================================
+	if is_instance_valid(_stats_component) and _stats_component.has_method("add_heal_score"):
+		_stats_component.add_heal_score(final_score)
 	
-	# Tenta pegar a HUD. Se for Bot, ele vai retornar nulo e cortar a função visual.
 	var hud = _get_local_hud()
-	if not hud: 
+	if not is_instance_valid(hud): 
 		tracking_combo = false
 		return 
 	
@@ -191,8 +208,4 @@ func _finalize_ground_score():
 	tracking_combo = false
 
 func _restart_inactivity_timer():
-	var current_timer_id = Time.get_ticks_msec()
-	last_action_time = current_timer_id
-	await get_tree().create_timer(COMBO_TIMEOUT).timeout
-	if last_action_time == current_timer_id:
-		if tracking_combo: _finalize_ground_score()
+	_combo_timer = COMBO_TIMEOUT

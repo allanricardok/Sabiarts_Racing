@@ -1,4 +1,3 @@
-# TrickBuilder.gd
 extends Node
 class_name TrickBuilder
 
@@ -7,7 +6,6 @@ class_name TrickBuilder
 @onready var input = %InputComponent 
 
 # --- DICIONÁRIO DE MANOBRAS ---
-# Removi multiplicadores daqui. O AirMovement usa apenas o 'axis' e o 'id'.
 const TRICK_DATA = {
 	"ROLL_L": {"name": "Roll 360", "points": 50, "axis": Vector3(0, 0, 1)}, 
 	"ROLL_R": {"name": "Roll 360", "points": 50, "axis": Vector3(0, 0, -1)},
@@ -15,7 +13,6 @@ const TRICK_DATA = {
 	"FRONTFLIP": {"name": "Frontflip", "points": 80, "axis": Vector3(1, 0, 0)},
 	"SPIN": {"name": "Spin 360", "points": 40, "axis": Vector3(0, 1, 0)},
 	
-	# ESPECIAIS: O AirMovement cuidará da força extra via SPECIAL_POWER_MULT
 	"SHIELD_SPIN": {"name": "Spin Shield", "points": 80, "axis": Vector3(0, 1, 0)},
 	"EMOTE": {"name": "Style Emote", "points": 150, "axis": Vector3(0, 1, 0)},
 	"FIREBALL": {"name": "Fireball!", "points": 100, "axis": Vector3.ZERO},
@@ -30,8 +27,29 @@ var last_input_time : int = 0
 var angle_accumulator_y := 0.0 
 var last_basis : Basis
 
+# ==============================================================================
+# OTIMIZAÇÃO: MEMÓRIA CACHE E SEGURANÇA DE INPUT
+# ==============================================================================
+var _is_bot: bool = false
+var _wall_rider: Node
+var _air_move: Node
+
 func _ready():
 	if car: last_basis = car.global_transform.basis
+	
+	# Preenche o cache na inicialização
+	_wall_rider = car.get_node_or_null("%WallRideComponent")
+	if not _wall_rider:
+		_wall_rider = car.find_child("WallRideComponent", true, false)
+		
+	_air_move = car.get_node_or_null("%AirMovementComponent")
+	
+	# Verifica se é bot um frame depois, para o BotBrain ter tempo de configurar
+	call_deferred("_late_bot_check")
+
+func _late_bot_check():
+	if is_instance_valid(input) and "is_bot" in input:
+		_is_bot = input.is_bot
 
 func process_maneuvers(_delta: float):
 	if not car or not manager: return
@@ -46,16 +64,18 @@ func process_maneuvers(_delta: float):
 		_reset_sequence()
 
 func _handle_combo_logic():
-	# --- PRIORIDADE DO WALLRIDE ---
-	# Impede de fazer manobras giratórias se o Wallride estiver ativo
-	var wall_rider = car.get_node_or_null("WallRideComponent")
-	if wall_rider and wall_rider.is_wallriding:
+	# OTIMIZAÇÃO: Bots não usam combos de botões manuais! Aborta e economiza CPU.
+	if _is_bot: return
+	
+	# OTIMIZAÇÃO: Leitura direto do cache na memória
+	if is_instance_valid(_wall_rider) and _wall_rider.get("is_wallriding"):
 		return
 
 	var stunt_action = "Stunt" + input.suffix
 	var now = Time.get_ticks_msec()
 	
-	if Input.is_action_just_pressed(stunt_action):
+	# Trava de segurança anti-crash para o InputMap
+	if InputMap.has_action(stunt_action) and Input.is_action_just_pressed(stunt_action):
 		tap_count += 1
 		last_input_time = now
 		
@@ -94,11 +114,9 @@ func _execute_trick(id: String):
 	if not TRICK_DATA.has(id): return
 	var data = TRICK_DATA[id]
 	
-	# O Builder apenas "pede" a manobra. 
-	# O AirMovementComponent decide a força baseada no ID que enviamos.
-	var air_move = car.get_node_or_null("%AirMovementComponent")
-	if air_move and air_move.has_method("execute_stunt_command"):
-		air_move.execute_stunt_command(data.axis, id)
+	# OTIMIZAÇÃO: Uso de referência do cache
+	if is_instance_valid(_air_move) and _air_move.has_method("execute_stunt_command"):
+		_air_move.execute_stunt_command(data.axis, id)
 
 func _track_rotation():
 	var current_basis = car.global_transform.basis
@@ -107,8 +125,7 @@ func _track_rotation():
 	angle_accumulator_y += euler.y
 	
 	if abs(angle_accumulator_y) >= (PI * 1.85):
-		if manager.has_method("add_trick_manually"):
-			manager.add_trick_manually("SPIN")
+		manager.add_trick_manually("SPIN")
 		angle_accumulator_y = 0.0
 
 func _reset_sequence():

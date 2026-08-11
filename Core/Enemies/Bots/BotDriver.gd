@@ -14,7 +14,7 @@ var reverse_time: float = 0.0
 var doing_stunt_timer: float = 0.0 
 
 var alvo_coletavel_atual : Node3D = null
-var last_target_dist : float = 9999.0 
+var last_target_dist_sq : float = 999999.0 
 var tempo_buscando_coletavel : float = 0.0
 
 # --- VARIÁVEIS DO ANTI-LOOP E PULO ---
@@ -33,20 +33,15 @@ func _criar_sensores():
 	ray_center = RayCast3D.new()
 	ray_right = RayCast3D.new()
 	
-	# CORREÇÃO: call_deferred resolve o erro "Parent node is busy"
 	car.call_deferred("add_child", ray_left)
 	car.call_deferred("add_child", ray_center)
 	car.call_deferred("add_child", ray_right)
 	
-	# O olho do bot fica a 1 metro do chão (altura do para-brisa)
 	var eye_height = Vector3(0, 1.0, 0)
 	ray_left.position = eye_height
 	ray_center.position = eye_height
 	ray_right.position = eye_height
 	
-	# --- MUDANÇA: INCLINAÇÃO TÁTICA (Feelers) ---
-	# Multiplicar por 0.35 faz o raio subir suavemente até ~7 metros de altura na ponta.
-	# Ele ignora rampas e o chão, mas detecta paredes e objetos grandes!
 	var tilt_up = ray_length * 0.35 
 	var tilt_up_sides = (ray_length * 0.8) * 0.35
 	
@@ -80,10 +75,10 @@ func direcionar_para_coletavel(alvo: Node3D, delta: float, radar: BotRadar) -> D
 	var steer = clamp(flat_forward.cross(flat_dir).y * 3.0, -1.0, 1.0)
 	var throttle = 1.0
 	var should_jump = false 
-	var force_straight = false # NOVO: Trava absoluta de direção e sensores
+	var force_straight = false
 	
 	var dot_p = flat_forward.dot(flat_dir)
-	var flat_dist = flat_car_pos.distance_to(flat_alvo_pos)
+	var flat_dist_sq = flat_car_pos.distance_squared_to(flat_alvo_pos)
 	var y_diff = alvo.global_position.y - car.global_position.y
 	var speed = car.linear_velocity.length()
 	var speed_kmh = speed * 3.6
@@ -93,8 +88,9 @@ func direcionar_para_coletavel(alvo: Node3D, delta: float, radar: BotRadar) -> D
 
 	# ==========================================================
 	# 1. SISTEMA ANTI-LOOP (Girar em Falso)
+	# OTIMIZAÇÃO: 400.0 é 20 metros ao quadrado
 	# ==========================================================
-	if flat_dist < 20.0 and dot_p < 0.6 and speed_kmh < 10.0:
+	if flat_dist_sq < 400.0 and dot_p < 0.6 and speed_kmh < 10.0:
 		timer_tentativa_alinhamento += delta
 	else:
 		timer_tentativa_alinhamento = 0.0
@@ -117,24 +113,25 @@ func direcionar_para_coletavel(alvo: Node3D, delta: float, radar: BotRadar) -> D
 	# ==========================================================
 	if dot_p > 0.99:
 		steer = 0.0
-		force_straight = true # Desconecta o volante e ignora a prevenção de batidas
+		force_straight = true
 
 	if dot_p < 0.0: throttle = 0.5 
 
 	# ==========================================================
 	# 3. SISTEMA DE DESISTÊNCIA RÁPIDA (Falhou na passagem)
+	# OTIMIZAÇÃO: Comparações ao quadrado onde possível
 	# ==========================================================
 	if alvo_coletavel_atual != alvo:
 		alvo_coletavel_atual = alvo
-		last_target_dist = flat_dist
-		stuck_jump_count = 0 # Reseta os pulos ao mudar de alvo
+		last_target_dist_sq = flat_dist_sq
+		stuck_jump_count = 0
 	else:
-		if flat_dist > last_target_dist + 1.0 and last_target_dist < 15.0 and speed_kmh > 15.0:
+		if flat_dist_sq > last_target_dist_sq + 1.0 and last_target_dist_sq < 225.0 and speed_kmh > 15.0:
 			radar.ignorar_item(alvo, 10.0) 
 			alvo_coletavel_atual = null
-			last_target_dist = 9999.0
+			last_target_dist_sq = 999999.0
 			return {"steering": 0.0, "throttle": 1.0, "jump": false, "force_straight": false}
-		last_target_dist = flat_dist
+		last_target_dist_sq = flat_dist_sq
 
 	# ==========================================================
 	# 4. SITUAÇÃO D: ITEM MUITO ALTO (> 18m)
@@ -147,18 +144,16 @@ func direcionar_para_coletavel(alvo: Node3D, delta: float, radar: BotRadar) -> D
 	# ==========================================================
 	# FASE 1: APROXIMAÇÃO DISTANTE (> 20 metros)
 	# ==========================================================
-	if flat_dist > 20.0:
+	if flat_dist_sq > 400.0:
 		throttle = 1.0 
 		if dot_p > 0.99:
 			steer = 0.0
 			force_straight = true
-
 	# ==========================================================
 	# FASE 2: PREPARAÇÃO FINA (<= 20 metros)
 	# ==========================================================
 	else:
-		# NOVO: Se travou debaixo da caixa, tenta pular 3 vezes antes de dar ré
-		if flat_dist < 8.0 and speed_kmh < 15.0 and dot_p < 0.5 and y_diff > 3.0:
+		if flat_dist_sq < 64.0 and speed_kmh < 15.0 and dot_p < 0.5 and y_diff > 3.0:
 			if stuck_jump_count < 3:
 				throttle = 0.0 
 				steer = 0.0
@@ -166,48 +161,44 @@ func direcionar_para_coletavel(alvo: Node3D, delta: float, radar: BotRadar) -> D
 				if stuck_jump_cooldown <= 0:
 					should_jump = true
 					stuck_jump_count += 1
-					stuck_jump_cooldown = 1.5 # Espera 1.5s para o próximo pulo
+					stuck_jump_cooldown = 1.5
 					print("[DEBUG BOT] ", car.name, " Pulo de resgate na parede: ", stuck_jump_count, "/3")
 			else:
-				throttle = -1.0 # Falhou 3 vezes, dá ré!
+				throttle = -1.0
 				steer = 1.0
 		else:
-			# SITUAÇÃO A: Item no chão ou levemente alto (-1m a 4m)
 			if y_diff >= -1.0 and y_diff <= 4.0:
 				throttle = 0.8
 				if dot_p > 0.99:
 					steer = 0.0
 					force_straight = true
 
-			# SITUAÇÃO B: Pulo Matemático de Antecedência (4m a 8m)
 			elif y_diff > 4.0 and y_diff <= 8.0:
 				if dot_p > 0.95:
 					steer = 0.0
 					force_straight = true
 
-				# MUDANÇA: Ápice aumentado para pular bem antes enquanto tem muita velocidade
+				# Apenas extrai a raiz quadrada se realmente precisar calcular os tempos lineares
+				var real_dist = sqrt(flat_dist_sq)
 				var apex_time = 1.45 
-				var required_speed = flat_dist / apex_time
+				var required_speed = real_dist / apex_time
 
 				if speed < required_speed - 2.0: throttle = 1.0
-				elif speed > required_speed + 5.0: throttle = 0.0 # Reduz se estiver muito violento
+				elif speed > required_speed + 5.0: throttle = 0.0
 				else: throttle = 0.8
 
-				var time_to_reach = flat_dist / max(speed, 0.1)
-				# O tempo de chegar precisa ser igual ou menor ao tempo do pulo
+				var time_to_reach = real_dist / max(speed, 0.1)
 				if time_to_reach <= apex_time and speed > 5.0:
 					should_jump = true
 
-				if flat_dist <= 4.0: should_jump = true
+				if flat_dist_sq <= 16.0: should_jump = true
 
-			# SITUAÇÃO C: Rampa Detectada (8m a 18m)
 			elif y_diff > 8.0 and y_diff <= 18.0:
 				steer = 0.0
-				force_straight = true # DESCONECTA O STEER COMPLETAMENTE E IGNORA SENSORES DE PAREDE
+				force_straight = true
 				throttle = 1.0
 				
-				# Se chegou bem perto, pula como medida extra
-				if flat_dist <= 5.0: 
+				if flat_dist_sq <= 25.0: 
 					should_jump = true
 
 	# ==========================================================
@@ -249,7 +240,6 @@ func iniciar_manobra_chao():
 				sp.initiate_stunt(Vector3(1, 0, 0), "BACKFLIP")
 	)
 
-# --- NOVO PARÂMETRO NA FUNÇÃO FINAL PARA RECEBER A TRAVA ABSOLUTA ---
 func processar_direcao_final(delta: float, intencao_throttle: float, intencao_steering: float, force_straight: bool = false):
 	var speed = car.linear_velocity.length()
 	
@@ -270,11 +260,13 @@ func processar_direcao_final(delta: float, intencao_throttle: float, intencao_st
 	var is_avoiding = false
 	var final_throttle = intencao_throttle
 	
-	ray_left.force_raycast_update()
-	ray_center.force_raycast_update()
-	ray_right.force_raycast_update()
+	# ==========================================================
+	# A CORREÇÃO MESTRA: O GODOT JÁ ATUALIZA OS RAIOS POR VOCÊ
+	# ==========================================================
+	# REMOVIDO: ray_left.force_raycast_update()
+	# REMOVIDO: ray_center.force_raycast_update()
+	# REMOVIDO: ray_right.force_raycast_update()
 
-	# MUDANÇA: Verifica se bateu em uma rampa específica para também ignorá-la preventivamente
 	var col_center = ray_center.get_collider()
 	var col_left = ray_left.get_collider()
 	var col_right = ray_right.get_collider()
@@ -283,7 +275,6 @@ func processar_direcao_final(delta: float, intencao_throttle: float, intencao_st
 	var ignore_left = col_left and col_left.is_in_group("rampas")
 	var ignore_right = col_right and col_right.is_in_group("rampas")
 	
-	# SE ESTÁ COM O ALINHAMENTO TRAVADO (> 0.99 OU NA RAMPA), DESLIGA A ESQUIVA TOTALMENTE!
 	if not force_straight:
 		if ray_center.is_colliding() and not ignore_center:
 			is_avoiding = true

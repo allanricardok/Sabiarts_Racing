@@ -1,4 +1,3 @@
-# WeaponManager.gd
 extends Node3D
 class_name WeaponManager
 
@@ -14,6 +13,12 @@ var wheel_ui_node: WeaponWheel = null
 @export var MAX_POOL_SIZE : int = 5 
 var _previous_radar_mode : int = -1
 
+# ============================================================================
+# Cena de Drop para poder ejetar armas do inventário!
+# ============================================================================
+@export_group("Loot System")
+@export var drop_item_scene : PackedScene
+
 # --- REFERÊNCIAS ---
 @onready var car = owner
 @onready var input = %InputComponent
@@ -25,7 +30,8 @@ var _previous_radar_mode : int = -1
 	"BigSlow": %BigSlow,
 	"HomingMissile": %HomingMissile,
 	"GrapplingMissile": %GrapplingMissile,
-	"FreezingMissile": %FreezingMissile 
+	"FreezingMissile": %FreezingMissile,
+	"BazookaMissile": %BazookaMissile 
 }
 
 # --- ESTADO INTERNO ---
@@ -37,6 +43,13 @@ var player_suffix : String = ""
 var highlight_material : StandardMaterial3D
 var shooter: WeaponShooter
 
+# ============================================================================
+# OTIMIZAÇÃO: MEMÓRIA CACHE
+# ============================================================================
+var _is_bot: bool = false
+var _cached_hud: Node = null
+var _weapon_meshes_cache: Dictionary = {}
+
 func _ready():
 	highlight_material = StandardMaterial3D.new()
 	highlight_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
@@ -44,38 +57,64 @@ func _ready():
 	highlight_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	highlight_material.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
 	
-	# Instancia o sub-componente de tiro silenciosamente
 	shooter = WeaponShooter.new()
 	add_child(shooter)
 	shooter.setup(car, targeting, weapon_nodes, basic_weapon_resource, fire_rate_basic)
 	
+	# OTIMIZAÇÃO: Guarda todas as malhas (meshes) de todas as armas na memória
+	# para não precisar usar wildcards de busca no meio do combate!
+	for key in weapon_nodes:
+		var node = weapon_nodes[key]
+		if is_instance_valid(node):
+			var meshes = node.find_children("*", "MeshInstance3D", true, false)
+			var valid_meshes = []
+			for m in meshes:
+				if m is MeshInstance3D: valid_meshes.append(m)
+			_weapon_meshes_cache[key] = valid_meshes
+
+	# Verifica se é bot um frame depois, garantindo que o BotBrain já setou a flag!
+	call_deferred("_late_bot_check")
 	_update_visual_selection()
+
+func _late_bot_check():
+	if is_instance_valid(input) and "is_bot" in input:
+		_is_bot = input.is_bot
 
 func setup_multiplayer(suffix: String):
 	player_suffix = suffix
+	_is_bot = (input and "is_bot" in input and input.is_bot)
+	
+	if not _is_bot:
+		call_deferred("_cache_ui")
+		
 	if is_instance_valid(targeting):
 		targeting.setup_multiplayer(suffix)
 	_atualizar_interface()
 
-func _process(delta):
-	var is_bot = (input and "is_bot" in input and input.is_bot)
-	var real_delta = delta / Engine.time_scale if is_instance_valid(car) and car.is_in_group("jogadores") and not is_bot else delta
+func _cache_ui():
+	_cached_hud = get_tree().get_first_node_in_group("HUD" + player_suffix)
+	if not _cached_hud:
+		_cached_hud = get_tree().get_first_node_in_group("HUD")
+		
+	if is_instance_valid(_cached_hud):
+		wheel_ui_node = _cached_hud.find_child("WeaponWheel", true, false)
 
-	if not car.pode_mover: return
+func _process(delta):
+	if not is_instance_valid(car) or not car.pode_mover: return
 	
+	var real_delta = delta / Engine.time_scale if (not _is_bot and car.is_in_group("jogadores")) else delta
+
 	if car.has_method("is_frozen") and car.is_frozen(): 
-		shooter.process_shooting(real_delta, false)
+		if is_instance_valid(shooter):
+			shooter.process_shooting(real_delta, false)
 		return 
 
 	var is_firing_basic = false
 	
-	if is_bot:
+	if _is_bot:
 		is_firing_basic = input.is_action_pressed 
 	else:
-		if not is_instance_valid(wheel_ui_node):
-			var hud = get_tree().get_first_node_in_group("HUD" + player_suffix)
-			if hud: wheel_ui_node = hud.find_child("WeaponWheel", true, false)
-
+		# Lógica exclusiva para o Humano!
 		var wheel_action = "WeaponWheel" + input.suffix
 		
 		if Input.is_action_just_pressed(wheel_action):
@@ -114,14 +153,13 @@ func _process(delta):
 
 		if fire_special:
 			var active = get_active_special()
-			# Se o disparo retornar true, desconta a munição
-			if shooter.try_fire_special(active, false):
+			if is_instance_valid(shooter) and shooter.try_fire_special(active, false):
 				active.ammo -= 1
 				if active.ammo <= 0: _remove_current_weapon()
 				_atualizar_interface()
 
-	# Processa o cooldown e o disparo da arma básica
-	shooter.process_shooting(real_delta, is_firing_basic)
+	if is_instance_valid(shooter):
+		shooter.process_shooting(real_delta, is_firing_basic)
 
 # --- GESTÃO DO INVENTÁRIO (POOL) ---
 func get_active_special() -> WeaponResource:
@@ -133,14 +171,13 @@ func equip_special_weapon(new_weapon_res: WeaponResource) -> bool:
 	var resource_name_to_check = new_weapon_res.nome if "nome" in new_weapon_res and new_weapon_res.nome != "" else new_weapon_res.resource_path.get_file().get_basename()
 	var success = false
 
-	# 1. Verifica se já tem a arma no inventário
 	for i in range(weapon_pool.size()):
 		var w = weapon_pool[i]
 		var current_w_name = w.nome if "nome" in w and w.nome != "" else w.resource_path.get_file().get_basename()
 
 		if current_w_name == resource_name_to_check or (w.resource_path != "" and w.resource_path == new_weapon_res.resource_path):
 			if w.ammo >= w.max_ammo:
-				_trigger_pickup_flash(false) # INVENTÁRIO CHEIO (FLASH VERMELHO)
+				_trigger_pickup_flash(false) 
 				return false 
 			
 			w.ammo = min(w.ammo + new_weapon_res.ammo, w.max_ammo)
@@ -149,37 +186,48 @@ func equip_special_weapon(new_weapon_res: WeaponResource) -> bool:
 			success = true
 			break
 
-	# 2. Se não tem a arma, tenta adicionar um slot novo no Pool
 	if not success:
+		var dup = new_weapon_res.duplicate()
+		dup.ammo = min(dup.ammo, dup.max_ammo)
+		
 		if weapon_pool.size() < MAX_POOL_SIZE:
-			var dup = new_weapon_res.duplicate()
-			dup.ammo = min(dup.ammo, dup.max_ammo)
 			weapon_pool.append(dup)
-			
 			if current_weapon_index == -1: current_weapon_index = weapon_pool.size() - 1
 			success = true
 		else:
-			_trigger_pickup_flash(false) # POOL LOTADA (FLASH VERMELHO)
-			return false
+			if current_weapon_index != -1 and drop_item_scene:
+				var old_weapon = weapon_pool[current_weapon_index]
+				
+				if is_instance_valid(LootDropManager) and is_instance_valid(car):
+					var eject_dir = car.global_transform.basis.z.normalized()
+					LootDropManager.spawn_ejected_loot(
+						car.global_position, 
+						eject_dir, 
+						drop_item_scene, 
+						old_weapon, 
+						7.0
+					)
+				
+				weapon_pool[current_weapon_index] = dup
+				success = true
+				print("[WeaponManager] Inventário cheio! Arma ", old_weapon.nome, " ejetada. Pegou ", dup.nome)
+			else:
+				_trigger_pickup_flash(false)
+				return false
 
 	if success:
 		_update_visual_selection()
 		_atualizar_interface()
 		get_tree().call_group("TutorialUI", "complete_task", "grab_weapon")
-		_trigger_pickup_flash(true) # SUCESSO (FLASH VERDE)
+		_trigger_pickup_flash(true) 
 		return true
 
 	return false
 
 func _trigger_pickup_flash(success: bool):
-	# === CORREÇÃO: BOTS NÃO ACENDEM TELAS ===
-	if input and "is_bot" in input and input.is_bot:
-		return
-		
-	var hud = get_tree().get_first_node_in_group("HUD" + player_suffix)
-	if not hud: hud = get_tree().get_first_node_in_group("HUD")
-	if hud and hud.has_method("play_pickup_flash"):
-		hud.play_pickup_flash(success)
+	if _is_bot: return
+	if is_instance_valid(_cached_hud) and _cached_hud.has_method("play_pickup_flash"):
+		_cached_hud.play_pickup_flash(success)
 
 func _switch_weapon(direction: int):
 	if weapon_pool.size() <= 1: return 
@@ -207,22 +255,26 @@ func _remove_current_weapon():
 	_atualizar_interface()
 
 func _set_weapon_highlight(weapon_name: String, is_active: bool):
-	var node = weapon_nodes.get(weapon_name)
-	if not is_instance_valid(node): return
-	var meshes = node.find_children("*", "MeshInstance3D", true)
-	for mesh in meshes:
-		if is_active: mesh.material_overlay = highlight_material
-		else: mesh.material_overlay = null
+	# OTIMIZAÇÃO: Usa o cache de Meshes para evitar buscar na árvore toda vez!
+	if not _weapon_meshes_cache.has(weapon_name): return
+	
+	for mesh in _weapon_meshes_cache[weapon_name]:
+		if is_instance_valid(mesh):
+			if is_active: mesh.material_overlay = highlight_material
+			else: mesh.material_overlay = null
 
 func _update_visual_selection():
 	for key in weapon_nodes:
-		if key != "MachineGun": weapon_nodes[key].visible = false
+		if key != "MachineGun" and is_instance_valid(weapon_nodes[key]): 
+			weapon_nodes[key].visible = false
 		_set_weapon_highlight(key, false)
 		
-	if weapon_nodes.has("MachineGun"): weapon_nodes["MachineGun"].visible = true
+	if weapon_nodes.has("MachineGun") and is_instance_valid(weapon_nodes["MachineGun"]): 
+		weapon_nodes["MachineGun"].visible = true
 
 	for w in weapon_pool:
-		if weapon_nodes.has(w.nome): weapon_nodes[w.nome].visible = true
+		if weapon_nodes.has(w.nome) and is_instance_valid(weapon_nodes[w.nome]): 
+			weapon_nodes[w.nome].visible = true
 
 	var active = get_active_special()
 	if active and weapon_nodes.has(active.nome): 
@@ -239,14 +291,11 @@ func _update_visual_selection():
 				_previous_radar_mode = -1
 
 func _atualizar_interface():
-	if input and "is_bot" in input and input.is_bot: 
-		return
-		
-	var hud = get_tree().get_first_node_in_group("HUD" + player_suffix)
-	if hud and hud.has_method("atualizar_arma"):
+	if _is_bot: return
+	
+	if is_instance_valid(_cached_hud) and _cached_hud.has_method("atualizar_arma"):
 		var active = get_active_special()
-		
 		if active: 
-			hud.atualizar_arma(active.nome, active.ammo)
+			_cached_hud.atualizar_arma(active.nome, active.ammo)
 		else: 
-			hud.atualizar_arma("None", 0)
+			_cached_hud.atualizar_arma("None", 0)

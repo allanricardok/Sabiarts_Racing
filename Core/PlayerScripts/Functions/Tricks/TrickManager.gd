@@ -1,4 +1,3 @@
-# TrickManager.gd
 extends Node
 class_name TrickManager
 
@@ -11,7 +10,7 @@ class_name TrickManager
 @export var AIR_TIME_POINTS_MULT : float = 10.0
 
 # --- CORES DO SISTEMA ---
-const COLOR_AIR = "#ffaa00"     # Laranja (Padrão)
+const COLOR_AIR = "#ffaa00"      # Laranja (Padrão)
 const COLOR_GROUND = "#ff4444" # Vermelho
 const COLOR_GAP = "#00aaff"    # Azul
 const COLOR_TIME = "#ffffff"   # Branco
@@ -37,6 +36,22 @@ var is_showing_final_score := false
 
 # --- BLINDAGEM DE COMBO ---
 var combo_immunity_timer : float = 0.0
+
+# ==============================================================================
+# OTIMIZAÇÃO: MEMÓRIA CACHE
+# ==============================================================================
+var _trick_builder: Node = null
+var _wall_ride_orchestrator: Node = null
+var _ground_trick_manager: Node = null
+var _ability_component: Node = null
+var _rage_component: Node = null
+
+func _ready():
+	_trick_builder = car.get_node_or_null("%TrickBuilder")
+	_wall_ride_orchestrator = car.find_child("WallRide*", true, false)
+	_ground_trick_manager = car.get_node_or_null("%GroundTrickManager")
+	_ability_component = car.find_child("AbilityComponent", true, false)
+	_rage_component = car.get_node_or_null("%RageComponent")
 
 func _process(delta):
 	if combo_immunity_timer > 0.0:
@@ -71,9 +86,9 @@ func add_external_action(action_name: String, points: int, color_hex: String = "
 	_update_live_display()
 
 func add_trick_manually(id: String):
-	var builder = car.get_node_or_null("%TrickBuilder")
-	if builder and builder.TRICK_DATA.has(id):
-		var data = builder.TRICK_DATA[id]
+	# OTIMIZAÇÃO: Uso de cache
+	if is_instance_valid(_trick_builder) and _trick_builder.TRICK_DATA.has(id):
+		var data = _trick_builder.TRICK_DATA[id]
 		register_builder_trick(id, data.name, data.points)
 	else:
 		print("[TrickManager] Erro: ID de manobra não encontrado no Builder: ", id)
@@ -99,9 +114,10 @@ func register_builder_trick(id: String, trick_name: String, base_pts: int):
 	current_jump_uses[id] = j_count + 1
 	global_stunt_uses[id] = g_count + 1
 	_update_live_display()
-	var rage = car.get_node_or_null("%RageComponent")
-	if rage:
-		rage.add_trick(1) 
+	
+	# OTIMIZAÇÃO: Uso de cache
+	if is_instance_valid(_rage_component):
+		_rage_component.add_trick(1) 
 
 func _start_new_jump():
 	tracking_jump = true
@@ -115,20 +131,20 @@ func _start_new_jump():
 	if _active_gaps_ids.is_empty():
 		_gaps_completed_this_jump.clear()
 	
-	var ground_manager = car.get_node_or_null("%GroundTrickManager")
-	if ground_manager and ground_manager.tracking_combo:
-		for i in range(ground_manager.actions_done.size()):
-			tricks_done.append(ground_manager.actions_done[i])
-			points_per_trick.append(ground_manager.points_per_action[i])
+	# OTIMIZAÇÃO: Uso de cache
+	if is_instance_valid(_ground_trick_manager) and _ground_trick_manager.tracking_combo:
+		for i in range(_ground_trick_manager.actions_done.size()):
+			tricks_done.append(_ground_trick_manager.actions_done[i])
+			points_per_trick.append(_ground_trick_manager.points_per_action[i])
 			tricks_colors.append(COLOR_GROUND)
-		ground_manager.tracking_combo = false
+		_ground_trick_manager.tracking_combo = false
 	
 	current_jump_uses.clear()
 	
-	var builder = car.get_node_or_null("%TrickBuilder")
-	if builder: builder.reset_builder_logic()
+	if is_instance_valid(_trick_builder): 
+		_trick_builder.reset_builder_logic()
 
-# --- CORREÇÃO: FILTRO DE HUD PARA BOTS ---
+# --- FILTRO DE HUD PARA BOTS ---
 func _get_local_hud() -> Node:
 	if not is_instance_valid(car) or not is_instance_valid(car.input): return null
 	
@@ -143,7 +159,6 @@ func _get_local_hud() -> Node:
 func _update_live_display():
 	if is_showing_final_score: return
 	
-	# Passa pelo filtro Anti-Bot
 	var hud = _get_local_hud()
 	if not hud: return
 	
@@ -182,53 +197,31 @@ func _finalize_score():
 	var mult = _get_dynamic_multiplier()
 	var final_score = int(total_base * mult)
 	
-	# Salva a pontuação na Global (Funciona para Bots e Players)
 	ScoreManager.add_points(final_score, car.id)
 	
-	# ==============================================================
-	# NOVO: ENVIA A PONTUAÇÃO PARA A BARRA DE CURA
 	var stats = car.get_node_or_null("%StatsComponent")
 	if stats and stats.has_method("add_heal_score"):
 		stats.add_heal_score(final_score)
-	# ==============================================================
 	
-	# --- NOVO: CONVERTE PONTUAÇÃO EM ENERGIA (0.5%) COM DEBUGS ---
-	var ability = car.find_child("AbilityComponent", true, false)
-	if ability and "current_energy" in ability and "MAX_ENERGY" in ability:
+	# OTIMIZAÇÃO: Uso de cache para o AbilityComponent
+	if is_instance_valid(_ability_component) and "current_energy" in _ability_component and "MAX_ENERGY" in _ability_component:
 		var energy_gained = final_score * 0.005
-		var old_energy = ability.current_energy
+		var old_energy = _ability_component.current_energy
 		
-		ability.current_energy += energy_gained
+		_ability_component.current_energy += energy_gained
 		
-		print("=========================================")
-		print("[TrickManager] Combo Finalizado! Pontuação: ", final_score)
-		print("[TrickManager] Energia Gerada: +", snapped(energy_gained, 0.1))
-		
-		# Trava no limite máximo
-		if ability.current_energy >= ability.MAX_ENERGY:
-			ability.current_energy = ability.MAX_ENERGY
-			if old_energy < ability.MAX_ENERGY:
-				print("[TrickManager] BINGO! Energia carregada ao MÁXIMO (100%)!")
-			else:
-				print("[TrickManager] Energia já estava no máximo. Desperdiçada.")
-		else:
-			print("[TrickManager] Energia atual do carro: ", snapped(ability.current_energy, 0.1), " / ", ability.MAX_ENERGY)
-		print("=========================================")
-	# ----------------------------------------------------
-	
-# Avisa o gerente de missões (Apenas para Players)
+		if _ability_component.current_energy >= _ability_component.MAX_ENERGY:
+			_ability_component.current_energy = _ability_component.MAX_ENERGY
+
 	var is_bot = (car.input and "is_bot" in car.input and car.input.is_bot)
 	if not is_bot:
 		for completed_gap in _gaps_completed_this_jump:
-			# GRITA SEMPRE! O StoryController é quem decide se a missão precisa disso.
 			get_tree().call_group("StoryController", "notify_progress", StoryMissionData.MissionType.GAP, 1.0, completed_gap)
 				
-		# --- AVISA A MISSÃO DE COMBO ÚNICO ---
 		get_tree().call_group("StoryController", "notify_progress", StoryMissionData.MissionType.SCORE_COMBO, final_score, "")
 
 	_reset_gap_state_internal()
 	
-	# Se for bot, encerra a função visual aqui!
 	var hud = _get_local_hud()
 	if not hud:
 		is_showing_final_score = false
@@ -237,22 +230,10 @@ func _finalize_score():
 	_update_final_display(hud, final_score, mult)
 
 func reset_trick():
-	# =========================================================
-	# BLINDAGEM INFALÍVEL: Busca dinâmica pelo Orquestrador do muro
-	# =========================================================
-	var orchestrator = car.find_child("WallRide*", true, false)
-	
-	if orchestrator and orchestrator.has_method("has_combo_shield"):
-		if orchestrator.has_combo_shield():
-			print("[TrickManager] Batida IGNORADA: Escudo de Transferência do Muro Ativo!")
-			return # Foge da função e IMPEDE a perda da pontuação
-	# =========================================================
-	
-	if tracking_jump:
-		print("=========================================")
-		print("[TRICK MANAGER] ❌ COMBO PERDIDO/RESETADO!")
-		print(" -> Motivo: Carro capotou, pousou de cabeça para baixo ou bateu forte.")
-		print("=========================================")
+	# OTIMIZAÇÃO: Uso de cache para o WallRide
+	if is_instance_valid(_wall_ride_orchestrator) and _wall_ride_orchestrator.has_method("has_combo_shield"):
+		if _wall_ride_orchestrator.has_combo_shield():
+			return 
 
 	tracking_jump = false
 	_reset_gap_state_internal()
@@ -330,24 +311,20 @@ func process_air_time(_delta: float, _is_near_ground: bool):
 	
 	air_time += _delta
 	
-	var builder = car.get_node_or_null("%TrickBuilder")
-	if builder:
-		builder.process_maneuvers(_delta)
+	# OTIMIZAÇÃO: Uso de cache
+	if is_instance_valid(_trick_builder):
+		_trick_builder.process_maneuvers(_delta)
 		
 	if air_time >= AIR_TIME_THRESHOLD or tricks_done.size() > 0:
 		_update_live_display()
 
 func check_landing(is_clean: bool):
 	if tracking_jump:
-		# =========================================================
-		# BLINDAGEM INFALÍVEL: Ignora falsos pousos na parede
-		# =========================================================
-		var orchestrator = car.find_child("WallRide*", true, false)
-		if orchestrator and orchestrator.has_method("has_combo_shield"):
-			if orchestrator.has_combo_shield():
-				print("[TrickManager] Pouso IGNORADO: Carro protegido pelo Combo Shield do Muro!")
+		# OTIMIZAÇÃO: Uso de cache para o WallRide
+		if is_instance_valid(_wall_ride_orchestrator) and _wall_ride_orchestrator.has_method("has_combo_shield"):
+			if _wall_ride_orchestrator.has_combo_shield():
 				return 
-		# =========================================================
+				
 		if is_clean:
 			if air_time >= AIR_TIME_THRESHOLD or tricks_done.size() > 0: 
 				_finalize_score()

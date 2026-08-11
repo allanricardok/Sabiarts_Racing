@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="StoryMissionData" load_steps=5 format=3 uid="uid://bm5ftfnhiycvr"]
+
+[ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="1_k4xnr"]
+[ext_resource type="Script" uid="uid://dcan8ccd3nmwc" path="res://Core/Objectives/Story/StoryMissionTier.gd" id="2_rbsy3"]
+[ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/Story/StoryMissionData.gd" id="6_0pt1e"]
+
+[sub_resource type="Resource" id="Resource_71xcs"]
+script = ExtResource("2_rbsy3")
+tier_name = "Kill Everyone"
+target_value = 15.0
+reward_points = 2500
+metadata/_custom_type_script = "uid://dcan8ccd3nmwc"
+
+[resource]
+script = ExtResource("6_0pt1e")
+mission_type = 0
+mission_id = "m_03"
+mission_name = "Carnage Putaria"
+mission_description = "Deguste o ânus de 15 oponentes"
+time_limit = 360.0
+mission_tiers = Array[ExtResource("2_rbsy3")]([SubResource("Resource_71xcs")])
+mission_environment = ExtResource("1_k4xnr")
+mission_sun_color = Color(1.5003835, 0, 0, 0.33100003)
+mission_sun_energy = 0.6
+enemy_count = 15
+enemy_damage_received_mult = 2.0
+required_unlock_points = 3000
+metadata/_custom_type_script = "uid://o1ox0n7mmqv"

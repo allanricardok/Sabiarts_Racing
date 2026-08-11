@@ -15,7 +15,7 @@ class_name EnemyTurret
 @export var drop_item_resource : Resource
 
 # ============================================================================
-# NOVO: Fragmentos de destruição ao morrer. Mesmo padrão usado em
+# Fragmentos de destruição ao morrer. Mesmo padrão usado em
 # DestructibleProp e BaseVehicle — a torre não sabe COMO a explosão
 # funciona, só pede pro DebrisManager (autoload) fazer acontecer.
 # ============================================================================
@@ -44,7 +44,7 @@ class_name EnemyTurret
 var targets_in_range : Array = []
 var current_target : Node3D = null
 var fire_cooldown : float = 0.0
-var is_dead : bool = false # <--- ADICIONE ESTA LINHA AQUI
+var is_dead : bool = false
 
 func _ready():
 	add_to_group(enemy_group_name)
@@ -145,15 +145,12 @@ func take_damage(amount: float, attacker: Node = null):
 	var is_special = false
 	
 	if attacker:
-		# Primeiro descobre se o objeto físico que bateu na torre é uma arma especial
 		if "is_special_weapon" in attacker:
 			is_special = attacker.is_special_weapon
 			
-		# Depois descobre quem foi o jogador que atirou essa arma
 		if "shooter" in attacker and is_instance_valid(attacker.shooter):
 			actual_attacker = attacker.shooter
 			
-	# Se quem atirou foi o jogador E a arma usada foi a especial:
 	if is_instance_valid(actual_attacker) and actual_attacker.is_in_group("jogadores"):
 		if is_special:
 			get_tree().call_group("TutorialUI", "complete_task", "shoot_enemy")
@@ -162,24 +159,18 @@ func take_damage(amount: float, attacker: Node = null):
 		stats.take_damage(amount, attacker)
 
 func _on_death(attacker: Node = null):
-	# CADEADO DUPLO: Garante que só morre uma vez
 	if is_dead: return
 	is_dead = true
 	
-	# Salva a posição exata de onde morreu antes da engine se perder
 	var death_pos = self.global_position
 	
-	# NOVO: explosão de fragmentos antes de desligar a torre
 	_spawn_debris()
 	
-	# Desliga a torre imediatamente (Fica invisível e intocável)
 	set_deferred("process_mode", Node.PROCESS_MODE_DISABLED)
 	visible = false
 	
-	# AGENDAMENTO: Pede pro Godot gerar o loot assim que for seguro (fim do frame)
 	call_deferred("_spawn_loot_safely", death_pos)
 
-# NOVO: dispara a explosão de fragmentos usando o DebrisManager (autoload).
 func _spawn_debris() -> void:
 	if not spawn_debris_on_death:
 		return
@@ -211,53 +202,28 @@ func _find_mesh_instance() -> MeshInstance3D:
 			return node
 	return find_child("*", true, false) as MeshInstance3D
 
-# --- NOVA FUNÇÃO SEGURA PARA O LOOT ---
+# ============================================================================
+# NOVO: CHAMADA ENXUTA PARA O LOOT DROPMANAGER
+# ============================================================================
 func _spawn_loot_safely(origin_pos: Vector3):
 	if drop_item_scene and drop_item_resource:
 		print("[Turret] Torre destruída! Gerando Loot...")
 		
-		var space_state = get_world_3d().direct_space_state
-		var destination = origin_pos + (Vector3.DOWN * 100.0)
-		
-		# Não precisamos mais ignorar a torre, pois ela já está desativada!
-		var query = PhysicsRayQueryParameters3D.create(origin_pos, destination)
-		
-		var result = space_state.intersect_ray(query)
-		var final_pos = origin_pos 
-		
-		if result:
-			final_pos = result.position + Vector3(0, 1.5, 0)
+		if is_instance_valid(LootDropManager):
+			# Direção para onde a torre está "olhando" (Geralmente o eixo -Z)
+			var dir_forward = -global_transform.basis.z.normalized()
 			
-		# Cria o elevador fantasma para cair
-		var drop_carrier = Node3D.new()
-		drop_carrier.global_position = origin_pos
-		get_tree().current_scene.add_child(drop_carrier)
-		
-		var drop = drop_item_scene.instantiate()
-		drop.position = Vector3.ZERO 
-		
-		if "weapon_resource" in drop:
-			drop.weapon_resource = drop_item_resource
-		elif "item_data" in drop:
-			drop.item_data = drop_item_resource
-			
-		drop_carrier.add_child(drop)
-		
-		# Auto-destruição do elevador quando a caixa for coletada
-		drop.tree_exited.connect(func():
-			if is_instance_valid(drop_carrier):
-				drop_carrier.queue_free()
-		)
-		
-		# Animação de queda pesada
-		var distance = origin_pos.distance_to(final_pos)
-		if distance > 0.1:
-			var fall_time = sqrt((2.0 * distance) / 50.0)
-			var tween = get_tree().create_tween()
-			tween.tween_property(drop_carrier, "global_position", final_pos, fall_time).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-			
+			LootDropManager.spawn_ejected_loot(
+				origin_pos, 
+				dir_forward, 
+				drop_item_scene, 
+				drop_item_resource, 
+				5.0 # Distância do arremesso
+			)
+		else:
+			push_warning("[EnemyTurret] LootDropManager Autoload não encontrado!")
 	else:
 		print("[Turret] Sem loot configurado para esta torre.")
 	
-	# Agora que o loot nasceu em segurança, podemos jogar o cadáver no lixo de vez!
+	# Agora que o loot nasceu em segurança pelo Autoload, podemos jogar o cadáver no lixo de vez!
 	queue_free()

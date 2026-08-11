@@ -1,4 +1,3 @@
-# StatsComponent.gd
 extends Node
 class_name StatsComponent
 
@@ -52,6 +51,11 @@ var heal_score_text: Label
 var _health_stylebox : StyleBoxFlat = null
 var has_teleportkey : bool = false
 
+# --- OTIMIZAÇÃO DE UI E CACHE ---
+var _cached_hud : Node = null
+var _last_heal_score : int = -1
+var _last_cooldown_ceil : int = -1
+
 func _ready():
 	_initialize_ui()
 	call_deferred("_auto_link_hud")
@@ -76,8 +80,11 @@ func _auto_link_hud():
 	if not heal_score_text:
 		heal_score_text = my_viewport.find_child("ScoreText", true, false) as Label
 
+	# OTIMIZAÇÃO: Define atributos estáticos apenas uma vez, não no _process!
 	if heal_score_bar:
+		heal_score_bar.min_value = 0.0
 		heal_score_bar.max_value = HEAL_SCORE_MAX
+		heal_score_bar.step = 0.0
 		heal_score_bar.value = 0.0
 		
 	if score_cooldown_bar:
@@ -113,42 +120,49 @@ func _process(delta):
 	if heal_cooldown_timer > 0:
 		heal_cooldown_timer -= delta
 		
-	_update_ui_bars()
+	_update_ui_bars(delta)
 
-func _update_ui_bars():
+func _update_ui_bars(delta):
+	# Adicionado o Delta ao lerp para suavizar independente de FPS
 	if health_bar:
-		health_bar.value = lerp(health_bar.value, current_health, 0.2)
-		var pct = (health_bar.value / max_health) * 100.0
+		var new_val = lerp(health_bar.value, current_health, 10.0 * delta)
+		health_bar.value = new_val
+		var pct = (new_val / max_health) * 100.0
 		var current_color = _get_health_color(pct)
 		if _health_stylebox: _health_stylebox.bg_color = current_color
 		else: health_bar.modulate = current_color
 			
 	if shield_bar:
-		shield_bar.value = lerp(shield_bar.value, current_shield, 0.2)
+		shield_bar.value = lerp(shield_bar.value, current_shield, 10.0 * delta)
 		
 	if heal_score_bar:
-		heal_score_bar.min_value = 0.0
-		heal_score_bar.max_value = HEAL_SCORE_MAX
-		heal_score_bar.step = 0.0 
 		heal_score_bar.value = heal_score_current
 		
+	# OTIMIZAÇÃO: Strings só formatadas se a pontuação REALMENTE mudou
 	if heal_score_text:
-		var current_str = ScoreManager.format_score_with_dots(int(heal_score_current))
-		var max_str = ScoreManager.format_score_with_dots(int(HEAL_SCORE_MAX))
-		heal_score_text.text = current_str + " / " + max_str
+		var current_int = int(heal_score_current)
+		if _last_heal_score != current_int:
+			_last_heal_score = current_int
+			var current_str = ScoreManager.format_score_with_dots(current_int)
+			var max_str = ScoreManager.format_score_with_dots(int(HEAL_SCORE_MAX))
+			heal_score_text.text = current_str + " / " + max_str
 		
 	if score_cooldown_bar:
-		score_cooldown_bar.max_value = HEAL_COOLDOWN_MAX
 		score_cooldown_bar.value = heal_cooldown_timer
 		
-	if heal_cooldown_timer > 0:
-		if cooldown_label:
-			cooldown_label.visible = true
-			cooldown_label.text = str(ceil(heal_cooldown_timer)) + "s"
-	else:
-		if cooldown_label: 
-			cooldown_label.visible = true
-			cooldown_label.text = "Cooldown"
+	# OTIMIZAÇÃO: Texto de Cooldown só converte se o segundo arredondado mudar
+	if cooldown_label:
+		if heal_cooldown_timer > 0:
+			var current_ceil = int(ceil(heal_cooldown_timer))
+			if _last_cooldown_ceil != current_ceil:
+				_last_cooldown_ceil = current_ceil
+				cooldown_label.visible = true
+				cooldown_label.text = str(current_ceil) + "s"
+		else:
+			if _last_cooldown_ceil != 0:
+				_last_cooldown_ceil = 0
+				cooldown_label.visible = true
+				cooldown_label.text = "Cooldown"
 
 # =========================================================
 # FUNÇÕES DE PONTUAÇÃO, CURA E ANIMAÇÕES
@@ -157,7 +171,7 @@ func add_heal_score(amount: int):
 	if heal_cooldown_timer > 0: return 
 		
 	heal_score_current += amount
-	_shake_score_bar() # Treme a barrinha!
+	_shake_score_bar() 
 	
 	if heal_score_current >= HEAL_SCORE_MAX:
 		heal_score_current = 0.0 
@@ -167,13 +181,11 @@ func add_heal_score(amount: int):
 func _shake_score_bar():
 	if not is_instance_valid(heal_score_bar): return
 	
-	# Salva a posição original no primeiro tremor para a UI não fugir do lugar
 	if not heal_score_bar.has_meta("base_pos_x"):
 		heal_score_bar.set_meta("base_pos_x", heal_score_bar.position.x)
 		
 	var base_x = heal_score_bar.get_meta("base_pos_x")
 	
-	# Se já estiver tremendo, mata o tremor antigo antes de iniciar o novo
 	if heal_score_bar.has_meta("shake_tween"):
 		var old_tween = heal_score_bar.get_meta("shake_tween")
 		if is_instance_valid(old_tween) and old_tween.is_running():
@@ -182,42 +194,38 @@ func _shake_score_bar():
 	var tween = get_tree().create_tween()
 	heal_score_bar.set_meta("shake_tween", tween)
 	
-	var shake_str = 6.0 # Força do balanço em pixels
+	var shake_str = 6.0 
 	tween.tween_property(heal_score_bar, "position:x", base_x + shake_str, 0.03)
 	tween.tween_property(heal_score_bar, "position:x", base_x - shake_str, 0.03)
 	tween.tween_property(heal_score_bar, "position:x", base_x + (shake_str / 2.0), 0.03)
 	tween.tween_property(heal_score_bar, "position:x", base_x - (shake_str / 2.0), 0.03)
 	tween.tween_property(heal_score_bar, "position:x", base_x, 0.03)
 
+func _get_target_hud() -> Node:
+	if is_instance_valid(_cached_hud):
+		return _cached_hud
+		
+	for hud in get_tree().get_nodes_in_group("HUD"):
+		if is_instance_valid(owner) and hud.get_viewport() == owner.get_viewport():
+			_cached_hud = hud
+			return _cached_hud
+	return null
+
 func _trigger_heal_flash():
-	# Anti-Bot: Apenas o jogador real acende a tela
 	var ic = owner.get_node_or_null("%InputComponent")
 	if ic and "is_bot" in ic and ic.is_bot:
 		return
 		
-	# Busca a HUD correta em caso de Split-Screen
-	var target_hud = null
-	for hud in get_tree().get_nodes_in_group("HUD"):
-		if is_instance_valid(owner) and hud.get_viewport() == owner.get_viewport():
-			target_hud = hud
-			break
-			
+	var target_hud = _get_target_hud()
 	if target_hud and target_hud.has_method("play_heal_flash"):
 		target_hud.play_heal_flash()
 
 func _trigger_shield_flash():
-	# Anti-Bot: Apenas o jogador real acende a tela
 	var ic = owner.get_node_or_null("%InputComponent")
 	if ic and "is_bot" in ic and ic.is_bot:
 		return
 		
-	# Busca a HUD correta em caso de Split-Screen
-	var target_hud = null
-	for hud in get_tree().get_nodes_in_group("HUD"):
-		if is_instance_valid(owner) and hud.get_viewport() == owner.get_viewport():
-			target_hud = hud
-			break
-			
+	var target_hud = _get_target_hud()
 	if target_hud and target_hud.has_method("play_shield_flash"):
 		target_hud.play_shield_flash()
 
@@ -227,7 +235,6 @@ func repair(amount: float):
 	var old_health = current_health
 	current_health = clamp(current_health + amount, 0.0, max_health)
 	
-	# Só pisca a tela de cura se realmente curou algo (não estava com a vida cheia)
 	if current_health > old_health:
 		_check_damage_state()
 		_trigger_heal_flash()
@@ -257,7 +264,11 @@ func take_damage(amount: float, source: Node = null):
 			final_knockback = source.knockback_force
 			
 	if is_instance_valid(attacker_node):
-		var attacker_stats = attacker_node.find_child("StatsComponent*", true, false)
+		# OTIMIZAÇÃO: Sem busca curinga! Substituindo "StatsComponent*" pelo nome exato ou Unique Node.
+		var attacker_stats = attacker_node.get_node_or_null("%StatsComponent")
+		if not attacker_stats:
+			attacker_stats = attacker_node.find_child("StatsComponent", true, false)
+			
 		if attacker_stats and "damage_dealt_multiplier" in attacker_stats:
 			amount *= attacker_stats.damage_dealt_multiplier
 			
@@ -301,7 +312,10 @@ func _process_scoring(source: Node):
 	if "shooter" in source and source.shooter != null:
 		attacker = source.shooter
 	
-	var g_manager = attacker.find_child("GroundTrickManager*", true, false)
+	# OTIMIZAÇÃO: Sem curinga. Tentando Unique Node primeiro para performance $O(1)$.
+	var g_manager = attacker.get_node_or_null("%GroundTrickManager")
+	if not g_manager:
+		g_manager = attacker.find_child("GroundTrickManager", true, false)
 	
 	if g_manager and g_manager.has_method("add_ground_action"):
 		g_manager.add_ground_action("HIT_OBJECT")
@@ -327,21 +341,16 @@ func restore_shield(amount: float):
 	var old_shield = current_shield
 	current_shield = clamp(current_shield + amount, 0.0, max_shield)
 	
-	# Só pisca a tela se realmente recuperou escudo (não estava no máximo)
 	if current_shield > old_shield:
 		_trigger_shield_flash()
 
 func _on_death():
-	# Checamos se o 'owner' existe para evitar erros, e lemos a meta direto do corpo do carro
-# --- SISTEMA DE DROPAR CARGA ROUBADA ---
 	if owner and owner.has_meta("maletas_roubadas"):
 		var maletas = owner.get_meta("maletas_roubadas")
 		for maleta in maletas:
-			# Usa a nossa função nova que joga a maleta exatamente onde o carro morreu!
 			if is_instance_valid(maleta) and maleta.has_method("soltar_loot_roubado"):
 				var pos_queda = owner.global_position + Vector3(0, 1.0, 0)
 				maleta.soltar_loot_roubado(pos_queda)
 				
 	if mission_id != "":
-		# Agora manda direto para o StoryController, usando o tipo DESTROY
 		get_tree().call_group("StoryController", "notify_progress", StoryMissionData.MissionType.DESTROY, 1.0, mission_id)

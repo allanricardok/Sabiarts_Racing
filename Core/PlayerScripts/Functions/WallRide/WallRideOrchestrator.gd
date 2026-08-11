@@ -6,12 +6,15 @@ class_name WallRideOrchestrator
 @onready var trick_manager = car.get_node_or_null("%TrickManager")
 @onready var air_move = car.get_node_or_null("%AirMovementComponent")
 
+# OTIMIZAÇÃO: Cache do AbilityComponent para evitar buscas na árvore durante a física
+@onready var ability_component = car.get_node_or_null("%AbilityComponent")
+
 # Nossos submódulos especializados
 var scanner : WallScannerComponent
 var mechanics : WallRideMechanics
 
 # =================================================================
-# VARIÁVEIS CENTRALIZADAS (Exatamente como na sua imagem)
+# VARIÁVEIS CENTRALIZADAS
 # =================================================================
 @export_group("Configurações do Wallride")
 @export_flags_3d_physics var wall_collision_mask : int = 1 
@@ -52,15 +55,9 @@ var time_since_last_wallride : float = 999.0
 var wall_jump_combo_count : int = 0
 
 func _ready():
-	# =========================================================
-	# AUTO-SETUP: Cria os módulos e injeta as suas configurações!
-	# =========================================================
 	scanner = WallScannerComponent.new()
 	scanner.name = "WallScanner"
-	
-	# === A CORREÇÃO AQUI: Passamos o carro para o Scanner! ===
 	scanner.car = car 
-	
 	scanner.wall_collision_mask = wall_collision_mask
 	scanner.max_wall_distance = max_wall_distance
 	scanner.min_ground_height = min_ground_height
@@ -68,10 +65,7 @@ func _ready():
 	
 	mechanics = WallRideMechanics.new()
 	mechanics.name = "WallMechanics"
-	
-	# === A CORREÇÃO AQUI: Passamos o carro para a Mecânica! ===
 	mechanics.car = car 
-	
 	mechanics.anti_gravity_start = anti_gravity_start
 	mechanics.anti_gravity_end = anti_gravity_end
 	mechanics.anti_gravity_decay_time = anti_gravity_decay_time
@@ -105,18 +99,19 @@ func _check_wallride_entry() -> bool:
 	if wallride_cooldown > 0: return false
 	if air_move.check_grounded(): return false
 	
-	var speed_kmh = car.linear_velocity.length() * 3.6
-	if speed_kmh < min_speed_kmh: return false
+	# OTIMIZAÇÃO: Usando length_squared para evitar raiz quadrada na checagem de velocidade
+	var min_speed_mps = min_speed_kmh / 3.6
+	if car.linear_velocity.length_squared() < (min_speed_mps * min_speed_mps): 
+		return false
 		
 	var is_transfer_attempt = (time_since_last_wallride < 1.5)
-	var ability = car.get_node_or_null("%AbilityComponent")
 	
-	if is_transfer_attempt and ability:
-		if "current_cooldown" in ability and ability.current_cooldown > 0.0:
+	if is_transfer_attempt and is_instance_valid(ability_component):
+		if "current_cooldown" in ability_component and ability_component.current_cooldown > 0.0:
 			return false
-		if "current_energy" in ability and "COST_JUMP" in ability:
-			if ability.current_energy < ability.COST_JUMP:
-				if ability.has_method("_erro_falta_energia"): ability._erro_falta_energia()
+		if "current_energy" in ability_component and "COST_JUMP" in ability_component:
+			if ability_component.current_energy < ability_component.COST_JUMP:
+				if ability_component.has_method("_erro_falta_energia"): ability_component._erro_falta_energia()
 				return false
 
 	var wall_info = scanner.find_best_wall_360()
@@ -124,9 +119,9 @@ func _check_wallride_entry() -> bool:
 		var dist_ground = scanner.get_ground_distance(Vector3.ZERO)
 		if dist_ground > scanner.min_ground_height:
 			
-			if is_transfer_attempt and ability and "current_energy" in ability:
-				ability.current_energy -= 1
-				if ability.has_method("_start_cooldown"): ability._start_cooldown()
+			if is_transfer_attempt and is_instance_valid(ability_component) and "current_energy" in ability_component:
+				ability_component.current_energy -= 1
+				if ability_component.has_method("_start_cooldown"): ability_component._start_cooldown()
 				
 			_start_wallride(wall_info.normal)
 			return true
@@ -165,8 +160,9 @@ func _process_wallride_active(delta):
 		_stop_wallride("Botão Triângulo solto.")
 		return
 
-	var speed = car.linear_velocity.length()
-	if (speed * 3.6) < min_speed_kmh:
+	# OTIMIZAÇÃO: Usando length_squared para evitar raiz quadrada na checagem de velocidade
+	var min_speed_mps = min_speed_kmh / 3.6
+	if car.linear_velocity.length_squared() < (min_speed_mps * min_speed_mps):
 		_stop_wallride("Velocidade baixa.")
 		return
 
@@ -210,17 +206,15 @@ func _process_wallride_active(delta):
 			trick_manager.add_external_action("Wallride", 10, TrickManager.COLOR_SPECIAL)
 
 func _attempt_wall_jump():
-	var ability = car.get_node_or_null("%AbilityComponent")
-	
-	if ability and "current_cooldown" in ability and ability.current_cooldown > 0.0:
+	if is_instance_valid(ability_component) and "current_cooldown" in ability_component and ability_component.current_cooldown > 0.0:
 		return
 		
-	if ability and "current_energy" in ability and "COST_JUMP" in ability:
-		if ability.current_energy >= ability.COST_JUMP:
-			ability.current_energy -= ability.COST_JUMP
-			if ability.has_method("_start_cooldown"): ability._start_cooldown()
+	if is_instance_valid(ability_component) and "current_energy" in ability_component and "COST_JUMP" in ability_component:
+		if ability_component.current_energy >= ability_component.COST_JUMP:
+			ability_component.current_energy -= ability_component.COST_JUMP
+			if ability_component.has_method("_start_cooldown"): ability_component._start_cooldown()
 		else:
-			if ability.has_method("_erro_falta_energia"): ability._erro_falta_energia()
+			if ability_component.has_method("_erro_falta_energia"): ability_component._erro_falta_energia()
 			return
 		
 	var current_decay_mult = max(min_jump_force_multiplier, 1.0 - (wall_jump_combo_count * wall_jump_decay_per_jump))
@@ -284,10 +278,5 @@ func _process_wallride_exit(delta):
 # INTEGRAÇÃO COM TRICK MANAGER (ESCUDO DE COMBO)
 # =========================================================
 func has_combo_shield() -> bool:
-	# Retorna TRUE se:
-	# 1. O carro está fisicamente surfando na parede agora
-	# 2. O carro está na animação suave de deslizar para fora da quina
-	# 3. O carro saltou da parede (ou caiu dela) há menos de 0.5 segundos (Coyote Time de Transferência)
-	
 	var grace_period = (time_since_last_wallride < 0.5)
 	return is_wallriding or is_exiting_wallride or grace_period

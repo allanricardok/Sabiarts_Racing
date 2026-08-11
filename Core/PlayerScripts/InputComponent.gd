@@ -56,7 +56,7 @@ func setup(input_source: String):
 	air_move = owner.find_child("AirMovementComponent")
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
-func _process(delta):
+func _physics_process(delta):
 	if is_bot: return 
 	if suffix == "": return
 	

@@ -1,4 +1,3 @@
-# camera_test_3.gd
 extends Camera3D
 
 @export_group("Velocidades de Seguimento")
@@ -30,8 +29,8 @@ var air_mode_weight : float = 0.0
 
 @onready var target_node = $"../CameraTarget"
 @onready var car = $".."
-@onready var input = car.get_node("%InputComponent")
-@onready var trick_manager = car.get_node("%TrickManager")
+@onready var input = car.get_node_or_null("%InputComponent")
+@onready var trick_manager = car.get_node_or_null("%TrickManager")
 
 @export_group("Efeitos de Velocidade e Turbo")
 @export var speed_pullback_max := 2.0 
@@ -40,10 +39,7 @@ var air_mode_weight : float = 0.0
 @export var reverse_pullback_mult := 0.2 
 @export var turbo_kickback_recovery := 0.8 
 
-# === NOVOS CONTROLES DO TURBO ===
-## Força do tranco da câmera para trás no momento do turbo
 @export var turbo_kickback_force := 3.0 
-## Quantidade extra de FOV (abertura de lente) durante o turbo
 @export var turbo_fov_increase := 20.0 
 
 var current_turbo_kickback := 0.0
@@ -56,31 +52,45 @@ var original_target_offset : Vector3
 var original_look_offset : float
 var current_camera_mode : int = 0
 
+# OTIMIZAÇÃO: Cache de Identidade e RID
+var _is_bot: bool = false
+var _car_rid: RID
+
 func _ready():
 	original_target_offset = target_node.position
 	default_target_offset = original_target_offset
 	original_look_offset = look_offset
 	set_as_top_level(true)
 	global_position = target_node.global_position
-	air_move = car.find_child("AirMovementComponent")
+	air_move = car.find_child("AirMovementComponent", true, false)
+	_car_rid = car.get_rid()
+	
+	call_deferred("_late_bot_check")
+
+func _late_bot_check():
+	if is_instance_valid(input) and "is_bot" in input and input.is_bot:
+		_is_bot = true
+		# A MÁGICA DE PERFORMANCE AQUI: O bot ignora 100% o processamento desta câmera e desliga ela
+		set_physics_process(false)
+		current = false
 
 func set_camera_mode(mode: int):
 	current_camera_mode = mode
 	match mode:
-		0: # Normal
+		0: 
 			target_node.position = original_target_offset
 			default_target_offset = original_target_offset
 			look_offset = original_look_offset
-		1: # Capô
-			var capo_pos = Vector3(0, 1.3, 1.3) # Fallback padrão
+		1: 
+			var capo_pos = Vector3(0, 1.3, 1.3) 
 			if "hood_camera_pos" in car:
 				capo_pos = car.hood_camera_pos
 				
 			target_node.position = capo_pos
 			default_target_offset = capo_pos
 			look_offset = 0.0
-		2: # Longe
-			var far_offset = Vector3(0, 3, -5) # Fallback padrão
+		2: 
+			var far_offset = Vector3(0, 3, -5) 
 			if "far_camera_offset" in car:
 				far_offset = car.far_camera_offset
 				
@@ -92,33 +102,26 @@ func set_camera_mode(mode: int):
 func _physics_process(delta):
 	if not car or not target_node or not air_move or not input: return
 
-	# =================================================================
-	# 1. ATUALIZA O EFEITO DO TURBO PRIMEIRO (Afeta todas as câmeras)
-	# =================================================================
 	current_turbo_kickback = lerp(current_turbo_kickback, 0.0, delta * turbo_kickback_recovery)
 	current_turbo_fov = lerp(current_turbo_fov, 0.0, delta * turbo_kickback_recovery)
 
-	# --- CÂMERA DO CAPÔ (MÓDULO RÍGIDO) ---
 	if current_camera_mode == 1:
 		var hood_global = car.global_transform * default_target_offset
 		global_position = hood_global
 		
-		# Como a frente do seu carro é o +Z, nós usamos o positivo para olhar pra frente
 		if input.is_look_behind_pressed:
 			look_at(hood_global + (-car.global_transform.basis.z * 10.0), Vector3.UP)
 		else:
 			look_at(hood_global + (car.global_transform.basis.z * 10.0), Vector3.UP)
 			
-		# O FOV da câmera do capô agora reage ao Turbo!
 		var spd = car.linear_velocity.length()
 		var base_fov = remap(clamp(spd, 0, 60), 0, 100, 100, 100)
 		fov = lerpf(fov, base_fov + current_turbo_fov, 0.1)
 		
-		return # Encerra o script aqui! A física de transição normal não roda no modo capô.
+		return 
 
-	# --- CÂMERA NORMAL E LONGE ---
 	var is_actually_in_air = not air_move.check_grounded()
-	var current_air_time = trick_manager.air_time
+	var current_air_time = trick_manager.air_time if is_instance_valid(trick_manager) else 0.0
 	var is_stunting = air_move.is_doing_stunt 
 	var is_looking_back = input.is_look_behind_pressed 
 
@@ -136,7 +139,7 @@ func _physics_process(delta):
 	ground_fwd.y = clamp(ground_fwd.y, -0.5, 0.5)
 	
 	var air_fwd = -car.linear_velocity
-	if air_fwd.length() < 1.0: air_fwd = ground_fwd
+	if air_fwd.length_squared() < 1.0: air_fwd = ground_fwd
 	air_fwd.y = 0
 	
 	var blended_fwd = ground_fwd.lerp(air_fwd.normalized(), air_mode_weight)
@@ -158,9 +161,6 @@ func _physics_process(delta):
 	target_local_pos.y += clamp(offset_y, min_local_y, max_local_y)
 	target_local_pos.z -= offset_y * 0.5 
 	
-	# =================================================================
-	# RECUO POR VELOCIDADE E SOCO DO TURBO
-	# =================================================================
 	var forward_vel = car.global_transform.basis.z.dot(car.linear_velocity)
 	var speed_kmh = abs(forward_vel) * 2.3
 	
@@ -172,9 +172,7 @@ func _physics_process(delta):
 		if is_reversing:
 			speed_offset *= reverse_pullback_mult 
 			
-	# Soma a velocidade com o turbo e subtrai (afasta a câmera no seu sistema)
 	target_local_pos.z -= (speed_offset + current_turbo_kickback)
-	# =================================================================
 	
 	var final_local_pos : Vector3
 	if is_looking_back:
@@ -189,7 +187,8 @@ func _physics_process(delta):
 	var space_state = get_world_3d().direct_space_state
 	var ray_origin = car.global_position + Vector3.UP * 0.5
 	var ray_query = PhysicsRayQueryParameters3D.create(ray_origin, ideal_global_pos, collision_mask)
-	ray_query.exclude = [car.get_rid()]
+	# OTIMIZAÇÃO: Usar o RID em cache!
+	ray_query.exclude = [_car_rid]
 	var collision = space_state.intersect_ray(ray_query)
 	
 	if collision:
@@ -200,10 +199,10 @@ func _physics_process(delta):
 	look_at(car.global_position + Vector3.UP * look_offset, Vector3.UP)
 	
 	var speed = car.linear_velocity.length()
-	# FOV reage ao Turbo também nas câmeras externas
 	var base_fov = remap(clamp(speed, 0, 60), 0, 100, 100, 100) 
 	fov = lerpf(fov, base_fov + current_turbo_fov, 0.1)
 	
 func apply_turbo_kickback():
+	if _is_bot: return
 	current_turbo_kickback = turbo_kickback_force
 	current_turbo_fov = turbo_fov_increase

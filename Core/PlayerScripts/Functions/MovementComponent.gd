@@ -1,4 +1,3 @@
-# MovementComponent.gd
 extends Node
 class_name MovementComponent
 
@@ -43,6 +42,12 @@ var _was_on_ground: bool = true
 @export var SPEED_MAX_ASSIST = 180.0 
 @export var STATIONARY_TURN_SPEED = 35.0 
 
+@export_group("Burnout Balance")
+@export var burnout_min_time: float = 0.2
+@export var burnout_max_time: float = 1.5
+@export var burnout_min_mult: float = 0.4
+@export var burnout_max_mult: float = 2.0
+
 @export_group("Recuperação e Manobras")
 @export var FALL_FORCE_BUFFER_DISTANCE = 1.5 
 @export var REVERSE_DELAY := 0.2
@@ -61,12 +66,38 @@ var _burnout_charge_time := 0.0
 var _burnout_smoke_timer := 0.0
 var _drift_smoke_timer := 0.0 
 
+# ==============================================================================
+# OTIMIZAÇÃO: MEMÓRIA CACHE (Isso salva a CPU)
+# ==============================================================================
+var _rage_component: Node
+var _ability_component: Node
+var _burnout_meter: Node
+var _camera_shake: Node
+var _trick_manager: Node
+var _wheels: Array[VehicleWheel3D] = []
+
+func _ready():
+	# Guarda todos os nós pesados na memória uma única vez!
+	_rage_component = car.get_node_or_null("%RageComponent")
+	_ability_component = car.get_node_or_null("%AbilityComponent")
+	_burnout_meter = car.find_child("BurnoutMeter", true, false)
+	_trick_manager = car.get_node_or_null("%TrickManager")
+	
+	var shakes = car.find_children("*", "CameraShake", true, false)
+	if shakes.size() > 0:
+		_camera_shake = shakes[0]
+		
+	# Array estático para não causar Garbage Collection nos frames
+	if is_instance_valid(wheel_rear_left): _wheels.append(wheel_rear_left)
+	if is_instance_valid(wheel_rear_right): _wheels.append(wheel_rear_right)
+	if is_instance_valid(wheel_front_left): _wheels.append(wheel_front_left)
+	if is_instance_valid(wheel_front_right): _wheels.append(wheel_front_right)
+
 func _physics_process(delta):
 	if not car.pode_mover: return
 	
 	var is_on_ground = _check_grounded()
 	
-	# === CORREÇÃO DA VELOCIDADE: Ignora o eixo Y (Pulos e lombadas) ===
 	var flat_velocity = Vector3(car.linear_velocity.x, 0, car.linear_velocity.z)
 	var speed_mps = flat_velocity.length()
 	var speed_kmh = speed_mps * 3.6
@@ -100,8 +131,8 @@ func _handle_engine_and_steering(delta, is_on_ground, speed_kmh):
 		car.steering = 0.0 
 		return 
 	
-	var rage = car.get_node_or_null("%RageComponent")
-	var rage_speed_mult = rage.get_speed_mult() if rage else 1.0
+	# Usa o componente já salvo em cache
+	var rage_speed_mult = _rage_component.get_speed_mult() if is_instance_valid(_rage_component) else 1.0
 	
 	if abs(input.steering) > 0.05:
 		_steering_hold_time += delta
@@ -124,55 +155,43 @@ func _handle_engine_and_steering(delta, is_on_ground, speed_kmh):
 	var turn_dir = input.steering
 	var forward_velocity = car.linear_velocity.dot(car.global_transform.basis.z)
 	
-# ==============================================================================
-	# LÓGICA DO ZERINHO COM SISTEMA DE CARREGAMENTO (CORRIGIDA)
-	# ==============================================================================
+	# LÓGICA DO ZERINHO COM SISTEMA DE CARREGAMENTO
 	var holding_both_pedals = false
 	if "is_accelerating" in input and "is_braking" in input:
 		holding_both_pedals = input.is_accelerating and input.is_braking
 		
-	# === TRAVA DE ESTADO (State Lock) ===
 	if holding_both_pedals:
 		if not _is_doing_burnout and speed_kmh <= 130.0:
 			_is_doing_burnout = true
 	else:
 		_is_doing_burnout = false
 
-	# --- VARIÁVEL QUE ALIMENTA A BARRA (0.0 até 1.0) ---
 	var charge_ratio = 0.0 
 
 	if _is_doing_burnout:
 		_burnout_charge_time += delta
-		
-		# 1.5 é o tempo máximo do boost configurado no seu clamp abaixo!
 		charge_ratio = _burnout_charge_time / 1.5 
 		
-		# --- SCREENSHAKE DE CARREGAMENTO ---
-		var shake_intensity = clamp(remap(_burnout_charge_time, 0.0, 1.5, 1, 12), 1, 12)
-		var shake_node = _get_camera_shake()
-		if shake_node:
-			shake_node.trigger_event("BurnoutCharge", shake_intensity)
+		# --- SCREENSHAKE DE CARREGAMENTO USANDO CACHE ---
+		if is_instance_valid(_camera_shake):
+			var shake_intensity = clamp(remap(_burnout_charge_time, 0.0, 1.5, 1, 12), 1, 12)
+			_camera_shake.trigger_event("BurnoutCharge", shake_intensity)
 			
 	else:
-		# DETECÇÃO DO BOOST DE ARRANCADA
 		if _was_doing_burnout:
 			if input.is_accelerating and not input.is_braking and _burnout_charge_time >= 0.2:
-				var boost_mult = clamp(remap(_burnout_charge_time, 0.2, 1.5, 0.4, 2.0), 0.4, 2.0)
+				var boost_mult = clamp(remap(_burnout_charge_time, burnout_min_time, burnout_max_time, burnout_min_mult, burnout_max_mult), burnout_min_mult, burnout_max_mult)				
 				
-				var ability = car.get_node_or_null("%AbilityComponent")
-				if ability and ability.has_method("execute_burnout_boost"):
-					ability.execute_burnout_boost(boost_mult)
+				if is_instance_valid(_ability_component) and _ability_component.has_method("execute_burnout_boost"):
+					_ability_component.execute_burnout_boost(boost_mult)
 					
 			_burnout_charge_time = 0.0
 			
 	_was_doing_burnout = _is_doing_burnout
 
-	# ==============================================================================
-	# COMUNICAÇÃO COM A NOVA BARRA VISUAL
-	# ==============================================================================
-	var meter = car.find_child("BurnoutMeter", true, false)
-	if is_instance_valid(meter) and meter.has_method("update_charge"):
-		meter.update_charge(charge_ratio)
+	# COMUNICAÇÃO COM A NOVA BARRA VISUAL USANDO CACHE
+	if is_instance_valid(_burnout_meter) and _burnout_meter.has_method("update_charge"):
+		_burnout_meter.update_charge(charge_ratio)
 
 	if is_on_ground:
 		var is_braking_hard = (forward_velocity > 2.0 and input.throttle < -0.1)
@@ -193,9 +212,7 @@ func _handle_engine_and_steering(delta, is_on_ground, speed_kmh):
 		var braking_reverse = (forward_velocity < -0.5 and input.throttle > 0.1)
 		var holding_brake_in_cooldown = (_drift_cooldown > 0.0 and input.throttle < -0.1)
 		
-		# ============================================================
 		# EXECUÇÃO DA FÍSICA E FUMAÇA DO ZERINHO
-		# ============================================================
 		if _is_doing_burnout:
 			car.engine_force = 0.0
 			car.brake = BRAKE_POWER * 2.5 
@@ -208,9 +225,6 @@ func _handle_engine_and_steering(delta, is_on_ground, speed_kmh):
 				var spin_force = STATIONARY_TURN_SPEED * abs(input.steering) * torque_contact_multiplier
 				car.apply_torque(car.global_transform.basis.y * sign(input.steering) * spin_force * car.mass)
 				
-			# ==========================================
-			# CRIAÇÃO DA FUMAÇA NAS RODAS TRASEIRAS
-			# ==========================================
 			_burnout_smoke_timer -= delta
 			if _burnout_smoke_timer <= 0.0:
 				_burnout_smoke_timer = 0.2 
@@ -259,20 +273,16 @@ func _spawn_burnout_smoke():
 
 func _apply_dynamic_friction(delta, speed_kmh): 
 	if car.has_method("is_frozen") and car.is_frozen():
-		var wheels = [wheel_rear_left, wheel_rear_right, wheel_front_left, wheel_front_right]
-		for wheel in wheels:
-			if is_instance_valid(wheel):
-				wheel.wheel_friction_slip = 0.1 
+		for wheel in _wheels:
+			wheel.wheel_friction_slip = 0.1 
 		return 
 		
 	if _is_doing_burnout:
-		var wheels = [wheel_rear_left, wheel_rear_right, wheel_front_left, wheel_front_right]
-		for wheel in wheels:
-			if is_instance_valid(wheel):
-				if wheel == wheel_rear_left or wheel == wheel_rear_right:
-					wheel.wheel_friction_slip = friction_rear_min * 0.3 
-				else:
-					wheel.wheel_friction_slip = friction_front_max 
+		for wheel in _wheels:
+			if wheel == wheel_rear_left or wheel == wheel_rear_right:
+				wheel.wheel_friction_slip = friction_rear_min * 0.3 
+			else:
+				wheel.wheel_friction_slip = friction_front_max 
 		return 
 
 	var speed_clamp = clamp(speed_kmh, 0, speed_max_friction)
@@ -296,9 +306,6 @@ func _apply_dynamic_friction(delta, speed_kmh):
 			var smooth_spin_assist = 10.0 * steer_intensity
 			car.apply_torque(car.global_transform.basis.y * _drift_dir * smooth_spin_assist * car.mass)
 			
-			# ==========================================
-			# CRIAÇÃO DA FUMAÇA NO DRIFT COM BURST INICIAL
-			# ==========================================
 			_drift_smoke_timer -= delta
 			if _drift_smoke_timer <= 0.0:
 				if _drift_cooldown > 1.0:
@@ -318,16 +325,13 @@ func _apply_dynamic_friction(delta, speed_kmh):
 		f_front = 1.8 
 		_drift_smoke_timer = 0.0
 		
-	var wheels = [wheel_rear_left, wheel_rear_right, wheel_front_left, wheel_front_right]
-	for wheel in wheels:
-		if is_instance_valid(wheel):
-			wheel.wheel_friction_slip = f_rear if (wheel == wheel_rear_left or wheel == wheel_rear_right) else f_front
+	for wheel in _wheels:
+		wheel.wheel_friction_slip = f_rear if (wheel == wheel_rear_left or wheel == wheel_rear_right) else f_front
 
 func _get_grounded_ratio() -> float:
 	var count = 0
-	var wheels = [wheel_rear_left, wheel_rear_right, wheel_front_left, wheel_front_right]
-	for wheel in wheels:
-		if is_instance_valid(wheel) and wheel.is_in_contact():
+	for wheel in _wheels:
+		if wheel.is_in_contact():
 			count += 1
 	return float(count) / 4.0
 
@@ -356,9 +360,8 @@ func _reset_car_orientation():
 	var current_pos = car.global_position
 	var current_yaw = car.global_rotation.y 
 	
-	var trick_manager = car.get_node_or_null("%TrickManager")
-	if is_instance_valid(trick_manager) and trick_manager.has_method("reset_trick"):
-		trick_manager.reset_trick()
+	if is_instance_valid(_trick_manager) and _trick_manager.has_method("reset_trick"):
+		_trick_manager.reset_trick()
 	
 	car.global_rotation = Vector3(0, current_yaw, 0)
 	car.global_position = current_pos + Vector3(0, 2.5, 0)
@@ -372,10 +375,9 @@ func _apply_drag(delta):
 	if car.linear_velocity.length() < 0.1: return
 	
 	var drag_multiplier = 1.0
-	var rage = car.get_node_or_null("%RageComponent")
 	
-	if rage:
-		var speed_buff = rage.get_speed_mult()
+	if is_instance_valid(_rage_component):
+		var speed_buff = _rage_component.get_speed_mult()
 		if speed_buff > 1.0:
 			drag_multiplier = 1.0 / speed_buff 
 			
@@ -386,9 +388,3 @@ func _apply_drag(delta):
 func _apply_extra_gravity(is_on_ground: bool):
 	if not is_on_ground:
 		car.apply_central_force(Vector3.DOWN * EXTRA_FALL_GRAVITY * car.mass)
-
-func _get_camera_shake() -> CameraShake:
-	var shakes = car.find_children("*", "CameraShake", true, false)
-	if shakes.size() > 0:
-		return shakes[0] as CameraShake
-	return null

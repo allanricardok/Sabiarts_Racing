@@ -13,11 +13,8 @@ var pode_mover : bool = true
 # --- DROPS E RECOMPENSAS (BOTS) ---
 @export_group("Recompensas do Bot")
 @export var pontos_por_morte : int = 1000
-## Arraste a cena "UniversalPickup.tscn" aqui
 @export var drop_item_scene : PackedScene
-## Arraste o arquivo .tres (Ex: Vida.tres)
 @export var drop_item_resource_1 : Resource
-## Arraste outro arquivo .tres (Ex: Míssil.tres)
 @export var drop_item_resource_2 : Resource
 
 # --- CONFIGURAÇÕES DE COMBATE (ATROPELAMENTO) ---
@@ -37,7 +34,7 @@ var pode_mover : bool = true
 @onready var input = %InputComponent
 @onready var movement = %MovementComponent
 @onready var weapons = %WeaponManager
-@onready var effects = %VehicleEffects # <-- DELEGAMOS OS EFEITOS PRA CA!
+@onready var effects = %VehicleEffects 
 
 # --- REFERÊNCIAS DE VISUAL DAMAGE ---
 @export_group("Visual Damage")
@@ -46,10 +43,7 @@ var pode_mover : bool = true
 @export var mesh_skeleton: MeshInstance3D
 
 # ============================================================================
-# NOVO: Fragmentos de destruição ao morrer. Funciona tanto pra bots (que
-# somem de vez) quanto pra jogadores (que "morrem" visualmente e voltam com
-# revive()) — a explosão é só um efeito visual no instante da morte, não
-# afeta o ciclo de vida do carro.
+# Fragmentos de destruição ao morrer.
 # ============================================================================
 @export_group("Fragmentos de Destruição")
 @export var spawn_debris_on_death : bool = true
@@ -57,11 +51,8 @@ var pode_mover : bool = true
 @export var explosion_force : float = 5.0
 @export var upward_bias : float = 4.0
 @export var shard_lifetime : float = 1.3
-## Carros são maiores que um barril, então o raio de dispersão também é maior
 @export var scatter_radius : float = 1.0
-## Tamanho mínimo de cada fragmento (aresta aproximada, em unidades do mundo)
 @export var shard_min_size : float = 0.2
-## Tamanho máximo de cada fragmento (carro inteiro: pedaços maiores que um barril)
 @export var shard_max_size : float = 0.5
 
 # --- INTERFACE ---
@@ -71,13 +62,10 @@ var pode_mover : bool = true
 
 # ---  CAMERA ---
 @export_group("Configurações de Câmera")
-## Posição local da câmera do capô.
 @export var hood_camera_pos: Vector3 = Vector3(0, 1.2, 1.2)
-## Deslocamento extra para a câmera distante (adicionado à posição normal).
 @export var far_camera_offset: Vector3 = Vector3(0, 3.0, -5.0)
 
 @export_group("Combate: Efeitos Visuais")
-## Distância máxima (em metros) para espirrar sangue na tela ao destruir este carro
 @export var blood_splash_distance: float = 3.0
 
 # --- VARIÁVEIS INTERNAS ---
@@ -87,10 +75,12 @@ var velocidade_de_impacto : float = 0.0
 var _active_gaps : Dictionary = {}
 var pedestrians_killed : int = 0
 
+# OTIMIZAÇÃO: Cache da Câmera para não procurar na árvore toda batida
+var _cached_camera_shake : Node = null
+
 # --- INICIALIZAÇÃO ---
 
 func _ready():
-	# Grava as camadas originais do carro antes de qualquer morte
 	original_collision_layer = collision_layer
 	original_collision_mask = collision_mask
 	add_to_group("jogadores")
@@ -113,6 +103,8 @@ func _ready():
 	teleport_material.roughness = 1.0 
 	teleport_material.shading_mode = StandardMaterial3D.SHADING_MODE_UNSHADED 
 	
+	_cached_camera_shake = find_child("CameraShake", true, false)
+	
 	call_deferred("_setup_multiplayer_links")
 	
 	update_visual_damage(100.0)
@@ -127,10 +119,6 @@ func _ready():
 	if stats:
 		stats.health_depleted.connect(_on_vehicle_destroyed)
 	
-	# NOVO: restaura a chave do teleporte se ela já foi conquistada numa run
-	# anterior. Global.has_teleport_key é persistido em disco e carregado no
-	# _ready() do próprio Global, então isso funciona tanto ao trocar de mapa
-	# na mesma sessão quanto ao reabrir o jogo depois de fechado.
 	if is_instance_valid(Global) and "has_teleport_key" in Global and Global.has_teleport_key:
 		if "has_teleportkey" in self:
 			self.has_teleportkey = true
@@ -140,40 +128,36 @@ func _ready():
 # --- PROCESSAMENTO ---
 
 func _physics_process(delta):
-	# --- TRAVA DE MOVIMENTO (GELO OU MORTE) ---
-	# Se não pode mover (cutscene/morte) OU se estiver congelado pelo componente
 	if not pode_mover or is_frozen():
-		# (O freio pesado do gelo já é aplicado dentro do VehicleEffects.gd)
 		if not is_frozen(): 
 			engine_force = 0
 			brake = 100
 		return
 	
-	# Lógica dos Gaps
-	var expired_gaps = []
-	for gap_id in _active_gaps.keys():
-		_active_gaps[gap_id] -= delta
-		if _active_gaps[gap_id] <= 0:
-			expired_gaps.append(gap_id)
-			
-	for gap_id in expired_gaps:
-		_active_gaps.erase(gap_id)
+	# OTIMIZAÇÃO: Evita alocar arrays inúteis se o dict estiver vazio (ex: Bots)
+	if not _active_gaps.is_empty():
+		var expired_gaps = []
+		for gap_id in _active_gaps.keys():
+			_active_gaps[gap_id] -= delta
+			if _active_gaps[gap_id] <= 0:
+				expired_gaps.append(gap_id)
+				
+		for gap_id in expired_gaps:
+			_active_gaps.erase(gap_id)
 	
-	# Velocímetro da UI (se existir)
 	if speed_label:
 		var kmh = linear_velocity.length() * 2.3
 		speed_label.text = str(int(kmh))
 	
 	brake = 0
 	
-	# Acumulador de força para batidas
 	var vel_atual = linear_velocity.length() * 2.3
 	if vel_atual > velocidade_de_impacto:
 		velocidade_de_impacto = vel_atual
 	else:
 		velocidade_de_impacto = lerp(velocidade_de_impacto, vel_atual, delta * 8.0)
 
-# --- SETUP DE MULTIPLAYER (CORRIGIDO E BLINDADO) ---
+# --- SETUP DE MULTIPLAYER ---
 
 func _setup_multiplayer_links():
 	var is_bot = false
@@ -251,16 +235,13 @@ func set_pode_mover(valor: bool):
 	pode_mover = valor
 
 func take_damage(amount: float, attacker: Node = null):
-	# --- MUDANÇA: SHAKE DE DANO POR STRING ---
 	if amount > 6.0:
 		play_camera_shake("Damage")
 	if stats: stats.take_damage(amount, attacker)
 
 # --- TELEPORTE FIX ---
 func teleport_to(target_transform : Transform3D):
-	# Cole logo no começo da função:
 	get_tree().call_group("TutorialUI", "complete_task", "teleport")
-	# Paramos o carro instantaneamente para evitar que ele deslize para fora do destino
 	linear_velocity = Vector3.ZERO
 	angular_velocity = Vector3.ZERO
 	
@@ -272,7 +253,7 @@ func teleport_to(target_transform : Transform3D):
 	tween.tween_interval(0.1)
 	tween.tween_callback(func():
 		global_transform = target_transform
-		linear_velocity = Vector3.ZERO # Reforça o freio pós teleporte
+		linear_velocity = Vector3.ZERO
 		angular_velocity = Vector3.ZERO
 	)
 	tween.tween_interval(0.1)
@@ -321,7 +302,6 @@ func _on_impacto_corpo(body: Node):
 			var rage = get_node_or_null("%RageComponent")
 			if rage: rage.add_collision_damage(dano_final)
 			
-			# --- MUDANÇA: SHAKE DE CARRO POR STRING (Passando o Dano como modificador) ---
 			play_camera_shake("CarCollision", dano_final)
 			
 	elif body.has_method("take_damage"):
@@ -332,9 +312,8 @@ func _on_impacto_corpo(body: Node):
 			var rage = get_node_or_null("%RageComponent")
 			if rage: rage.add_collision_damage(dano_final)
 
-		# --- MUDANÇA: SHAKE DE OBJETO POR STRING ---
 		var speed_now = linear_velocity.length() * 2.3
-		if speed_now < (my_speed * 0.75): # Perdeu mais de 25% da vel?
+		if speed_now < (my_speed * 0.75):
 			play_camera_shake("ObjCollision")
 
 # --- SISTEMA DE MORTE E DESTRUIÇÃO ---
@@ -347,35 +326,27 @@ func _on_vehicle_destroyed(attacker: Node = null):
 	var is_bot = false
 	if input and "is_bot" in input:
 		is_bot = input.is_bot
+		set_physics_process(false)
+		set_process(false)
 	
-	# NOVO: explosão de fragmentos no instante da morte
 	_spawn_debris()
 	
-	# =================================================================
-	# NOVO: CHECAGEM DE SPLASH DE SANGUE/ÓLEO NA TELA
-	# =================================================================
 	var actual_shooter = attacker
-	# Se o atacante for um projétil, pegamos o dono dele
 	if attacker and "shooter" in attacker and is_instance_valid(attacker.shooter):
 		actual_shooter = attacker.shooter
 		
 	if is_instance_valid(actual_shooter) and actual_shooter.is_in_group("jogadores"):
-		# Calcula a distância entre o carro destruído e quem atirou/bateu
 		var dist = global_position.distance_to(actual_shooter.global_position)
 		if dist <= blood_splash_distance:
 			_trigger_blood_splash_ui(actual_shooter)
-	# =================================================================
 		
-	# --- CORREÇÃO DO ENDGAME ---
 	var controller = get_tree().get_first_node_in_group("LevelController")
 	if controller and controller.has_method("registrar_morte_jogador"):
 		controller.registrar_morte_jogador()
 		
-	# Todo mundo spawna loot
 	_spawn_loot_safely(self.global_position)
 		
 	if not is_bot:
-		# --- MORTE DE JOGADOR REAL ---
 		visible = false
 		pode_mover = false
 		collision_layer = 0
@@ -383,27 +354,19 @@ func _on_vehicle_destroyed(attacker: Node = null):
 		freeze = true 
 		set_physics_process(false)
 	else:
-		# --- MORTE DO BOT ---
 		if is_instance_valid(attacker) and attacker.is_in_group("jogadores"):
 			var g_manager = attacker.get_node_or_null("%GroundTrickManager")
 			if g_manager and g_manager.has_method("add_custom_action"):
 				g_manager.add_custom_action("Bot Destroyed!", pontos_por_morte)
 		
-		# =================================================================
-		# NOVO: EXPLOSÃO DO BOT (VISUAL)
-		# =================================================================
 		if is_instance_valid(ExplosionManager):
 			var cor_fogo = Color(1.0, 0.4, 0.0, 1.0)
 			var cor_fumaca = Color(0.2, 0.2, 0.2, 1.0)
 			ExplosionManager.explode(global_position, cor_fogo, 0.0, 15, 0.0, cor_fumaca, 2, 0.5)
 		
-		# =================================================================
-		# NOVO: DANO EM ÁREA E SCREENSHAKE (FÍSICA)
-		# =================================================================
-		var raio_explosao = 20.0 # Distância em metros
+		var raio_explosao = 20.0
 		var dano_explosao = 15.0
 		
-		# Pega o motor de física do mundo
 		var space_state = get_world_3d().direct_space_state
 		var sphere = SphereShape3D.new()
 		sphere.radius = raio_explosao
@@ -412,38 +375,34 @@ func _on_vehicle_destroyed(attacker: Node = null):
 		query.shape = sphere
 		query.transform = global_transform
 		
-		# Detecta tudo que está na área da explosão
 		var result = space_state.intersect_shape(query)
 		for hit in result:
 			var objeto = hit.collider
-			if objeto != self and objeto != owner: # Não dá dano em si mesmo
-				
-				# Aplica o dano
+			if objeto != self and objeto != owner:
 				if objeto.has_method("take_damage"):
 					objeto.take_damage(dano_explosao, self)
 				else:
-					var stats_alvo = objeto.find_child("StatsComponent*", true, false)
+					# OTIMIZAÇÃO: Sem wildcard pesada aqui
+					var stats_alvo = objeto.find_child("StatsComponent", true, false)
 					if stats_alvo and stats_alvo.has_method("take_damage"):
 						stats_alvo.take_damage(dano_explosao, self)
 						
-				# Aplica Screenshake em quem for atingido
-				var shake = objeto.find_child("CameraShake*", true, false)
-				if shake and shake.has_method("trigger_event"):
-					shake.trigger_event("car_collision_max_force", 15) # Substitua pelo nome do seu evento de shake forte
+				# OTIMIZAÇÃO: Bots e detritos não têm CameraShake! Filtramos apenas jogadores.
+				if objeto.is_in_group("jogadores"):
+					var shake = objeto.find_child("CameraShake", true, false)
+					if shake and shake.has_method("trigger_event"):
+						shake.trigger_event("car_collision_max_force", 15)
 					
 		visible = false
 		collision_layer = 0
 		collision_mask = 0
 		queue_free()
-# ============================================================================
-# COMUNICAÇÃO DE EFEITOS DE UI
-# ============================================================================
+
 func _trigger_blood_splash_ui(shooter: Node3D):
 	if not shooter: return
 	var input_comp = shooter.get_node_or_null("%InputComponent")
 	
 	if input_comp and not input_comp.get("is_bot"):
-		# Encontra a HUD correta em casos de multiplayer split-screen
 		var suffix = input_comp.get("suffix") if input_comp.get("suffix") != null else ""
 		var hud = get_tree().get_first_node_in_group("HUD" + suffix)
 		
@@ -453,10 +412,6 @@ func _trigger_blood_splash_ui(shooter: Node3D):
 		if hud and hud.has_method("splatter_blood_on_lens"):
 			hud.splatter_blood_on_lens()
 
-# NOVO: dispara a explosão de fragmentos usando o DebrisManager (autoload).
-# Usa como referência de material a malha que estiver visível no momento
-# da morte (mesh_new, mesh_damaged ou mesh_skeleton) — assim os fragmentos
-# combinam com o estado visual de dano em que o carro estava.
 func _spawn_debris() -> void:
 	if not spawn_debris_on_death:
 		return
@@ -490,56 +445,20 @@ func _spawn_debris() -> void:
 		shard_max_size
 	)
 
-# --- SISTEMA DE DROPS SEGURO ---
 func _spawn_loot_safely(origin_pos: Vector3):
 	if drop_item_scene:
-		var left_pos = origin_pos + (global_transform.basis.x * -2.5) + Vector3(0, 1.0, 0)
-		var right_pos = origin_pos + (global_transform.basis.x * 2.5) + Vector3(0, 1.0, 0)
-		
-		if drop_item_resource_1: _create_drop_carrier(left_pos, drop_item_resource_1)
-		if drop_item_resource_2: _create_drop_carrier(right_pos, drop_item_resource_2)
+		if is_instance_valid(LootDropManager):
+			var dir_left = (global_transform.basis.x * -1.0 + Vector3(0, 0.5, 0)).normalized()
+			var dir_right = (global_transform.basis.x * 1.0 + Vector3(0, 0.5, 0)).normalized()
+			
+			if drop_item_resource_1:
+				LootDropManager.spawn_ejected_loot(origin_pos, dir_left, drop_item_scene, drop_item_resource_1, 6.0)
+			
+			if drop_item_resource_2:
+				LootDropManager.spawn_ejected_loot(origin_pos, dir_right, drop_item_scene, drop_item_resource_2, 6.0)
+		else:
+			push_warning("[BaseVehicle] LootDropManager Autoload não encontrado!")
 
-func _create_drop_carrier(start_pos: Vector3, resource_to_drop: Resource):
-	if not is_inside_tree(): return 
-	
-	var space_state = get_world_3d().direct_space_state
-	var destination = start_pos + (Vector3.DOWN * 100.0)
-	var query = PhysicsRayQueryParameters3D.create(start_pos, destination)
-	
-	query.exclude = [self.get_rid()] 
-	
-	var result = space_state.intersect_ray(query)
-	var final_pos = start_pos 
-	
-	if result:
-		final_pos = result.position + Vector3(0, 1.5, 0)
-		
-	var drop_carrier = Node3D.new()
-	drop_carrier.global_position = start_pos
-	get_tree().current_scene.add_child(drop_carrier)
-	
-	var drop = drop_item_scene.instantiate()
-	drop.position = Vector3.ZERO 
-	
-	if "weapon_resource" in drop:
-		drop.weapon_resource = resource_to_drop
-	elif "item_data" in drop:
-		drop.item_data = resource_to_drop
-		
-	drop_carrier.add_child(drop)
-	
-	drop.tree_exited.connect(func():
-		if is_instance_valid(drop_carrier):
-			drop_carrier.queue_free()
-	)
-	
-	var distance = start_pos.distance_to(final_pos)
-	if distance > 0.1:
-		var fall_time = sqrt((2.0 * distance) / 50.0)
-		var tween = get_tree().create_tween()
-		tween.tween_property(drop_carrier, "global_position", final_pos, fall_time).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-
-# --- CONTROLE DE VISIBILIDADE DO NAMETAG ---
 func atualizar_visao_nametags(categoria_index: int):
 	var my_camera = find_child("Camera3D", true, false)
 	if not my_camera: return
@@ -554,7 +473,6 @@ func atualizar_visao_nametags(categoria_index: int):
 				var layer_bit = 10 + i
 				my_camera.cull_mask |= (1 << layer_bit)
 
-# --- EFEITOS DE STATUS DELEGADOS AO COMPONENTE ---
 func aplicar_congelamento(tempo: float = 3.0):
 	if effects and effects.has_method("aplicar_congelamento"):
 		effects.aplicar_congelamento(tempo)
@@ -568,56 +486,48 @@ func play_camera_shake(event_name: String, modifier: float = 1.0):
 	var is_bot = (input and "is_bot" in input and input.is_bot)
 	if is_bot: return 
 	
-	var shaker = find_child("CameraShake", true, false)
-	if shaker and shaker.has_method("trigger_event"):
-		shaker.trigger_event(event_name, modifier)
+	# OTIMIZAÇÃO: Usa o nó salvo na memória em vez de rodar o find_child na árvore
+	if is_instance_valid(_cached_camera_shake) and _cached_camera_shake.has_method("trigger_event"):
+		_cached_camera_shake.trigger_event(event_name, modifier)
 
 func set_camera_mode(mode_index: int):
 	var my_camera = find_child("Camera3D", true, false)
 	if my_camera and my_camera.has_method("set_camera_mode"):
 		my_camera.set_camera_mode(mode_index)
 		
-# --- RESSURREIÇÃO ---
 func revive():
 	print("[Vehicle-DEBUG] Comando de reviver recebido!")
 	
 	_is_dead = false
 	
-	# 1. Garante que o carro em si está visível, com física ativa e pode colidir
 	visible = true
 	process_mode = Node.PROCESS_MODE_INHERIT
 	freeze = false 
 	set_physics_process(true)
 	pode_mover = true
 	
-	# Restaura as camadas originais de colisão para os portais funcionarem
 	collision_layer = original_collision_layer 
 	collision_mask = original_collision_mask
 	
-	# 2. Procura todas as malhas 3D (Meshes) dentro do carro e as torna visíveis
 	var todas_as_meshes = find_children("*", "MeshInstance3D", true)
 	for mesh in todas_as_meshes:
 		mesh.visible = true
 		
-	# 3. Restaura o VisualDamage
 	var visual_damage = find_child("VisualDamageComponent", true, false)
 	if visual_damage and visual_damage.has_method("reset"):
 		visual_damage.reset()
 	update_visual_damage(100.0) 
 		
-	# 4. Restaura Saúde e Escudo de Combate chamando as funções do componente
 	if stats:
 		print("[Vehicle-DEBUG] StatsComponent encontrado. Curando Vida e Shield...")
 		if stats.has_method("heal_full"): 
 			stats.heal_full()
 		else:
-			# Garante a cura direta e segura caso heal_full não exista
 			if "current_health" in stats: stats.current_health = stats.max_health
 			if "current_shield" in stats: stats.current_shield = stats.max_shield
 			if "is_dead" in stats: stats.is_dead = false
 			if "is_invulnerable" in stats: stats.is_invulnerable = false
 			
-	# 5. Restaura a Energia de Habilidades (Pulo, Turbo, Teleporte)
 	var ability = get_node_or_null("%AbilityComponent")
 	if not ability:
 		ability = find_child("AbilityComponent", true, false)

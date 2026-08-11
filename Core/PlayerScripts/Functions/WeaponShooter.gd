@@ -88,6 +88,21 @@ func _spawn_projectile(res: WeaponResource, node_name: String, backwards: bool =
 	
 	proj.set("is_shot_backwards", backwards)
 	
+	# =====================================================================
+	# NOVO: INJETANDO AS VARIÁVEIS DE EXPLOSÃO DO .TRES NA BALA
+	# =====================================================================
+	# Checamos se a variável existe em ambos para evitar crash com armas/balas antigas
+	if "causes_aoe_damage" in res and "causes_aoe_damage" in proj:
+		proj.causes_aoe_damage = res.causes_aoe_damage
+		proj.aoe_radius = res.aoe_radius
+		proj.aoe_damage = res.aoe_damage
+		proj.aoe_knockback = res.aoe_knockback
+		proj.self_damage_multiplier = res.self_damage_multiplier
+	elif "causes_aoe_damage" in proj:
+		# Se a arma não tiver AoE configurado no .tres, garante que a bala saia normal
+		proj.causes_aoe_damage = false
+	# =====================================================================
+	
 	if proj.has_method("setup"):
 		var prop_speed: float = res.speed if "speed" in res else 80.0
 		

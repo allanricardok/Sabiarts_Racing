@@ -18,7 +18,7 @@ var stats: Node
 
 var radar : BotRadar
 var driver : BotDriver
-var combat : BotCombatModule # <--- O MÓDULO NOVO!
+var combat : BotCombatModule 
 
 var alvo_atual : Node3D = null
 
@@ -28,11 +28,9 @@ var chase_repeats : int = 0
 var is_agressive : bool = false 
 var debug_print_timer: float = 0.0
 var mission_seek_cooldown : float = 0.0
-var vip_attack_cooldown : float = 0.0 # <--- NOVO: O Timer de descanso do barril
+var vip_attack_cooldown : float = 0.0 
 
 var ameacas_detectadas : int = 0
-
-
 
 func _ready():
 	car = get_parent() as BaseVehicle
@@ -71,14 +69,11 @@ func _process(delta):
 		_reset_inputs()
 		return
 		
-	# =====================================================================
-	# A CORREÇÃO AQUI: Limpa a memória se o alvo explodiu/sumiu do mapa!
-	# =====================================================================
-	if alvo_atual != null and not is_instance_valid(alvo_atual):
+	if alvo_atual != null and (not is_instance_valid(alvo_atual) or alvo_atual.is_queued_for_deletion()):
 		alvo_atual = null
 		
 	mission_seek_cooldown = max(0.0, mission_seek_cooldown - delta)
-	vip_attack_cooldown = max(0.0, vip_attack_cooldown - delta) # Diminui o tempo do VIP
+	vip_attack_cooldown = max(0.0, vip_attack_cooldown - delta) 
 	tempo_no_estado += delta
 	
 	if driver.processar_manobra_pendente(delta): return 
@@ -91,9 +86,12 @@ func _process(delta):
 	radar.escanear_ambiente(car, current_state)
 	_tomar_decisao_de_estado()
 	
+	if typeof(alvo_atual) == TYPE_OBJECT:
+		if not is_instance_valid(alvo_atual) or alvo_atual.is_queued_for_deletion():
+			alvo_atual = null
+			
 	combat.processar_combate(delta, current_state, alvo_atual)
 	
-	# === O GATILHO DA AMNÉSIA (POR TIRO) ===
 	if combat.disparou_no_vip:
 		_aplicar_cooldown_vip()
 	
@@ -116,7 +114,7 @@ func _process(delta):
 func _aplicar_cooldown_vip():
 	vip_attack_cooldown = 20.0
 	if is_instance_valid(alvo_atual) and alvo_atual.is_in_group("destructible_vips"):
-		alvo_atual = null # Esquece o barril instantaneamente
+		alvo_atual = null 
 		print("[DEBUG BOT] ", car.name, " entrou em COOLDOWN de 10s contra o VIP!")
 		_mudar_estado(State.WANDER_IDLE)
 
@@ -130,17 +128,17 @@ func _mudar_estado(novo_estado: State):
 		tempo_no_estado = 0.0
 
 func _escolher_alvo_inimigo() -> Node3D:
-	# SÓ PROCURA O VIP SE O COOLDOWN TIVER ZERADO!
 	if mission_target_destroy_id != "" and vip_attack_cooldown <= 0.0:
 		var alvos_vip = get_tree().get_nodes_in_group("destructible_vips")
 		for vip in alvos_vip:
-			if is_instance_valid(vip) and vip.get("mission_id") == mission_target_destroy_id:
-				if car.global_position.distance_to(vip.global_position) < 800.0:
+			if is_instance_valid(vip) and not vip.is_queued_for_deletion() and vip.get("mission_id") == mission_target_destroy_id:
+				# OTIMIZAÇÃO: 800.0 -> 640000.0
+				if car.global_position.distance_squared_to(vip.global_position) < 640000.0:
 					return vip 
 					
 	var humanos_globais = []
 	for p in get_tree().get_nodes_in_group("jogadores"):
-		if is_instance_valid(p) and p != car:
+		if is_instance_valid(p) and not p.is_queued_for_deletion() and p != car:
 			var inp = p.get_node_or_null("%InputComponent")
 			if inp and "is_bot" in inp and not inp.is_bot:
 				if not ("is_dead" in p and p.is_dead):
@@ -148,31 +146,32 @@ func _escolher_alvo_inimigo() -> Node3D:
 	
 	if humanos_globais.size() > 0 and randf() <= 0.85:
 		var alvo_humano = humanos_globais[0]
-		var menor_dist = car.global_position.distance_to(alvo_humano.global_position)
+		# OTIMIZAÇÃO: Menor distância ao quadrado
+		var menor_dist_sq = car.global_position.distance_squared_to(alvo_humano.global_position)
 		for i in range(1, humanos_globais.size()):
 			var h = humanos_globais[i]
-			var dist = car.global_position.distance_to(h.global_position)
-			if dist < menor_dist:
-				menor_dist = dist
+			var dist_sq = car.global_position.distance_squared_to(h.global_position)
+			if dist_sq < menor_dist_sq:
+				menor_dist_sq = dist_sq
 				alvo_humano = h
-		if menor_dist < 400.0:
+		# 400.0 -> 160000.0
+		if menor_dist_sq < 160000.0:
 			return alvo_humano
 
 	if not radar.inimigos_proximos.is_empty():
-		return radar.inimigos_proximos[0]
+		for inimigo in radar.inimigos_proximos:
+			if is_instance_valid(inimigo) and not inimigo.is_queued_for_deletion():
+				return inimigo
 		
 	return null
 
 func _tomar_decisao_de_estado():
-# ... (topo da função) ...
 	var health_pct = (stats.current_health / stats.max_health) * 100.0
 	var ammo_total = combat.get_total_ammo()
 	
-	# Só considera missão de destruição se o cooldown estiver zerado
 	var tem_missao_destruicao = (mission_target_destroy_id != "" and vip_attack_cooldown <= 0.0)
 	
 	is_agressive = (ammo_total > 7) or tem_missao_destruicao
-	# ... (resto da função continua igual)
 	
 	if health_pct < 20.0:
 		_mudar_estado(State.FLEE)
@@ -187,13 +186,15 @@ func _tomar_decisao_de_estado():
 		var itens_no_mapa = get_tree().get_nodes_in_group("itens_missao")
 		for item in itens_no_mapa:
 			if is_instance_valid(item) and item.get("mission_id") == mission_target_collect_id and item.visible:
-				if car.global_position.distance_to(item.global_position) < 300.0:
+				# OTIMIZAÇÃO: 300.0 -> 90000.0
+				if car.global_position.distance_squared_to(item.global_position) < 90000.0:
 					_mudar_estado(State.SEEK_MISSION_OBJECTIVE)
 					return
 		
 	if radar.has_method("escanear_ambiente") and "teleporters_proximos" in radar and radar.teleporters_proximos.size() > 0:
 		var tp = radar.teleporters_proximos[0]
-		if is_instance_valid(tp) and car.global_position.distance_to(tp.global_position) <= 80.0:
+		# OTIMIZAÇÃO: 80.0 -> 6400.0
+		if is_instance_valid(tp) and car.global_position.distance_squared_to(tp.global_position) <= 6400.0:
 			_mudar_estado(State.SEEK_HEIGHT)
 			return
 
@@ -270,22 +271,20 @@ func _executar_estado_atual(delta) -> Dictionary:
 				var forward = car.global_transform.basis.z
 				var dir = (alvo_atual.global_position - car.global_position).normalized()
 				var dot_p = forward.dot(dir)
-				var dist = car.global_position.distance_to(alvo_atual.global_position)
 				
+				# OTIMIZAÇÃO: 12.0 -> 144.0 e 20.0 -> 400.0
+				var dist_sq = car.global_position.distance_squared_to(alvo_atual.global_position)
 				var is_vip = alvo_atual.is_in_group("destructible_vips")
 				
 				if is_vip:
 					desire_throttle = 1.0
-					
-					# === O GATILHO DA AMNÉSIA (POR COLISÃO KAMIKAZE) ===
-					# Se chegou a menos de 12 metros, assume que já bateu e aciona o cooldown!
-					if dist < 12.0:
+					if dist_sq < 144.0:
 						_aplicar_cooldown_vip()
 						
 				else:
 					if dot_p > 0.8:
 						desire_throttle = 0.5 
-						if dist < 20.0: desire_throttle = -0.5 
+						if dist_sq < 400.0: desire_throttle = -0.5 
 					else: desire_throttle = 1.0
 		State.FLEE:
 			if radar.vida_proxima.size() > 0:
@@ -347,7 +346,8 @@ func _executar_estado_atual(delta) -> Dictionary:
 				var target_ramp = radar.rampas_proximas[0]
 				if is_instance_valid(target_ramp):
 					desire_steering = driver.calcular_volante_para_alvo(target_ramp.global_position)
-					if car.global_position.distance_to(target_ramp.global_position) < 15.0:
+					# OTIMIZAÇÃO: 15.0 -> 225.0
+					if car.global_position.distance_squared_to(target_ramp.global_position) < 225.0:
 						input.is_attribute_pressed = true
 						input.ability_up = true
 						_mudar_estado(State.WANDER_IDLE)

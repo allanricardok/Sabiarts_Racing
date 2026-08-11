@@ -1,4 +1,3 @@
-# TargetingComponent.gd
 extends Node3D
 class_name TargetingComponent
 
@@ -12,8 +11,8 @@ var force_target_all : bool = false
 var last_selected_target : Node3D = null 
 var _previous_adversary_count : int = 0
 
-# --- NOVO: Cérebro de Abas Dinâmicas ---
-var valid_category_indices : Array[int] = [0] # 0 sempre existe como fallback
+# --- Cérebro de Abas Dinâmicas ---
+var valid_category_indices : Array[int] = [0] 
 
 @export_group("Radar e Sensores")
 @export var radar_range : float = 350.0 
@@ -28,27 +27,46 @@ var player_suffix : String = ""
 @onready var input = %InputComponent
 @onready var weapons = %WeaponManager
 
+# --- CACHE ---
+var _is_bot: bool = false
+var _cached_hud: Node = null
+var _cached_camera: Camera3D = null
+var _cached_reticle: Control = null
+
+func _ready():
+	# A MÁGICA: Independente de como o carro nasça, ele descobre se é bot sozinho!
+	call_deferred("_universal_bot_check")
+
+func _universal_bot_check():
+	if is_instance_valid(input) and "is_bot" in input and input.is_bot:
+		_is_bot = true
+		set_process(false) # Desliga a CPU do bot 100%
+
 func setup_multiplayer(suffix: String):
 	player_suffix = suffix
+	if _is_bot: return
+		
+	call_deferred("_cache_ui")
 	call_deferred("_validate_initial_category")
 
-func _process(delta):
-	if not is_instance_valid(car) or not car.pode_mover: return
+func _cache_ui():
+	_cached_hud = get_tree().get_first_node_in_group("HUD" + player_suffix)
+	if _cached_hud:
+		_cached_reticle = _cached_hud.find_child("Reticle", true, false)
+	_cached_camera = get_viewport().get_camera_3d()
+
+func _physics_process(delta):
+	if _is_bot or not is_instance_valid(car) or not car.pode_mover: return
 	
-	var real_delta = delta / Engine.time_scale if car.is_in_group("jogadores") else delta
+	var real_delta = delta / Engine.time_scale 
 	
-	# =========================================================
-	# TRAVA DA WEAPON WHEEL:
-	# O radar fica "surdo" aos controles se a roda estiver aberta.
-	# Isso impede que esbarrões no D-Pad ou limites do Analógico mudem de alvo.
-	# =========================================================
 	var is_wheel_open = is_instance_valid(weapons) and "is_wheel_open" in weapons and weapons.is_wheel_open
 	
 	if not is_wheel_open:
-		if Input.is_action_just_pressed("cat_left" + input.suffix): _cycle_category(-1)
-		if Input.is_action_just_pressed("cat_right" + input.suffix): _cycle_category(1)
-		if Input.is_action_just_pressed("target_up" + input.suffix): _cycle_target(-1)
-		if Input.is_action_just_pressed("target_down" + input.suffix): _cycle_target(1)
+		if InputMap.has_action("cat_left" + input.suffix) and Input.is_action_just_pressed("cat_left" + input.suffix): _cycle_category(-1)
+		if InputMap.has_action("cat_right" + input.suffix) and Input.is_action_just_pressed("cat_right" + input.suffix): _cycle_category(1)
+		if InputMap.has_action("target_up" + input.suffix) and Input.is_action_just_pressed("target_up" + input.suffix): _cycle_target(-1)
+		if InputMap.has_action("target_down" + input.suffix) and Input.is_action_just_pressed("target_down" + input.suffix): _cycle_target(1)
 
 	radar_update_timer -= real_delta
 	if radar_update_timer <= 0:
@@ -58,47 +76,37 @@ func _process(delta):
 	_atualizar_posicao_reticulo()
 
 func _validate_initial_category():
-	# Bots não precisam fazer validação de aba visual
-	var is_bot = (input and "is_bot" in input and input.is_bot)
-	if is_bot: return
-	
 	_recalculate_valid_categories()
 	
 	_previous_adversary_count = _get_category_count(1)
 	if _previous_adversary_count > 0:
 		current_category_index = 1
-		print("[Targeting] Adversários detectados no boot! Iniciando na aba: ", target_categories[1])
 	else:
 		current_category_index = 0
-		print("[Targeting] Sem adversários vivos no boot. Iniciando na aba: All Targets")
 		
 	manual_target_index = 0
 	last_selected_target = null
 
-# --- NOVA FUNÇÃO: Avalia quais abas têm o direito de existir ---
 func _recalculate_valid_categories():
 	valid_category_indices.clear()
-	valid_category_indices.append(0) # "All Targets" é imortal (índice 0)
+	valid_category_indices.append(0) 
 	
-	if _get_category_count(1) > 0: valid_category_indices.append(1) # Adversaries
-	if _get_category_count(2) > 0: valid_category_indices.append(2) # Fuckers
-	if _get_category_count(3) > 0: valid_category_indices.append(3) # Environment
+	if _get_category_count(1) > 0: valid_category_indices.append(1)
+	if _get_category_count(2) > 0: valid_category_indices.append(2)
+	if _get_category_count(3) > 0: valid_category_indices.append(3)
 	
-	valid_category_indices.sort() # Garante que fiquem na ordem original (0, 1, 2, 3)
+	valid_category_indices.sort() 
 
-# --- CORREÇÃO DA RODAÇÃO DE ABAS: Pula as vazias! ---
 func _cycle_category(direction: int):
 	_recalculate_valid_categories()
 	
 	if valid_category_indices.size() <= 1:
-		print("[Targeting] Somente a aba All Targets está disponível. Ignorando input.")
 		current_category_index = 0
 		return
 		
-	# Acha onde estamos na lista de abas ativas
 	var array_pos = valid_category_indices.find(current_category_index)
 	if array_pos == -1: 
-		array_pos = 0 # Se a categoria atual sumiu do nada, reseta
+		array_pos = 0 
 		
 	array_pos += direction
 	
@@ -110,20 +118,19 @@ func _cycle_category(direction: int):
 	manual_target_index = 0 
 	last_selected_target = null 
 	_update_radar_and_lockon() 
-	print("[Targeting] Categoria alterada para: ", target_categories[current_category_index])
 
 func _get_category_count(index: int) -> int:
 	var count = 0
 	if index == 0: return 1 
 	elif index == 1:
 		for p in get_tree().get_nodes_in_group("jogadores"):
-			if p != car and is_instance_valid(p): count += 1
+			if p != car and is_instance_valid(p) and not p.is_queued_for_deletion(): count += 1
 	elif index == 2:
 		for t in get_tree().get_nodes_in_group("inimigos"):
-			if is_instance_valid(t): count += 1
+			if is_instance_valid(t) and not t.is_queued_for_deletion(): count += 1
 	elif index == 3:
 		for p in get_tree().get_nodes_in_group("destructibles"):
-			if is_instance_valid(p): count += 1
+			if is_instance_valid(p) and not p.is_queued_for_deletion(): count += 1
 	return count
 
 func _cycle_target(direction: int):
@@ -148,92 +155,82 @@ func _has_line_of_sight(target: Node3D) -> bool:
 
 func _update_radar_and_lockon():
 	if not is_instance_valid(car): return
+
+	_recalculate_valid_categories()
+	var current_adv_count = _get_category_count(1)
 	
-	var is_bot = (input and "is_bot" in input and input.is_bot)
-	
-	# --- MUDANÇA AUTOMÁTICA DE ABA E BLINDAGEM DE VAZIAS (Apenas Player) ---
-	if not is_bot:
-		_recalculate_valid_categories()
-		var current_adv_count = _get_category_count(1)
-		
-		# Regra 1: Missão Começou: Pula para Adversaries na marra
-		if current_adv_count > 0 and _previous_adversary_count == 0:
-			current_category_index = 1
-			manual_target_index = 0
-			last_selected_target = null
-			print("[Targeting] Novos adversários surgiram! Mudando auto para: Adversaries")
-			
-		# Regra 2: Missão Acabou: Volta para All Targets
-		elif current_adv_count == 0 and _previous_adversary_count > 0:
-			if current_category_index == 1: # Só reseta se ele ainda estava na aba de inimigos
-				current_category_index = 0
-				manual_target_index = 0
-				last_selected_target = null
-				print("[Targeting] Adversários zerados! Retornando auto para: All Targets")
-				
-		# Regra 3: Resgate Universal de Aba Fantasma
-		# Se a aba atual que você tá olhando sumiu (porque destruiu a última caixa ou torreta), chuta pro All Targets.
-		if not valid_category_indices.has(current_category_index):
+	if current_adv_count > 0 and _previous_adversary_count == 0:
+		current_category_index = 1
+		manual_target_index = 0
+		last_selected_target = null
+	elif current_adv_count == 0 and _previous_adversary_count > 0:
+		if current_category_index == 1:
 			current_category_index = 0
 			manual_target_index = 0
 			last_selected_target = null
-			print("[Targeting] ABA ATUAL DEIXOU DE EXISTIR! Resgatado auto para: All Targets")
 			
-		_previous_adversary_count = current_adv_count
-	# -------------------------------------------------
-	var all_players = get_tree().get_nodes_in_group("jogadores")
-	var all_turrets = get_tree().get_nodes_in_group("inimigos")
-	var all_props = get_tree().get_nodes_in_group("destructibles")
-	var all_peds = get_tree().get_nodes_in_group("pedestrians")
-	
-	var all_targets_raw = all_players + all_turrets + all_props + all_peds
-	var all_targets = []
-	
-	for t in all_targets_raw:
-		if not all_targets.has(t):
-			all_targets.append(t)
-			
-	var car_pos = car.global_position
-	var car_forward = car.global_transform.basis.z 
-	
+	if not valid_category_indices.has(current_category_index):
+		current_category_index = 0
+		manual_target_index = 0
+		last_selected_target = null
+		
+	_previous_adversary_count = current_adv_count
+
 	var radar_data = []
 	var category_bucket = [] 
+	var car_pos = car.global_position
+	var car_forward = car.global_transform.basis.z 
+	var radar_range_sq = radar_range * radar_range
+	
+	var search_groups = ["jogadores", "inimigos", "destructibles", "pedestrians"]
+	var raw_targets = []
+	for g in search_groups:
+		raw_targets.append_array(get_tree().get_nodes_in_group(g))
 
-	for t in all_targets:
-		if not is_instance_valid(t) or t == car: continue
+	for t in raw_targets:
+		if not is_instance_valid(t) or t == car or t.is_queued_for_deletion(): continue
 		if t.is_in_group("pedestrians") and "is_invincible" in t and t.is_invincible: continue
 			
-		var dist = car_pos.distance_to(t.global_position)
+		var dist_sq = car_pos.distance_squared_to(t.global_position)
 		
-		# A lógica de alvo continua igual para que os Bots saibam em quem atirar os mísseis deles
-		if dist <= radar_range or t.is_in_group("jogadores") or t.is_in_group("inimigos"):
+		if dist_sq <= radar_range_sq or t.is_in_group("jogadores") or t.is_in_group("inimigos"):
 			if not t.is_in_group("pedestrians"): radar_data.append(t)
 			
-			var has_los = _has_line_of_sight(t)
-			if t == last_selected_target: has_los = true 
+			var is_valid_category = false
+			if current_category_index == 0: is_valid_category = true
+			elif current_category_index == 1 and t.is_in_group("jogadores"): is_valid_category = true
+			elif current_category_index == 2 and t.is_in_group("inimigos"): is_valid_category = true
+			elif current_category_index == 3 and (t.is_in_group("destructibles") or t.is_in_group("pedestrians")): is_valid_category = true
 			
-			if has_los:
-				if current_category_index == 0: category_bucket.append(t)
-				elif current_category_index == 1 and t.is_in_group("jogadores"): category_bucket.append(t)
-				elif current_category_index == 2 and t.is_in_group("inimigos"): category_bucket.append(t)
-				elif current_category_index == 3 and (t.is_in_group("destructibles") or t.is_in_group("pedestrians")): category_bucket.append(t)
+			if is_valid_category:
+				var has_los = false
+				if t == last_selected_target: 
+					has_los = true
+				else:
+					# OTIMIZAÇÃO EXTREMA: Só faz o RayCast se o alvo estiver no seu cone frontal visual (90 graus)
+					var dir_to_t = (t.global_position - car_pos).normalized()
+					if rad_to_deg(car_forward.angle_to(dir_to_t)) <= 90.0:
+						has_los = _has_line_of_sight(t)
 
-	category_bucket.sort_custom(func(a, b):
-		var pos_a = a.global_position
-		var dir_a = (pos_a - car_pos).normalized()
-		var score_a = rad_to_deg(car_forward.angle_to(dir_a)) + (car_pos.distance_to(pos_a) * 0.1)
-		if a == last_selected_target: score_a -= 30.0 
+				if has_los:
+					category_bucket.append(t)
+
+	var organized_bucket = []
+	for t in category_bucket:
+		var pos = t.global_position
+		var dir = (pos - car_pos).normalized()
+		var score = rad_to_deg(car_forward.angle_to(dir)) + (sqrt(car_pos.distance_squared_to(pos)) * 0.1)
 		
-		var pos_b = b.global_position
-		var dir_b = (pos_b - car_pos).normalized()
-		var score_b = rad_to_deg(car_forward.angle_to(dir_b)) + (car_pos.distance_to(pos_b) * 0.1)
-		if b == last_selected_target: score_b -= 30.0 
+		if t == last_selected_target: score -= 30.0
 		
-		return score_a < score_b
-	)
+		organized_bucket.append({"node": t, "score": score})
 	
-	active_targets_sorted = category_bucket
+	organized_bucket.sort_custom(func(a, b): return a.score < b.score)
 	
+	active_targets_sorted.clear()
+	for item in organized_bucket:
+		active_targets_sorted.append(item.node)
+
 	if manual_target_index > 0:
 		if is_instance_valid(last_selected_target) and active_targets_sorted.has(last_selected_target):
 			manual_target_index = active_targets_sorted.find(last_selected_target)
@@ -255,37 +252,31 @@ func _update_radar_and_lockon():
 	var active = weapons.get_active_special() if is_instance_valid(weapons) else null
 	
 	if is_instance_valid(closest_radar_target) and active and (active.nome == "HomingMissile" or active.nome == "GrapplingMissile" or active.nome == "FreezingMissile"):
-		var dist = car_pos.distance_to(closest_radar_target.global_position)
+		var dist_sq = car_pos.distance_squared_to(closest_radar_target.global_position)
 		var angle = rad_to_deg(car_forward.angle_to((closest_radar_target.global_position - car_pos).normalized()))
-		if dist <= active.lockon_range and angle <= 45.0:
+		var lockon_sq = active.lockon_range * active.lockon_range
+		if dist_sq <= lockon_sq and angle <= 45.0:
 			current_target = closest_radar_target 
 
-	# --- O CADEADO DE SEGURANÇA ---
-	if not is_bot:
-		var hud = get_tree().get_first_node_in_group("HUD" + player_suffix)
-		if hud and hud.has_method("update_radar_data"):
-			var cat_name = target_categories[current_category_index]
-			hud.update_radar_data(radar_data, closest_radar_target, car_pos, car_forward, current_category_index, cat_name)
+	if is_instance_valid(_cached_hud) and _cached_hud.has_method("update_radar_data"):
+		var cat_name = target_categories[current_category_index]
+		_cached_hud.update_radar_data(radar_data, closest_radar_target, car_pos, car_forward, current_category_index, cat_name)
 
 func _atualizar_posicao_reticulo():
-	# Se for bot, aborta na hora. Ele não tem tela para desenhar UI!
-	var is_bot = (input and "is_bot" in input and input.is_bot)
-	if is_bot: return
-	
+	if not is_instance_valid(_cached_hud) or not is_instance_valid(_cached_reticle): 
+		return
+
 	var active = weapons.get_active_special() if is_instance_valid(weapons) else null
-	var hud = get_tree().get_first_node_in_group("HUD" + player_suffix)
-	
-	if not hud: return
-	var reticle = hud.find_child("Reticle", true, false)
-	if not reticle: return
 
 	if active and (active.nome == "HomingMissile" or active.nome == "GrapplingMissile" or active.nome == "FreezingMissile") and is_instance_valid(current_target):
-		var camera = get_viewport().get_camera_3d()
-		if camera and not camera.is_position_behind(current_target.global_position):
-			var screen_pos = camera.unproject_position(current_target.global_position)
-			reticle.visible = true
-			reticle.global_position = hud.get_viewport().get_screen_transform() * screen_pos
+		if not is_instance_valid(_cached_camera):
+			_cached_camera = get_viewport().get_camera_3d()
+			
+		if is_instance_valid(_cached_camera) and not _cached_camera.is_position_behind(current_target.global_position):
+			var screen_pos = _cached_camera.unproject_position(current_target.global_position)
+			_cached_reticle.visible = true
+			_cached_reticle.global_position = _cached_hud.get_viewport().get_screen_transform() * screen_pos
 		else:
-			reticle.visible = false
+			_cached_reticle.visible = false
 	else:
-		reticle.visible = false
+		_cached_reticle.visible = false

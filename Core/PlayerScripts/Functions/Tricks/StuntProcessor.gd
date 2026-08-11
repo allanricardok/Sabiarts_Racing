@@ -1,4 +1,3 @@
-# StuntProcessor.gd (Auxiliar)
 extends Node
 class_name StuntProcessor
 
@@ -27,15 +26,30 @@ var last_basis : Basis
 var stunt_timeout := 0.0
 var trickdone := false
 var is_invincible := false
-signal special_trick_triggered(trick_id: String)  # <-- ADICIONE ESTA LINHA no topo
+signal special_trick_triggered(trick_id: String)
 
 # --- CONTADORES DO FIREBALL ---
 var fireball_combo_count : int = 0
 
+# ==============================================================================
+# OTIMIZAÇÃO: MEMÓRIA CACHE
+# ==============================================================================
+var _wall_rider: Node
+var _ability_component: Node
+var _car_rid: RID
+
 func setup(_parent, _car):
 	parent = _parent
 	car = _car
-	# Conecta o sinal nativo do MovementComponent para resetar o Fireball SEMPRE que pousar!
+	
+	# --- PREENCHE OS CACHES NA INICIALIZAÇÃO ---
+	_wall_rider = car.get_node_or_null("%WallRideComponent")
+	if not _wall_rider:
+		_wall_rider = car.find_child("WallRideComponent", true, false)
+		
+	_ability_component = car.get_node_or_null("%AbilityComponent")
+	_car_rid = car.get_rid()
+	
 	var move_comp = car.get_node_or_null("%MovementComponent")
 	if move_comp and move_comp.has_signal("landed"):
 		move_comp.landed.connect(_on_car_landed)
@@ -59,7 +73,7 @@ func initiate_stunt(axis: Vector3, trick_id: String):
 			car.play_camera_shake("Stunt")
 			_confirm_trick_success()
 			_apply_instant_physics(trick_id)
-			special_trick_triggered.emit(trick_id)   # <-- ADICIONE ESTA LINHA
+			special_trick_triggered.emit(trick_id)
 		else:
 			_emitir_falha_energia()
 		return
@@ -71,9 +85,9 @@ func initiate_stunt(axis: Vector3, trick_id: String):
 	_start_rotation_stunt(axis, p_mult)
 
 func _emitir_falha_energia():
-	var ability = car.get_node_or_null("%AbilityComponent")
-	if ability and ability.has_method("_erro_falta_energia"):
-		ability._erro_falta_energia()
+	# OTIMIZAÇÃO: Uso de cache
+	if is_instance_valid(_ability_component) and _ability_component.has_method("_erro_falta_energia"):
+		_ability_component._erro_falta_energia()
 
 func _start_rotation_stunt(axis: Vector3, p_mult: float):
 	print("=========================================")
@@ -106,38 +120,30 @@ func process_stunt_rotation(delta):
 	if current_trick_id == "EMOTE": return
 
 	var is_immune = false
-	var wall_rider = car.get_node_or_null("%WallRideComponent")
-	if not wall_rider: wall_rider = car.find_child("WallRideComponent", true, false)
 	
-	if is_instance_valid(wall_rider):
-		if wall_rider.get("is_exiting_wallride") or wall_rider.get("wallride_cooldown") > 0.0:
+	# OTIMIZAÇÃO: Busca O(1) direto na memória!
+	if is_instance_valid(_wall_rider):
+		if _wall_rider.get("is_exiting_wallride") or _wall_rider.get("wallride_cooldown") > 0.0:
 			is_immune = true
 
-	# =========================================================
 	# CORREÇÃO: O RAIO-X DO CHÃO
-	# Como não podemos ler a normal da colisão diretamente aqui, 
-	# nós lançamos um raio para baixo sempre que o carro bater em algo.
-	# =========================================================
 	if not is_immune and car.get_contact_count() > 0:
 		var bateu_no_chao = false
 		var space_state = car.get_world_3d().direct_space_state
 		
 		# Dispara um raio de 2.5 metros do centro do carro para baixo (gravidade)
 		var query = PhysicsRayQueryParameters3D.create(car.global_position, car.global_position + (Vector3.DOWN * 2.5))
-		query.exclude = [car.get_rid()]
+		query.exclude = [_car_rid] # OTIMIZAÇÃO: O RID em cache
 		query.hit_from_inside = true
 		
 		var result = space_state.intersect_ray(query)
 		
-		# Se atingiu algo logo abaixo e a superfície aponta para cima (chão)
 		if result and result.normal.y > 0.4:
 			bateu_no_chao = true
 			
-		# Só trava a manobra se realmente bateu as costas/teto no chão!
 		if bateu_no_chao:
 			apply_stunt_brake("Colisão com o CHÃO interrompeu a manobra!")
 			return
-	# =========================================================
 
 	var current_basis = car.global_transform.basis
 	var frame_angle = (last_basis.inverse() * current_basis).get_rotation_quaternion().get_angle()
@@ -159,7 +165,6 @@ func apply_stunt_brake(motivo: String = "Chamada Forçada"):
 	
 	if is_invincible: _call_ability_shield(false)
 	
-	# Garante que o atrito volta ao normal SEMPRE
 	car.angular_damp = parent.original_angular_damp
 	print(" -> Atrito restaurado para normal: ", parent.original_angular_damp)
 	
@@ -178,7 +183,6 @@ func _confirm_trick_success():
 		parent.trick_manager.add_trick_manually(current_trick_id)
 		var recovery = _get_recovery(current_trick_id)
 		if recovery > 0: parent._modify_energy(recovery)
-		# Cole logo antes do trickdone = true:
 	get_tree().call_group("TutorialUI", "complete_task", "trick")
 	trickdone = true
 
@@ -217,10 +221,10 @@ func _start_emote_sequence(p_mult: float):
 
 func _call_ability_shield(active: bool):
 	is_invincible = active
-	var ability = car.get_node_or_null("%AbilityComponent")
-	if ability:
-		ability._set_car_silver_effect(active)
-		if ability.stats: ability.stats.is_invulnerable = active
+	# OTIMIZAÇÃO: Uso de cache
+	if is_instance_valid(_ability_component):
+		_ability_component._set_car_silver_effect(active)
+		if _ability_component.stats: _ability_component.stats.is_invulnerable = active
 
 func _get_power_mult(id) -> float:
 	match id:

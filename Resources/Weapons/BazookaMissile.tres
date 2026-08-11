@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="WeaponResource" load_steps=5 format=3 uid="uid://dbg4l707jov5u"]
+
+[ext_resource type="PackedScene" uid="uid://bqw3yegiicpd6" path="res://Scenes/Prefabs/Weapons/Projectiles/BazookaTracer.tscn" id="2_8nq3o"]
+[ext_resource type="Script" uid="uid://5wgfj8fmfmgf" path="res://Core/Weapons/WeaponItems/WeaponResource.gd" id="3_5836w"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wqtiw"]
+albedo_color = Color(0.67, 0.39262003, 0.20770001, 1)
+emission_enabled = true
+emission = Color(0.7016299, 0.31913137, 0, 1)
+emission_energy_multiplier = 1.02
+distance_fade_mode = 2
+distance_fade_min_distance = 400.0
+distance_fade_max_distance = 300.0
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_8nq3o"]
+material = SubResource("StandardMaterial3D_wqtiw")
+radius = 1.0
+height = 3.0
+radial_segments = 12
+rings = 4
+
+[resource]
+script = ExtResource("3_5836w")
+nome = "BazookaMissile"
+projectile_scene = ExtResource("2_8nq3o")
+dano = 40.0
+fire_rate = 3.0
+ammo = 1
+max_ammo = 3
+causes_aoe_damage = true
+aoe_radius = 30.0
+aoe_damage = 20.0
+aoe_knockback = 300.0
+self_damage_multiplier = 0.25
+custom_mesh = SubResource("CapsuleMesh_8nq3o")
+mesh_scale = Vector3(1.4, 1.4, 1.4)
+item_color = Color(0.7529412, 0.44313726, 0.23529412, 1)
+metadata/_custom_type_script = "uid://5wgfj8fmfmgf"

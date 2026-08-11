@@ -1,4 +1,3 @@
-# BrakeLightManager.gd
 extends Node
 class_name BrakeLightManager
 
@@ -13,55 +12,79 @@ class_name BrakeLightManager
 @export var color_brake: Color = Color("ff0000") 
 @export var energy_brake: float = 20.0
 
-var _left_mat: StandardMaterial3D
-var _right_mat: StandardMaterial3D
+# OTIMIZAÇÃO: Um único material compartilhado entre as duas lanternas DESSA instância do carro
+var _car_mat: StandardMaterial3D
 
 @onready var car = owner as VehicleBody3D
 @onready var input = car.get_node_or_null("%InputComponent")
 
-func _ready():
-	if left_taillight:
-		_left_mat = _setup_material(left_taillight)
-	if right_taillight:
-		_right_mat = _setup_material(right_taillight)
+# ESTADOS DE OTIMIZAÇÃO
+var _was_braking: bool = false
+var _is_sleeping: bool = false
 
-func _setup_material(mesh_inst: MeshInstance3D) -> StandardMaterial3D:
-	var mat = mesh_inst.get_active_material(0)
+func _ready():
+	if left_taillight or right_taillight:
+		_setup_shared_material()
+
+func _setup_shared_material():
+	var base_mat = null
 	
-	if mat:
-		mat = mat.duplicate()
+	# Pega o material original de qualquer uma das lanternas como base
+	if left_taillight and left_taillight.get_active_material(0):
+		base_mat = left_taillight.get_active_material(0)
+	elif right_taillight and right_taillight.get_active_material(0):
+		base_mat = right_taillight.get_active_material(0)
+	
+	if base_mat:
+		_car_mat = base_mat.duplicate()
 	else:
-		mat = StandardMaterial3D.new()
+		_car_mat = StandardMaterial3D.new()
 		
-	mat.emission_enabled = true
-	mesh_inst.set_surface_override_material(0, mat)
+	# BLINDAGEM CONTRA O BUG DA LUZ PRETA: Força a exclusividade na memória
+	_car_mat.resource_local_to_scene = true
+	_car_mat.emission_enabled = true
 	
-	return mat as StandardMaterial3D
+	# Aplica o MESMO material para as duas lanternas. O Godot desenha as duas de uma vez só!
+	if left_taillight:
+		left_taillight.set_surface_override_material(0, _car_mat)
+	if right_taillight:
+		right_taillight.set_surface_override_material(0, _car_mat)
 
 func _process(delta):
-	if not is_instance_valid(car) or not is_instance_valid(input): return
+	if not is_instance_valid(car) or not is_instance_valid(input): 
+		set_process(false)
+		return
 	
 	var is_braking = false
 	
-	# === LÊ APENAS O DEDO DO JOGADOR NO CONTROLE/TECLADO ===
-	# Verifica se a variável booleana direta de freio está ativa
 	if "is_braking" in input and input.is_braking:
 		is_braking = true
-	# Ou verifica se o eixo do acelerador (throttle) está sendo puxado para trás (freio/ré)
 	elif "throttle" in input and input.throttle < -0.1:
 		is_braking = true
 		
 	var target_color = color_brake if is_braking else color_idle
 	var target_energy = energy_brake if is_braking else energy_idle
 	
+	# OTIMIZAÇÃO: Acorda o script instantaneamente se o estado do freio mudou
+	if is_braking != _was_braking:
+		_was_braking = is_braking
+		_is_sleeping = false
+		
+	# Se a luz já chegou no limite, não faz nada neste frame!
+	if _is_sleeping:
+		return
+	
 	var lerp_speed = 18.0 * delta
 	
-	if is_instance_valid(_left_mat):
-		_left_mat.albedo_color = _left_mat.albedo_color.lerp(target_color, lerp_speed)
-		_left_mat.emission = _left_mat.emission.lerp(target_color, lerp_speed)
-		_left_mat.emission_energy_multiplier = lerp(_left_mat.emission_energy_multiplier, target_energy, lerp_speed)
+	if is_instance_valid(_car_mat):
+		_car_mat.albedo_color = _car_mat.albedo_color.lerp(target_color, lerp_speed)
+		_car_mat.emission = _car_mat.emission.lerp(target_color, lerp_speed)
+		_car_mat.emission_energy_multiplier = lerp(_car_mat.emission_energy_multiplier, target_energy, lerp_speed)
 		
-	if is_instance_valid(_right_mat):
-		_right_mat.albedo_color = _right_mat.albedo_color.lerp(target_color, lerp_speed)
-		_right_mat.emission = _right_mat.emission.lerp(target_color, lerp_speed)
-		_right_mat.emission_energy_multiplier = lerp(_right_mat.emission_energy_multiplier, target_energy, lerp_speed)
+		# Verifica se já está perto o suficiente do alvo para dormir
+		if abs(_car_mat.emission_energy_multiplier - target_energy) < 0.05:
+			# Crava no valor exato para evitar valores quebrados invisíveis e manda dormir
+			_car_mat.albedo_color = target_color
+			_car_mat.emission = target_color
+			_car_mat.emission_energy_multiplier = target_energy
+			_is_sleeping = true

@@ -1,4 +1,3 @@
-# TireBloodManager.gd
 extends Node
 class_name TireBloodManager
 
@@ -9,11 +8,10 @@ class_name TireBloodManager
 @export var wheel_rear_right: VehicleWheel3D
 
 @export_group("Configurações do Rastro")
-# Aumentado para criar seções de rastro muito maiores e economizar recursos
 @export var spawn_distance: float = 1.2 
 @export var tire_blood_duration: float = 5.0 
 @export var stain_life_time: float = 5.0 
-@export var pool_size: int = 360 # Reduzido para melhorar a performance de memória
+@export var pool_size: int = 360
 
 var _is_human: bool = true
 var _current_blood_time: float = 0.0
@@ -32,12 +30,18 @@ var _active_tweens: Dictionary = {}
 @onready var car = owner as VehicleBody3D
 
 func _ready():
-	# --- FILTRO DE OTIMIZAÇÃO: Verifica se o dono do carro é um bot ---
+	# =================================================================
+	# A CORREÇÃO: Atrasamos a checagem em 1 frame para dar tempo do 
+	# BotBrain colocar "is_bot = true" no InputComponent!
+	# =================================================================
+	call_deferred("_delayed_setup")
+
+func _delayed_setup():
 	var input = car.get_node_or_null("%InputComponent")
 	if input and "is_bot" in input and input.is_bot:
 		_is_human = false
 		
-	# Se for bot, desliga o processamento de física e aborta a criação da Pool! (Salva muito FPS)
+	# Se for bot, desliga a física e vaza antes de criar a Pool
 	if not _is_human:
 		set_physics_process(false)
 		return
@@ -52,8 +56,8 @@ func _ready():
 	_initialize_pool()
 
 func infect_tires():
-	# Trava de segurança: Se não for humano, ignora a infecção
-	if not _is_human: return
+	# Trava dupla: Se não for humano ou se a pool nem chegou a ser criada, aborta!
+	if not _is_human or _sprite_pool.is_empty(): return
 	
 	_current_blood_time = tire_blood_duration
 	
@@ -166,14 +170,11 @@ func _spawn_sprite(current_pos: Vector3, last_pos: Vector3, intensity: float, di
 	sprite.modulate.a = intensity
 	sprite.visible = true
 	
-	# === AS DUAS BLINDAGENS ESTÃO AQUI ===
-	# 1. bind_node(sprite) atrela a vida do Tween à vida do Sprite
 	var tween = get_tree().create_tween().bind_node(sprite)
 	
 	tween.tween_interval(4.0)
 	tween.tween_property(sprite, "modulate:a", 0.0, 1.0).set_trans(Tween.TRANS_SINE)
 	
-	# 2. is_instance_valid() garante que o código só roda se o sprite existir
 	tween.tween_callback(func(): 
 		if is_instance_valid(sprite):
 			sprite.visible = false

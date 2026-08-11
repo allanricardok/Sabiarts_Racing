@@ -22,10 +22,20 @@ var spawn_position: Vector3 = Vector3.ZERO
 var _initial_layer: int
 var _initial_mask: int
 
+# ==============================================================================
+# OTIMIZAÇÃO MAXIMA: VARIÁVEIS ESTÁTICAS (COMPARTILHADAS POR TODOS OS PEDESTRES)
+# ==============================================================================
+static var _shared_blood_tex: ImageTexture = null
+static var _shared_gore_mat: StandardMaterial3D = null
+static var _shared_gore_mesh: BoxMesh = null
+
+# OTIMIZAÇÃO: Time-slicing para esquiva
+var _dodge_timer: float = 0.0
+var _cached_dodge_vel: Vector3 = Vector3.ZERO
+
 func _ready():
 	add_to_group("pedestrians")
 	
-	# Salva como as colisões eram antes de morrer
 	_initial_layer = collision_layer
 	_initial_mask = collision_mask
 
@@ -40,29 +50,34 @@ func _physics_process(delta):
 		_pick_new_direction()
 		
 	var move_vel = current_direction * base_speed
-	var dodge_vel = Vector3.ZERO
 	
 	if is_invincible:
-		var players = get_tree().get_nodes_in_group("jogadores")
-		for p in players:
-			if not is_instance_valid(p): continue
-			var dist = global_position.distance_to(p.global_position)
+		_dodge_timer -= delta
+		if _dodge_timer <= 0:
+			_dodge_timer = 0.2 # Só processa a esquiva 5x por segundo!
+			_cached_dodge_vel = Vector3.ZERO
 			
-			if dist < 8.0:
-				var away_dir = (global_position - p.global_position).normalized()
-				away_dir.y = 0
-				dodge_vel = away_dir * 30.0 
-				break
+			var players = get_tree().get_nodes_in_group("jogadores")
+			for p in players:
+				if not is_instance_valid(p) or p.is_queued_for_deletion(): continue
+				
+				# OTIMIZAÇÃO: 8.0 * 8.0 = 64.0 (Sem raiz quadrada)
+				if global_position.distance_squared_to(p.global_position) < 64.0:
+					var away_dir = (global_position - p.global_position).normalized()
+					away_dir.y = 0
+					_cached_dodge_vel = away_dir * 30.0 
+					break
 
-	velocity.x = move_vel.x + dodge_vel.x
-	velocity.z = move_vel.z + dodge_vel.z
+	velocity.x = move_vel.x + _cached_dodge_vel.x
+	velocity.z = move_vel.z + _cached_dodge_vel.z
 	
 	move_and_slide()
 
 func _pick_new_direction():
-	var dist_from_spawn = global_position.distance_to(spawn_position)
+	# OTIMIZAÇÃO: Usando max_wander_radius ao quadrado para bater com distance_squared_to
+	var max_rad_sq = max_wander_radius * max_wander_radius
 	
-	if dist_from_spawn > max_wander_radius:
+	if global_position.distance_squared_to(spawn_position) > max_rad_sq:
 		var random_center = spawn_position + Vector3(randf_range(-8.0, 8.0), 0, randf_range(-8.0, 8.0))
 		current_direction = (random_center - global_position).normalized()
 	else:
@@ -104,7 +119,9 @@ func take_damage(amount: float, attacker: Node3D = null):
 	if not is_projectile:
 		trigger_splash = true
 	else:
-		if is_instance_valid(actual_shooter) and death_pos.distance_to(actual_shooter.global_position) <= blood_splash_distance:
+		# Distância ao quadrado para a mancha na tela
+		var splash_sq = blood_splash_distance * blood_splash_distance
+		if is_instance_valid(actual_shooter) and death_pos.distance_squared_to(actual_shooter.global_position) <= splash_sq:
 			trigger_splash = true
 			
 	if trigger_splash:
@@ -113,9 +130,6 @@ func take_damage(amount: float, attacker: Node3D = null):
 	process_mode = Node.PROCESS_MODE_DISABLED
 	visible = false
 	
-	# =====================================================================
-	# A CORREÇÃO DA FÍSICA: Tira o cadáver do caminho do motor de colisão!
-	# =====================================================================
 	collision_layer = 0
 	collision_mask = 0
 	
@@ -137,8 +151,8 @@ func take_damage(amount: float, attacker: Node3D = null):
 		if gtm:
 			gtm.add_ground_action("HIT_OBJECT")
 			
-		var input = actual_shooter.get_node_or_null("%InputComponent")
-		var is_bot = (input and "is_bot" in input and input.is_bot)
+		var input_comp = actual_shooter.get_node_or_null("%InputComponent")
+		var is_bot = (input_comp and "is_bot" in input_comp and input_comp.is_bot)
 		
 		if not is_bot:
 			if "pedestrians_killed" in actual_shooter:
@@ -147,8 +161,8 @@ func take_damage(amount: float, attacker: Node3D = null):
 			if is_instance_valid(GameStats) and GameStats.has_method("add_pedestrian_kill"):
 				GameStats.add_pedestrian_kill()
 				
-			if input:
-				var hud = get_tree().get_first_node_in_group("HUD" + input.suffix)
+			if input_comp:
+				var hud = get_tree().get_first_node_in_group("HUD" + input_comp.suffix)
 				if not hud: hud = get_tree().get_first_node_in_group("HUD")
 				if hud and hud.has_method("criar_toast"):
 					hud.criar_toast("💥 ROADKILL!", Color.RED)
@@ -169,11 +183,20 @@ func _spawn_gore_visuals(pos: Vector3, impact_dir: Vector3 = Vector3.ZERO):
 	var current_tex = anim_sprite.sprite_frames.get_frame_texture(anim_sprite.animation, anim_sprite.frame)
 	if not current_tex: return
 	
+	# OTIMIZAÇÃO MAXIMA: Prepara o material e malha UMA vez para todo o jogo
+	if _shared_gore_mat == null:
+		_shared_gore_mat = StandardMaterial3D.new()
+		_shared_gore_mat.albedo_color = Color(0.65, 0.0, 0.0) 
+		_shared_gore_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED 
+		_shared_gore_mesh = BoxMesh.new()
+		_shared_gore_mesh.size = Vector3(0.12, 0.12, 0.12)
+		_shared_gore_mesh.surface_set_material(0, _shared_gore_mat)
+	
 	var tex_w = current_tex.get_width()
 	var tex_h = current_tex.get_height()
 	
 	var base_dir = impact_dir
-	if base_dir.length() < 0.1:
+	if base_dir.length_squared() < 0.01:
 		base_dir = Vector3(randf_range(-1, 1), 0, randf_range(-1, 1)).normalized()
 	else:
 		base_dir = base_dir.normalized()
@@ -197,15 +220,8 @@ func _spawn_gore_visuals(pos: Vector3, impact_dir: Vector3 = Vector3.ZERO):
 		rastro_sangue.lifetime = 0.35
 		rastro_sangue.local_coords = false
 		
-		var mat = StandardMaterial3D.new()
-		mat.albedo_color = Color(0.65, 0.0, 0.0) 
-		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED 
-		
-		var blood_mesh = BoxMesh.new()
-		blood_mesh.size = Vector3(0.12, 0.12, 0.12)
-		blood_mesh.surface_set_material(0, mat)
-		
-		rastro_sangue.mesh = blood_mesh
+		# Puxa o recurso estático da memória RAM!
+		rastro_sangue.mesh = _shared_gore_mesh
 		rastro_sangue.direction = Vector3(0, -1, 0)
 		rastro_sangue.spread = 30.0
 		rastro_sangue.initial_velocity_min = 0.5
@@ -230,14 +246,11 @@ func _spawn_gore_visuals(pos: Vector3, impact_dir: Vector3 = Vector3.ZERO):
 			peak_y += randf_range(0.2, 1.2) 
 			
 		var floor_y = start_pos.y - randf_range(0.0, 1.0)
-		
 		var fly_time = randf_range(0.4, 0.8)
 		
 		var tween = get_tree().create_tween().set_parallel(true)
-		
 		tween.tween_property(chunk, "global_position:x", target_pos.x, fly_time)
 		tween.tween_property(chunk, "global_position:z", target_pos.z, fly_time)
-		
 		tween.tween_property(chunk, "rotation", Vector3(randf_range(-TAU*3, TAU*3), randf_range(-TAU*3, TAU*3), randf_range(-TAU*3, TAU*3)), fly_time)
 		
 		var y_tween = get_tree().create_tween()
@@ -252,34 +265,38 @@ func _spawn_gore_visuals(pos: Vector3, impact_dir: Vector3 = Vector3.ZERO):
 
 func _trigger_blood_splash_ui(shooter: Node3D):
 	if not shooter: return
-	var input = shooter.get_node_or_null("%InputComponent")
+	var input_comp = shooter.get_node_or_null("%InputComponent")
 	
-	if input and not input.is_bot:
-		var hud = get_tree().get_first_node_in_group("HUD" + input.suffix)
+	if input_comp and not input_comp.is_bot:
+		var hud = get_tree().get_first_node_in_group("HUD" + input_comp.suffix)
 		if not hud: hud = get_tree().get_first_node_in_group("HUD")
 		
 		if hud and hud.has_method("splatter_blood_on_lens"):
 			hud.splatter_blood_on_lens()
 
-func _spawn_blood_stain(pos: Vector3):
-	print("[DEBUG-BLOOD] Pedestre morreu. Criando poça visual...")
+func _get_shared_blood_texture() -> ImageTexture:
+	# OTIMIZAÇÃO: A imagem base de sangue é gerada UMA vez na vida do jogo!
+	if _shared_blood_tex != null:
+		return _shared_blood_tex
+		
 	var img = Image.create(64, 64, false, Image.FORMAT_RGBA8)
 	var base_color = Color("7d0000f2") 
-	
-	var r = randf_range(16.0, 24.0)
-	var oval_x = randf_range(0.7, 1.3)
-	var oval_y = randf_range(0.7, 1.3)
+	var r = 20.0
 	
 	for x in range(64):
 		for y in range(64):
-			var dx = (x - 32.0) * oval_x
-			var dy = (y - 32.0) * oval_y
+			var dx = (x - 32.0)
+			var dy = (y - 32.0)
 			if (dx * dx + dy * dy) <= (r * r):
 				img.set_pixel(x, y, base_color)
 			else:
 				img.set_pixel(x, y, Color(0, 0, 0, 0))
 				
-	var tex = ImageTexture.create_from_image(img)
+	_shared_blood_tex = ImageTexture.create_from_image(img)
+	return _shared_blood_tex
+
+func _spawn_blood_stain(pos: Vector3):
+	var tex = _get_shared_blood_texture()
 	
 	var ray_start = pos + Vector3(0, 0.2, 0)
 	var ray_end = pos + Vector3(0, -5.0, 0)
@@ -302,6 +319,10 @@ func _spawn_blood_stain(pos: Vector3):
 		stain.pixel_size = randf_range(0.015, 0.02) * blood_stain_scale
 		stain.rotation.y = randf_range(0, TAU)
 		stain.render_priority = 1
+		
+		# Deforma o Sprite3D para fazer os ovais (muito mais barato do que processar pixels distorcidos)
+		stain.scale.x = randf_range(0.7, 1.3)
+		stain.scale.z = randf_range(0.7, 1.3)
 		
 		stain.modulate.a = 0.0 
 		
@@ -353,9 +374,6 @@ func _spawn_blood_stain(pos: Vector3):
 func reset(new_global_pos: Vector3):
 	is_dead = false
 	
-	# =====================================================================
-	# RESTAURA AS COLISÕES!
-	# =====================================================================
 	collision_layer = _initial_layer
 	collision_mask = _initial_mask
 	

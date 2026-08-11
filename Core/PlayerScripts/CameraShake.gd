@@ -1,4 +1,3 @@
-# CameraShake.gd (Anexe no Node filho da Camera3D)
 extends Node
 class_name CameraShake
 
@@ -28,7 +27,6 @@ class_name CameraShake
 @export var obj_collision_force := 0.15
 @export var obj_collision_duration := 0.5
 
-# O de batida de carro usa um "Mínimo e Máximo" baseado no dano
 @export var car_collision_min_force := 0.15
 @export var car_collision_max_force := 0.50
 @export var car_collision_duration := 0.5
@@ -45,15 +43,29 @@ var shake_duration := 1.0
 var car : BaseVehicle
 var cam : Camera3D
 
+# OTIMIZAÇÃO: Cache de Identidade
+var _is_bot: bool = false
+
 func _ready():
 	cam = get_parent() as Camera3D
 	var current_node = self
 	while current_node and not current_node is BaseVehicle:
 		current_node = current_node.get_parent()
 	car = current_node as BaseVehicle
+	
+	call_deferred("_late_bot_check")
 
-# NOVO: O gerenciador de Eventos! Ele lê o nome e puxa as variáveis do Inspector
+func _late_bot_check():
+	if is_instance_valid(car):
+		var input_comp = car.get_node_or_null("%InputComponent")
+		if is_instance_valid(input_comp) and "is_bot" in input_comp and input_comp.is_bot:
+			_is_bot = true
+			set_process(false) # Desliga cálculos de _process do bot
+
 func trigger_event(event_name: String, modifier: float = 1.0):
+	# OTIMIZAÇÃO: Se for bot, aborta na hora!
+	if _is_bot: return
+	
 	var force = 0.0
 	var duration = 0.0
 	
@@ -73,21 +85,15 @@ func trigger_event(event_name: String, modifier: float = 1.0):
 		"CarCollision":
 			force = clamp(remap(modifier, 8.0, 50.0, car_collision_min_force, car_collision_max_force), car_collision_min_force, car_collision_max_force)
 			duration = car_collision_duration
-			
-		# === EVENTOS DE PROJÉTEIS ===
 		"CustomFire":
 			force = modifier 
 			duration = weapon_fire_duration 
 		"Explosion":
 			force = modifier 
 			duration = 0.6 
-			
-		# === EVENTO DO BURNOUT CHARGE ===
 		"BurnoutCharge":
-			force = modifier # A força cresce em tempo real de 0.01 a 0.08
-			duration = 0.1 # Duração super curta para sumir assim que soltar o pedal
-	
-	print("[SHAKE] Evento: '", event_name, "' | Força: ", int(force * 100), "% | Duração: ", duration, "s")
+			force = modifier
+			duration = 0.1
 	
 	if duration > 0:
 		impulse_force = max(impulse_force, force)
@@ -107,11 +113,10 @@ func _process(delta):
 	else:
 		impulse_force = 0.0 
 
-	# --- SHAKE DE VELOCIDADE (APENAS NO CHÃO) ---
 	var speed_shake = 0.0
 	var is_grounded = true
 	var input_comp = car.get_node_or_null("%InputComponent")
-	if input_comp and "is_grounded" in input_comp:
+	if is_instance_valid(input_comp) and "is_grounded" in input_comp:
 		is_grounded = input_comp.is_grounded
 		
 	if is_grounded:
