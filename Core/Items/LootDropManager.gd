@@ -38,11 +38,13 @@ func spawn_ejected_loot(origin_pos: Vector3, forward_dir: Vector3, drop_scene: P
 		final_pos = result.position + Vector3(0, 1.5, 0) 
 	else:
 		final_pos.y = origin_pos.y # Fallback de segurança se não achar chão
-
-	# 3. Cria o "Elevador Fantasma" (Carrier)
+	
+# 3. Cria o "Elevador Fantasma" (Carrier)
 	var drop_carrier = Node3D.new()
-	drop_carrier.global_position = origin_pos
+	
+	# CORREÇÃO: Adiciona à cena ANTES de alterar a global_position!
 	get_tree().current_scene.add_child(drop_carrier)
+	drop_carrier.global_position = origin_pos
 	
 	var drop = drop_scene.instantiate()
 	drop.position = Vector3.ZERO 

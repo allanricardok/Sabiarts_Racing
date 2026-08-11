@@ -13,6 +13,7 @@ var is_dead: bool = false
 
 @export_group("Wander Settings")
 @export var max_wander_radius: float = 30.0
+@export var sleep_distance: float = 300.0 # Reduzido para 300 metros!
 
 var current_direction: Vector3 = Vector3.ZERO
 var panic_timer: float = 0.0
@@ -23,45 +24,81 @@ var _initial_layer: int
 var _initial_mask: int
 
 # ==============================================================================
-# OTIMIZAÇÃO MAXIMA: VARIÁVEIS ESTÁTICAS (COMPARTILHADAS POR TODOS OS PEDESTRES)
+# OTIMIZAÇÃO MAXIMA: VARIÁVEIS ESTÁTICAS E CULLING DE IA
 # ==============================================================================
 static var _shared_blood_tex: ImageTexture = null
 static var _shared_gore_mat: StandardMaterial3D = null
 static var _shared_gore_mesh: BoxMesh = null
 
-# OTIMIZAÇÃO: Time-slicing para esquiva
 var _dodge_timer: float = 0.0
 var _cached_dodge_vel: Vector3 = Vector3.ZERO
+
+# --- SISTEMA DE LOD (LEVEL OF DETAIL) LÓGICO ---
+var _is_sleeping: bool = false
+var _sleep_timer: float = 0.0
+var _sleep_dist_sq: float = 90000.0 # 300 * 300
+var _dist_to_closest_player_sq: float = 999999.0
+
+# --- SISTEMA DE FRAME SKIPPING (TIME-SLICING) ---
+var _skipped_frames: int = 0
+var _target_skip: int = 0
 
 func _ready():
 	add_to_group("pedestrians")
 	
 	_initial_layer = collision_layer
 	_initial_mask = collision_mask
+	
+	_sleep_dist_sq = sleep_distance * sleep_distance
+	
+	# Desincroniza a checagem inicial para não estressar a CPU no frame 1
+	_sleep_timer = randf_range(0.0, 1.5)
 
 func _physics_process(delta):
 	if is_dead: return 
 	
-	if not is_on_floor():
-		velocity.y -= 9.8 * delta
+	# ====================================================================
+	# 1. ATUALIZAÇÃO DO ESTADO DE LOD
+	# ====================================================================
+	_sleep_timer -= delta
+	if _sleep_timer <= 0:
+		_sleep_timer = randf_range(1.0, 1.5) 
+		_check_sleep_state()
 		
-	panic_timer -= delta
+	# Se estiver muito longe (>300m), ignora cálculos de gravidade e colisão!
+	if _is_sleeping: return
+	
+	# ====================================================================
+	# 2. FRAME SKIPPING (Pula cálculos físicos pesados se estiver longe)
+	# ====================================================================
+	if _skipped_frames < _target_skip:
+		_skipped_frames += 1
+		return
+		
+	# Multiplicador de tempo baseado nos frames que pulamos
+	var time_mult = float(_skipped_frames + 1)
+	var real_delta = delta * time_mult
+	
+	if not is_on_floor():
+		velocity.y -= 9.8 * real_delta
+		
+	panic_timer -= real_delta
 	if panic_timer <= 0:
 		_pick_new_direction()
 		
 	var move_vel = current_direction * base_speed
 	
-	if is_invincible:
-		_dodge_timer -= delta
+	# Só processa esquiva se o jogador estiver num raio de ~50 metros
+	if is_invincible and _dist_to_closest_player_sq < 2500.0:
+		_dodge_timer -= real_delta
 		if _dodge_timer <= 0:
-			_dodge_timer = 0.2 # Só processa a esquiva 5x por segundo!
+			_dodge_timer = 0.2 
 			_cached_dodge_vel = Vector3.ZERO
 			
 			var players = get_tree().get_nodes_in_group("jogadores")
 			for p in players:
 				if not is_instance_valid(p) or p.is_queued_for_deletion(): continue
 				
-				# OTIMIZAÇÃO: 8.0 * 8.0 = 64.0 (Sem raiz quadrada)
 				if global_position.distance_squared_to(p.global_position) < 64.0:
 					var away_dir = (global_position - p.global_position).normalized()
 					away_dir.y = 0
@@ -71,10 +108,58 @@ func _physics_process(delta):
 	velocity.x = move_vel.x + _cached_dodge_vel.x
 	velocity.z = move_vel.z + _cached_dodge_vel.z
 	
-	move_and_slide()
+	# ====================================================================
+	# 3. COMPENSAÇÃO DE MOVIMENTO E DESLIZAMENTO
+	# ====================================================================
+	if _skipped_frames > 0:
+		# Multiplica a velocidade temporariamente para cobrir a distância dos frames perdidos
+		velocity *= time_mult
+		move_and_slide()
+		# Restaura a velocidade real (mantendo os zeramentos de impacto feitos pela engine)
+		velocity /= time_mult
+	else:
+		move_and_slide()
+		
+	_skipped_frames = 0
+
+func _check_sleep_state():
+	var players = get_tree().get_nodes_in_group("jogadores")
+	var should_sleep = true
+	
+	_dist_to_closest_player_sq = _sleep_dist_sq + 10.0 # Reseta para longe
+	
+	for p in players:
+		if is_instance_valid(p) and not p.is_queued_for_deletion():
+			var dist_sq = global_position.distance_squared_to(p.global_position)
+			if dist_sq < _dist_to_closest_player_sq:
+				_dist_to_closest_player_sq = dist_sq
+				
+	if _dist_to_closest_player_sq < _sleep_dist_sq:
+		should_sleep = false
+				
+	# Define a taxa de atualização física (FPS do Pedestre) baseada na distância
+	if _dist_to_closest_player_sq < 2500.0: # < 50m
+		_target_skip = 0 # Processa todos os frames
+	elif _dist_to_closest_player_sq < 10000.0: # < 100m
+		_target_skip = 2 # Pula 2 frames (roda a ~20fps)
+	else: # 100m a 300m
+		_target_skip = 5 # Pula 5 frames (roda a ~10fps)
+				
+	if should_sleep != _is_sleeping:
+		_is_sleeping = should_sleep
+		
+		if _is_sleeping:
+			collision_layer = 0
+			collision_mask = 0
+			var anim = find_child("AnimatedSprite3D")
+			if anim and anim.is_playing(): anim.stop()
+		else:
+			collision_layer = _initial_layer
+			collision_mask = _initial_mask
+			var anim = find_child("AnimatedSprite3D")
+			if anim and not anim.is_playing(): anim.play()
 
 func _pick_new_direction():
-	# OTIMIZAÇÃO: Usando max_wander_radius ao quadrado para bater com distance_squared_to
 	var max_rad_sq = max_wander_radius * max_wander_radius
 	
 	if global_position.distance_squared_to(spawn_position) > max_rad_sq:
@@ -119,7 +204,6 @@ func take_damage(amount: float, attacker: Node3D = null):
 	if not is_projectile:
 		trigger_splash = true
 	else:
-		# Distância ao quadrado para a mancha na tela
 		var splash_sq = blood_splash_distance * blood_splash_distance
 		if is_instance_valid(actual_shooter) and death_pos.distance_squared_to(actual_shooter.global_position) <= splash_sq:
 			trigger_splash = true
@@ -183,7 +267,6 @@ func _spawn_gore_visuals(pos: Vector3, impact_dir: Vector3 = Vector3.ZERO):
 	var current_tex = anim_sprite.sprite_frames.get_frame_texture(anim_sprite.animation, anim_sprite.frame)
 	if not current_tex: return
 	
-	# OTIMIZAÇÃO MAXIMA: Prepara o material e malha UMA vez para todo o jogo
 	if _shared_gore_mat == null:
 		_shared_gore_mat = StandardMaterial3D.new()
 		_shared_gore_mat.albedo_color = Color(0.65, 0.0, 0.0) 
@@ -220,7 +303,6 @@ func _spawn_gore_visuals(pos: Vector3, impact_dir: Vector3 = Vector3.ZERO):
 		rastro_sangue.lifetime = 0.35
 		rastro_sangue.local_coords = false
 		
-		# Puxa o recurso estático da memória RAM!
 		rastro_sangue.mesh = _shared_gore_mesh
 		rastro_sangue.direction = Vector3(0, -1, 0)
 		rastro_sangue.spread = 30.0
@@ -275,7 +357,6 @@ func _trigger_blood_splash_ui(shooter: Node3D):
 			hud.splatter_blood_on_lens()
 
 func _get_shared_blood_texture() -> ImageTexture:
-	# OTIMIZAÇÃO: A imagem base de sangue é gerada UMA vez na vida do jogo!
 	if _shared_blood_tex != null:
 		return _shared_blood_tex
 		
@@ -320,7 +401,6 @@ func _spawn_blood_stain(pos: Vector3):
 		stain.rotation.y = randf_range(0, TAU)
 		stain.render_priority = 1
 		
-		# Deforma o Sprite3D para fazer os ovais (muito mais barato do que processar pixels distorcidos)
 		stain.scale.x = randf_range(0.7, 1.3)
 		stain.scale.z = randf_range(0.7, 1.3)
 		
@@ -383,6 +463,10 @@ func reset(new_global_pos: Vector3):
 	global_position = new_global_pos
 	spawn_position = new_global_pos
 	velocity = Vector3.ZERO
+	
+	_is_sleeping = false
+	_sleep_timer = randf_range(0.0, 1.5) 
+	_skipped_frames = 0
 	
 	_pick_new_direction()
 	

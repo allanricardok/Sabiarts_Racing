@@ -32,6 +32,16 @@ var vip_attack_cooldown : float = 0.0
 
 var ameacas_detectadas : int = 0
 
+# ==============================================================================
+# OTIMIZAÇÃO: LOD Lógico, Staggering e Hibernação
+# ==============================================================================
+var _think_timer: float = 0.0
+var _think_interval: float = 0.1 
+var _lod_check_timer: float = 0.0
+var _cached_human: Node3D = null
+var _current_intentions: Dictionary = {"throttle": 0.0, "steering": 0.0, "force_straight": false, "jump": false}
+var _is_sleeping: bool = false # NOVO: Corta a execução inteira do bot
+
 func _ready():
 	car = get_parent() as BaseVehicle
 	input = car.get_node_or_null("%InputComponent")
@@ -58,6 +68,10 @@ func _ready():
 	combat.setup(car, input, stats, radar)
 	
 	_rolar_dados_de_timers()
+	
+	# OTIMIZAÇÃO: Desincroniza a checagem de distância no momento do spawn!
+	# Assim, 15 bots nunca checarão a distância na mesma fração de segundo.
+	_lod_check_timer = randf_range(0.0, 1.0)
 
 func _rolar_dados_de_timers():
 	timer_manobra = randf_range(15.0, 30.0)
@@ -69,19 +83,77 @@ func _process(delta):
 		_reset_inputs()
 		return
 		
-	if alvo_atual != null and (not is_instance_valid(alvo_atual) or alvo_atual.is_queued_for_deletion()):
-		alvo_atual = null
+	# --- MÁQUINA DE LOD E CULLING ---
+	_lod_check_timer -= delta
+	if _lod_check_timer <= 0:
+		_update_lod_status()
+		# Mantém a desincronização viva adicionando um ruído randômico
+		_lod_check_timer = 1.0 + randf_range(0.0, 0.3) 
 		
+	# HIBERNAÇÃO: Se está a mais de 500m, puxa o freio de mão e mata o processamento da IA
+	if _is_sleeping:
+		_reset_inputs()
+		if "handbrake" in input: input.handbrake = true
+		return
+		
+	# Cooldowns leves que precisam rodar liso
 	mission_seek_cooldown = max(0.0, mission_seek_cooldown - delta)
 	vip_attack_cooldown = max(0.0, vip_attack_cooldown - delta) 
 	tempo_no_estado += delta
 	
 	if driver.processar_manobra_pendente(delta): return 
 		
+	# --- O CÉREBRO PULSADO ---
+	_think_timer -= delta
+	if _think_timer <= 0:
+		_think(_think_interval)
+		_think_timer = _think_interval
+			
+	# --- AÇÃO FÍSICA CONTÍNUA ---
+	var force_straight = _current_intentions.get("force_straight", false)
+	driver.processar_direcao_final(delta, _current_intentions.throttle, _current_intentions.steering, force_straight)
+
+func _update_lod_status():
+	var jogadores = get_tree().get_nodes_in_group("jogadores")
+	var closest_dist_sq = 99999999.0
+	_cached_human = null
+	
+	# OTIMIZAÇÃO: Procura ativamente o humano MAIS PRÓXIMO, blindando o multiplayer
+	for p in jogadores:
+		if is_instance_valid(p) and not p.is_queued_for_deletion():
+			var inp = p.get_node_or_null("%InputComponent")
+			if inp and "is_bot" in inp and not inp.is_bot:
+				var d_sq = car.global_position.distance_squared_to(p.global_position)
+				if d_sq < closest_dist_sq:
+					closest_dist_sq = d_sq
+					_cached_human = p
+
+	if is_instance_valid(_cached_human):
+		_is_sleeping = false
+		
+		# Veículos são rápidos, as faixas de distância precisam ser longas
+		if closest_dist_sq < 4900.0: # < 70 metros (Combate direto/Frente a frente)
+			_think_interval = 0.1 
+		elif closest_dist_sq < 22500.0: # < 150 metros (Aproximação no radar)
+			_think_interval = 0.3 
+		elif closest_dist_sq < 90000.0: # < 300 metros (Fora de visão, roaming)
+			_think_interval = 0.8 
+		elif closest_dist_sq < 250000.0: # < 500 metros (Apenas simulando presença)
+			_think_interval = 2.0 
+		else:
+			_is_sleeping = true # > 500 metros (Hiberna o bot completamente)
+	else:
+		_think_interval = 0.5 
+		_is_sleeping = false
+
+func _think(time_passed: float):
+	if alvo_atual != null and (not is_instance_valid(alvo_atual) or alvo_atual.is_queued_for_deletion()):
+		alvo_atual = null
+		
 	if current_state != State.FLEE:
-		if current_state != State.SEEK_RAMP: timer_manobra = max(0.0, timer_manobra - delta)
+		if current_state != State.SEEK_RAMP: timer_manobra = max(0.0, timer_manobra - time_passed)
 		if current_state != State.SEEK_HEIGHT and current_state != State.ATTACK: 
-			timer_busca_predios = max(0.0, timer_busca_predios - delta)
+			timer_busca_predios = max(0.0, timer_busca_predios - time_passed)
 		
 	radar.escanear_ambiente(car, current_state)
 	_tomar_decisao_de_estado()
@@ -90,7 +162,7 @@ func _process(delta):
 		if not is_instance_valid(alvo_atual) or alvo_atual.is_queued_for_deletion():
 			alvo_atual = null
 			
-	combat.processar_combate(delta, current_state, alvo_atual)
+	combat.processar_combate(time_passed, current_state, alvo_atual)
 	
 	if combat.disparou_no_vip:
 		_aplicar_cooldown_vip()
@@ -99,23 +171,18 @@ func _process(delta):
 		ameacas_detectadas += 1
 		combat.reagir_a_ameaca(ameacas_detectadas)
 	
-	var intencoes = _executar_estado_atual(delta)
+	_current_intentions = _executar_estado_atual(time_passed)
 	
-	if intencoes.has("jump") and intencoes.jump:
+	if _current_intentions.has("jump") and _current_intentions.jump:
 		var ability = car.get_node_or_null("%AbilityComponent")
 		if ability and ability.current_energy >= ability.COST_JUMP and ability.current_cooldown <= 0:
 			input.is_attribute_pressed = true
 			input.ability_down = true
-			
-	var force_straight = intencoes.get("force_straight", false)
-	driver.processar_direcao_final(delta, intencoes.throttle, intencoes.steering, force_straight)
-	_process_debug(delta)
 
 func _aplicar_cooldown_vip():
 	vip_attack_cooldown = 20.0
 	if is_instance_valid(alvo_atual) and alvo_atual.is_in_group("destructible_vips"):
 		alvo_atual = null 
-		print("[DEBUG BOT] ", car.name, " entrou em COOLDOWN de 10s contra o VIP!")
 		_mudar_estado(State.WANDER_IDLE)
 
 func _mudar_estado(novo_estado: State):
@@ -132,7 +199,6 @@ func _escolher_alvo_inimigo() -> Node3D:
 		var alvos_vip = get_tree().get_nodes_in_group("destructible_vips")
 		for vip in alvos_vip:
 			if is_instance_valid(vip) and not vip.is_queued_for_deletion() and vip.get("mission_id") == mission_target_destroy_id:
-				# OTIMIZAÇÃO: 800.0 -> 640000.0
 				if car.global_position.distance_squared_to(vip.global_position) < 640000.0:
 					return vip 
 					
@@ -146,7 +212,6 @@ func _escolher_alvo_inimigo() -> Node3D:
 	
 	if humanos_globais.size() > 0 and randf() <= 0.85:
 		var alvo_humano = humanos_globais[0]
-		# OTIMIZAÇÃO: Menor distância ao quadrado
 		var menor_dist_sq = car.global_position.distance_squared_to(alvo_humano.global_position)
 		for i in range(1, humanos_globais.size()):
 			var h = humanos_globais[i]
@@ -154,7 +219,6 @@ func _escolher_alvo_inimigo() -> Node3D:
 			if dist_sq < menor_dist_sq:
 				menor_dist_sq = dist_sq
 				alvo_humano = h
-		# 400.0 -> 160000.0
 		if menor_dist_sq < 160000.0:
 			return alvo_humano
 
@@ -186,14 +250,12 @@ func _tomar_decisao_de_estado():
 		var itens_no_mapa = get_tree().get_nodes_in_group("itens_missao")
 		for item in itens_no_mapa:
 			if is_instance_valid(item) and item.get("mission_id") == mission_target_collect_id and item.visible:
-				# OTIMIZAÇÃO: 300.0 -> 90000.0
 				if car.global_position.distance_squared_to(item.global_position) < 90000.0:
 					_mudar_estado(State.SEEK_MISSION_OBJECTIVE)
 					return
 		
 	if radar.has_method("escanear_ambiente") and "teleporters_proximos" in radar and radar.teleporters_proximos.size() > 0:
 		var tp = radar.teleporters_proximos[0]
-		# OTIMIZAÇÃO: 80.0 -> 6400.0
 		if is_instance_valid(tp) and car.global_position.distance_squared_to(tp.global_position) <= 6400.0:
 			_mudar_estado(State.SEEK_HEIGHT)
 			return
@@ -208,12 +270,7 @@ func _tomar_decisao_de_estado():
 			precisa_novo_alvo = true
 			
 		if precisa_novo_alvo:
-			var alvo_anterior = alvo_atual
 			alvo_atual = _escolher_alvo_inimigo()
-			
-			if alvo_atual != alvo_anterior:
-				var nome_alvo = alvo_atual.name if is_instance_valid(alvo_atual) else "Nenhum"
-				print("[DEBUG BOT] ", car.name, " 🎯 TRAVOU A MIRA NO ALVO: ", nome_alvo)
 		
 		if is_instance_valid(alvo_atual):
 			_mudar_estado(State.ATTACK)
@@ -242,7 +299,7 @@ func _tomar_decisao_de_estado():
 	if radar.inimigos_proximos.is_empty(): chase_repeats = 0 
 	_mudar_estado(State.WANDER_IDLE)
 
-func _executar_estado_atual(delta) -> Dictionary:
+func _executar_estado_atual(time_passed) -> Dictionary:
 	var desire_throttle = 1.0
 	var desire_steering = 0.0
 	input.pitch = 0.0
@@ -254,7 +311,7 @@ func _executar_estado_atual(delta) -> Dictionary:
 			if radar.armas_proximas.size() > 0: 
 				var alvo_arma = radar.armas_proximas[0]
 				if is_instance_valid(alvo_arma):
-					var nav = driver.direcionar_para_coletavel(alvo_arma, delta, radar)
+					var nav = driver.direcionar_para_coletavel(alvo_arma, time_passed, radar)
 					desire_steering = nav.steering
 					desire_throttle = nav.throttle
 				else: radar.armas_proximas.remove_at(0) 
@@ -272,7 +329,6 @@ func _executar_estado_atual(delta) -> Dictionary:
 				var dir = (alvo_atual.global_position - car.global_position).normalized()
 				var dot_p = forward.dot(dir)
 				
-				# OTIMIZAÇÃO: 12.0 -> 144.0 e 20.0 -> 400.0
 				var dist_sq = car.global_position.distance_squared_to(alvo_atual.global_position)
 				var is_vip = alvo_atual.is_in_group("destructible_vips")
 				
@@ -290,7 +346,7 @@ func _executar_estado_atual(delta) -> Dictionary:
 			if radar.vida_proxima.size() > 0:
 				var alvo_vida = radar.vida_proxima[0]
 				if is_instance_valid(alvo_vida):
-					var nav = driver.direcionar_para_coletavel(alvo_vida, delta, radar)
+					var nav = driver.direcionar_para_coletavel(alvo_vida, time_passed, radar)
 					desire_steering = nav.steering
 					desire_throttle = nav.throttle
 				else: radar.vida_proxima.remove_at(0)
@@ -312,7 +368,7 @@ func _executar_estado_atual(delta) -> Dictionary:
 				if radar.has_method("escanear_ambiente") and "teleporters_proximos" in radar and radar.teleporters_proximos.size() > 0: 
 					var alvo_teleporter = radar.teleporters_proximos[0]
 					if is_instance_valid(alvo_teleporter):
-						var nav = driver.direcionar_para_coletavel(alvo_teleporter, delta, radar)
+						var nav = driver.direcionar_para_coletavel(alvo_teleporter, time_passed, radar)
 						desire_steering = nav.steering
 						desire_throttle = nav.throttle
 					else: 
@@ -330,7 +386,7 @@ func _executar_estado_atual(delta) -> Dictionary:
 					var itens_no_mapa = get_tree().get_nodes_in_group("itens_missao")
 					for item in itens_no_mapa:
 						if is_instance_valid(item) and item.get("mission_id") == mission_target_collect_id and item.visible:
-							var nav = driver.direcionar_para_coletavel(item, delta, radar)
+							var nav = driver.direcionar_para_coletavel(item, time_passed, radar)
 							desire_steering = nav.steering
 							desire_throttle = nav.throttle
 							encontrou_alvo = true
@@ -346,7 +402,6 @@ func _executar_estado_atual(delta) -> Dictionary:
 				var target_ramp = radar.rampas_proximas[0]
 				if is_instance_valid(target_ramp):
 					desire_steering = driver.calcular_volante_para_alvo(target_ramp.global_position)
-					# OTIMIZAÇÃO: 15.0 -> 225.0
 					if car.global_position.distance_squared_to(target_ramp.global_position) < 225.0:
 						input.is_attribute_pressed = true
 						input.ability_up = true
@@ -367,26 +422,10 @@ func _reset_inputs():
 	input.throttle = 0.0
 	input.steering = 0.0
 	input.pitch = 0.0
+	if "handbrake" in input: input.handbrake = false
 	input.is_action_pressed = false
 	input.is_attribute_pressed = false
 	input.ability_up = false
 	input.ability_down = false
 	input.ability_left = false
 	input.ability_right = false
-
-func _process_debug(delta):
-	debug_print_timer -= delta
-	if debug_print_timer <= 0:
-		debug_print_timer = 1.0 
-		var ammo = combat.get_total_ammo()
-		var health_pct = int((stats.current_health / stats.max_health) * 100.0) if stats else 0
-		var target_name = alvo_atual.name if alvo_atual and is_instance_valid(alvo_atual) else "Nenhum"
-		var log_str = str(
-			"\n=== ", car.name, " STATUS ===\n",
-			"Estado: ", State.keys()[current_state], "\n",
-			"Tempo no Est.: ", int(tempo_no_estado), "s\n",
-			"Vida: ", health_pct, "% | Munição: ", ammo, "\n",
-			"Alvo: ", target_name, " | Ignorados: ", radar.itens_ignorados.size(), "\n",
-			"Ameaças Evadidas: ", ameacas_detectadas, "\n",
-			"===================="
-		)

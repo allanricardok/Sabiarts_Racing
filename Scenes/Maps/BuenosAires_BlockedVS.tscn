@@ -3943,123 +3943,147 @@ script = ExtResource("30_rf88v")
 
 [node name="PedestrianSpawner" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.925915, -0.5101117, -230.6738)
-spawn_interval = 8.0
-max_alive = 7
+spawn_interval = 5.0
+max_alive = 8
+pool_size = 8
 
 [node name="PedestrianSpawner23" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 362.68317, 0, -303.4302)
-spawn_interval = 2.0
-max_alive = 7
+spawn_interval = 5.0
+max_alive = 8
+pool_size = 8
 
 [node name="PedestrianSpawner24" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 356.8263, 0, -311.1762)
-spawn_interval = 2.0
-max_alive = 7
+spawn_interval = 5.0
+max_alive = 8
+pool_size = 8
 
 [node name="PedestrianSpawner20" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25.188679, -0.5101117, -142.62854)
-spawn_interval = 8.0
-max_alive = 7
+spawn_interval = 5.0
+max_alive = 8
+pool_size = 8
 
 [node name="PedestrianSpawner2" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -207.77788, -0.5100812, -217.15883)
-spawn_interval = 8.0
-max_alive = 7
+spawn_interval = 5.0
+max_alive = 8
+pool_size = 8
 
 [node name="PedestrianSpawner3" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 206.93549, -0.5100812, -308.69202)
-spawn_interval = 8.0
-max_alive = 7
+spawn_interval = 5.0
+max_alive = 8
+pool_size = 8
 
 [node name="PedestrianSpawner4" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 279.2085, -0.5100812, -225.83057)
-spawn_interval = 8.0
-max_alive = 7
+spawn_interval = 5.0
+max_alive = 8
+pool_size = 8
 
 [node name="PedestrianSpawner5" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 83.55318, -0.5100812, -59.187027)
-spawn_interval = 8.0
-max_alive = 7
+spawn_interval = 5.0
+max_alive = 8
+pool_size = 8
 
 [node name="PedestrianSpawner6" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.537281, -0.5100812, 10.977417)
-spawn_interval = 8.0
-max_alive = 7
+spawn_interval = 5.0
+max_alive = 8
+pool_size = 8
 
 [node name="PedestrianSpawner7" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -125.58838, -0.5100812, -20.303932)
-spawn_interval = 8.0
-max_alive = 7
+spawn_interval = 5.0
+max_alive = 8
+pool_size = 8
 
 [node name="PedestrianSpawner21" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 312.96326, -1.0201623, 8.036865)
-spawn_interval = 8.0
-max_alive = 7
+spawn_interval = 5.0
+max_alive = 8
+pool_size = 8
 
 [node name="PedestrianSpawner8" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 400.06448, -0.5100812, -105.25293)
-spawn_interval = 8.0
-max_alive = 7
+spawn_interval = 5.0
+max_alive = 8
+pool_size = 8
 
 [node name="PedestrianSpawner9" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 257.05658, -0.5100812, 140.98877)
-spawn_interval = 8.0
-max_alive = 7
+spawn_interval = 5.0
+max_alive = 8
+pool_size = 8
 
 [node name="PedestrianSpawner10" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 178.80461, -0.5100812, 298.03534)
-spawn_interval = 8.0
-max_alive = 7
+spawn_interval = 5.0
+max_alive = 8
+pool_size = 8
 
 [node name="PedestrianSpawner11" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 118.71449, -0.5100812, 266.3971)
-spawn_interval = 8.0
-max_alive = 7
+spawn_interval = 5.0
+max_alive = 8
+pool_size = 8
 
 [node name="PedestrianSpawner12" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -90.53902, -0.5100812, 321.65402)
-spawn_interval = 8.0
-max_alive = 7
+spawn_interval = 5.0
+max_alive = 8
+pool_size = 8
 
 [node name="PedestrianSpawner13" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -95.92966, -0.5100812, 211.03683)
-spawn_interval = 8.0
-max_alive = 7
+spawn_interval = 5.0
+max_alive = 8
+pool_size = 8
 
 [node name="PedestrianSpawner14" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -207.06955, -0.5100812, 100.834076)
-spawn_interval = 8.0
-max_alive = 7
+spawn_interval = 5.0
+max_alive = 8
+pool_size = 8
 
 [node name="PedestrianSpawner15" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -375.23862, -0.5101117, 136.98485)
-spawn_interval = 8.0
-max_alive = 7
+spawn_interval = 5.0
+max_alive = 8
+pool_size = 8
 
 [node name="PedestrianSpawner16" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -307.79852, -0.5100812, -41.935074)
-spawn_interval = 8.0
-max_alive = 7
+spawn_interval = 5.0
+max_alive = 8
+pool_size = 8
 
 [node name="PedestrianSpawner17" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -273.9405, -0.5100812, -145.16068)
-spawn_interval = 8.0
-max_alive = 7
+spawn_interval = 5.0
+max_alive = 8
+pool_size = 8
 
 [node name="PedestrianSpawner18" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -238.41238, -0.5100812, -313.3589)
-spawn_interval = 8.0
-max_alive = 7
+spawn_interval = 5.0
+max_alive = 8
+pool_size = 8
 
 [node name="PedestrianSpawner19" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -293.44943, 31.221945, -277.43512)
-spawn_interval = 8.0
-max_alive = 7
+spawn_interval = 5.0
+max_alive = 8
+pool_size = 8
 
 [node name="PedestrianSpawner22" parent="GridContainer/Cont_P1/View_P1/Map/Pedestrians" instance=ExtResource("20_4e1cd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -298.85425, -0.5100812, -294.60962)
-spawn_interval = 8.0
-max_alive = 7
+spawn_interval = 5.0
+max_alive = 8
+pool_size = 8
 
 [node name="Buildings" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
 

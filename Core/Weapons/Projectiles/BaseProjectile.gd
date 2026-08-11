@@ -184,13 +184,16 @@ func _apply_aoe_damage(direct_target: Node3D):
 	# Detecta tudo dentro do raio da explosão
 	var results = space_state.intersect_shape(query, 32)
 	
+	# CORREÇÃO: Cria uma referência segura do atirador para passar adiante
+	var safe_shooter = shooter if is_instance_valid(shooter) else null
+	
 	for hit in results:
 		var collider = hit.collider
 		if not is_instance_valid(collider): continue
 		
 		var damage_mult = 1.0
 		
-# --- REGRA 1: O ATIRADOR ---
+		# --- REGRA 1: O ATIRADOR ---
 		var is_shooter = false
 		if is_instance_valid(shooter):
 			if collider == shooter or collider == shooter.owner:
@@ -208,13 +211,16 @@ func _apply_aoe_damage(direct_target: Node3D):
 		var final_splash_damage = aoe_damage * damage_mult
 		var final_splash_knockback = aoe_knockback * damage_mult
 		
-# --- APLICA O EMPURRÃO (FÍSICA) ---
+		# --- APLICA O EMPURRÃO (FÍSICA) ---
 		if collider is RigidBody3D or collider is VehicleBody3D:
-			# =========================================================
-			# Trava de segurança MÁXIMA do Jolt Physics! 
-			# Ignora fantasmas e objetos na fila de exclusão
-			# =========================================================
 			if not is_instance_valid(collider) or collider.is_queued_for_deletion() or not collider.is_inside_tree(): 
+				continue
+				
+			# =========================================================
+			# CORREÇÃO JOLT: Ignora objetos que foram "desligados"
+			# (como barris destruídos ou pedestres atropelados)
+			# =========================================================
+			if collider.process_mode == Node.PROCESS_MODE_DISABLED or collider.get_collision_layer() == 0:
 				continue
 				
 			if "sleeping" in collider: collider.sleeping = false
@@ -229,9 +235,9 @@ func _apply_aoe_damage(direct_target: Node3D):
 			
 		# --- APLICA O DANO SPLASH ---
 		if collider.has_method("take_damage"):
-			collider.take_damage(final_splash_damage, shooter)
+			# Envia o safe_shooter para evitar o erro de tipagem de fantasmas
+			collider.take_damage(final_splash_damage, safe_shooter)
 		else:
-			# Procura o componente de status se for um objeto segmentado
 			var stats = collider.find_child("StatsComponent*", true, false)
 			if stats and stats.has_method("take_damage"):
-				stats.take_damage(final_splash_damage, shooter)
+				stats.take_damage(final_splash_damage, safe_shooter)

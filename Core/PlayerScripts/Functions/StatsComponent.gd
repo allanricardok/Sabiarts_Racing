@@ -55,12 +55,43 @@ var has_teleportkey : bool = false
 var _cached_hud : Node = null
 var _last_heal_score : int = -1
 var _last_cooldown_ceil : int = -1
+var _is_bot: bool = false 
 
 func _ready():
-	_initialize_ui()
-	call_deferred("_auto_link_hud")
+	_check_is_bot()
+	if not _is_bot:
+		_initialize_ui()
+		call_deferred("_auto_link_hud")
+
+# ==============================================================================
+# CORREÇÃO: Função dinâmica para blindar race conditions de bots spawnados atrasados
+# ==============================================================================
+func _check_is_bot() -> bool:
+	# Se já confirmou que é bot antes, poupa processamento
+	if _is_bot: return true
+	
+	var input_comp = owner.get_node_or_null("%InputComponent")
+	if is_instance_valid(input_comp) and "is_bot" in input_comp:
+		if input_comp.is_bot:
+			_is_bot = true
+			_clear_hijacked_ui() # Larga a HUD do player imediatamente!
+			return true
+			
+	return false
+
+func _clear_hijacked_ui():
+	health_bar = null
+	shield_bar = null
+	heal_score_bar = null
+	score_cooldown_bar = null
+	cooldown_label = null
+	heal_score_text = null
+	_cached_hud = null
+# ==============================================================================
 
 func _auto_link_hud():
+	if _check_is_bot(): return
+	
 	if health_bar and shield_bar and heal_score_bar:
 		return
 		
@@ -80,12 +111,11 @@ func _auto_link_hud():
 	if not heal_score_text:
 		heal_score_text = my_viewport.find_child("ScoreText", true, false) as Label
 
-	# OTIMIZAÇÃO: Define atributos estáticos apenas uma vez, não no _process!
 	if heal_score_bar:
 		heal_score_bar.min_value = 0.0
 		heal_score_bar.max_value = HEAL_SCORE_MAX
 		heal_score_bar.step = 0.0
-		heal_score_bar.value = 0.0
+		# Removido: heal_score_bar.value = 0.0 (Para não zerar o visual da UI no reload)
 		
 	if score_cooldown_bar:
 		score_cooldown_bar.visible = true
@@ -120,10 +150,11 @@ func _process(delta):
 	if heal_cooldown_timer > 0:
 		heal_cooldown_timer -= delta
 		
-	_update_ui_bars(delta)
+	# Checagem dinâmica antes de encostar na UI
+	if not _check_is_bot():
+		_update_ui_bars(delta)
 
 func _update_ui_bars(delta):
-	# Adicionado o Delta ao lerp para suavizar independente de FPS
 	if health_bar:
 		var new_val = lerp(health_bar.value, current_health, 10.0 * delta)
 		health_bar.value = new_val
@@ -138,7 +169,6 @@ func _update_ui_bars(delta):
 	if heal_score_bar:
 		heal_score_bar.value = heal_score_current
 		
-	# OTIMIZAÇÃO: Strings só formatadas se a pontuação REALMENTE mudou
 	if heal_score_text:
 		var current_int = int(heal_score_current)
 		if _last_heal_score != current_int:
@@ -150,7 +180,6 @@ func _update_ui_bars(delta):
 	if score_cooldown_bar:
 		score_cooldown_bar.value = heal_cooldown_timer
 		
-	# OTIMIZAÇÃO: Texto de Cooldown só converte se o segundo arredondado mudar
 	if cooldown_label:
 		if heal_cooldown_timer > 0:
 			var current_ceil = int(ceil(heal_cooldown_timer))
@@ -168,6 +197,8 @@ func _update_ui_bars(delta):
 # FUNÇÕES DE PONTUAÇÃO, CURA E ANIMAÇÕES
 # =========================================================
 func add_heal_score(amount: int):
+	# Usa a checagem dinâmica aqui também
+	if _check_is_bot(): return 
 	if heal_cooldown_timer > 0: return 
 		
 	heal_score_current += amount
@@ -212,18 +243,14 @@ func _get_target_hud() -> Node:
 	return null
 
 func _trigger_heal_flash():
-	var ic = owner.get_node_or_null("%InputComponent")
-	if ic and "is_bot" in ic and ic.is_bot:
-		return
+	if _check_is_bot(): return
 		
 	var target_hud = _get_target_hud()
 	if target_hud and target_hud.has_method("play_heal_flash"):
 		target_hud.play_heal_flash()
 
 func _trigger_shield_flash():
-	var ic = owner.get_node_or_null("%InputComponent")
-	if ic and "is_bot" in ic and ic.is_bot:
-		return
+	if _check_is_bot(): return
 		
 	var target_hud = _get_target_hud()
 	if target_hud and target_hud.has_method("play_shield_flash"):
@@ -238,7 +265,6 @@ func repair(amount: float):
 	if current_health > old_health:
 		_check_damage_state()
 		_trigger_heal_flash()
-# =========================================================
 
 func _get_health_color(health_percent: float) -> Color:
 	if health_percent > 30.0:
@@ -264,7 +290,6 @@ func take_damage(amount: float, source: Node = null):
 			final_knockback = source.knockback_force
 			
 	if is_instance_valid(attacker_node):
-		# OTIMIZAÇÃO: Sem busca curinga! Substituindo "StatsComponent*" pelo nome exato ou Unique Node.
 		var attacker_stats = attacker_node.get_node_or_null("%StatsComponent")
 		if not attacker_stats:
 			attacker_stats = attacker_node.find_child("StatsComponent", true, false)
@@ -312,7 +337,6 @@ func _process_scoring(source: Node):
 	if "shooter" in source and source.shooter != null:
 		attacker = source.shooter
 	
-	# OTIMIZAÇÃO: Sem curinga. Tentando Unique Node primeiro para performance $O(1)$.
 	var g_manager = attacker.get_node_or_null("%GroundTrickManager")
 	if not g_manager:
 		g_manager = attacker.find_child("GroundTrickManager", true, false)

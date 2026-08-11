@@ -11,7 +11,7 @@ class_name GroundTrickManager
 @export_group("Limites")
 @export var MAX_COMBO_MULTIPLIER : float = 5.0
 
-const COLOR_GROUND = "#ff4444" # Vermelho
+const COLOR_GROUND = "#ff4444" 
 
 const GROUND_DATA = {
 	"HIT_OBJECT": {"name": "Hit object", "points": 5},
@@ -24,9 +24,6 @@ var points_per_action : Array = []
 var tracking_combo := false
 var display_version : int = 0
 
-# ==============================================================================
-# OTIMIZAÇÃO: MEMÓRIA CACHE E TIMERS
-# ==============================================================================
 var _trick_manager: Node
 var _stats_component: Node
 var _is_bot: bool = false
@@ -34,12 +31,11 @@ var _cached_hud: Node
 var _combo_timer: float = 0.0
 
 func _ready():
-	# Armazena os nós pesados na memória uma vez
 	_trick_manager = car.get_node_or_null("%TrickManager")
 	_stats_component = car.get_node_or_null("%StatsComponent")
-	
 	call_deferred("_setup_cache")
 
+# CORREÇÃO: O Cache volta a ser feito preventivamente no _ready()
 func _setup_cache():
 	var input_comp = car.get_node_or_null("%InputComponent")
 	if is_instance_valid(input_comp) and "is_bot" in input_comp:
@@ -52,8 +48,6 @@ func _setup_cache():
 				break
 
 func _process(delta):
-	# OTIMIZAÇÃO: Em vez de criar instâncias de timers no GetTree para cada batida,
-	# nós simplesmente rodamos um contador regressivo direto na memória.
 	if tracking_combo and _combo_timer > 0:
 		_combo_timer -= delta
 		if _combo_timer <= 0:
@@ -117,7 +111,17 @@ func _get_dynamic_multiplier() -> float:
 	return min(mult, MAX_COMBO_MULTIPLIER)
 
 func _get_local_hud() -> Node:
+	# Retorna nulo imediatamente se for bot, poupando processamento
 	if _is_bot: return null
+	
+	# Se já temos o cache válido, usa ele
+	if is_instance_valid(_cached_hud): 
+		return _cached_hud
+		
+	# Fallback: Se o cache falhou na inicialização, busca dinamicamente igual ao TrickManager
+	if is_instance_valid(car) and "input" in car and is_instance_valid(car.input):
+		_cached_hud = get_tree().get_first_node_in_group("HUD" + car.input.suffix)
+		
 	return _cached_hud
 
 func _update_live_display():

@@ -46,6 +46,17 @@ func _fire_basic_weapon():
 	var weapon_name = basic_weapon_resource.nome
 	
 	_muzzle_flash_effect(weapon_name)
+	
+	# =========================================================================
+	# NOVO: Se for a metralhadora nova com Hitscan, dispara instantaneamente via Raycast!
+	# =========================================================================
+	var machine_gun_node = weapon_nodes.get("MachineGun")
+	if is_instance_valid(machine_gun_node) and machine_gun_node.has_method("fire_hitscan"):
+		machine_gun_node.fire_hitscan(car, basic_weapon_resource.dano)
+		return
+	# =========================================================================
+	
+	# Fallback antigo (caso use outro tipo de arma básica física)
 	var proj = _spawn_projectile(basic_weapon_resource, weapon_name, false)
 	
 	if is_instance_valid(proj) and "is_special_weapon" in proj:

@@ -13,52 +13,53 @@ class_name TaillightTrailManager
 
 @export_group("Visual Neon")
 @export var trail_color := Color(1.0, 0.1, 0.1, 1.0) 
-@export var neon_power: float = 4.0 
 
 var _left_pivot: Node3D
 var _right_pivot: Node3D
-var _material: StandardMaterial3D
+
+# Referências diretas às malhas para mudar a transparência localmente
+var _left_mesh: MeshInstance3D
+var _right_mesh: MeshInstance3D
 
 @onready var car = owner as VehicleBody3D
-
-# OTIMIZAÇÃO: Flag para colocar o script para dormir quando o carro parar
 var _is_active: bool = false
+var _is_bot: bool = false
+var _trail_material: StandardMaterial3D = null
 
 func _ready():
-	_setup_material()
+	var input = car.get_node_or_null("%InputComponent")
+	if is_instance_valid(input) and "is_bot" in input:
+		_is_bot = input.is_bot
+		
+	_setup_shared_material()
 	
 	if left_light_marker:
 		_left_pivot = Node3D.new()
 		_left_pivot.scale.z = 0.0
 		left_light_marker.add_child(_left_pivot)
-		var left_mesh = _create_trail_mesh()
-		_left_pivot.add_child(left_mesh)
+		_left_mesh = _create_trail_mesh()
+		_left_pivot.add_child(_left_mesh)
 		
 	if right_light_marker:
 		_right_pivot = Node3D.new()
 		_right_pivot.scale.z = 0.0
 		right_light_marker.add_child(_right_pivot)
-		var right_mesh = _create_trail_mesh()
-		_right_pivot.add_child(right_mesh)
+		_right_mesh = _create_trail_mesh()
+		_right_pivot.add_child(_right_mesh)
 
-func _setup_material():
-	_material = StandardMaterial3D.new()
+func _setup_shared_material():
+	if _trail_material != null:
+		return
+		
+	_trail_material = StandardMaterial3D.new()
+	_trail_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_trail_material.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	_trail_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	
-	# BLINDAGEM DE COMPARTILHAMENTO: Garante que este material é único deste carro
-	_material.resource_local_to_scene = true 
-	
-	_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	_material.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
-	_material.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
-	
-	# CLONE DA COR: Evita alterar o ponteiro da variável exportada
-	var mat_color = trail_color
-	mat_color.a = 0.0 
-	_material.albedo_color = mat_color
-	
-	_material.emission_enabled = true
-	_material.emission = trail_color
-	_material.emission_energy_multiplier = 0.0 
+	# Usaremos a cor do material para controlar o fade, começando invisível.
+	_trail_material.albedo_color = trail_color
+	_trail_material.albedo_color.a = 0.0
+	_trail_material.cull_mode = BaseMaterial3D.CULL_DISABLED
 
 func _create_trail_mesh() -> MeshInstance3D:
 	var mesh_inst = MeshInstance3D.new()
@@ -66,11 +67,18 @@ func _create_trail_mesh() -> MeshInstance3D:
 	
 	var prism = PrismMesh.new()
 	prism.size = Vector3(0.25, 1.0, 0.1) 
+	
+	# ====================================================================
+	# CORREÇÃO: Aplica o material no RECURSO da malha, e não no override!
+	# ====================================================================
+	prism.material = _trail_material 
+	
 	mesh_inst.mesh = prism
-	mesh_inst.material_override = _material
+	
+	# Remova ou comente a linha antiga:
+	# mesh_inst.material_override = _trail_material 
 	
 	var dir_mod = -1.0 if invert_direction else 1.0
-	
 	mesh_inst.rotation.x = (PI / 2.0) * dir_mod
 	mesh_inst.position = Vector3(0, 0, 0.5 * dir_mod) 
 	
@@ -84,40 +92,38 @@ func _process(delta):
 	var speed_kmh = car.linear_velocity.length() * 3.6
 	
 	var target_scale = 0.0
-	var target_alpha = 0.0
-	var target_glow = 0.0
+	var target_alpha = 0.0 # Agora controlamos o ALPHA (0.0 = Invisível)
 	
 	if speed_kmh > min_speed_kmh:
 		var factor = clamp((speed_kmh - min_speed_kmh) / (max_speed_kmh - min_speed_kmh), 0.0, 1.0)
 		var power_factor = factor * factor 
 		
 		target_scale = lerp(0.0, max_trail_length, power_factor)
-		target_alpha = lerp(0.0, 0.2, power_factor)
-		target_glow = target_alpha * neon_power 
 		
-		# Acorda o script
+		# Fade in (0.6 = 60% visível, misturando aditivamente)
+		target_alpha = lerp(0.0, 0.6, power_factor) 
+		
+		if _is_bot:
+			target_alpha = lerp(0.0, 0.5, power_factor)
+			
 		_is_active = true
 	else:
-		# OTIMIZAÇÃO MÁXIMA: Se a velocidade está baixa e a escala visual já diminuiu para quase zero,
-		# nós cravamos os valores em 0.0 e cortamos a execução da matemática neste frame!
 		if _is_active and is_instance_valid(_left_pivot) and _left_pivot.scale.z < 0.01:
 			_is_active = false
 			if is_instance_valid(_left_pivot): _left_pivot.scale.z = 0.0
 			if is_instance_valid(_right_pivot): _right_pivot.scale.z = 0.0
-			if is_instance_valid(_material):
-				_material.albedo_color.a = 0.0
-				_material.emission_energy_multiplier = 0.0
+			# Zera o alpha via material
+			if is_instance_valid(_trail_material): _trail_material.albedo_color.a = 0.0
 			return
-		elif not _is_active:
-			# Carro já está parado e apagado, apenas ignora o resto do frame
-			return
+		elif not _is_active: return
 		
-	if is_instance_valid(_left_pivot):
+	# APLICA AS INTERPOLAÇÕES
+	if is_instance_valid(_left_pivot): 
 		_left_pivot.scale.z = lerp(_left_pivot.scale.z, target_scale, delta * 12.0)
-		
-	if is_instance_valid(_right_pivot):
+			
+	if is_instance_valid(_right_pivot): 
 		_right_pivot.scale.z = lerp(_right_pivot.scale.z, target_scale, delta * 12.0)
 		
-	if is_instance_valid(_material):
-		_material.albedo_color.a = lerp(_material.albedo_color.a, target_alpha, delta * 15.0)
-		_material.emission_energy_multiplier = lerp(_material.emission_energy_multiplier, target_glow, delta * 15.0)
+	# APLICA O FADE NO MATERIAL, PRESERVANDO O BLEND_MODE_ADD
+	if is_instance_valid(_trail_material):
+		_trail_material.albedo_color.a = lerp(_trail_material.albedo_color.a, target_alpha, delta * 15.0)
