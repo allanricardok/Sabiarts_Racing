@@ -11,6 +11,7 @@ var ammo_added_to_current: int = 0
 var disparos_especiais_seguidos: int = 0
 
 var disparou_no_vip: bool = false
+var _delay_tiro_especial: float = 0.0 # NOVO: Cooldown global de tiro do bot
 
 func setup(_car: BaseVehicle, _input: Node, _stats: Node, _radar: BotRadar):
 	car = _car
@@ -27,6 +28,11 @@ func get_total_ammo() -> int:
 
 func processar_combate(delta: float, current_state: int, alvo_atual: Node3D):
 	disparou_no_vip = false 
+	
+	# Diminui o timer de espera global entre tiros
+	if _delay_tiro_especial > 0.0:
+		_delay_tiro_especial -= delta
+		
 	_gerenciar_regeneracao_municao(delta)
 	_gerenciar_armas_do_bot(current_state, alvo_atual)
 	_gerenciar_habilidades_do_bot(current_state, alvo_atual)
@@ -90,16 +96,23 @@ func _gerenciar_armas_do_bot(current_state: int, alvo_atual: Node3D):
 			
 			if current_state == 4 or current_state == 6:
 				var active_w = wm.get_active_special()
-				if active_w and wm.shooter.special_cooldowns.get(active_w.nome, 0.0) <= 0:
+				
+				# ADICIONADO: Checa o delay global do bot antes de atirar
+				if active_w and _delay_tiro_especial <= 0.0 and wm.shooter.special_cooldowns.get(active_w.nome, 0.0) <= 0:
 					if wm.shooter.try_fire_special(active_w, false):
+						_delay_tiro_especial = randf_range(1.5, 3.0) # Impõe o delay após atirar
 						active_w.ammo -= 1
 						if active_w.ammo <= 0: wm._remove_current_weapon()
 					ammo_added_to_current = 0 
 		
 		if current_state == 3 and dot_p > dot_limite_ataque:
 			var active_w = wm.get_active_special()
-			if active_w and wm.shooter.special_cooldowns.get(active_w.nome, 0.0) <= 0:
+			
+			# ADICIONADO: Checa o delay global do bot antes de atirar
+			if active_w and _delay_tiro_especial <= 0.0 and wm.shooter.special_cooldowns.get(active_w.nome, 0.0) <= 0:
 				if wm.shooter.try_fire_special(active_w, false):
+					
+					_delay_tiro_especial = randf_range(1.0, 2.5) # Impõe o delay após atirar
 					
 					if is_vip: 
 						disparou_no_vip = true 
@@ -127,10 +140,6 @@ func _gerenciar_habilidades_do_bot(current_state: int, alvo_atual: Node3D):
 			ability._execute_shield()
 			return
 			
-	# =====================================================================
-	# OTIMIZAÇÃO: distance_squared_to para evitar o cálculo da raiz!
-	# 40 * 40 = 1600.0
-	# =====================================================================
 	if current_state == 4 or (current_state == 3 and is_instance_valid(alvo_atual) and car.global_position.distance_squared_to(alvo_atual.global_position) > 1600.0):
 		if ability.current_energy >= ability.COST_BOOST:
 			ability._execute_boost()

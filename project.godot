@@ -60,6 +60,7 @@ elementos_historia=""
 next_map_portals=""
 ps1_shaders=""
 mapa=""
+quadrantes_mapa=""
 
 [input]
 
