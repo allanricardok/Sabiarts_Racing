@@ -57,10 +57,17 @@ func _ready():
 	spawn_transform = car.global_transform
 	current_energy = MAX_ENERGY
 	
-	shield_material = StandardMaterial3D.new()
-	shield_material.albedo_color = Color(0.42, 0.45, 0.45) 
-	shield_material.metallic = 0.8 
-	shield_material.roughness = 0.1 
+	# ====================================================================
+	# OTIMIZAÇÃO: Puxa o material de escudo direto do Cache!
+	# Como todos os carros ficam com a mesma cor prateada ao usar o escudo,
+	# podemos compartilhar a mesma instância de material para todos.
+	# ====================================================================
+	shield_material = MaterialCache.get_mat("CarShieldEffect")
+	if not shield_material:
+		shield_material = StandardMaterial3D.new()
+		shield_material.albedo_color = Color(0.42, 0.45, 0.45) 
+		shield_material.metallic = 0.8 
+		shield_material.roughness = 0.1 
 	
 	if energy_bar:
 		energy_bar.max_value = MAX_ENERGY

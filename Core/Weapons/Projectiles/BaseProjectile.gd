@@ -191,7 +191,15 @@ func _apply_aoe_damage(direct_target: Node3D):
 		var collider = hit.collider
 		if not is_instance_valid(collider): continue
 		
-		var damage_mult = 1.0
+		# =================================================================
+		# NOVA MATEMÁTICA: Falloff de Distância!
+		# Calcula a distância do centro da explosão até o alvo.
+		# A força vai de 1.0 (no epicentro) caindo até 0.0 (no limite do raio).
+		# =================================================================
+		var dist_to_explosion = global_position.distance_to(collider.global_position)
+		var falloff = 1.0 - clamp(dist_to_explosion / aoe_radius, 0.0, 1.0)
+		
+		var damage_mult = falloff
 		
 		# --- REGRA 1: O ATIRADOR ---
 		var is_shooter = false
@@ -201,12 +209,18 @@ func _apply_aoe_damage(direct_target: Node3D):
 				
 		if is_shooter:
 			if self_damage_multiplier <= 0.0:
-				continue # Se for 0, o atirador sai ileso (ignora dano e física)
-			damage_mult = self_damage_multiplier
+				continue # Se for 0, o atirador sai ileso
+			# Aplica o self_damage_multiplier SOBRE a força já atenuada pela distância
+			damage_mult *= self_damage_multiplier
 			
 		# --- REGRA 2: O ALVO PRIMÁRIO ---
 		elif collider == direct_target:
-			damage_mult = 0.25 # Alvo que tomou na cara recebe +25% de dano da explosão
+			# CORREÇÃO: Para dar um bônus de 25% no alvo principal, o valor é 1.25 (e não 0.25).
+			# Cravamos esse valor, ignorando o falloff da distância.
+			damage_mult = 1.25 
+			
+		# Se a força final for insignificante (quase na borda), nem processa física para poupar CPU
+		if damage_mult <= 0.01: continue
 			
 		var final_splash_damage = aoe_damage * damage_mult
 		var final_splash_knockback = aoe_knockback * damage_mult
@@ -216,10 +230,6 @@ func _apply_aoe_damage(direct_target: Node3D):
 			if not is_instance_valid(collider) or collider.is_queued_for_deletion() or not collider.is_inside_tree(): 
 				continue
 				
-			# =========================================================
-			# CORREÇÃO JOLT: Ignora objetos que foram "desligados"
-			# (como barris destruídos ou pedestres atropelados)
-			# =========================================================
 			if collider.process_mode == Node.PROCESS_MODE_DISABLED or collider.get_collision_layer() == 0:
 				continue
 				
@@ -235,7 +245,6 @@ func _apply_aoe_damage(direct_target: Node3D):
 			
 		# --- APLICA O DANO SPLASH ---
 		if collider.has_method("take_damage"):
-			# Envia o safe_shooter para evitar o erro de tipagem de fantasmas
 			collider.take_damage(final_splash_damage, safe_shooter)
 		else:
 			var stats = collider.find_child("StatsComponent*", true, false)

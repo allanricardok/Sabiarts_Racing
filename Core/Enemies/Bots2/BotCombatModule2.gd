@@ -6,7 +6,7 @@ var input: Node
 var stats: Node
 var radar: BotRadarV2
 
-var ammo_regen_timer: float = 5.0
+var ammo_regen_timer: float = 3.0
 var ammo_added_to_current: int = 0
 var disparos_especiais_seguidos: int = 0
 
@@ -30,7 +30,8 @@ func get_total_ammo() -> int:
 	var ammo = 0
 	var wm = car.get_node_or_null("%WeaponManager")
 	if wm:
-		for w in wm.weapon_pool: ammo += w.ammo
+		for w in wm.weapon_pool: 
+			ammo += w.ammo
 	return ammo
 
 # Nova função enxuta chamada a cada frame pelo BotBrainV2
@@ -69,7 +70,8 @@ func tentar_atirar(alvo: Node3D, is_extreme_attack: bool = false):
 				disparou_no_vip = true 
 				
 			active_w.ammo -= 1
-			if active_w.ammo <= 0: wm._remove_current_weapon()
+			if active_w.ammo <= 0: 
+				wm._remove_current_weapon()
 			
 			ammo_added_to_current = 0
 			disparos_especiais_seguidos += 1
@@ -94,7 +96,8 @@ func tentar_atirar_pra_tras(alvo_perseguidor: Node3D):
 			_delay_tiro_especial = randf_range(1.5, 3.0)
 			
 			active_w.ammo -= 1
-			if active_w.ammo <= 0: wm._remove_current_weapon()
+			if active_w.ammo <= 0: 
+				wm._remove_current_weapon()
 			ammo_added_to_current = 0
 
 # ==============================================================================

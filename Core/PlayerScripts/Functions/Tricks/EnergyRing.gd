@@ -18,14 +18,21 @@ func setup(mesh_res: Mesh, color: Color) -> void:
 	mesh = mesh_res
 	
 	if not _mat:
-		_mat = StandardMaterial3D.new()
-		_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		_mat.vertex_color_use_as_albedo = true
-		_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		# Blend aditivo: onde os dois anéis se cruzam, a luz "soma" e fica
-		# mais brilhante — é o que dá aquela cara neon/energia das imagens.
-		_mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
-		_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+		# ====================================================================
+		# OTIMIZAÇÃO: Puxa o material que já criamos no TrickEnergyRingsFX!
+		# Duplicamos para que cada anel possa ter seu próprio Fade sem afetar os outros.
+		# ====================================================================
+		var cached_mat = MaterialCache.get_mat("EnergyRings")
+		if cached_mat:
+			_mat = cached_mat.duplicate()
+		else:
+			_mat = StandardMaterial3D.new()
+			_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+			_mat.vertex_color_use_as_albedo = true
+			_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+			_mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+			_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+			
 		material_override = _mat
 	
 	_mat.albedo_color = color

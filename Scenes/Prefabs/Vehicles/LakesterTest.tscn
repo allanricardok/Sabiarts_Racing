@@ -1,9 +1,8 @@
-[gd_scene load_steps=9 format=3 uid="uid://cxnfwc3ovajua"]
+[gd_scene load_steps=8 format=3 uid="uid://cxnfwc3ovajua"]
 
 [ext_resource type="PackedScene" uid="uid://ry75iugdg8sl" path="res://Scenes/Prefabs/Vehicles/CarZero.tscn" id="1_lhwup"]
 [ext_resource type="ArrayMesh" uid="uid://k0s2cicvuvb" path="res://Assets/3D/tests/Lakester.mesh.res" id="2_lhwup"]
 [ext_resource type="ArrayMesh" uid="uid://d1n5brd88al4i" path="res://Assets/3D/tests/LKSWheel.mesh.res" id="3_nospx"]
-[ext_resource type="Script" uid="uid://b2xmtaoyrsfb7" path="res://Core/PlayerScripts/Functions/WallRide/WallRideOrchestrator.gd" id="4_nospx"]
 
 [sub_resource type="Animation" id="Animation_qcxwf"]
 length = 0.001
@@ -131,10 +130,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.038438737, 0.5228699, -2.31
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.056981742, 0.5228699, -2.3158274)
 
 [node name="bklightEsq" parent="TailLightTrailManager" index="2"]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -0.0015612841, 0.546, -2.442475)
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0.546, -2.442)
 
 [node name="bklightDir" parent="TailLightTrailManager" index="3"]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -0.01698172, 0.546, -2.440143)
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0.546, -2.44)
 
 [node name="Marker3D" parent="TurboMarkers" index="0"]
 transform = Transform3D(0.49999997, -0.22414385, -0.83651614, 0, 0.9659257, -0.25881898, 0.86602545, 0.12940949, 0.4829628, 0.5, 0.2788264, -0.27327394)
@@ -160,7 +159,6 @@ AIR_CONTROL_FORCE = 18.0
 AIR_TORQUE_FORCE = 45.0
 
 [node name="WallRideComponent" parent="Scripts" index="10"]
-script = ExtResource("4_nospx")
 min_speed_kmh = 1.0
 min_ground_height = 1.0
 anti_gravity_decay_time = 5.0
@@ -172,8 +170,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.41651595)
 [node name="MachineGun" parent="Guns" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.32013983, 0.4221766)
 
-[node name="Muzzle" parent="Guns/MachineGun" index="1"]
-transform = Transform3D(-1, 1.2206126e-09, 8.741426e-08, 0, 0.99990255, -0.01396218, -8.742278e-08, -0.01396218, -0.99990255, 0, 0.75172055, 2.2299254)
+[node name="MuzzleRay" parent="Guns/MachineGun" index="1"]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -2.2537527e-14, 0.75172055, 2.4138513)
+
+[node name="Muzzle" parent="Guns/MachineGun" index="2"]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0.75172055, 2.2299254)
 
 [node name="BigSlow" parent="Guns" index="1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.38518295, 0.004850924, -0.0057343245)
@@ -181,14 +182,32 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.38518295, 0.004850924, -0.
 [node name="Gun" parent="Guns/BigSlow" index="0"]
 transform = Transform3D(0.99852437, 0, -0.05430537, 0, 1, 0, 0.05430537, 0, 0.99852437, 0.88322675, 0.83795565, 1.2292895)
 
-[node name="HomingMissile" parent="Guns" index="2"]
+[node name="Muzzle" parent="Guns/BigSlow" index="1"]
+transform = Transform3D(-0.99978065, 0, 0.0209425, 0, 1, 0, -0.0209425, 0, -0.99978065, 0.89359033, 0.9219358, 1.6064427)
+
+[node name="Gun" parent="Guns/BazookaMissile" index="0"]
+transform = Transform3D(0.9659258, 0.25881904, 0, -0.25881904, 0.9659258, 0, 0, 0, 1, 0.414219, 0.57155776, 1.2292895)
+
+[node name="Muzzle" parent="Guns/BazookaMissile" index="1"]
+transform = Transform3D(-0.9658066, 0.25878707, 0.015707236, 0.258819, 0.96592575, 0, -0.015172023, 0.004065331, -0.9998766, 0.42732877, 0.5804423, 1.6064427)
+
+[node name="HomingMissile" parent="Guns" index="3"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.022404552, -0.29973388, 0.5761467)
 
-[node name="GrapplingMissile" parent="Guns" index="3"]
+[node name="Muzzle" parent="Guns/HomingMissile" index="1"]
+transform = Transform3D(-0.99978065, 0.00029240295, 0.020940458, 0, 0.99990255, -0.01396218, -0.0209425, -0.013959118, -0.9996832, -0.014248967, 1.5464308, 0.55100596)
+
+[node name="GrapplingMissile" parent="Guns" index="4"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.13861364, -0.05189526, 0.16859269)
 
 [node name="Gun" parent="Guns/GrapplingMissile" index="0"]
 transform = Transform3D(0.99930125, 0, 0.037376247, 0, 1, 0, -0.037376247, 0, 0.99930125, -0.2385242, 0.7855307, 1.7817372)
 
-[node name="FreezingMissile" parent="Guns" index="4"]
+[node name="Muzzle" parent="Guns/GrapplingMissile" index="1"]
+transform = Transform3D(-0.99978065, 0.000109654175, 0.020942213, 0, 0.9999863, -0.005235964, -0.0209425, -0.0052348156, -0.99976695, -0.22816062, 0.86951077, 2.1588902)
+
+[node name="FreezingMissile" parent="Guns" index="5"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.3633502, 0.19778156, -0.13620901)
+
+[node name="Muzzle" parent="Guns/FreezingMissile" index="1"]
+transform = Transform3D(-0.99978065, 0.00018275547, 0.020941703, 0, 0.9999619, -0.008726535, -0.0209425, -0.0087246215, -0.99974257, 0.89359033, 0.9219358, 1.6064427)

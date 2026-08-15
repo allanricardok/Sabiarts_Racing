@@ -1,4 +1,3 @@
-# Missile.gd
 extends BaseProjectile
 
 @export_group("Física do Míssil")
@@ -63,7 +62,10 @@ func _physics_process(delta):
 	
 	# --- LÓGICA DE TELEGUIDO (HOMING) ---
 	if target and is_instance_valid(target) and not target.is_queued_for_deletion():
-		var target_pos = target.global_position
+		# ====================================================================
+		# AJUSTE DA MIRA: Eleva o alvo em 0.5m no eixo Y para não bater no chão
+		# ====================================================================
+		var target_pos = target.global_position + Vector3(0, 0.5, 0)
 		
 		# Detecção de impacto manual por proximidade (segurança contra mísseis muito rápidos)
 		if global_position.distance_to(target_pos) < 2.0:

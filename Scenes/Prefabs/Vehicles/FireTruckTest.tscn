@@ -159,6 +159,9 @@ transform = Transform3D(4.371139e-08, 1, -1.509958e-07, 1, -4.371139e-08, 0, -6.
 [node name="bklightDir" parent="TailLightTrailManager" index="3"]
 transform = Transform3D(4.371139e-08, 1, -1.509958e-07, 1, -4.371139e-08, 0, -6.600236e-15, -1.509958e-07, -1, -1.1441852, 0.91195035, -3.748135)
 
+[node name="BurnoutMeter" parent="." index="13"]
+transform = Transform3D(1, 0, 0, 0, 0.38637033, -0.25881904, 0, 0.10352762, 0.9659258, 0, 0.5307237, -4.2579355)
+
 [node name="Marker3D" parent="TurboMarkers" index="0"]
 transform = Transform3D(1, 0, 0, 0, 0.9659258, -0.25881904, 0, 0.25881904, 0.9659258, 0.5, 0.3475038, -3.5899873)
 
@@ -203,11 +206,20 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5277264, 1.5135581)
 [node name="BigSlow" parent="Guns" index="1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4886458, -0.33145475, 1.7104583)
 
-[node name="HomingMissile" parent="Guns" index="2"]
+[node name="BazookaMissile" parent="Guns" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.69780374, 1.6855379)
+
+[node name="Gun" parent="Guns/BazookaMissile" index="0"]
+transform = Transform3D(0.9659258, 0.25881904, 0, -0.25881904, 0.9659258, 0, 0, 0, 1, 1.180652, 1.9339218, 1.2292894)
+
+[node name="Muzzle" parent="Guns/BazookaMissile" index="1"]
+transform = Transform3D(-0.9658066, 0.25878707, 0.015707236, 0.258819, 0.96592575, 0, -0.015172023, 0.004065331, -0.9998766, 1.1937618, 1.9428065, 1.6064428)
+
+[node name="HomingMissile" parent="Guns" index="3"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1226187, 2.823515)
 
-[node name="GrapplingMissile" parent="Guns" index="3"]
+[node name="GrapplingMissile" parent="Guns" index="4"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.63967574, 1.7088087, 1.1102785)
 
-[node name="FreezingMissile" parent="Guns" index="4"]
+[node name="FreezingMissile" parent="Guns" index="5"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.1211176, 1.4850965, 1.7486391)

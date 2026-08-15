@@ -1,4 +1,3 @@
-# StoryMissionPortal.gd
 extends Area3D
 class_name StoryMissionPortal
 
@@ -75,12 +74,22 @@ func make_semitransparent():
 	var meshes = find_children("*", "MeshInstance3D", true, false)
 	
 	for child in meshes:
-		if "transparency" in child:
-			child.transparency = 0.65
+		var base_mat = child.get_active_material(0)
+		if base_mat:
+			# ====================================================================
+			# CORREÇÃO DA TRANSPARÊNCIA: Sobrescrevemos o material nativo para 
+			# garantir que o Blend Mode respeite a alteração, mantendo as texturas originais.
+			# ====================================================================
+			var ghost_mat = base_mat.duplicate()
 			
-		var mat = child.get_active_material(0)
-		if mat and mat is BaseMaterial3D:
-			var novo_material = mat.duplicate()
-			novo_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-			novo_material.albedo_color.a = 0.35 
-			child.set_surface_override_material(0, novo_material)
+			if ghost_mat is StandardMaterial3D:
+				ghost_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+				ghost_mat.albedo_color.a = 0.30
+				# Se o portal for de neon, cortamos o brilho para ele parecer desligado
+				ghost_mat.emission_energy_multiplier *= 0.15 
+				
+			elif ghost_mat is ShaderMaterial:
+				# Fallback de segurança se o portal for um Shader Customizado
+				ghost_mat.set_shader_parameter("alpha", 0.30)
+				
+			child.material_override = ghost_mat

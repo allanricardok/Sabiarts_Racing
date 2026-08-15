@@ -190,13 +190,19 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4064658, 0, -0.6826676)
 [node name="Gun" parent="Guns/BigSlow" index="0"]
 transform = Transform3D(0.99852437, 0, -0.05430537, 0, 1, 0, 0.05430537, 0, 0.99852437, 0.88322675, 0.83795565, 1.2292895)
 
-[node name="HomingMissile" parent="Guns" index="2"]
+[node name="Gun" parent="Guns/BazookaMissile" index="0"]
+transform = Transform3D(1, 0, 0, 0, 0.9946579, -0.10322655, 0, 0.10322655, 0.9946579, 0.0046879053, 0.889199, -0.37387156)
+
+[node name="Muzzle" parent="Guns/BazookaMissile" index="1"]
+transform = Transform3D(-0.99978435, 0.00036245174, 0.020764848, -5.820766e-11, 0.9998477, -0.017452417, -0.020768022, -0.017448641, -0.9996321, 0.015051484, 0.90117395, 0.0032815933)
+
+[node name="HomingMissile" parent="Guns" index="3"]
 transform = Transform3D(1, 0, 0, 0, 1.0000004, -7.450581e-09, 0, 7.450581e-09, 1.0000004, 0.52294886, -0.29828897, -1.0839932)
 
 [node name="Muzzle" parent="Guns/HomingMissile" index="1"]
 transform = Transform3D(-0.99978435, 0.0003624517, 0.020764848, -0.0015658337, 0.9956862, -0.09277141, -0.020708896, -0.09278393, -0.995471, -0.014248967, 1.5464311, 0.55100596)
 
-[node name="GrapplingMissile" parent="Guns" index="3"]
+[node name="GrapplingMissile" parent="Guns" index="4"]
 transform = Transform3D(1, 0, 0, 0, 0.999468, 0.03263187, 0, -0.03263187, 0.999468, -0.33894342, 0.30320966, -2.233675)
 
 [node name="Gun" parent="Guns/GrapplingMissile" index="0"]
@@ -205,7 +211,7 @@ transform = Transform3D(0.99930125, 0, 0.037376247, 0, 1, 0, -0.037376247, 0, 0.
 [node name="Muzzle" parent="Guns/GrapplingMissile" index="1"]
 transform = Transform3D(-0.99978435, 0.0003624517, 0.020764848, -0.00027438195, 0.9995299, -0.030657781, -0.020766199, -0.030656867, -0.99931437, -0.22816062, 0.86951077, 2.1588905)
 
-[node name="FreezingMissile" parent="Guns" index="4"]
+[node name="FreezingMissile" parent="Guns" index="5"]
 transform = Transform3D(0.9996802, 0.0011479822, 0.025261063, -0.0011479821, 1.0000001, -1.4513731e-05, -0.025261065, -1.4480203e-05, 0.9996816, -1.4105316, 0.048233535, -0.43305707)
 
 [node name="Muzzle" parent="Guns/FreezingMissile" index="1"]

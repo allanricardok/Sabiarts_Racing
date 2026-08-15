@@ -1,4 +1,3 @@
-# Grappling.gd
 extends BaseProjectile
 
 @export_group("Movimento do Gancho")
@@ -47,10 +46,19 @@ var anchor_offset_y : float = 0.0
 func _ready():
 	cable_mesh_instance = MeshInstance3D.new()
 	immediate_mesh = ImmediateMesh.new()
-	cable_material = StandardMaterial3D.new()
 	
+	# ====================================================================
+	# OTIMIZAÇÃO: Puxa o material do cabo do Cache e duplica para manter
+	# o suporte a cabos de cores diferentes sem engasgar a compilação.
+	# ====================================================================
+	var cached_mat = MaterialCache.get_mat("GrapplingCableBase")
+	if cached_mat:
+		cable_material = cached_mat.duplicate()
+	else:
+		cable_material = StandardMaterial3D.new()
+		cable_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		
 	cable_material.albedo_color = cable_color
-	cable_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	
 	cable_mesh_instance.mesh = immediate_mesh
 	cable_mesh_instance.material_override = cable_material
@@ -63,7 +71,6 @@ func _ready():
 func setup(dmg_value: float, car_velocity: Vector3, source_car: Node3D, propulsion_speed: float = 170.0, incoming_target: Node3D = null):
 	super.setup(dmg_value, car_velocity, source_car, propulsion_speed)
 	
-	# NOVO: Garante que a linha volte a aparecer quando renascer do Pool
 	if is_instance_valid(cable_mesh_instance):
 		cable_mesh_instance.visible = true
 	
@@ -87,7 +94,6 @@ func setup(dmg_value: float, car_velocity: Vector3, source_car: Node3D, propulsi
 		)
 
 func _physics_process(delta):
-	# NOVO: Trava de segurança. Se o gancho está invisível no Pool, não faz nada!
 	if not visible: return
 
 	if not is_instance_valid(shooter):
@@ -121,8 +127,12 @@ func _state_flying(delta):
 		_finish_grapple()
 		return
 
+	# ====================================================================
+	# CORREÇÃO 1: Levantar a mira em 0.2m para não raspar no chão
+	# ====================================================================
 	if target and is_instance_valid(target) and not target.is_queued_for_deletion():
-		var target_pos = target.global_position
+		var target_pos = target.global_position + Vector3(0, 0.2, 0)
+		
 		if global_position.distance_to(target_pos) < 2.5:
 			_on_impact(target)
 			return
@@ -133,7 +143,27 @@ func _state_flying(delta):
 	else:
 		velocity = velocity.move_toward(velocity.normalized() * fly_speed, delta * 50.0)
 	
-	global_position += velocity * delta
+	# ====================================================================
+	# CORREÇÃO 2: Continuous Collision Detection (CCD)
+	# Evita que o gancho passe através de paredes por estar muito rápido
+	# ====================================================================
+	var next_pos = global_position + (velocity * delta)
+	var space_state = get_world_3d().direct_space_state
+	var query = PhysicsRayQueryParameters3D.create(global_position, next_pos)
+	
+	var excludes = []
+	if self is CollisionObject3D: excludes.append(get_rid())
+	if is_instance_valid(shooter) and shooter is CollisionObject3D: excludes.append(shooter.get_rid())
+	query.exclude = excludes
+	
+	var result = space_state.intersect_ray(query)
+	if result:
+		# Bateu em algo antes de chegar no próximo frame! Intercepta agora.
+		global_position = result.position
+		_on_impact(result.collider)
+		return
+	
+	global_position = next_pos
 	if velocity.length() > 0.1:
 		look_at(global_position + velocity, Vector3.UP)
 
@@ -188,7 +218,7 @@ func _state_tethered(delta):
 		_finish_grapple()
 
 # ============================================================================
-# LÓGICA DE IMPACTO REESCRITA PARA BURLAR O BASE PROJECTILE
+# LÓGICA DE IMPACTO
 # ============================================================================
 func _on_impact(target_node):
 	if is_tethered: return
@@ -225,16 +255,13 @@ func _play_impact_vfx():
 			explosion_color,         
 			explosion_size,          
 			explosion_particles,     
-			3.0, # Pouca luz para o gancho prendendo
+			3.0, 
 			explosion_smoke_color,   
 			explosion_smoke_size,
 			fire_duration            
 		)
 
 func _start_tether(body):
-	# =================================================================
-	# TRAVA DE SEGURANÇA 1: O atirador ainda existe? (Pode ser um bot morto!)
-	# =================================================================
 	if not is_instance_valid(shooter):
 		queue_free()
 		return
@@ -248,9 +275,6 @@ func _start_tether(body):
 	else:
 		target_is_static = false
 		target = body
-		# =================================================================
-		# TRAVA DE SEGURANÇA 2: O alvo foi destruído exatamente no mesmo frame?
-		# =================================================================
 		if not is_instance_valid(target):
 			queue_free()
 			return
@@ -259,13 +283,15 @@ func _start_tether(body):
 	
 	var space_state = get_world_3d().direct_space_state
 	var q_car = PhysicsRayQueryParameters3D.create(shooter.global_position, shooter.global_position + Vector3.DOWN * 20.0)
-	q_car.exclude = [shooter.get_rid(), get_rid()]
+	var excludes = []
+	if self is CollisionObject3D: excludes.append(get_rid())
+	if is_instance_valid(shooter) and shooter is CollisionObject3D: excludes.append(shooter.get_rid())
+	q_car.exclude = excludes
 	var res_car = space_state.intersect_ray(q_car)
 	
 	var q_tgt = PhysicsRayQueryParameters3D.create(target_pos + Vector3.UP * 1.0, target_pos + Vector3.DOWN * 20.0)
-	q_tgt.exclude = [shooter.get_rid(), get_rid()]
-	
-	if not target_is_static and is_instance_valid(target):
+	q_tgt.exclude = excludes.duplicate()
+	if not target_is_static and is_instance_valid(target) and target is CollisionObject3D:
 		q_tgt.exclude.append(target.get_rid())
 		
 	var res_tgt = space_state.intersect_ray(q_tgt)
@@ -283,19 +309,37 @@ func _start_tether(body):
 
 func _is_path_blocked(pull_target_pos) -> bool:
 	var space_state = get_world_3d().direct_space_state
-	var query = PhysicsRayQueryParameters3D.create(shooter.global_position, pull_target_pos)
-	query.exclude = [shooter.get_rid(), get_rid()]
+	
+	# ====================================================================
+	# CORREÇÃO 3: Falsos positivos no cabo. 
+	# Levanta a linha de detecção em 1.0m para evitar raspar no chão e
+	# ignora os hitboxes de outros jogadores/inimigos que possam cruzar a linha.
+	# ====================================================================
+	var safe_start = shooter.global_position + Vector3(0, 1.0, 0)
+	var safe_end = pull_target_pos + Vector3(0, 1.0, 0)
+	
+	var query = PhysicsRayQueryParameters3D.create(safe_start, safe_end)
+	
+	var excludes = []
+	if self is CollisionObject3D: excludes.append(get_rid())
+	if is_instance_valid(shooter) and shooter is CollisionObject3D: excludes.append(shooter.get_rid())
+	if is_instance_valid(target) and target is CollisionObject3D: excludes.append(target.get_rid())
+	query.exclude = excludes
+	
 	var result = space_state.intersect_ray(query)
-	if result and result.collider != target:
-		var dist_to_hit = shooter.global_position.distance_to(result.position)
-		if dist_to_hit < shooter.global_position.distance_to(pull_target_pos) - 1.5:
+	if result:
+		# Ignora se o cabo bater acidentalmente em outro carro enquanto puxa
+		if result.collider.is_in_group("jogadores") or result.collider.is_in_group("inimigos") or result.collider.is_in_group("pedestrians"):
+			return false
+			
+		var dist_to_hit = safe_start.distance_to(result.position)
+		if dist_to_hit < safe_start.distance_to(safe_end) - 1.5:
 			return true
 	return false
 
 func _cleanup_visuals():
 	if is_instance_valid(immediate_mesh):
 		immediate_mesh.clear_surfaces()
-	# Esconde o nó que está solto na cena
 	if is_instance_valid(cable_mesh_instance):
 		cable_mesh_instance.visible = false
 
@@ -303,12 +347,10 @@ func _cleanup_visuals():
 # CICLO DE VIDA E LIMPEZA
 # ============================================================================
 
-# Sobrescrevemos a reciclagem para apagar o cabo antes de guardar a bala
 func _deactivate_and_pool():
 	_cleanup_visuals()
 	super._deactivate_and_pool()
 
-# Previne vazamento de memória: se a fase acabar ou o jogo fechar, o cabo é destruído
 func _exit_tree():
 	if is_instance_valid(cable_mesh_instance):
 		cable_mesh_instance.queue_free()
@@ -322,9 +364,6 @@ func _finish_grapple():
 			if target.has_method("take_damage"):
 				target.take_damage(damage, self)
 
-	# NOVO: Destrava a variável para ele não tentar arrastar o carro da memória
 	is_tethered = false 
 	_cleanup_visuals()
-	
-	# Devolve o gancho pro Pool!
 	_deactivate_and_pool()

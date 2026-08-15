@@ -217,12 +217,11 @@ func _build_arc_ring_ps1(cfg: Dictionary) -> ArrayMesh:
 	var array_mesh := ArrayMesh.new()
 	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	
-	var mat = StandardMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD # CORREÇÃO: Adicionado Blend ADD
-	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-	mat.vertex_color_use_as_albedo = true
-	array_mesh.surface_set_material(0, mat)
+	# ==============================================================
+	# OTIMIZAÇÃO: Busca o material pronto no Autoload
+	# ==============================================================
+	var mat = MaterialCache.get_mat("EnergyRings")
+	if mat:
+		array_mesh.surface_set_material(0, mat)
 	
 	return array_mesh

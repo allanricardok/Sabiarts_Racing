@@ -150,11 +150,7 @@ func _build_shared_mesh() -> void:
 	_shared_mesh = ArrayMesh.new()
 	_shared_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	
-	var mat = StandardMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD # CORREÇÃO: Faltava o Blend ADD!
-	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-	mat.vertex_color_use_as_albedo = true 
-	
-	_shared_mesh.surface_set_material(0, mat)
+	# --- OTIMIZAÇÃO: BUSCA O MATERIAL PRONTO NO CACHE ---
+	var mat = MaterialCache.get_mat("TurboComet")
+	if mat:
+		_shared_mesh.surface_set_material(0, mat)

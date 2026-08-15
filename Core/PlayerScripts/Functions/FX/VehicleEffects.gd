@@ -22,12 +22,8 @@ func _ready():
 		push_error("[VehicleEffects] Erro fatal: O nó não conseguiu encontrar o BaseVehicle!")
 		return
 		
-	# --- CRIA O MATERIAL DE GELO ---
-	ice_material = StandardMaterial3D.new()
-	ice_material.albedo_color = Color(0.2, 0.6, 1.0, 0.7) 
-	ice_material.roughness = 0.1 
-	ice_material.metallic = 0.3
-	ice_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	# --- OTIMIZAÇÃO: BUSCA O MATERIAL PRONTO NO CACHE ---
+	ice_material = MaterialCache.get_mat("VehicleIce")
 
 	# OTIMIZAÇÃO: Guarda as malhas do carro na memória uma única vez
 	var all_meshes = car.find_children("*", "MeshInstance3D", true, false)

@@ -123,8 +123,7 @@ func _configurar_tela_e_spawn():
 	
 	# Se estiver testando a cena direto (apertou F6 no mapa)
 	if total == 0:
-		print("Nenhum jogador no Global. Criando jogador de teste...")
-		# ATENÇÃO: Se quiser testar direto, passe o seu BaseVehicle aqui
+		print("[Mapa] Nenhum jogador no Global. Criando jogador de teste...")
 		Global.clonar_jogador_teste(0, preload("res://Scenes/Prefabs/Vehicles/BrasiliaTest.tscn"))
 		jogadores_logados.append(Global.dados_jogadores[0])
 		total = 1
@@ -135,34 +134,43 @@ func _configurar_tela_e_spawn():
 	var containers = grid.get_children()
 	var primeiro_viewport = containers[0].get_node("View_P1")
 
-	for i in range(total):
+	# Mudança: Iteramos sobre todos os containers da tela, não apenas os jogadores
+	for i in range(containers.size()):
 		var viewport_atual = containers[i].get_node("View_P" + str(i+1))
-		var config = jogadores_logados[i] # Aqui temos o Dicionário!
 		
-		if i > 0:
-			if primeiro_viewport.world_3d: viewport_atual.world_3d = primeiro_viewport.world_3d
-			else: viewport_atual.world_3d = get_viewport().find_world_3d()
-		
-		containers[i].show()
-		
-		# --- A MÁGICA DOS CARROS DIFERENTES ---
-		var cena_do_carro = config["carro_cena"]
-		var novo_carro = cena_do_carro.instantiate()
-		
-		novo_carro.id = i 
-		novo_carro.input_source = config["esquema"]
-		
-		viewport_atual.add_child(novo_carro)
-		
-		var camera_carro = novo_carro.get_node_or_null("Camera3D")
-		if camera_carro: camera_carro.make_current()
-		
-		# Setup do SpawnPoint
-		if spawn_points and spawn_points.get_child_count() > 0:
-			var pontos = spawn_points.get_children()
-			var index_ponto = i % pontos.size() 
-			novo_carro.global_transform = pontos[index_ponto].global_transform
+		if i < total:
+			# TEM JOGADOR PARA ESSA TELA -> LIGA O VIEWPORT
+			var config = jogadores_logados[i] 
 			
-			if i >= pontos.size():
-				var offset_multiplicador = (i / pontos.size()) * 4.0 
-				novo_carro.global_position += novo_carro.global_transform.basis.x * offset_multiplicador
+			if i > 0:
+				if primeiro_viewport.world_3d: viewport_atual.world_3d = primeiro_viewport.world_3d
+				else: viewport_atual.world_3d = get_viewport().find_world_3d()
+			
+			containers[i].show()
+			viewport_atual.render_target_update_mode = SubViewport.UPDATE_ALWAYS # Liga a renderização
+			
+			# Instancia o Carro
+			var cena_do_carro = config["carro_cena"]
+			var novo_carro = cena_do_carro.instantiate()
+			
+			novo_carro.id = i 
+			novo_carro.input_source = config["esquema"]
+			
+			viewport_atual.add_child(novo_carro)
+			
+			var camera_carro = novo_carro.get_node_or_null("Camera3D")
+			if camera_carro: camera_carro.make_current()
+			
+			# Setup do SpawnPoint
+			if spawn_points and spawn_points.get_child_count() > 0:
+				var pontos = spawn_points.get_children()
+				var index_ponto = i % pontos.size() 
+				novo_carro.global_transform = pontos[index_ponto].global_transform
+				
+				if i >= pontos.size():
+					var offset_multiplicador = (i / pontos.size()) * 4.0 
+					novo_carro.global_position += novo_carro.global_transform.basis.x * offset_multiplicador
+		else:
+			# NÃO TEM JOGADOR PARA ESSA TELA -> CONGELA TOTALMENTE
+			containers[i].hide()
+			viewport_atual.render_target_update_mode = SubViewport.UPDATE_DISABLED # Otimização Crítica!

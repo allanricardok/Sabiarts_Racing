@@ -1,4 +1,3 @@
-# StatusChangerPickup.gd
 extends Area3D
 class_name StatusChangerPickup
 
@@ -36,11 +35,21 @@ func _update_visuals():
 	mesh_instance.mesh = custom_mesh
 	mesh_instance.scale = mesh_scale
 	
-	var mat = StandardMaterial3D.new()
+	# ====================================================================
+	# OTIMIZAÇÃO: Puxa o material base do cache e duplica para colorir!
+	# ====================================================================
+	var cached_mat = MaterialCache.get_mat("StatusPickupBase")
+	var mat: StandardMaterial3D
+	
+	if cached_mat:
+		mat = cached_mat.duplicate()
+	else:
+		mat = StandardMaterial3D.new()
+		mat.emission_enabled = true
+		mat.emission_energy_multiplier = 0.5
+		
 	mat.albedo_color = item_color
-	mat.emission_enabled = true
 	mat.emission = item_color
-	mat.emission_energy_multiplier = 0.5
 	
 	mesh_instance.material_override = mat
 

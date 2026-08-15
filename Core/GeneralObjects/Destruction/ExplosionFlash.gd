@@ -15,6 +15,27 @@ var active: bool = false
 
 var _mat: StandardMaterial3D = null
 
+func _ensure_material() -> void:
+	if not _mat:
+		# ====================================================================
+		# OTIMIZAÇÃO: Puxa o material base do cache e duplica para permitir
+		# brilhos aditivos de cores diferentes, unificando a correção de escala.
+		# ====================================================================
+		var cached_mat = MaterialCache.get_mat("ExplosionFlashBase")
+		if cached_mat:
+			_mat = cached_mat.duplicate()
+		else:
+			_mat = StandardMaterial3D.new()
+			_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+			_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+			_mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD 
+			_mat.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+			_mat.billboard_keep_scale = true 
+			_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+			_mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+			
+		material_override = _mat
+
 func launch(pos: Vector3, color: Color, size: float, flash_duration: float) -> void:
 	global_position = pos
 	duration = flash_duration
@@ -25,13 +46,7 @@ func launch(pos: Vector3, color: Color, size: float, flash_duration: float) -> v
 	scale = Vector3.ONE * (size * 0.2)
 	set_process(true)
 	
-	if not _mat:
-		_mat = StandardMaterial3D.new()
-		_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		_mat.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
-		_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-		material_override = _mat
+	_ensure_material()
 	
 	_mat.albedo_color = color
 	_mat.albedo_color.a = 1.0
@@ -54,18 +69,5 @@ func _process(delta: float) -> void:
 	_mat.albedo_color.a = clamp(1.0 - t, 0.0, 1.0)
 
 func set_texture(tex: Texture2D) -> void:
-	if not _mat:
-		_mat = StandardMaterial3D.new()
-		_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		_mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD 
-		_mat.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
-		
-		# O SEGREDO DO TAMANHO: Impede o billboard de ignorar a escala do Node
-		_mat.billboard_keep_scale = true 
-		
-		_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-		_mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
-		material_override = _mat
-		
+	_ensure_material()
 	_mat.albedo_texture = tex

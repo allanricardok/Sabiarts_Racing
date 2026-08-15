@@ -40,22 +40,16 @@ func _ready() -> void:
 		s.set_process(false)
 		_pool.append(s)
 	
-	# =====================================================================
-	# CORREÇÃO: Joga a busca pelo componente para o final do frame!
-	# Garante que o AirMovementComponent já configurou o stunt_processor.
-	# =====================================================================
 	call_deferred("_conectar_sinais_com_atraso")
 
 func _conectar_sinais_com_atraso() -> void:
 	if is_instance_valid(car):
+		# OTIMIZAÇÃO: Busca O(1) direto pelo Unique Name
 		var air_move = car.get_node_or_null("%AirMovementComponent")
-		if not air_move:
-			air_move = car.find_child("AirMovementComponent", true, false)
 			
 		if is_instance_valid(air_move):
 			_stunt_processor = air_move.get("stunt_processor")
 			if is_instance_valid(_stunt_processor) and _stunt_processor.has_signal("special_trick_triggered"):
-				# Se chegou aqui, a conexão está garantida!
 				_stunt_processor.special_trick_triggered.connect(_on_special_trick)
 
 func _process(_delta: float) -> void:
@@ -88,9 +82,12 @@ func _get_free_streak() -> TrickBurstStreak:
 	return null
 
 func _jitter_direction(base_dir: Vector3, cone_degrees: float) -> Vector3:
-	var right := base_dir.cross(Vector3.RIGHT) # base_dir já é UP, então cruza com RIGHT pra não zerar
-	if right.length() < 0.01:
+	var right := base_dir.cross(Vector3.RIGHT)
+	
+	# OTIMIZAÇÃO: length_squared() poupa CPU
+	if right.length_squared() < 0.0001:
 		right = base_dir.cross(Vector3.FORWARD)
+		
 	right = right.normalized()
 	var up := right.cross(base_dir).normalized()
 	
@@ -101,7 +98,6 @@ func _jitter_direction(base_dir: Vector3, cone_degrees: float) -> Vector3:
 	dir = dir.rotated(right, pitch)
 	return dir.normalized()
 
-# Constrói a malha compartilhada usando QUADS (estilo PS1)
 func _build_shared_mesh() -> void:
 	var curve := width_curve
 	if not curve:
@@ -119,7 +115,6 @@ func _build_shared_mesh() -> void:
 		var t1 := float(i) / float(streak_segments)
 		var t2 := float(i + 1) / float(streak_segments)
 		
-		# O meio do segmento decide a cor sólida deste bloco
 		var t_mid := (t1 + t2) * 0.5
 		
 		var w1: float = (curve.sample(t1) * streak_width) * 0.5
@@ -131,7 +126,6 @@ func _build_shared_mesh() -> void:
 		else:
 			col = color_mid.lerp(color_tip, (t_mid - 0.5) * 2.0)
 		
-		# 4 Vértices do bloco (Trapezóide plano)
 		var v0 = Vector3(-w1, t1, 0)
 		var v1 = Vector3(w1, t1, 0)
 		var v2 = Vector3(-w2, t2, 0)
@@ -140,10 +134,8 @@ func _build_shared_mesh() -> void:
 		var base_idx = verts.size()
 		verts.append_array([v0, v1, v2, v3])
 		
-		# Aplica a mesma cor aos 4 cantos para matar a suavização!
 		colors.append_array([col, col, col, col])
 		
-		# Desenha os dois triângulos que formam esse quadriculado
 		indices.append_array([base_idx, base_idx+1, base_idx+2, base_idx+1, base_idx+3, base_idx+2])
 	
 	var arrays := []
@@ -154,3 +146,10 @@ func _build_shared_mesh() -> void:
 	
 	_shared_mesh = ArrayMesh.new()
 	_shared_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	
+	# ==============================================================
+	# OTIMIZAÇÃO: Busca o material pronto no Autoload
+	# ==============================================================
+	var mat = MaterialCache.get_mat("ShockwaveBurst")
+	if mat:
+		_shared_mesh.surface_set_material(0, mat)

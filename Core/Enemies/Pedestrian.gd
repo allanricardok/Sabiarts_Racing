@@ -197,8 +197,24 @@ func take_damage(amount: float, attacker: Node3D = null):
 		else:
 			impact_dir = -actual_shooter.global_transform.basis.z 
 			
-	_spawn_gore_visuals(death_pos, impact_dir)
-	_spawn_blood_stain(death_pos)
+	# --- CULLING DE GRÁFICOS GERADOS POR CPU (Otimização) ---
+	var closest_human_sq = 9999999.0
+	for p in get_tree().get_nodes_in_group("jogadores"):
+		if is_instance_valid(p) and not p.is_queued_for_deletion():
+			var inp = p.get_node_or_null("%InputComponent")
+			# Checa se é um jogador humano (não-bot)
+			if inp and "is_bot" in inp and not inp.is_bot:
+				var d_sq = death_pos.distance_squared_to(p.global_position)
+				if d_sq < closest_human_sq:
+					closest_human_sq = d_sq
+
+	# 40000.0 é o equivalente a 200m ao quadrado (200 * 200)
+	var is_far_from_human = (closest_human_sq > 40000.0)
+
+	# Só gera partículas pesadas e poças de sangue se o humano estiver a menos de 200m
+	if not is_far_from_human:
+		_spawn_gore_visuals(death_pos, impact_dir)
+		_spawn_blood_stain(death_pos)
 		
 	var trigger_splash = false
 	if not is_projectile:
@@ -208,7 +224,7 @@ func take_damage(amount: float, attacker: Node3D = null):
 		if is_instance_valid(actual_shooter) and death_pos.distance_squared_to(actual_shooter.global_position) <= splash_sq:
 			trigger_splash = true
 			
-	if trigger_splash:
+	if trigger_splash and not is_far_from_human:
 		_trigger_blood_splash_ui(actual_shooter)
 	
 	process_mode = Node.PROCESS_MODE_DISABLED
@@ -267,10 +283,11 @@ func _spawn_gore_visuals(pos: Vector3, impact_dir: Vector3 = Vector3.ZERO):
 	var current_tex = anim_sprite.sprite_frames.get_frame_texture(anim_sprite.animation, anim_sprite.frame)
 	if not current_tex: return
 	
+	# ====================================================================
+	# OTIMIZAÇÃO: Busca o material estático direto do Cache Central
+	# ====================================================================
 	if _shared_gore_mat == null:
-		_shared_gore_mat = StandardMaterial3D.new()
-		_shared_gore_mat.albedo_color = Color(0.65, 0.0, 0.0) 
-		_shared_gore_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED 
+		_shared_gore_mat = MaterialCache.get_mat("PedestrianGore")
 		_shared_gore_mesh = BoxMesh.new()
 		_shared_gore_mesh.size = Vector3(0.12, 0.12, 0.12)
 		_shared_gore_mesh.surface_set_material(0, _shared_gore_mat)

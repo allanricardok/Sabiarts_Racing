@@ -51,11 +51,11 @@ var _cached_hud: Node = null
 var _weapon_meshes_cache: Dictionary = {}
 
 func _ready():
-	highlight_material = StandardMaterial3D.new()
-	highlight_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	highlight_material.albedo_color = Color(1.0, 0.8, 0.0, 0.4)
-	highlight_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	highlight_material.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	# ====================================================================
+	# OTIMIZAÇÃO: Puxa o material de destaque compartilhado direto do Cache!
+	# Como o brilho é estático e igual para todos, não usamos .duplicate()
+	# ====================================================================
+	highlight_material = MaterialCache.get_mat("WeaponHighlight")
 	
 	shooter = WeaponShooter.new()
 	add_child(shooter)

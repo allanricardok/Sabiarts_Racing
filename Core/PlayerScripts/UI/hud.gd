@@ -1,5 +1,9 @@
-# HUD.gd
 extends CanvasLayer
+
+# ====================================================================
+# OTIMIZAÇÃO: Preload de texturas pesadas para a memória RAM
+# ====================================================================
+const PIN_TEXTURE = preload("res://Assets/2D/location-pin.png")
 
 @onready var ped_kill_label = find_child("PedKillLabel", true, false)
 @onready var minimap_bg = get_node_or_null("UI_Base/MinimapBackground")
@@ -40,13 +44,19 @@ var my_car : BaseVehicle = null
 # --- GERENCIADOR DOS PAINÉIS DE HISTÓRIA ---
 var mission_panels: HUDMissionPanels
 
+# ====================================================================
+# CACHES DE OTIMIZAÇÃO (Memória)
+# ====================================================================
+var _last_ped_kills : int = -1
+var _shared_blood_style : StyleBoxFlat = null
+var _target_stats_cache : Dictionary = {}
+
 func _ready():
 	air_time_label.visible = false
 	air_message_label.visible = false
 	
 	add_child(nametags_container)
 	
-	# Instancia o novo componente visual e atrela à UI Base
 	mission_panels = HUDMissionPanels.new()
 	add_child(mission_panels)
 	mission_panels.setup(ui_base)
@@ -57,10 +67,16 @@ func _ready():
 	
 	if Global.current_run_mode == Global.RunMode.STORY:
 		call_deferred("esconder_timer")
+		
+	# ====================================================================
+	# OTIMIZAÇÃO: Conecta a mudança de escala a um evento (Signal) em vez
+	# de calcular tudo a cada frame no _process.
+	# ====================================================================
+	get_viewport().size_changed.connect(_update_ui_scaling)
+	_update_ui_scaling() # Roda uma vez no início
 
 # ====================================================================
 # --- DELEGAÇÃO DE COMANDOS DA MISSÃO PARA O NOVO SCRIPT ---
-# Isso garante que as chamadas call_group("HUD") continuem funcionando
 # ====================================================================
 
 func mostrar_item_secreto_coletado(nome_item: String, pontos: int):
@@ -79,7 +95,7 @@ func esconder_missao_ativa():
 	mission_panels.esconder_missao_ativa()
 
 # ====================================================================
-# --- CÓDIGO ORIGINAL DO HUD (MANTIDO INTACTO) ---
+# --- CÓDIGO ORIGINAL DO HUD ---
 # ====================================================================
 
 func setup_hud(suffix: String, real_id: int):
@@ -99,10 +115,14 @@ func setup_hud(suffix: String, real_id: int):
 		player_id_label.modulate = Color.CYAN if my_player_id == 0 else Color.ORANGE
 
 func _process(_delta):
-	_update_ui_scaling()
+	# OTIMIZAÇÃO: _update_ui_scaling() foi removido daqui e passado para o sinal de size_changed.
 	
+	# OTIMIZAÇÃO: Só reconstrói a string do Label de abates se o número mudar.
 	if ped_kill_label and is_instance_valid(my_car):
-		ped_kill_label.text = "x" + str(my_car.pedestrians_killed)
+		var current_kills = my_car.pedestrians_killed
+		if current_kills != _last_ped_kills:
+			_last_ped_kills = current_kills
+			ped_kill_label.text = "x" + str(_last_ped_kills)
 
 func sync_nametags(active_tags_data: Array):
 	var valid_nodes = []
@@ -116,7 +136,8 @@ func sync_nametags(active_tags_data: Array):
 			nametags_container.add_child(container)
 			
 			var icon = TextureRect.new()
-			icon.texture = load("res://Assets/2D/location-pin.png") 
+			# OTIMIZAÇÃO: Lê direto da memória RAM (Preload)
+			icon.texture = PIN_TEXTURE 
 			icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE 
 			icon.custom_minimum_size = Vector2(64, 64)
 			icon.size = Vector2(64, 64)
@@ -161,9 +182,18 @@ func sync_target_info(display_target: Node3D):
 			var current_hp = 0.0
 			var max_hp = 100.0
 			var found_health_data = false
-			var stats = display_target.find_child("StatsComponent*", true, false)
 			
-			if stats:
+			# OTIMIZAÇÃO: find_child com wildcard '*' é lentíssimo para o _process.
+			# Criamos um cache para guardar a referência do StatsComponent.
+			var stats = null
+			if _target_stats_cache.has(display_target):
+				stats = _target_stats_cache[display_target]
+			else:
+				stats = display_target.find_child("StatsComponent*", true, false)
+				# Se encontrar, guarda no cache para a próxima volta do frame.
+				if stats: _target_stats_cache[display_target] = stats
+			
+			if is_instance_valid(stats):
 				current_hp = stats.current_health
 				max_hp = stats.max_health
 				found_health_data = true
@@ -183,6 +213,9 @@ func sync_target_info(display_target: Node3D):
 	else:
 		if target_name_label: target_name_label.hide()
 		if target_hp_bar: target_hp_bar.hide()
+		# Limpeza do cache para não segurar referências a objetos deletados
+		if _target_stats_cache.size() > 20: 
+			_target_stats_cache.clear()
 
 func get_active_minimap_category() -> int:
 	if minimap_bg: return minimap_bg.active_category_index
@@ -302,54 +335,48 @@ func mostrar_timer():
 		timer_label.show()
 		timer_bg.show()
 
-# Cole isso dentro do seu script de HUD
-
 func splatter_blood_on_lens():
 	var splash_node = Control.new()
 	var vp_size = get_viewport().get_visible_rect().size
 	
-	# Posição fixa no topo esquerdo, as gotas se organizarão usando o tamanho real da tela
 	splash_node.position = Vector2.ZERO
 	add_child(splash_node)
 	
-	# Entre 6 e 12 marcas de sangue por atropelamento!
+	# ====================================================================
+	# OTIMIZAÇÃO: Cria o StyleBox do sangue uma única vez e compartilha
+	# entre todas as gotas, economizando alocação de objetos!
+	# ====================================================================
+	if _shared_blood_style == null:
+		_shared_blood_style = StyleBoxFlat.new()
+		_shared_blood_style.bg_color = Color(0.6, 0.0, 0.0, 0.85)
+		_shared_blood_style.corner_radius_top_left = 1024
+		_shared_blood_style.corner_radius_top_right = 1024
+		_shared_blood_style.corner_radius_bottom_right = 1024
+		_shared_blood_style.corner_radius_bottom_left = 1024
+
 	var drops = randi_range(6, 12) 
 	
 	for i in range(drops):
 		var drop = Panel.new()
+		drop.add_theme_stylebox_override("panel", _shared_blood_style)
 		
-		# O SEGREDO DO CÍRCULO/OVAL:
-		var style = StyleBoxFlat.new()
-		style.bg_color = Color(0.6, 0.0, 0.0, 0.85)
-		# Forçar um raio de 1024 em todos os cantos arredonda qualquer caixa num círculo/oval perfeito
-		style.corner_radius_top_left = 1024
-		style.corner_radius_top_right = 1024
-		style.corner_radius_bottom_right = 1024
-		style.corner_radius_bottom_left = 1024
-		drop.add_theme_stylebox_override("panel", style)
-		
-		# Variação agressiva de tamanho: 80% pequeno/médio, 20% Mancha Gigante
 		var size_val = randf_range(5.0, 25.0)
 		if randf() > 0.8:
 			size_val = randf_range(60.0, 180.0)
 			
-		# Torce levemente a proporção para virar formas ovais
 		var w = size_val * randf_range(0.7, 1.3)
 		var h = size_val * randf_range(0.7, 1.3)
 		drop.size = Vector2(w, h)
 		
-		# Distribui randomicamente pela tela (sem invadir muito as bordas extremas)
 		var cx = randf_range(vp_size.x * 0.05, vp_size.x * 0.95)
 		var cy = randf_range(vp_size.y * 0.05, vp_size.y * 0.95)
 		drop.position = Vector2(cx - w * 0.5, cy - h * 0.5)
 		
 		splash_node.add_child(drop)
 		
-		# Animação 1: O escorrimento do sangue na lente (Pingos caem em tempos diferentes)
 		var tween_drop = create_tween()
 		tween_drop.tween_property(drop, "position:y", drop.position.y + randf_range(20.0, 100.0), randf_range(1.5, 4.0)).set_ease(Tween.EASE_OUT)
 		
-	# Animação 2: O Fade-Out da tela
 	var tween = create_tween()
 	var delay = randf_range(0.5, 1.0)
 	tween.tween_property(splash_node, "modulate:a", 0.0, randf_range(1.5, 2.5)).set_delay(delay)
@@ -359,26 +386,17 @@ func play_pickup_flash(success: bool):
 	if not has_node("PickupFlash"): return
 	var flash = $PickupFlash
 	
-	# Mata qualquer animação que estivesse tocando antes
 	var tween = get_tree().create_tween()
 	
 	if success:
-		# Verde quase branco (Sucesso) - Inicia em 50% de opacidade
 		flash.color = Color(1.0, 0.817, 0.0, 0.302) 
 		flash.visible = true
-		
-		# Sobe para 100% em 0.01s
 		tween.tween_property(flash, "color:a", 0.6, 0.01)
-		# Desce para 0% em 0.2s
 		tween.tween_property(flash, "color:a", 0.0, 0.2)
 	else:
-		# Vermelho (Inventário Cheio) - Dobro de transparência (25% inicial)
 		flash.color = Color(1.0, 0.2, 0.2, 0.25) 
 		flash.visible = true
-		
-		# Sobe para 50% em 0.01s
 		tween.tween_property(flash, "color:a", 0.4, 0.01)
-		# Desce para 0% em 0.2s
 		tween.tween_property(flash, "color:a", 0.0, 0.2)
 		
 	tween.tween_callback(func(): flash.visible = false)
@@ -386,14 +404,9 @@ func play_pickup_flash(success: bool):
 func play_heal_flash():
 	if not has_node("PickupFlash"): return
 	var flash = $PickupFlash
-	
 	var tween = get_tree().create_tween()
-	
-	# Verde curativo neon
 	flash.color = Color(0.355, 1.0, 0.1, 0.4) 
 	flash.visible = true
-	
-	# Dá um pico rápido de brilho e depois some suavemente
 	tween.tween_property(flash, "color:a", 0.7, 0.03)
 	tween.tween_property(flash, "color:a", 0.0, 0.3)
 	tween.tween_callback(func(): flash.visible = false)
@@ -401,14 +414,9 @@ func play_heal_flash():
 func play_shield_flash():
 	if not has_node("PickupFlash"): return
 	var flash = $PickupFlash
-	
 	var tween = get_tree().create_tween()
-	
-	# Azul/Ciano neon para representar o escudo
 	flash.color = Color(0.1, 0.6, 1.0, 0.4) 
 	flash.visible = true
-	
-	# Dá o pico rápido de brilho e depois some suavemente
 	tween.tween_property(flash, "color:a", 0.6, 0.01)
 	tween.tween_property(flash, "color:a", 0.0, 0.2)
 	tween.tween_callback(func(): flash.visible = false)

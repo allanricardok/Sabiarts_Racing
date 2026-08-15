@@ -38,12 +38,20 @@ func _ready():
 
 func _setup_tracer_pool():
 	if _shared_tracer_mat == null:
-		_shared_tracer_mat = StandardMaterial3D.new()
-		_shared_tracer_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		_shared_tracer_mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
-		_shared_tracer_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		# ====================================================================
+		# OTIMIZAÇÃO: Busca o material direto do Cache!
+		# ====================================================================
+		var cached_mat = MaterialCache.get_mat("WeaponTracerBase")
+		if cached_mat:
+			_shared_tracer_mat = cached_mat.duplicate()
+		else:
+			_shared_tracer_mat = StandardMaterial3D.new()
+			_shared_tracer_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+			_shared_tracer_mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+			_shared_tracer_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+			_shared_tracer_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+		
 		_shared_tracer_mat.albedo_color = tracer_color
-		_shared_tracer_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
 
 		_shared_tracer_mesh = BoxMesh.new()
 		_shared_tracer_mesh.size = Vector3(tracer_width, tracer_width, tracer_length)

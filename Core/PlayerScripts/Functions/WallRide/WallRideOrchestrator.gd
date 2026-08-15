@@ -185,7 +185,12 @@ func _process_wallride_active(delta):
 		target_vel_wall = clamp(-error * mechanics.wall_magnet_speed, -15.0, 15.0)
 	else:
 		wall_lost_timer += delta
-		if wall_lost_timer > 1.0: 
+		# ====================================================================
+		# CORREÇÃO: Tolerância reduzida de 1.0s para 0.15s.
+		# Dá tempo de cruzar emendas mal modeladas na pista, mas desliga 
+		# imediatamente a gravidade falsa se o carro sair pelo topo da parede!
+		# ====================================================================
+		if wall_lost_timer > 0.15: 
 			_stop_wallride("Parede perdida (Timeout).")
 			return
 

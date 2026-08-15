@@ -4,6 +4,9 @@ class_name BotDriverV2
 var car: BaseVehicle
 var input: Node 
 
+# --- OTIMIZAÇÃO (LOD) ---
+var current_lod_level: int = 0 # 0 = Perto, 1 = Médio, 2 = Longe (Desliga Raycasts)
+
 var ray_left : RayCast3D
 var ray_center : RayCast3D
 var ray_right : RayCast3D
@@ -101,11 +104,7 @@ func navegar_para_ponto(target_pos: Vector3, delta: float) -> Dictionary:
 			is_in_anti_loop = false
 			timer_tentativa_alinhamento = 0.0
 		else:
-			# --- 180 RECOVER (Burnout) ---
-			# Acelerador + freio de mão ao mesmo tempo, com o volante travado
-			# na direção do giro, até o carro ficar de frente para o alvo.
-			# "ignore_avoidance" impede que o sistema de desvio de raios
-			# (que reage à parede que causou o travamento) sobrescreva essa manobra.
+			# --- 180 RECOVER (Burnout Anti-Loop) ---
 			var turn_dir = 1.0 if flat_forward.cross(flat_dir).y > 0 else -1.0
 			return {
 				"steering": turn_dir,
@@ -129,7 +128,7 @@ func navegar_para_ponto(target_pos: Vector3, delta: float) -> Dictionary:
 	if flat_dist_sq > 400.0:
 		throttle = 1.0 
 	else:
-		# Pulo instintivo para subir paredes ou degraus (Alvo alto, mas carro lento e perto)
+		# Pulo instintivo para subir paredes ou degraus
 		if flat_dist_sq < 64.0 and speed_kmh < 15.0 and dot_p < 0.5 and y_diff > 3.0:
 			if stuck_jump_count < 3:
 				throttle = 0.0 
@@ -155,14 +154,13 @@ func navegar_para_ponto(target_pos: Vector3, delta: float) -> Dictionary:
 				
 				if flat_dist_sq <= 25.0: should_jump = true
 			
-			# Se o alvo for muito alto, desiste de tentar alcançar pela base para não ficar travado
 			elif y_diff > 18.0:
 				throttle = 1.0
 
 	return {"steering": steer, "throttle": throttle, "jump": should_jump, "force_straight": force_straight, "handbrake": should_handbrake}
 
 # ==============================================================================
-# MANOBRAS DE AÇÃO IMEDIATA (Injetadas pelo Cérebro)
+# MANOBRAS DE AÇÃO IMEDIATA
 # ==============================================================================
 func iniciar_manobra_chao():
 	doing_stunt_timer = 1.0 
@@ -200,21 +198,17 @@ func aplicar_inputs_finais(delta: float, intencoes: Dictionary):
 	if intencoes.get("handbrake", false): 
 		freio_final = 1.0 
 		
-	# --- CORREÇÃO DO BUG 1: Aplica o freio correto (sem duplicata) ---
 	if "brake" in input: input.brake = freio_final
 	if "handbrake" in input: input.handbrake = intencoes.get("handbrake", false)
 	
 	stunt_cooldown -= delta
 	
-	# --- GATILHO UNIVERSAL DE MANOBRAS COM COOLDOWN ---
+	# --- GATILHO UNIVERSAL DE MANOBRAS ---
 	if intencoes.get("jump", false) and doing_stunt_timer <= 0.0 and stunt_cooldown <= 0.0:
 		iniciar_manobra_chao()
-		stunt_cooldown = 4.0 # Trava para impedir spam de piruetas no ar
+		stunt_cooldown = 4.0 
 		
-	# Anti-Stuck (Ré Automática)
-	# Enquanto estiver executando o 180 recover (burnout), esse sistema fica
-	# desligado — senão ele detecta "velocidade baixa + acelerador" no meio
-	# da derrapagem e cancela a manobra colocando o carro em ré.
+	# --- ANTI-STUCK (Ré Automática) ---
 	var speed = car.linear_velocity.length()
 	if ignore_avoidance:
 		stuck_timer = 0.0
@@ -231,31 +225,28 @@ func aplicar_inputs_finais(delta: float, intencoes: Dictionary):
 		reverse_time -= delta
 		input.throttle = -1.0
 		input.steering = 1.0 
-		_atualizar_botoes_do_carro() # <-- Chama o simulador de botões
+		_atualizar_botoes_do_carro()
 		return 
 		
 	# ==========================================================
-	# RAIOS DE DESVIO (Fixos em 20 metros)
+	# OTIMIZAÇÃO: CULLING DE RAYCASTS
 	# ==========================================================
-	var tilt_up = ray_length * 0.35 
-	var tilt_up_sides = (ray_length * 0.8) * 0.35
-	
-	ray_center.target_position = Vector3(0, tilt_up, ray_length) 
-	ray_left.target_position = Vector3(-ray_length * 0.7, tilt_up_sides, ray_length * 0.8)
-	ray_right.target_position = Vector3(ray_length * 0.7, tilt_up_sides, ray_length * 0.8)
+	var usar_raycasts = (current_lod_level < 2)
+	ray_center.enabled = usar_raycasts
+	ray_left.enabled = usar_raycasts
+	ray_right.enabled = usar_raycasts
 
 	var is_avoiding = false
-	var col_center = ray_center.get_collider()
-	var col_left = ray_left.get_collider()
-	var col_right = ray_right.get_collider()
-
-	var ignore_center = col_center and col_center.is_in_group("rampas")
-	var ignore_left = col_left and col_left.is_in_group("rampas")
-	var ignore_right = col_right and col_right.is_in_group("rampas")
 	
-	# --- CORREÇÃO DO BUG 2: manobras explícitas (força reta OU 180 recover)
-	# não podem ser sobrescritas pelo desvio de parede.
-	if not force_straight and not ignore_avoidance:
+	if usar_raycasts and not force_straight and not ignore_avoidance:
+		var col_center = ray_center.get_collider()
+		var col_left = ray_left.get_collider()
+		var col_right = ray_right.get_collider()
+
+		var ignore_center = col_center and col_center.is_in_group("rampas")
+		var ignore_left = col_left and col_left.is_in_group("rampas")
+		var ignore_right = col_right and col_right.is_in_group("rampas")
+		
 		if ray_center.is_colliding() and not ignore_center:
 			is_avoiding = true
 			throttle_final = 0.4 
@@ -271,27 +262,24 @@ func aplicar_inputs_finais(delta: float, intencoes: Dictionary):
 
 	input.throttle = throttle_final
 	
-	# Puxa o volante muito mais agressivamente se estiver em alta velocidade
 	var steer_speed = clamp(speed * 0.5, 8.0, 20.0)
 	if is_avoiding: input.steering = lerp(input.steering, steer_final, delta * steer_speed)
-	elif ignore_avoidance: input.steering = steer_final # Volante travado no giro, sem lerp
+	elif ignore_avoidance: input.steering = steer_final # Trava volante no 180 sem lerp
 	else: input.steering = clamp(steer_final, -1.0, 1.0)
 	
-	_atualizar_botoes_do_carro() # <-- Chama o simulador de botões
-	
+	_atualizar_botoes_do_carro()
+
+# --- TRADUÇÃO DE EIXOS PARA BOTÕES DO VEÍCULO ---
 func _atualizar_botoes_do_carro():
-	# Define se está acelerando com base na intenção do throttle
 	if "is_accelerating" in input:
 		input.is_accelerating = input.throttle > 0.1
 		
-	# Define se está freando checando as propriedades de forma segura
 	if "is_braking" in input:
 		var tem_freio = false
-		if "brake" in input:
-			tem_freio = input.brake > 0.1
+		if "brake" in input: tem_freio = input.brake > 0.1
+			
 		var tem_handbrake = false
-		if "handbrake" in input:
-			tem_handbrake = input.handbrake
+		if "handbrake" in input: tem_handbrake = input.handbrake
 			
 		var quer_frear = tem_freio or tem_handbrake or (input.throttle < -0.1)
 		input.is_braking = quer_frear

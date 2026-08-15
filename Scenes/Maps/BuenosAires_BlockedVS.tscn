@@ -2005,8 +2005,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.72943115, 1.3595123)
 [node name="ExplorationArea" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap" groups=["itens_exploracao"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -236.6013, 39.64796, -302.22638)
 visible = false
-collision_layer = 5
-collision_mask = 15
+collision_layer = 4
+collision_mask = 7
 script = ExtResource("17_ioiyf")
 explore_id = "secret_BA"
 
@@ -2021,8 +2021,8 @@ shape = SubResource("ConcavePolygonShape3D_pimv2")
 [node name="DeliverArea" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap"]
 transform = Transform3D(0.70710677, 0, 0.70710677, 0, 1, 0, -0.70710677, 0, 0.70710677, 106.43517, 0, 247.55005)
 visible = false
-collision_layer = 5
-collision_mask = 15
+collision_layer = 4
+collision_mask = 7
 script = ExtResource("18_fuc6a")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/DeliverArea"]
@@ -3761,51 +3761,83 @@ metadata/_edit_lock_ = true
 
 [node name="BoostPad" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("17_stypw")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -143.84642, -1.2499352, -24.18436)
+collision_layer = 4
+collision_mask = 3
 
 [node name="BoostPad6" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("17_stypw")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -280.10187, 31.43322, 171.33864)
+collision_layer = 4
+collision_mask = 3
 
 [node name="JumpPad" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("18_r7ole")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 281.55862, -1.1440246, -26.095373)
+collision_layer = 4
+collision_mask = 3
 
 [node name="JumpPad2" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("18_r7ole")]
 transform = Transform3D(0.51799715, 0, -0.8553823, 0, 1, 0, 0.8553823, 0, 0.51799715, 178.22163, 4.7455196, 23.295202)
+collision_layer = 4
+collision_mask = 3
 
 [node name="JumpPad3" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("18_r7ole")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -277.08032, 42.76666, 250.01843)
+collision_layer = 4
+collision_mask = 3
 
 [node name="JumpPad4" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("18_r7ole")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 312.42493, 45.02941, -359.65393)
+collision_layer = 4
+collision_mask = 3
 
 [node name="JumpPad5" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("18_r7ole")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 417.00266, 43.195545, -289.37332)
+collision_layer = 4
+collision_mask = 3
 
 [node name="JumpPad6" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("18_r7ole")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 140.11316, -0.9382343, 260.4935)
+collision_layer = 4
+collision_mask = 3
 
 [node name="JumpPad7" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("18_r7ole")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -136.35176, 17.288275, -208.49994)
+collision_layer = 4
+collision_mask = 3
 
 [node name="JumpPad8" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("18_r7ole")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -363.5925, 8.538746, -25.559961)
+collision_layer = 4
+collision_mask = 3
 
 [node name="BoostPad2" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("17_stypw")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 125.40863, -1.2499352, -128.93271)
+collision_layer = 4
+collision_mask = 3
 
 [node name="BoostPad3" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("17_stypw")]
 transform = Transform3D(1.3113416e-07, 0, -1, 0, 1, 0, 1, 0, 1.3113416e-07, -62.088478, -1.2499352, 79.70834)
+collision_layer = 4
+collision_mask = 3
 
 [node name="BoostPad4" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("17_stypw")]
 transform = Transform3D(0.9658851, 0, 0.25897095, 0, 1, 0, -0.25897095, 0, 0.9658851, 58.13208, 105.33275, 181.63382)
+collision_layer = 4
+collision_mask = 3
 
 [node name="BoostPad5" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("17_stypw")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 343.32483, 52.634747, -263.0441)
+collision_layer = 4
+collision_mask = 3
 
 [node name="JumpPad9" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("18_r7ole")]
 transform = Transform3D(-0.23856732, 0, -0.97112596, 0, 1, 0, 0.97112596, 0, -0.23856732, -31.390802, 4.7455196, -93.45727)
+collision_layer = 4
+collision_mask = 3
 
 [node name="JumpPad10" parent="GridContainer/Cont_P1/View_P1/Map/Pads" instance=ExtResource("18_r7ole")]
 transform = Transform3D(0.26422662, 0, -0.96446073, 0, 1, 0, 0.96446073, 0, 0.26422662, -254.82103, 4.7455196, 0.30915165)
+collision_layer = 4
+collision_mask = 3
 
 [node name="FlyingSaucers" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map"]
 

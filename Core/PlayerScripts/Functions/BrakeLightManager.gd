@@ -38,7 +38,15 @@ func _setup_shared_material():
 	if base_mat:
 		_car_mat = base_mat.duplicate()
 	else:
-		_car_mat = StandardMaterial3D.new()
+		# ====================================================================
+		# OTIMIZAÇÃO: Fallback seguro via Cache para evitar a engasgada 
+		# de compilação caso o artista importe o carro sem material!
+		# ====================================================================
+		var cached_mat = MaterialCache.get_mat("BrakeLightBase")
+		if cached_mat:
+			_car_mat = cached_mat.duplicate()
+		else:
+			_car_mat = StandardMaterial3D.new()
 		
 	# BLINDAGEM CONTRA O BUG DA LUZ PRETA: Força a exclusividade na memória
 	_car_mat.resource_local_to_scene = true

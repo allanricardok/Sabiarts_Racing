@@ -7,7 +7,6 @@ var _segments: Array = []
 var color: Color = Color(0.5, 0.75, 1.0)
 var flicker_seed: float = 0.0
 
-# OTIMIZAÇÃO: Cache da cor base do núcleo para evitar Lerps no meio do loop de desenho
 var _base_core_color: Color
 
 func setup(origin: Vector2, target: Vector2, max_depth: int, bolt_color: Color, life: float):
@@ -15,11 +14,12 @@ func setup(origin: Vector2, target: Vector2, max_depth: int, bolt_color: Color, 
 	life_time = life
 	flicker_seed = randf() * 100.0
 	
-	# Calcula a mistura da cor do núcleo uma única vez na criação do raio!
 	_base_core_color = Color(1.0, 1.0, 1.0, 1.0).lerp(color, 0.15)
 	
 	_segments.clear()
 	_generate_branch(origin, target, max_depth, 3.0)
+	
+	# O _draw() agora é invocado APENAS UMA VEZ!
 	queue_redraw()
 
 func _generate_branch(from: Vector2, to: Vector2, depth: int, width: float):
@@ -60,9 +60,12 @@ func _process(delta):
 	if _elapsed >= life_time:
 		queue_free()
 		return
-	queue_redraw()
-
-func _draw():
+		
+	# ====================================================================
+	# OTIMIZAÇÃO: GPU MODULATION
+	# Em vez de redesenhar a linha, calculamos o alpha e aplicamos no nó inteiro.
+	# A placa de vídeo processa isso sem precisar engasgar a CPU.
+	# ====================================================================
 	var life_ratio = _elapsed / life_time
 	var fade = 1.0 - smoothstep(0.6, 1.0, life_ratio) 
 	var flicker = 0.6 + 0.4 * sin((_elapsed * 60.0) + flicker_seed) 
@@ -70,14 +73,17 @@ func _draw():
 
 	var spawn_in = smoothstep(0.0, 0.06, _elapsed)
 	alpha *= spawn_in
+	
+	self.modulate.a = alpha
 
-	# OTIMIZAÇÃO MAXIMA: Nós preparamos as cores perfeitas deste frame do lado de fora do loop.
-	# A placa de vídeo apenas pinta tudo direto, sem precisar calcular cores novas por galho!
+func _draw():
+	# Desenhamos o raio base com opacidade total relativa (0.35 e 0.9).
+	# Ele fica gravado na memória gráfica e apenas pisca pelo modulate do _process.
 	var halo_color = color
-	halo_color.a = alpha * 0.35
+	halo_color.a = 0.35
 	
 	var core_color = _base_core_color
-	core_color.a = alpha * 0.9
+	core_color.a = 0.9
 
 	for seg in _segments:
 		var points: PackedVector2Array = seg["points"]

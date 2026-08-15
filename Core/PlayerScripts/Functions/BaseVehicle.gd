@@ -68,15 +68,19 @@ var pode_mover : bool = true
 @export_group("Combate: Efeitos Visuais")
 @export var blood_splash_distance: float = 3.0
 
-# --- VARIÁVEIS INTERNAS ---
+# --- VARIÁVEIS INTERNAS DE OTIMIZAÇÃO ---
 var teleport_material : StandardMaterial3D
 var _hit_cooldowns: Dictionary = {}
 var velocidade_de_impacto : float = 0.0 
 var _active_gaps : Dictionary = {}
 var pedestrians_killed : int = 0
+var _is_dead : bool = false
 
-# OTIMIZAÇÃO: Cache da Câmera para não procurar na árvore toda batida
+# CACHES DE COMPONENTES E NODES (Fim das varreduras lentas!)
 var _cached_camera_shake : Node = null
+var _cached_visual_damage : Node = null
+var _car_meshes: Array[MeshInstance3D] = []
+var _last_displayed_speed: int = -1
 
 # --- INICIALIZAÇÃO ---
 
@@ -97,16 +101,26 @@ func _ready():
 	
 	input.setup(input_source)
 	
-	teleport_material = StandardMaterial3D.new()
-	teleport_material.albedo_color = Color(0.05, 0.05, 0.05) 
-	teleport_material.metallic = 0.0
-	teleport_material.roughness = 1.0 
-	teleport_material.shading_mode = StandardMaterial3D.SHADING_MODE_UNSHADED 
+	teleport_material = MaterialCache.get_mat("CarTeleportEffect")
+	if not teleport_material:
+		teleport_material = StandardMaterial3D.new()
+		teleport_material.albedo_color = Color(0.05, 0.05, 0.05) 
+		teleport_material.metallic = 0.0
+		teleport_material.roughness = 1.0 
+		teleport_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED 
 	
+	# ====================================================================
+	# OTIMIZAÇÃO: Preenchemos os caches de nós lentos no _ready
+	# ====================================================================
 	_cached_camera_shake = find_child("CameraShake", true, false)
+	_cached_visual_damage = find_child("VisualDamageComponent", true, false)
+	
+	var meshes = find_children("*", "MeshInstance3D", true)
+	for m in meshes:
+		if m is MeshInstance3D:
+			_car_meshes.append(m)
 	
 	call_deferred("_setup_multiplayer_links")
-	
 	update_visual_damage(100.0)
 	
 	body_entered.connect(_on_impacto_corpo)
@@ -134,7 +148,6 @@ func _physics_process(delta):
 			brake = 100
 		return
 	
-	# OTIMIZAÇÃO: Evita alocar arrays inúteis se o dict estiver vazio (ex: Bots)
 	if not _active_gaps.is_empty():
 		var expired_gaps = []
 		for gap_id in _active_gaps.keys():
@@ -145,9 +158,14 @@ func _physics_process(delta):
 		for gap_id in expired_gaps:
 			_active_gaps.erase(gap_id)
 	
+	# ====================================================================
+	# OTIMIZAÇÃO: Só converte para String e atualiza a UI se a velocidade mudar
+	# ====================================================================
 	if speed_label:
-		var kmh = linear_velocity.length() * 2.3
-		speed_label.text = str(int(kmh))
+		var current_kmh = int(linear_velocity.length() * 2.3)
+		if current_kmh != _last_displayed_speed:
+			_last_displayed_speed = current_kmh
+			speed_label.text = str(current_kmh)
 	
 	brake = 0
 	
@@ -172,6 +190,9 @@ func _setup_multiplayer_links():
 		var my_camera = find_child("Camera3D", true, false)
 		if my_camera:
 			my_camera.cull_mask &= ~(1 << layer_bit)
+			for i in range(4): 
+				if i != id:
+					my_camera.cull_mask &= ~(1 << (i + 1))
 
 	if is_bot: 
 		return 
@@ -181,19 +202,16 @@ func _setup_multiplayer_links():
 	var my_hud = find_child("*HUD*", true, false)
 	if my_hud and my_hud.has_method("setup_hud"):
 		my_hud.setup_hud(suffix, self.id)
-		print("[BaseVehicle] Player ", id + 1, " conectou à própria HUD!")
-	
+		
 	if weapons and weapons.has_method("setup_multiplayer"):
 		weapons.setup_multiplayer(suffix)
 		
 	if my_hud:
 		var rage_comp = get_node_or_null("%RageComponent")
 		var rage_ui = my_hud.find_child("RageUI", true, false)
-		
 		if rage_comp and rage_ui:
 			if not rage_comp.rage_updated.is_connected(rage_ui._on_rage_updated):
 				rage_comp.rage_updated.connect(rage_ui._on_rage_updated)
-
 
 # --- LÓGICA DE GAPS E MANOBRAS ---
 func _on_pousou(is_clean: bool):
@@ -246,9 +264,11 @@ func teleport_to(target_transform : Transform3D):
 	angular_velocity = Vector3.ZERO
 	
 	var tween = create_tween()
-	var all_meshes = find_children("*", "MeshInstance3D", true)
 	
-	for mesh in all_meshes: mesh.material_override = teleport_material
+	# OTIMIZAÇÃO: Usa o array de cache em vez do find_children lento
+	for mesh in _car_meshes: 
+		if is_instance_valid(mesh):
+			mesh.material_override = teleport_material
 	
 	tween.tween_interval(0.1)
 	tween.tween_callback(func():
@@ -258,7 +278,9 @@ func teleport_to(target_transform : Transform3D):
 	)
 	tween.tween_interval(0.1)
 	tween.tween_callback(func():
-		for mesh in all_meshes: mesh.material_override = null
+		for mesh in _car_meshes: 
+			if is_instance_valid(mesh):
+				mesh.material_override = null
 	)
 
 # --- COLISÕES E IMPACTO ---
@@ -317,8 +339,6 @@ func _on_impacto_corpo(body: Node):
 			play_camera_shake("ObjCollision")
 
 # --- SISTEMA DE MORTE E DESTRUIÇÃO ---
-var _is_dead : bool = false
-
 func _on_vehicle_destroyed(attacker: Node = null):
 	if _is_dead: return
 	_is_dead = true
@@ -370,7 +390,6 @@ func _on_vehicle_destroyed(attacker: Node = null):
 		var space_state = get_world_3d().direct_space_state
 		var sphere = SphereShape3D.new()
 		sphere.radius = raio_explosao
-		
 		var query = PhysicsShapeQueryParameters3D.new()
 		query.shape = sphere
 		query.transform = global_transform
@@ -379,19 +398,17 @@ func _on_vehicle_destroyed(attacker: Node = null):
 		for hit in result:
 			var objeto = hit.collider
 			if objeto != self and objeto != owner:
+				# ====================================================================
+				# OTIMIZAÇÃO: Fim das buscas de nó recursivas. Usamos tipagem dinâmica.
+				# A regra agora é: se o objeto precisar tomar dano de explosão, a função
+				# take_damage DEVE existir no nó principal (Root) dele!
+				# ====================================================================
 				if objeto.has_method("take_damage"):
 					objeto.take_damage(dano_explosao, self)
-				else:
-					# OTIMIZAÇÃO: Sem wildcard pesada aqui
-					var stats_alvo = objeto.find_child("StatsComponent", true, false)
-					if stats_alvo and stats_alvo.has_method("take_damage"):
-						stats_alvo.take_damage(dano_explosao, self)
 						
-				# OTIMIZAÇÃO: Bots e detritos não têm CameraShake! Filtramos apenas jogadores.
 				if objeto.is_in_group("jogadores"):
-					var shake = objeto.find_child("CameraShake", true, false)
-					if shake and shake.has_method("trigger_event"):
-						shake.trigger_event("car_collision_max_force", 15)
+					if objeto.has_method("play_camera_shake"):
+						objeto.play_camera_shake("car_collision_max_force", 15)
 					
 		visible = false
 		collision_layer = 0
@@ -413,51 +430,64 @@ func _trigger_blood_splash_ui(shooter: Node3D):
 			hud.splatter_blood_on_lens()
 
 func _spawn_debris() -> void:
-	if not spawn_debris_on_death:
-		return
-	if not is_instance_valid(DebrisManager):
-		push_warning("[BaseVehicle] DebrisManager não encontrado. Configure como Autoload.")
-		return
+	if not spawn_debris_on_death: return
+	if not is_instance_valid(DebrisManager): return
 	
 	var source_mesh: MeshInstance3D = null
-	if mesh_new and mesh_new.visible:
-		source_mesh = mesh_new
-	elif mesh_damaged and mesh_damaged.visible:
-		source_mesh = mesh_damaged
-	elif mesh_skeleton and mesh_skeleton.visible:
-		source_mesh = mesh_skeleton
-	elif mesh_new:
-		source_mesh = mesh_new
+	if mesh_new and mesh_new.visible: source_mesh = mesh_new
+	elif mesh_damaged and mesh_damaged.visible: source_mesh = mesh_damaged
+	elif mesh_skeleton and mesh_skeleton.visible: source_mesh = mesh_skeleton
+	elif mesh_new: source_mesh = mesh_new
 	
 	var mat: Material = null
 	if source_mesh and source_mesh.mesh:
 		mat = source_mesh.get_active_material(0)
 	
 	DebrisManager.explode(
-		global_position,
-		mat,
-		shard_count,
-		explosion_force,
-		upward_bias,
-		shard_lifetime,
-		scatter_radius,
-		shard_min_size,
-		shard_max_size
+		global_position, mat, shard_count, explosion_force,
+		upward_bias, shard_lifetime, scatter_radius, shard_min_size, shard_max_size
 	)
 
 func _spawn_loot_safely(origin_pos: Vector3):
-	if drop_item_scene:
-		if is_instance_valid(LootDropManager):
-			var dir_left = (global_transform.basis.x * -1.0 + Vector3(0, 0.5, 0)).normalized()
-			var dir_right = (global_transform.basis.x * 1.0 + Vector3(0, 0.5, 0)).normalized()
+	if not drop_item_scene: return
+	if not is_instance_valid(LootDropManager):
+		push_warning("[BaseVehicle] LootDropManager Autoload não encontrado!")
+		return
+		
+	var items_to_drop: Array[Resource] = []
+	
+	# 1. TENTA EXTRAIR AS ARMAS DO INVENTÁRIO
+	if is_instance_valid(weapons) and "weapon_pool" in weapons and not weapons.weapon_pool.is_empty():
+		# Copia o array e embaralha para podermos pegar 1 ou 2 armas aleatórias
+		var pool_copy = weapons.weapon_pool.duplicate()
+		pool_copy.shuffle()
+		
+		# Pega no máximo 2 armas (ou 1, se ele só tiver 1)
+		var drop_count = min(2, pool_copy.size())
+		for i in range(drop_count):
+			# O .duplicate() no recurso é o que garante que a munição (ammo)
+			# vá exatamente com a quantidade atual, e não com o valor base.
+			items_to_drop.append(pool_copy[i].duplicate())
 			
-			if drop_item_resource_1:
-				LootDropManager.spawn_ejected_loot(origin_pos, dir_left, drop_item_scene, drop_item_resource_1, 6.0)
-			
-			if drop_item_resource_2:
-				LootDropManager.spawn_ejected_loot(origin_pos, dir_right, drop_item_scene, drop_item_resource_2, 6.0)
-		else:
-			push_warning("[BaseVehicle] LootDropManager Autoload não encontrado!")
+	# 2. FALLBACK: SE NÃO TINHA ARMAS, USA O INSPETOR
+	if items_to_drop.is_empty():
+		if drop_item_resource_1: items_to_drop.append(drop_item_resource_1)
+		if drop_item_resource_2: items_to_drop.append(drop_item_resource_2)
+
+	# 3. EJETA OS ITENS EM UM RAIO DE 360 GRAUS
+	for item_res in items_to_drop:
+		# Sorteia um ângulo entre 0 e 360 graus (TAU)
+		var random_angle = randf_range(0.0, TAU)
+		
+		# cos() e sin() desenham o círculo no chão (eixos X e Z).
+		# Colocamos um Y positivo (0.5 a 0.8) para o item dar um "pulo" ao nascer.
+		var eject_dir = Vector3(
+			cos(random_angle), 
+			randf_range(0.5, 0.8), 
+			sin(random_angle)
+		).normalized()
+		
+		LootDropManager.spawn_ejected_loot(origin_pos, eject_dir, drop_item_scene, item_res, 6.0)
 
 func atualizar_visao_nametags(categoria_index: int):
 	var my_camera = find_child("Camera3D", true, false)
@@ -486,7 +516,6 @@ func play_camera_shake(event_name: String, modifier: float = 1.0):
 	var is_bot = (input and "is_bot" in input and input.is_bot)
 	if is_bot: return 
 	
-	# OTIMIZAÇÃO: Usa o nó salvo na memória em vez de rodar o find_child na árvore
 	if is_instance_valid(_cached_camera_shake) and _cached_camera_shake.has_method("trigger_event"):
 		_cached_camera_shake.trigger_event(event_name, modifier)
 
@@ -496,8 +525,6 @@ func set_camera_mode(mode_index: int):
 		my_camera.set_camera_mode(mode_index)
 		
 func revive():
-	print("[Vehicle-DEBUG] Comando de reviver recebido!")
-	
 	_is_dead = false
 	
 	visible = true
@@ -509,17 +536,17 @@ func revive():
 	collision_layer = original_collision_layer 
 	collision_mask = original_collision_mask
 	
-	var todas_as_meshes = find_children("*", "MeshInstance3D", true)
-	for mesh in todas_as_meshes:
-		mesh.visible = true
+	# OTIMIZAÇÃO: Usa o array em cache!
+	for mesh in _car_meshes:
+		if is_instance_valid(mesh):
+			mesh.visible = true
 		
-	var visual_damage = find_child("VisualDamageComponent", true, false)
-	if visual_damage and visual_damage.has_method("reset"):
-		visual_damage.reset()
+	if is_instance_valid(_cached_visual_damage) and _cached_visual_damage.has_method("reset"):
+		_cached_visual_damage.reset()
+		
 	update_visual_damage(100.0) 
 		
 	if stats:
-		print("[Vehicle-DEBUG] StatsComponent encontrado. Curando Vida e Shield...")
 		if stats.has_method("heal_full"): 
 			stats.heal_full()
 		else:
@@ -529,8 +556,5 @@ func revive():
 			if "is_invulnerable" in stats: stats.is_invulnerable = false
 			
 	var ability = get_node_or_null("%AbilityComponent")
-	if not ability:
-		ability = find_child("AbilityComponent", true, false)
-		
 	if ability and "current_energy" in ability:
 		ability.current_energy = ability.get("MAX_ENERGY") if "MAX_ENERGY" in ability else 100.0

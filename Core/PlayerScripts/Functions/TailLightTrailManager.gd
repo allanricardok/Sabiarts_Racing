@@ -51,15 +51,23 @@ func _setup_shared_material():
 	if _trail_material != null:
 		return
 		
-	_trail_material = StandardMaterial3D.new()
-	_trail_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	_trail_material.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
-	_trail_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	# ====================================================================
+	# OTIMIZAÇÃO: Puxa do Cache e Duplica!
+	# Duplicar não causa engasgo de compilação, mas permite que cada carro
+	# tenha seu próprio Alpha e Cor no rastro da lanterna.
+	# ====================================================================
+	var cached_mat = MaterialCache.get_mat("BaseNeon")
+	if cached_mat:
+		_trail_material = cached_mat.duplicate()
+	else:
+		_trail_material = StandardMaterial3D.new()
+		_trail_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		_trail_material.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+		_trail_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		_trail_material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	
-	# Usaremos a cor do material para controlar o fade, começando invisível.
 	_trail_material.albedo_color = trail_color
 	_trail_material.albedo_color.a = 0.0
-	_trail_material.cull_mode = BaseMaterial3D.CULL_DISABLED
 
 func _create_trail_mesh() -> MeshInstance3D:
 	var mesh_inst = MeshInstance3D.new()
@@ -68,15 +76,8 @@ func _create_trail_mesh() -> MeshInstance3D:
 	var prism = PrismMesh.new()
 	prism.size = Vector3(0.25, 1.0, 0.1) 
 	
-	# ====================================================================
-	# CORREÇÃO: Aplica o material no RECURSO da malha, e não no override!
-	# ====================================================================
 	prism.material = _trail_material 
-	
 	mesh_inst.mesh = prism
-	
-	# Remova ou comente a linha antiga:
-	# mesh_inst.material_override = _trail_material 
 	
 	var dir_mod = -1.0 if invert_direction else 1.0
 	mesh_inst.rotation.x = (PI / 2.0) * dir_mod
@@ -92,7 +93,7 @@ func _process(delta):
 	var speed_kmh = car.linear_velocity.length() * 3.6
 	
 	var target_scale = 0.0
-	var target_alpha = 0.0 # Agora controlamos o ALPHA (0.0 = Invisível)
+	var target_alpha = 0.0 # Controlamos o ALPHA (0.0 = Invisível)
 	
 	if speed_kmh > min_speed_kmh:
 		var factor = clamp((speed_kmh - min_speed_kmh) / (max_speed_kmh - min_speed_kmh), 0.0, 1.0)

@@ -39,12 +39,25 @@ func _update_visuals():
 		if "mesh_scale" in item_data:
 			mesh_inst.scale = item_data.mesh_scale
 			
-		var mat = StandardMaterial3D.new()
+		# ====================================================================
+		# OTIMIZAÇÃO + PROTEÇÃO @TOOL: 
+		# Busca no Cache se estiver no jogo, gera do zero se estiver no Editor
+		# ====================================================================
+		var mat: StandardMaterial3D
+		
+		if not Engine.is_editor_hint() and MaterialCache.has_method("get_mat"):
+			var cached_mat = MaterialCache.get_mat("UniversalPickupBase")
+			if cached_mat:
+				mat = cached_mat.duplicate()
+				
+		if not mat:
+			mat = StandardMaterial3D.new()
+			mat.emission_enabled = true
+			mat.emission_energy_multiplier = 0.5
+			
 		if "item_color" in item_data:
 			mat.albedo_color = item_data.item_color
-			mat.emission_enabled = true
 			mat.emission = item_data.item_color
-			mat.emission_energy_multiplier = 0.5
 		
 		mesh_inst.material_override = mat
 

@@ -1,4 +1,3 @@
-# PickupItem.gd
 extends Area3D
 class_name PickupItem
 
@@ -32,15 +31,23 @@ func _update_visuals():
 	mesh_instance.mesh = custom_mesh
 	mesh_instance.scale = mesh_scale
 	
-	# 2. O PULO DO GATO: Material Override
-	# Criamos um material novo APENAS para esta instância via código.
-	# Isso impede que a cor "vaze" para outros objetos.
-	var mat = StandardMaterial3D.new()
+	# ====================================================================
+	# 2. O PULO DO GATO OTIMIZADO: Material Override
+	# Puxamos o material base da memória e duplicamos para alterar a cor
+	# isoladamente sem engasgar a engine compilando um shader do zero.
+	# ====================================================================
+	var cached_mat = MaterialCache.get_mat("WeaponPickupBase")
+	var mat: StandardMaterial3D
+	
+	if cached_mat:
+		mat = cached_mat.duplicate()
+	else:
+		mat = StandardMaterial3D.new()
+		mat.emission_enabled = true
+		mat.emission_energy_multiplier = 0.5
+		
 	mat.albedo_color = item_color
-	# Opcional: faz o item brilhar um pouco (estilo arcade)
-	mat.emission_enabled = true
 	mat.emission = item_color
-	mat.emission_energy_multiplier = 0.5
 	
 	mesh_instance.material_override = mat
 

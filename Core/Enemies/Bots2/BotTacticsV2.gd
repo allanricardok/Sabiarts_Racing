@@ -19,7 +19,7 @@ var current_target: Node3D = null
 var current_action_name: String = "" 
 var _seek_timer: float = 0.0
 var _is_doing_180: bool = false
-var _is_doing_burnout_180: bool = false # <-- Adicione esta linha
+var _is_doing_burnout_180: bool = false
 var _180_steer_dir: float = 0.0
 var _random_stunt_timer: float = 15.0
 
@@ -40,9 +40,10 @@ func reset_target():
 	_close_combat_timer = 0.0
 	_seek_timer = 0.0
 	_is_doing_180 = false
-	_is_doing_burnout_180 = false # <-- Adicione esta linha
+	_is_doing_burnout_180 = false
 
-func execute(delta: float, current_macro_state: int):
+# --- CORRIGIDO: Retorna um Dictionary para o Cérebro fazer o Time-Slicing ---
+func execute(delta: float, current_macro_state: int) -> Dictionary:
 	var intencoes = {"throttle": 0.0, "steering": 0.0, "jump": false, "force_straight": false, "handbrake": false}
 	
 	match current_macro_state:
@@ -60,9 +61,8 @@ func execute(delta: float, current_macro_state: int):
 			intencoes.jump = true
 			current_action_name = "Showoff Stunt!"
 			
-	# Passa a decisão final para o Motorista (Camada 1)
-	if is_instance_valid(driver):
-		driver.aplicar_inputs_finais(delta, intencoes)
+	# Retorna a decisão para o Cérebro guardar no cache!
+	return intencoes
 
 func _tactic_battle(delta: float) -> Dictionary:
 	var intencoes = {"throttle": 0.0, "steering": 0.0, "jump": false, "force_straight": false, "handbrake": false}
@@ -121,7 +121,7 @@ func _tactic_battle(delta: float) -> Dictionary:
 		intencoes.throttle = 1.0
 		intencoes.force_straight = true
 
-# ====================================================================
+	# ====================================================================
 	# 4. PERFORM 180 DINÂMICO (3 Estágios Absolutos)
 	# ====================================================================
 	var speed_kmh = car.linear_velocity.length() * 3.6
@@ -201,7 +201,7 @@ func _tactic_seek(delta: float) -> Dictionary:
 		return driver.navegar_para_ponto(_random_circle_pos, delta)
 
 	var dist_sq = car.global_position.distance_squared_to(current_target.global_position)
-# Após calcular as intencoes de navegação
+	# Após calcular as intencoes de navegação
 	var intencoes = driver.navegar_para_ponto(current_target.global_position, delta)
 	
 	# NOVO: TIMEOUT DO SEEK
@@ -346,7 +346,7 @@ func _get_best_seek_target() -> Node3D:
 		for v in radar.vida_proxima:
 			if is_instance_valid(v) and not v.is_queued_for_deletion(): return v
 		
-	if is_instance_valid(combat) and combat.get_total_ammo() < 5 and radar.armas_proximas.size() > 0:
+	if is_instance_valid(combat) and combat.get_total_ammo() < 3 and radar.armas_proximas.size() > 0:
 		for a in radar.armas_proximas:
 			if is_instance_valid(a) and not a.is_queued_for_deletion(): return a
 		
