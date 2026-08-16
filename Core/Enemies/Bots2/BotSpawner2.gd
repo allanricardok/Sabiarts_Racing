@@ -1,6 +1,6 @@
-# BotSpawner.gd
+# BotSpawnerV2.gd
 extends Node3D
-class_name BotSpawner
+class_name BotSpawnerV2
 
 @export var car_prefabs: Array[PackedScene] # Coloque os carros aqui no Inspector
 @export var spawn_points: Array[Marker3D] # Coloque os Markers aqui
@@ -13,11 +13,11 @@ func _spawn_all_bots():
 	# --- TRAVA DE SEGURANÇA ---
 	# Se o Global diz que não é para ter bots, o Spawner encerra aqui sem fazer nada.
 	if not Global.spawn_bots:
-		print("[BotSpawner] Modo de jogo sem bots detectado. Cancelando spawn automático inicial.")
+		print("[BotSpawnerV2] Modo de jogo sem bots detectado. Cancelando spawn automático inicial.")
 		return
 
 	if car_prefabs.is_empty() or spawn_points.is_empty():
-		print("[BotSpawner] Faltam prefabs ou spawn points!")
+		print("[BotSpawnerV2] Faltam prefabs ou spawn points!")
 		return
 		
 	for i in range(spawn_points.size()):
@@ -28,7 +28,7 @@ func _spawn_all_bots():
 # Esta função ignora a trava global porque é invocada pelo controlador de missões
 func spawn_single_bot(index_fallback: int = 0) -> Node:
 	if car_prefabs.is_empty() or spawn_points.is_empty():
-		print("[BotSpawner] Falha no spawn individual: car_prefabs ou spawn_points vazios!")
+		print("[BotSpawnerV2] Falha no spawn individual: car_prefabs ou spawn_points vazios!")
 		return null
 		
 	# Escolhe um ponto de spawn baseado no índice ou um aleatório para não sobrepor
@@ -76,5 +76,5 @@ func _create_bot_at_position(spawn_pos: Marker3D, bot_id: int) -> Node:
 	bot.global_position = spawn_pos.global_position
 	bot.global_rotation = spawn_pos.global_rotation
 	
-	print("[BotSpawner] Spawnou dinamicamente: ", bot.name)
+	print("[BotSpawnerV2] Spawnou dinamicamente: ", bot.name)
 	return bot

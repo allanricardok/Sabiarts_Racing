@@ -138,7 +138,6 @@ shard_max_size = 6.0
 
 [node name="New" type="MeshInstance3D" parent="Visual" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.67588377, 0)
-layers = 2
 mesh = SubResource("ArrayMesh_wkmxs")
 skeleton = NodePath("")
 
@@ -161,22 +160,18 @@ transform = Transform3D(-1, -1.8176218e-08, 8.551238e-08, 0, 0.9781476, 0.207911
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="TrasEsq" index="0"]
 transform = Transform3D(-3.4969112e-08, -0.15, 0, 0.8, -6.5567085e-09, 0, 0, 0, 0.8, 0, 0, 0)
-layers = 2
 mesh = SubResource("CylinderMesh_v71gj")
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="TrasDir" index="0"]
 transform = Transform3D(-3.4969112e-08, -0.15, 0, 0.8, -6.5567085e-09, 0, 0, 0, 0.8, 0, 0, 0)
-layers = 2
 mesh = SubResource("CylinderMesh_v71gj")
 
 [node name="MeshInstance3D3" type="MeshInstance3D" parent="FreDir" index="0"]
 transform = Transform3D(-3.4969112e-08, -0.15, 0, 0.8, -6.5567085e-09, 0, 0, 0, 0.8, 0, 0, 0)
-layers = 2
 mesh = SubResource("CylinderMesh_v71gj")
 
 [node name="MeshInstance3D4" type="MeshInstance3D" parent="FreEsq" index="0"]
 transform = Transform3D(-3.4969112e-08, -0.15, 0, 0.8, -6.5567085e-09, 0, 0, 0, 0.8, 0, 0, 0)
-layers = 2
 mesh = SubResource("CylinderMesh_v71gj")
 
 [node name="NameTag" parent="." index="8"]

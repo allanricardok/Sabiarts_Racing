@@ -12,14 +12,20 @@ class_name BrakeLightManager
 @export var color_brake: Color = Color("ff0000") 
 @export var energy_brake: float = 20.0
 
+# --- NOVO: CORES DA RÉ ---
+@export var color_reverse: Color = Color(0.9, 0.9, 1.0) # Branco puxado pro frio/LED
+@export var energy_reverse: float = 25.0
+
 # OTIMIZAÇÃO: Um único material compartilhado entre as duas lanternas DESSA instância do carro
 var _car_mat: StandardMaterial3D
 
 @onready var car = owner as VehicleBody3D
 @onready var input = car.get_node_or_null("%InputComponent")
+@onready var movement = car.get_node_or_null("%MovementComponent") # <--- CACHE DO MOVIMENTO
 
-# ESTADOS DE OTIMIZAÇÃO
-var _was_braking: bool = false
+# --- MÁQUINA DE ESTADOS VISUAIS ---
+enum LightState { IDLE, BRAKE, REVERSE }
+var _current_state: LightState = LightState.IDLE
 var _is_sleeping: bool = false
 
 func _ready():
@@ -38,10 +44,7 @@ func _setup_shared_material():
 	if base_mat:
 		_car_mat = base_mat.duplicate()
 	else:
-		# ====================================================================
-		# OTIMIZAÇÃO: Fallback seguro via Cache para evitar a engasgada 
-		# de compilação caso o artista importe o carro sem material!
-		# ====================================================================
+		# Fallback seguro via Cache para evitar a engasgada 
 		var cached_mat = MaterialCache.get_mat("BrakeLightBase")
 		if cached_mat:
 			_car_mat = cached_mat.duplicate()
@@ -64,23 +67,58 @@ func _process(delta):
 		return
 	
 	var is_braking = false
+	var is_reversing = false
 	
 	if "is_braking" in input and input.is_braking:
 		is_braking = true
 	elif "throttle" in input and input.throttle < -0.1:
 		is_braking = true
 		
-	var target_color = color_brake if is_braking else color_idle
-	var target_energy = energy_brake if is_braking else energy_idle
-	
-	# OTIMIZAÇÃO: Acorda o script instantaneamente se o estado do freio mudou
-	if is_braking != _was_braking:
-		_was_braking = is_braking
+	# ====================================================================
+	# NOVA VERIFICAÇÃO: Ele tá freando ou ativou a Ré?
+	# ====================================================================
+	if is_braking:
+		var forward_vel = car.linear_velocity.dot(car.global_transform.basis.z)
+		var trying_to_reverse = (forward_vel <= 0.5)
+		
+		# Pergunta ao MovementComponent se a trava da ré já soltou
+		var reverse_locked = false
+		if is_instance_valid(movement) and "_is_reverse_unlocked" in movement:
+			reverse_locked = not movement._is_reverse_unlocked
+			
+		# Se tentou dar ré e a trava abriu, a luz muda pra Ré!
+		if trying_to_reverse and not reverse_locked:
+			is_reversing = true
+			is_braking = false # Desprioriza a luz de freio vermelha
+			
+	var new_state = LightState.IDLE
+	if is_reversing:
+		new_state = LightState.REVERSE
+	elif is_braking:
+		new_state = LightState.BRAKE
+		
+	# OTIMIZAÇÃO: Acorda o script instantaneamente se o estado mudou
+	if new_state != _current_state:
+		_current_state = new_state
 		_is_sleeping = false
 		
 	# Se a luz já chegou no limite, não faz nada neste frame!
 	if _is_sleeping:
 		return
+	
+	var target_color: Color
+	var target_energy: float
+	
+	match _current_state:
+		LightState.REVERSE:
+			target_color = color_reverse
+			target_energy = energy_reverse
+		LightState.BRAKE:
+			target_color = color_brake
+			target_energy = energy_brake
+		_: # IDLE
+			target_color = color_idle
+			target_energy = energy_idle
 	
 	var lerp_speed = 18.0 * delta
 	

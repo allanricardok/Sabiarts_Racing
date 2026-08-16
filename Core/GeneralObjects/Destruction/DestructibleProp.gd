@@ -14,7 +14,7 @@ extends RigidBody3D
 @export var energy_on_hit : float = 1.0
 
 # ============================================================================
-# NOVO: SISTEMA DE EXPLOSÃO EM ÁREA (AoE)
+# SISTEMA DE EXPLOSÃO EM ÁREA (AoE)
 # ============================================================================
 @export_group("Explosão em Área (AoE)")
 ## Se ativo, o objeto causa dano em área a tudo em volta ao explodir
@@ -25,7 +25,7 @@ extends RigidBody3D
 @export var aoe_radius : float = 8.0
 ## Força do empurrão nos objetos próximos
 @export var aoe_knockback_force : float = 150.0
-## Se ativo, o dano e o empurrão diminuem linearmente (ex: 100% colado, 10% na borda do raio)
+## Se ativo, o dano e o empurrão diminuem linearmente
 @export var aoe_damage_falloff : bool = true
 
 @export_group("Fragmentos de Destruição")
@@ -38,7 +38,7 @@ extends RigidBody3D
 @export var scatter_radius : float = 0.4
 @export var shard_min_size : float = 0.15
 @export var shard_max_size : float = 0.35
-@export var aoe_min_vertical_kick : float = 1.4  # garante decolagem consistente
+@export var aoe_min_vertical_kick : float = 1.4  
 @export_flags_3d_physics var aoe_collision_mask : int = 0xFFFFFFFF
 
 @export_group("Efeito Visual da Explosão")
@@ -118,16 +118,12 @@ func _morrer(actual_shooter: Node3D = null):
 		visible = false
 		process_mode = Node.PROCESS_MODE_DISABLED
 		
-		# =====================================================================
-		# A CORREÇÃO MÁXIMA DO RADAR: Esconde de tudo e de todos!
-		# =====================================================================
 		collision_layer = 0
 		collision_mask = 0
-		global_position = Vector3(0, -5000, 0) # Teleporta pro centro da terra!
+		global_position = Vector3(0, -5000, 0) 
 		
 		if is_in_group("destructible_vips"):
 			remove_from_group("destructible_vips")
-		# =====================================================================
 		
 		for child in get_children():
 			if child is CollisionShape3D or child is CollisionPolygon3D:
@@ -135,27 +131,40 @@ func _morrer(actual_shooter: Node3D = null):
 	else:
 		queue_free() 
 
-func reset():
-	global_transform = _initial_transform
-	health = _initial_health
-	
+# =====================================================================
+# REVIVE UNIFICADO E BLINDADO CONTRA INÉRCIA
+# =====================================================================
+func revive():
 	visible = true
 	process_mode = Node.PROCESS_MODE_INHERIT
 	
-	# =====================================================================
-	# RESTAURA AS COLISÕES E GRUPOS
-	# =====================================================================
-	collision_layer = _initial_layer
-	collision_mask = _initial_mask
+	health = _initial_health
 	
+	if "is_dead" in self:
+		self.is_dead = false
+		
+	# Zera toda a física residual para não atravessar o chão ao renascer
+	linear_velocity = Vector3.ZERO
+	angular_velocity = Vector3.ZERO
+	constant_force = Vector3.ZERO
+	constant_torque = Vector3.ZERO
+		
+	# Restaura dinamicamente as masks salvas no _ready()
+	collision_layer = _initial_layer 
+	collision_mask = _initial_mask 
+
 	if not is_in_group("destructible_vips"):
 		add_to_group("destructible_vips")
 	
 	for child in get_children():
 		if child is CollisionShape3D or child is CollisionPolygon3D:
 			child.set_deferred("disabled", false)
-			
-	print("[Destructible] VIP restaurado para a posição original e com vida cheia!")
+
+	var visual_damage = find_child("VisualDamageComponent", true, false)
+	if is_instance_valid(visual_damage) and visual_damage.has_method("reset"):
+		visual_damage.reset()
+
+	print("[Destructible] Objeto revivido com sucesso, física zerada e colisões originais!")
 
 func _apply_aoe_damage(original_shooter: Node3D):
 	if not causes_aoe_damage: return

@@ -7,7 +7,7 @@ class_name StoryModeController
 @export var sun_light: DirectionalLight3D
 @export var mission_ui: CanvasLayer 
 @export var result_ui: CanvasLayer 
-@export var bot_spawner: Node 
+@export var bot_spawnerV2: Node 
 
 var last_played_mission: StoryMissionData = null
 var last_played_portal: StoryMissionPortal = null

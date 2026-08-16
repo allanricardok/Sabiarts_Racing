@@ -40,13 +40,16 @@ func accept_mission():
 		ctrl.sun_light.light_color = ctrl.current_mission.mission_sun_color
 		ctrl.sun_light.light_energy = ctrl.current_mission.mission_sun_energy
 
-# =========================================================
+	# =========================================================
 	# Gera Bots de Combate para QUALQUER missão que peça inimigos
 	# =========================================================
 	if ctrl.current_mission.enemy_count > 0:
-		if ctrl.bot_spawner and ctrl.bot_spawner.has_method("spawn_single_bot"):
+		# ====================================================================
+		# CORREÇÃO: Acessando a variável atualizada 'bot_spawnerV2' do Controller
+		# ====================================================================
+		if ctrl.bot_spawnerV2 and ctrl.bot_spawnerV2.has_method("spawn_single_bot"):
 			for i in range(ctrl.current_mission.enemy_count):
-				var enemy = ctrl.bot_spawner.spawn_single_bot(i)
+				var enemy = ctrl.bot_spawnerV2.spawn_single_bot(i)
 				if enemy:
 					var stats = enemy.find_child("StatsComponent*", true, false)
 					if stats:
@@ -172,14 +175,6 @@ func decline_mission():
 	get_tree().paused = false
 
 func end_mission(success: bool):
-	# CORREÇÃO: Combat Destroy podia chamar end_mission() duas vezes no
-	# mesmo frame — uma vez pelo sistema de tiers (_update_tiers_progress,
-	# ao bater a meta) e outra pelo check de "all_destroyed" logo em
-	# seguida, no mesmo _process(). Sem essa trava, a recompensa era
-	# processada duas vezes: a 1ª leitura registrava como "primeira vez"
-	# e a 2ª, rodando segundos depois, já achava tudo marcado como
-	# completo e processava como repetição (ou pior, como "sem prêmio",
-	# se já tivesse acontecido antes durante testes anteriores).
 	if not ctrl.is_mission_running:
 		return
 	ctrl.is_mission_running = false
@@ -217,13 +212,6 @@ func end_mission(success: bool):
 		mission_name_temp = ctrl.current_mission.mission_name
 		
 		if success:
-			# CORREÇÃO: se Mission ID não foi preenchido no resource (comum
-			# em missões Combat Destroy, que não precisavam de ID pra
-			# funcionar no gameplay), duas missões diferentes acabavam
-			# compartilhando a mesma chave "" de conclusão/repetição, e o
-			# progresso de uma contava como repetição da outra. Agora, se
-			# estiver vazio, usa o caminho do próprio arquivo .tres como
-			# identificador — garantido único por natureza.
 			var m_id = ctrl.current_mission.mission_id
 			if m_id == null or m_id == "":
 				m_id = ctrl.current_mission.resource_path if ctrl.current_mission.resource_path != "" else ("unnamed_" + ctrl.current_mission.mission_name)
@@ -286,9 +274,6 @@ func end_mission(success: bool):
 				Global.total_tokens += tokens_earned
 				if Global.has_method("save_player_profile"): Global.save_player_profile()
 			
-		# ====================================================================
-		# DESATIVAÇÃO DE NÓS (Com exceção para missões de presença física)
-		# ====================================================================
 		var deve_esconder = not (ctrl.current_mission.mission_type in [
 			StoryMissionData.MissionType.DEFEND, 
 			StoryMissionData.MissionType.DESTROY

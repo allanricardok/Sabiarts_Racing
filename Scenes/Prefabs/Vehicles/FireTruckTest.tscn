@@ -73,7 +73,6 @@ hood_camera_pos = Vector3(0, 1.9, 3)
 
 [node name="New" type="MeshInstance3D" parent="Visual" index="0"]
 transform = Transform3D(-4.371139e-08, -1, -4.371139e-08, 0, -4.371139e-08, 1, -1, 4.371139e-08, 1.9106855e-15, 0, 1.2405136, 0.37844932)
-layers = 2
 mesh = ExtResource("2_pp07j")
 skeleton = NodePath("")
 
@@ -110,7 +109,6 @@ suspension_travel = 0.5
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="TrasEsq" index="0"]
 transform = Transform3D(-3.4969112e-08, -0.15, 0, 0.8, -6.5567085e-09, 0, 0, 0, 0.8, 0, 0, 0)
-layers = 2
 mesh = SubResource("CylinderMesh_v71gj")
 
 [node name="TrasDir" parent="." index="5"]
@@ -119,7 +117,6 @@ suspension_travel = 0.5
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="TrasDir" index="0"]
 transform = Transform3D(-3.4969112e-08, -0.15, 0, 0.8, -6.5567085e-09, 0, 0, 0, 0.8, 0, 0, 0)
-layers = 2
 mesh = SubResource("CylinderMesh_v71gj")
 
 [node name="FreDir" parent="." index="6"]
@@ -128,7 +125,6 @@ suspension_travel = 0.5
 
 [node name="MeshInstance3D3" type="MeshInstance3D" parent="FreDir" index="0"]
 transform = Transform3D(-3.4969112e-08, -0.15, 0, 0.8, -6.5567085e-09, 0, 0, 0, 0.8, 0, 0, 0)
-layers = 2
 mesh = SubResource("CylinderMesh_v71gj")
 
 [node name="FreEsq" parent="." index="7"]
@@ -137,7 +133,6 @@ suspension_travel = 0.5
 
 [node name="MeshInstance3D4" type="MeshInstance3D" parent="FreEsq" index="0"]
 transform = Transform3D(-3.4969112e-08, -0.15, 0, 0.8, -6.5567085e-09, 0, 0, 0, 0.8, 0, 0, 0)
-layers = 2
 mesh = SubResource("CylinderMesh_v71gj")
 
 [node name="NameTag" parent="." index="8"]

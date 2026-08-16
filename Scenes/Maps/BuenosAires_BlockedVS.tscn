@@ -1069,36 +1069,24 @@ skeleton = NodePath("../..")
 
 [node name="Destructibles" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap"]
 
-[node name="ObjectBase" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -279.33347, 0, -191.01471)
-collision_layer = 3
-collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
-aoe_damage_amount = 10.0
-aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
-aoe_collision_mask = 31
-explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
-explosion_visual_size = 60.0
-explosion_particle_count = 30
-explosion_light_energy = 140.0
+[node name="Barrel_Spawner" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("8_haj77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -279.43176, 0.5, -191.015)
+script = ExtResource("19_ioiyf")
+respawn_mode = 1
+respawn_time = 5.0
+min_respawn_distance = 30.0
+specific_scene = ExtResource("6_oublg")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles/Barrel_Spawner"]
+mesh = ExtResource("29_tqs36")
+script = ExtResource("30_rf88v")
 
 [node name="ObjectBase2" parent="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles" instance=ExtResource("6_oublg")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -279.33347, 0, -197.61166)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1109,14 +1097,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -279.33347, 0, -204.84268)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1127,14 +1109,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -23.944672, 0, -291.6039)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1145,14 +1121,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -23.944672, 0, -298.20084)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1163,14 +1133,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -23.944672, 0, -305.43185)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1181,14 +1145,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 353.57477, 0, -295.38586)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1199,14 +1157,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 353.57477, 0, -288.69998)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1217,14 +1169,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 353.57477, 0, -309.2138)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1235,14 +1181,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 353.57477, 0, -18.591042)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1253,14 +1193,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 353.57477, 0, -25.187965)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1271,14 +1205,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 353.57477, 0, -32.418983)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1289,14 +1217,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.046333, 30.161022, 216.72162)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1307,14 +1229,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.046333, 30.161022, 210.1247)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1325,14 +1241,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.046333, 30.161022, 202.89368)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1343,14 +1253,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -159.60234, 30.161022, 225.13731)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1361,14 +1265,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 212.54715, 3.8431778, 13.889179)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1379,14 +1277,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 161.08858, 0, -25.758049)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1397,14 +1289,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 161.08858, 0, -23.308908)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1415,14 +1301,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 161.08858, 2.150814, -24.542082)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1433,14 +1313,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 161.08858, 6.4909105, -24.542082)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1451,14 +1325,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 362.68317, 0, -303.4302)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1469,14 +1337,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 362.68317, 0, -300.98108)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1487,14 +1349,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 362.68317, 2.150814, -302.21426)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1505,14 +1361,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 362.68317, 6.4909105, -302.21426)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1523,14 +1373,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -83.91257, 3.8431778, -42.865547)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1541,14 +1385,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 212.54715, 3.8431778, -64.12985)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1559,14 +1397,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 129.81995, 3.8431778, -87.25706)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1577,14 +1409,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 212.54715, 3.8431778, -134.44765)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1595,14 +1421,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 272.35422, 3.8431778, -17.210754)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1613,14 +1433,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 272.35422, 3.8431778, -65.181465)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -1631,14 +1445,8 @@ explosion_light_energy = 140.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 272.35422, 3.8431778, 138.37381)
 collision_layer = 3
 collision_mask = 3
-mission_id = "barril_BA"
-causes_aoe_damage = true
 aoe_damage_amount = 10.0
 aoe_radius = 35.0
-aoe_knockback_force = 16.0
-shard_lifetime = 3.5
-scatter_radius = 3.0
-shard_max_size = 4.0
 aoe_collision_mask = 31
 explosion_visual_color = Color(1.1374342, 0.62881297, 0.12019179, 1)
 explosion_visual_size = 60.0
@@ -3844,7 +3652,9 @@ collision_mask = 3
 [node name="FlyingS-Spawner" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers" instance=ExtResource("8_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -397.05716, 123.16673, -138.91794)
 script = ExtResource("19_ioiyf")
+respawn_mode = 0
 respawn_time = 5.0
+min_respawn_distance = 150.0
 specific_scene = ExtResource("19_6fv6f")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers/FlyingS-Spawner"]
@@ -3854,7 +3664,9 @@ script = ExtResource("30_rf88v")
 [node name="FlyingS-Spawner2" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers" instance=ExtResource("8_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -102.70453, 92.3004, -207.83867)
 script = ExtResource("19_ioiyf")
+respawn_mode = 0
 respawn_time = 5.0
+min_respawn_distance = 150.0
 specific_scene = ExtResource("19_6fv6f")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers/FlyingS-Spawner2"]
@@ -3864,7 +3676,9 @@ script = ExtResource("30_rf88v")
 [node name="FlyingS-Spawner3" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers" instance=ExtResource("8_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -102.70453, 92.3004, -207.83867)
 script = ExtResource("19_ioiyf")
+respawn_mode = 0
 respawn_time = 5.0
+min_respawn_distance = 150.0
 specific_scene = ExtResource("19_6fv6f")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers/FlyingS-Spawner3"]
@@ -3874,7 +3688,9 @@ script = ExtResource("30_rf88v")
 [node name="FlyingS-Spawner4" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers" instance=ExtResource("8_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -397.05716, 126.62793, -72.256485)
 script = ExtResource("19_ioiyf")
+respawn_mode = 0
 respawn_time = 5.0
+min_respawn_distance = 150.0
 specific_scene = ExtResource("19_6fv6f")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers/FlyingS-Spawner4"]
@@ -3884,7 +3700,9 @@ script = ExtResource("30_rf88v")
 [node name="FlyingS-Spawner5" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers" instance=ExtResource("8_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -397.05716, 117.208466, 2.9036179)
 script = ExtResource("19_ioiyf")
+respawn_mode = 0
 respawn_time = 5.0
+min_respawn_distance = 150.0
 specific_scene = ExtResource("19_6fv6f")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers/FlyingS-Spawner5"]
@@ -3894,7 +3712,9 @@ script = ExtResource("30_rf88v")
 [node name="FlyingS-Spawner6" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers" instance=ExtResource("8_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -397.05716, 100.88729, 80.46079)
 script = ExtResource("19_ioiyf")
+respawn_mode = 0
 respawn_time = 5.0
+min_respawn_distance = 150.0
 specific_scene = ExtResource("19_6fv6f")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers/FlyingS-Spawner6"]
@@ -3904,7 +3724,9 @@ script = ExtResource("30_rf88v")
 [node name="FlyingS-Spawner7" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers" instance=ExtResource("8_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 409.65503, 104.25746, -134.48575)
 script = ExtResource("19_ioiyf")
+respawn_mode = 0
 respawn_time = 5.0
+min_respawn_distance = 150.0
 specific_scene = ExtResource("19_6fv6f")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers/FlyingS-Spawner7"]
@@ -3914,7 +3736,9 @@ script = ExtResource("30_rf88v")
 [node name="FlyingS-Spawner8" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers" instance=ExtResource("8_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 409.65503, 119.5363, -49.4093)
 script = ExtResource("19_ioiyf")
+respawn_mode = 0
 respawn_time = 5.0
+min_respawn_distance = 150.0
 specific_scene = ExtResource("19_6fv6f")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers/FlyingS-Spawner8"]
@@ -3924,7 +3748,9 @@ script = ExtResource("30_rf88v")
 [node name="FlyingS-Spawner9" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers" instance=ExtResource("8_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35.54092, 155.87563, 81.02447)
 script = ExtResource("19_ioiyf")
+respawn_mode = 0
 respawn_time = 5.0
+min_respawn_distance = 150.0
 specific_scene = ExtResource("19_6fv6f")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers/FlyingS-Spawner9"]
@@ -3934,7 +3760,9 @@ script = ExtResource("30_rf88v")
 [node name="FlyingS-Spawner10" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers" instance=ExtResource("8_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 409.65503, 119.01892, 30.899921)
 script = ExtResource("19_ioiyf")
+respawn_mode = 0
 respawn_time = 5.0
+min_respawn_distance = 150.0
 specific_scene = ExtResource("19_6fv6f")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers/FlyingS-Spawner10"]
@@ -3944,7 +3772,9 @@ script = ExtResource("30_rf88v")
 [node name="FlyingS-Spawner11" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers" instance=ExtResource("8_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 409.65503, 103.00908, 120.76219)
 script = ExtResource("19_ioiyf")
+respawn_mode = 0
 respawn_time = 5.0
+min_respawn_distance = 150.0
 specific_scene = ExtResource("19_6fv6f")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers/FlyingS-Spawner11"]
@@ -3954,7 +3784,9 @@ script = ExtResource("30_rf88v")
 [node name="FlyingS-Spawner12" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers" instance=ExtResource("8_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 25.139753, 154.60078)
 script = ExtResource("19_ioiyf")
+respawn_mode = 0
 respawn_time = 5.0
+min_respawn_distance = 150.0
 specific_scene = ExtResource("19_6fv6f")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers/FlyingS-Spawner12"]
@@ -3964,7 +3796,9 @@ script = ExtResource("30_rf88v")
 [node name="FlyingS-Spawner13" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers" instance=ExtResource("8_haj77")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 148.28436, 27.650637, -204.13377)
 script = ExtResource("19_ioiyf")
+respawn_mode = 0
 respawn_time = 5.0
+min_respawn_distance = 150.0
 specific_scene = ExtResource("19_6fv6f")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/FlyingSaucers/FlyingS-Spawner13"]
@@ -7107,7 +6941,7 @@ shape = SubResource("ConcavePolygonShape3D_yrhsj")
 [node name="BotSpawner" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map" node_paths=PackedStringArray("spawn_points")]
 script = ExtResource("39_d03gb")
 car_prefabs = Array[PackedScene]([ExtResource("35_6fv6f"), ExtResource("36_4e1cd"), ExtResource("37_44s4c"), ExtResource("38_jtjsh")])
-spawn_points = [NodePath("Marker3D"), NodePath("Marker3D2"), NodePath("Marker3D3"), NodePath("Marker3D4")]
+spawn_points = [NodePath("Marker3D"), NodePath("Marker3D2"), NodePath("Marker3D3"), NodePath("Marker3D4"), NodePath("Marker3D5"), NodePath("Marker3D6"), NodePath("Marker3D7"), NodePath("Marker3D8")]
 
 [node name="Marker3D" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/BotSpawner" groups=["quadrantes_mapa"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 256.17004, 2.0657039, 228.08365)
@@ -7120,6 +6954,18 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -214.36792, 2.0657039, -267.4
 
 [node name="Marker3D4" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/BotSpawner" groups=["quadrantes_mapa"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -222.62515, 2.0657039, 234.43237)
+
+[node name="Marker3D5" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/BotSpawner" groups=["quadrantes_mapa"]]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, -359.8173, 2.0657039, -51.35739)
+
+[node name="Marker3D6" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/BotSpawner" groups=["quadrantes_mapa"]]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, -38.709473, 2.0657039, 137.96667)
+
+[node name="Marker3D7" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/BotSpawner" groups=["quadrantes_mapa"]]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 140.60385, 2.0657039, 73.55679)
+
+[node name="Marker3D8" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/BotSpawner" groups=["quadrantes_mapa"]]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 392.1898, 2.0657039, -54.794235)
 
 [node name="StoryMissions" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map" groups=["elementos_historia"]]
 
@@ -7689,13 +7535,13 @@ visible = false
 [node name="LevelLogic" type="Node" parent="."]
 script = ExtResource("25_qdutf")
 
-[node name="StoryModeController" type="Node" parent="." node_paths=PackedStringArray("world_env", "sun_light", "mission_ui", "result_ui", "bot_spawner")]
+[node name="StoryModeController" type="Node" parent="." node_paths=PackedStringArray("world_env", "sun_light", "mission_ui", "result_ui", "bot_spawnerV2")]
 script = ExtResource("48_neuqn")
 world_env = NodePath("../GridContainer/Cont_P1/View_P1/WorldEnvironment2")
 sun_light = NodePath("../GridContainer/Cont_P1/View_P1/WorldEnvironment2/DirectionalLight3D")
 mission_ui = NodePath("../StoryMissionUi")
 result_ui = NodePath("../StoryMissionResultUi")
-bot_spawner = NodePath("../GridContainer/Cont_P1/View_P1/Map/BotSpawner")
+bot_spawnerV2 = NodePath("../GridContainer/Cont_P1/View_P1/Map/BotSpawner")
 
 [connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles/Barril_VIP" to="GridContainer/Cont_P1/View_P1/Map/BAMap/Destructibles/Barril_VIP" method="_on_body_entered"]
 [connection signal="body_entered" from="GridContainer/Cont_P1/View_P1/Map/BAMap/Gaps1/Gap Balcony" to="GridContainer/Cont_P1/View_P1/Map/BAMap/Gaps1/Gap Balcony" method="_on_body_entered"]

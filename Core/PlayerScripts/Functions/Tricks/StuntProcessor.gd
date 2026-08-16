@@ -10,6 +10,15 @@ var car : VehicleBody3D
 @export var FLIP_POWER_MULT : float = 1.8 
 @export var SPECIAL_POWER_MULT : float = 3.0
 
+# ==============================================================================
+# CONTROLE ABSOLUTO DE GIRO (Ignora Peso e Inércia do Carro)
+# ==============================================================================
+@export_group("Velocidades Absolutas Especiais")
+## Velocidade garantida (Radianos por seg) para o Shield Spin completar o giro perfeito
+@export var SHIELD_SPIN_SPEED : float = 20.0
+## Velocidade garantida para os cortes bruscos do Emote
+@export var EMOTE_SPIN_SPEED : float = 35.0
+
 @export_group("Energia de Habilidade")
 @export var ENERGY_COST_SPECIAL : float = 20.0
 @export var ENERGY_RECOVERY_ROLL : float = 5.0
@@ -31,18 +40,16 @@ signal special_trick_triggered(trick_id: String)
 # --- CONTADORES DO FIREBALL ---
 var fireball_combo_count : int = 0
 
-# ==============================================================================
-# OTIMIZAÇÃO: MEMÓRIA CACHE
-# ==============================================================================
+# --- CACHES ---
 var _wall_rider: Node
 var _ability_component: Node
+var _camera_shake: Node # <--- CACHE DA CÂMERA AQUI
 var _car_rid: RID
 
 func setup(_parent, _car):
 	parent = _parent
 	car = _car
 	
-	# --- PREENCHE OS CACHES NA INICIALIZAÇÃO ---
 	_wall_rider = car.get_node_or_null("%WallRideComponent")
 	if not _wall_rider:
 		_wall_rider = car.find_child("WallRideComponent", true, false)
@@ -50,11 +57,15 @@ func setup(_parent, _car):
 	_ability_component = car.get_node_or_null("%AbilityComponent")
 	_car_rid = car.get_rid()
 	
+	# Busca e salva o componente de tremor de câmera
+	var shakes = car.find_children("*", "CameraShake", true, false)
+	if shakes.size() > 0:
+		_camera_shake = shakes[0]
+	
 	var move_comp = car.get_node_or_null("%MovementComponent")
 	if move_comp and move_comp.has_signal("landed"):
 		move_comp.landed.connect(_on_car_landed)
 
-# Função exclusiva para limpar o estado de manobras no ar
 func _on_car_landed(_is_clean: bool):
 	fireball_combo_count = 0
 
@@ -70,7 +81,9 @@ func initiate_stunt(axis: Vector3, trick_id: String):
 				return
 		
 		if parent._modify_energy(-ENERGY_COST_SPECIAL):
-			car.play_camera_shake("Stunt")
+			if trick_id != "SHOCKWAVE": 
+				car.play_camera_shake("Stunt") # Deixa o shake genérico pro fireball
+				
 			_confirm_trick_success()
 			_apply_instant_physics(trick_id)
 			special_trick_triggered.emit(trick_id)
@@ -85,7 +98,6 @@ func initiate_stunt(axis: Vector3, trick_id: String):
 	_start_rotation_stunt(axis, p_mult)
 
 func _emitir_falha_energia():
-	# OTIMIZAÇÃO: Uso de cache
 	if is_instance_valid(_ability_component) and _ability_component.has_method("_erro_falta_energia"):
 		_ability_component._erro_falta_energia()
 
@@ -104,38 +116,36 @@ func _start_rotation_stunt(axis: Vector3, p_mult: float):
 	
 	var local_ang_vel = car.global_transform.basis.inverse() * car.angular_velocity
 	if abs(axis.z) > 0.5: local_ang_vel.x = 0; local_ang_vel.y = 0
-	car.angular_velocity = car.global_transform.basis * local_ang_vel
-
+	
+	# Correção de bico para manobras de Flip
 	if abs(axis.z) > 0.5:
 		var nose_tilt = car.global_transform.basis.z.y 
 		var correction_impulse = car.global_transform.basis.x * (nose_tilt * car.mass * 5.0)
 		car.apply_torque_impulse(correction_impulse)
 	
-	var stunt_impulse = axis * (STUNT_IMPULSE_POWER * p_mult*1.5) * car.mass
-	car.apply_torque_impulse(car.global_transform.basis * stunt_impulse)
-	
-	if current_trick_id == "SHIELD_SPIN": _call_ability_shield(true)
+	if current_trick_id == "SHIELD_SPIN":
+		local_ang_vel += axis * SHIELD_SPIN_SPEED
+		car.angular_velocity = car.global_transform.basis * local_ang_vel
+		_call_ability_shield(true)
+	else:
+		car.angular_velocity = car.global_transform.basis * local_ang_vel
+		var stunt_impulse = axis * (STUNT_IMPULSE_POWER * p_mult*1.5) * car.mass
+		car.apply_torque_impulse(car.global_transform.basis * stunt_impulse)
 
 func process_stunt_rotation(delta):
 	if current_trick_id == "EMOTE": return
 
 	var is_immune = false
-	
-	# OTIMIZAÇÃO: Busca O(1) direto na memória!
 	if is_instance_valid(_wall_rider):
 		if _wall_rider.get("is_exiting_wallride") or _wall_rider.get("wallride_cooldown") > 0.0:
 			is_immune = true
 
-	# CORREÇÃO: O RAIO-X DO CHÃO
 	if not is_immune and car.get_contact_count() > 0:
 		var bateu_no_chao = false
 		var space_state = car.get_world_3d().direct_space_state
-		
-		# Dispara um raio de 2.5 metros do centro do carro para baixo (gravidade)
 		var query = PhysicsRayQueryParameters3D.create(car.global_position, car.global_position + (Vector3.DOWN * 2.5))
-		query.exclude = [_car_rid] # OTIMIZAÇÃO: O RID em cache
+		query.exclude = [_car_rid] 
 		query.hit_from_inside = true
-		
 		var result = space_state.intersect_ray(query)
 		
 		if result and result.normal.y > 0.4:
@@ -159,7 +169,6 @@ func process_stunt_rotation(delta):
 	elif stunt_timeout <= 0:
 		apply_stunt_brake("Timeout estourou.")
 
-# --- MÁQUINA DE FREIO BLINDADA ---
 func apply_stunt_brake(motivo: String = "Chamada Forçada"):
 	print("[STUNT PROCESSOR] 🛑 FREIO ACIONADO! Motivo: ", motivo)
 	
@@ -188,40 +197,47 @@ func _confirm_trick_success():
 
 func _apply_instant_physics(id: String):
 	if id == "FIREBALL":
-		# LÓGICA DE FORÇA REDUZIDA
 		var force_multiplier = pow(0.5, fireball_combo_count)
-		
 		var launch = (car.global_transform.basis.z * 0.1 + Vector3.UP * 1.5).normalized()
 		car.apply_central_impulse(launch * (30.0 * force_multiplier) * car.mass)
-		
 		fireball_combo_count += 1
 		
 	elif id == "SHOCKWAVE":
 		car.angular_velocity = Vector3.ZERO
 		car.apply_torque_impulse(car.global_transform.basis.y.cross(Vector3.UP) * 20.0 * car.mass)
 		car.apply_central_impulse(Vector3.DOWN * 40.0 * car.mass)
+		
+		# ====================================================================
+		# O PANCADÃO VISUAL DO SHOCKWAVE (Intensidade 15)
+		# ====================================================================
+		if is_instance_valid(_camera_shake) and _camera_shake.has_method("trigger_event"):
+			_camera_shake.trigger_event("Shockwave", 15.0)
 
 func _start_emote_sequence(p_mult: float):
 	parent.is_doing_stunt = true
 	current_stunt_axis = Vector3.UP
 	car.angular_damp = 0.1
-	var impulse = Vector3.UP * (STUNT_IMPULSE_POWER * p_mult * 4.8) * car.mass
-	car.apply_torque_impulse(car.global_transform.basis * impulse)
+	
 	car.apply_torque_impulse(car.global_transform.basis.x * (car.global_transform.basis.z.y * car.mass * 5.0))
+	
+	var emote_vel = car.global_transform.basis * (Vector3.UP * EMOTE_SPIN_SPEED)
+	car.angular_velocity = emote_vel
 	
 	await get_tree().create_timer(0.1).timeout
 	if not parent.is_doing_stunt: return
+	
 	car.angular_velocity = Vector3.ZERO
 	_confirm_trick_success()
+	
 	await get_tree().create_timer(0.25).timeout
 	if not parent.is_doing_stunt: return
-	car.apply_torque_impulse(car.global_transform.basis * impulse)
+	
+	car.angular_velocity = emote_vel
 	await get_tree().create_timer(0.1).timeout
 	apply_stunt_brake()
 
 func _call_ability_shield(active: bool):
 	is_invincible = active
-	# OTIMIZAÇÃO: Uso de cache
 	if is_instance_valid(_ability_component):
 		_ability_component._set_car_silver_effect(active)
 		if _ability_component.stats: _ability_component.stats.is_invulnerable = active

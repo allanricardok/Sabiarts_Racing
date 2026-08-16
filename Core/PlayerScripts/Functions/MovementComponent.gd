@@ -67,7 +67,14 @@ var _burnout_smoke_timer := 0.0
 var _drift_smoke_timer := 0.0 
 
 # ==============================================================================
-# OTIMIZAÇÃO: MEMÓRIA CACHE (Isso salva a CPU)
+# NOVO: VARIÁVEIS DA TRAVA DA RÉ
+# ==============================================================================
+var _reverse_unlock_timer : float = 0.0
+var _is_reverse_unlocked : bool = false
+var _was_braking_last_frame : bool = false
+
+# ==============================================================================
+# MEMÓRIA CACHE (Isso salva a CPU)
 # ==============================================================================
 var _rage_component: Node
 var _ability_component: Node
@@ -76,8 +83,9 @@ var _camera_shake: Node
 var _trick_manager: Node
 var _wheels: Array[VehicleWheel3D] = []
 
+
+
 func _ready():
-	# Guarda todos os nós pesados na memória uma única vez!
 	_rage_component = car.get_node_or_null("%RageComponent")
 	_ability_component = car.get_node_or_null("%AbilityComponent")
 	_burnout_meter = car.find_child("BurnoutMeter", true, false)
@@ -87,7 +95,6 @@ func _ready():
 	if shakes.size() > 0:
 		_camera_shake = shakes[0]
 		
-	# Array estático para não causar Garbage Collection nos frames
 	if is_instance_valid(wheel_rear_left): _wheels.append(wheel_rear_left)
 	if is_instance_valid(wheel_rear_right): _wheels.append(wheel_rear_right)
 	if is_instance_valid(wheel_front_left): _wheels.append(wheel_front_left)
@@ -131,7 +138,6 @@ func _handle_engine_and_steering(delta, is_on_ground, speed_kmh):
 		car.steering = 0.0 
 		return 
 	
-	# Usa o componente já salvo em cache
 	var rage_speed_mult = _rage_component.get_speed_mult() if is_instance_valid(_rage_component) else 1.0
 	
 	if abs(input.steering) > 0.05:
@@ -155,6 +161,29 @@ func _handle_engine_and_steering(delta, is_on_ground, speed_kmh):
 	var turn_dir = input.steering
 	var forward_velocity = car.linear_velocity.dot(car.global_transform.basis.z)
 	
+	# ====================================================================
+	# LÓGICA DA TRAVA DA RÉ (REVERSE LOCK)
+	# ====================================================================
+	var is_braking = (input.throttle < -0.1)
+	if "is_braking" in input and input.is_braking: is_braking = true
+	
+	if _reverse_unlock_timer > 0:
+		_reverse_unlock_timer -= delta
+		
+	# Acabou de apertar o freio
+	if is_braking and not _was_braking_last_frame:
+		if _reverse_unlock_timer > 0:
+			_is_reverse_unlocked = true
+		else:
+			_is_reverse_unlocked = false
+			
+	# Acabou de soltar o freio
+	if not is_braking and _was_braking_last_frame:
+		if speed_kmh < 15.0: # Se o carro está quase parando ou parado
+			_reverse_unlock_timer = 1.0 # Abre a janela de 1 segundo
+			
+	_was_braking_last_frame = is_braking
+	
 	# LÓGICA DO ZERINHO COM SISTEMA DE CARREGAMENTO
 	var holding_both_pedals = false
 	if "is_accelerating" in input and "is_braking" in input:
@@ -172,7 +201,6 @@ func _handle_engine_and_steering(delta, is_on_ground, speed_kmh):
 		_burnout_charge_time += delta
 		charge_ratio = _burnout_charge_time / 1.5 
 		
-		# --- SCREENSHAKE DE CARREGAMENTO USANDO CACHE ---
 		if is_instance_valid(_camera_shake):
 			var shake_intensity = clamp(remap(_burnout_charge_time, 0.0, 1.5, 1, 12), 1, 12)
 			_camera_shake.trigger_event("BurnoutCharge", shake_intensity)
@@ -180,7 +208,7 @@ func _handle_engine_and_steering(delta, is_on_ground, speed_kmh):
 	else:
 		if _was_doing_burnout:
 			if input.is_accelerating and not input.is_braking and _burnout_charge_time >= 0.2:
-				var boost_mult = clamp(remap(_burnout_charge_time, burnout_min_time, burnout_max_time, burnout_min_mult, burnout_max_mult), burnout_min_mult, burnout_max_mult)				
+				var boost_mult = clamp(remap(_burnout_charge_time, burnout_min_time, burnout_max_time, burnout_min_mult, burnout_max_mult), burnout_min_mult, burnout_max_mult)                
 				
 				if is_instance_valid(_ability_component) and _ability_component.has_method("execute_burnout_boost"):
 					_ability_component.execute_burnout_boost(boost_mult)
@@ -189,12 +217,10 @@ func _handle_engine_and_steering(delta, is_on_ground, speed_kmh):
 			
 	_was_doing_burnout = _is_doing_burnout
 
-	# COMUNICAÇÃO COM A NOVA BARRA VISUAL USANDO CACHE
 	if is_instance_valid(_burnout_meter) and _burnout_meter.has_method("update_charge"):
 		_burnout_meter.update_charge(charge_ratio)
 
 	if is_on_ground:
-		var is_braking_hard = (forward_velocity > 2.0 and input.throttle < -0.1)
 		var contact_ratio = _get_grounded_ratio()
 		var torque_contact_multiplier = pow(contact_ratio, 3)
 
@@ -211,6 +237,10 @@ func _handle_engine_and_steering(delta, is_on_ground, speed_kmh):
 		var braking_forward = (forward_velocity > 0.5 and input.throttle < -0.1)
 		var braking_reverse = (forward_velocity < -0.5 and input.throttle > 0.1)
 		var holding_brake_in_cooldown = (_drift_cooldown > 0.0 and input.throttle < -0.1)
+		
+		# --- INTERCEPTAÇÃO DA RÉ ---
+		var trying_to_reverse = (forward_velocity <= 0.5 and input.throttle < -0.1)
+		var reverse_locked = (trying_to_reverse and not _is_reverse_unlocked)
 		
 		# EXECUÇÃO DA FÍSICA E FUMAÇA DO ZERINHO
 		if _is_doing_burnout:
@@ -230,16 +260,21 @@ func _handle_engine_and_steering(delta, is_on_ground, speed_kmh):
 				_burnout_smoke_timer = 0.2 
 				_spawn_burnout_smoke()
 				
-		elif braking_forward or braking_reverse or holding_brake_in_cooldown:
+		elif braking_forward or braking_reverse or holding_brake_in_cooldown or reverse_locked:
 			_burnout_smoke_timer = 0.0
 			car.brake = BRAKE_POWER * abs(input.throttle)
+			
+			# Se o carro tentou dar ré mas está trancado, segura o freio forte para não rolar em ladeiras
+			if reverse_locked:
+				car.brake = BRAKE_POWER * 3.0
+				
 			car.engine_force = 0.0
 			
 			if holding_brake_in_cooldown:
 				if speed_mps < 1.0:
 					car.linear_velocity = Vector3.ZERO
 					car.brake = BRAKE_POWER * 15.0 
-			else:
+			elif not reverse_locked:
 				var assist_dir = car.global_transform.basis.z * (BRAKE_ASSIST_FORCE if forward_velocity < 0 else -BRAKE_ASSIST_FORCE)
 				car.apply_central_force(assist_dir * car.mass)
 				

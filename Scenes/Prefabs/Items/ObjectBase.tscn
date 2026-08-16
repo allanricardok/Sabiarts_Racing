@@ -24,16 +24,23 @@ collision_mask = 15
 mass = 100.0
 gravity_scale = 1.806
 script = ExtResource("1_0e0mj")
+mission_id = "barril_BA"
 max_health = 2.0
 energy_on_destroy = 5.0
 energy_on_hit = 0.5
+causes_aoe_damage = true
+aoe_damage_amount = 8.0
+aoe_radius = 30.0
+aoe_knockback_force = 16.0
 shard_count = 8
 explosion_force = 10.0
 upward_bias = 6.0
-shard_lifetime = 2.0
-scatter_radius = 2.0
+shard_lifetime = 3.5
+scatter_radius = 3.0
 shard_min_size = 1.0
-shard_max_size = 3.0
+shard_max_size = 4.0
+explosion_visual_size = 40.0
+explosion_light_energy = 100.0
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("CylinderMesh_0e0mj")

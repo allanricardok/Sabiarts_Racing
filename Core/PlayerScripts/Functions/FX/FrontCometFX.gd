@@ -1,5 +1,5 @@
 extends Node3D
-class_name FrontCometFX
+class_name TurboCometFX
 
 @export_group("Spawns (Markers)")
 @export var spawn_markers : Array[NodePath]

@@ -94,6 +94,12 @@ func trigger_event(event_name: String, modifier: float = 1.0):
 		"BurnoutCharge":
 			force = modifier
 			duration = 0.1
+		# =========================================================
+		# CORREÇÃO: O gatilho do Shockwave estava faltando aqui!
+		# =========================================================
+		"Shockwave":
+			force = modifier # Recebe o 15.0 do StuntProcessor
+			duration = 0.8   # Duração do terremoto na tela
 	
 	if duration > 0:
 		impulse_force = max(impulse_force, force)

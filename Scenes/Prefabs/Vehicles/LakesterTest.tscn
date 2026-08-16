@@ -60,7 +60,6 @@ transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, 0, 0, -0.41651595)
 
 [node name="New" type="MeshInstance3D" parent="Visual" index="0"]
 transform = Transform3D(-1, -2.4213733e-09, 1.5088602e-07, 3.3330978e-09, 0.99927294, 0.0381262, -1.5086863e-07, 0.0381262, -0.99927294, 0, 0.6237357, 0.045107223)
-layers = 2
 mesh = ExtResource("2_lhwup")
 skeleton = NodePath("")
 
@@ -90,7 +89,6 @@ wheel_radius = 0.52
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="TrasEsq" index="0"]
 transform = Transform3D(-3.4969112e-08, 0.2, 0, -0.8, -8.742278e-09, 0, 0, 0, 0.8, 0, 0, 0)
-layers = 2
 mesh = ExtResource("3_nospx")
 
 [node name="TrasDir" parent="." index="5"]
@@ -99,7 +97,6 @@ wheel_radius = 0.52
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="TrasDir" index="0"]
 transform = Transform3D(-3.4969112e-08, -0.2, 0, 0.8, -8.742278e-09, 0, 0, 0, 0.8, 0, 0, 0)
-layers = 2
 mesh = ExtResource("3_nospx")
 
 [node name="FreDir" parent="." index="6"]
@@ -108,7 +105,6 @@ wheel_radius = 0.52
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="FreDir" index="0"]
 transform = Transform3D(-3.14722e-08, -0.15, 0, 0.72, -6.5567085e-09, 0, 0, 0, 0.72, 0, 0, 0)
-layers = 2
 mesh = ExtResource("3_nospx")
 
 [node name="FreEsq" parent="." index="7"]
@@ -117,7 +113,6 @@ wheel_radius = 0.52
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="FreEsq" index="0"]
 transform = Transform3D(-3.14722e-08, 0.15, 0, -0.72, -6.5567085e-09, 0, 0, 0, 0.72, 0, 0, 0)
-layers = 2
 mesh = ExtResource("3_nospx")
 
 [node name="NameTag" parent="." index="8"]
