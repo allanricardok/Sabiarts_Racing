@@ -1,8 +1,9 @@
-[gd_scene load_steps=12 format=3 uid="uid://ce2gdvomfunn8"]
+[gd_scene load_steps=13 format=3 uid="uid://ce2gdvomfunn8"]
 
 [ext_resource type="Script" uid="uid://dsev4t7ikm1du" path="res://Core/Menus/lobby.gd" id="1_qyifk"]
 [ext_resource type="PackedScene" uid="uid://d2rblk8h626kc" path="res://Scenes/Maps/Official_Test_Map.tscn" id="2_353f8"]
 [ext_resource type="PackedScene" uid="uid://d1rl8sskrmddj" path="res://Scenes/Maps/BuenosAires_BlockedVS.tscn" id="3_6jtbh"]
+[ext_resource type="PackedScene" uid="uid://cn4lvre6cvawf" path="res://Scenes/Maps/Sprint_Test_1.tscn" id="4_3hayu"]
 [ext_resource type="PackedScene" uid="uid://d1q613pnimt40" path="res://Scenes/Prefabs/Vehicles/BrasiliaTest.tscn" id="4_s6sq0"]
 [ext_resource type="PackedScene" uid="uid://cmcbewlv3y7he" path="res://Scenes/Prefabs/Vehicles/ShadowJetTest.tscn" id="5_6487p"]
 [ext_resource type="PackedScene" uid="uid://cxnfwc3ovajua" path="res://Scenes/Prefabs/Vehicles/LakesterTest.tscn" id="6_v3kjt"]
@@ -42,8 +43,8 @@ offset_right = 9.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_qyifk")
-nomes_dos_mapas = Array[String](["Tutorial Map", "Buenos Aires"])
-cenas_dos_mapas = Array[PackedScene]([ExtResource("2_353f8"), ExtResource("3_6jtbh")])
+nomes_dos_mapas = Array[String](["Tutorial Map", "Buenos Aires", "Sprint test"])
+cenas_dos_mapas = Array[PackedScene]([ExtResource("2_353f8"), ExtResource("3_6jtbh"), ExtResource("4_3hayu")])
 carros_disponiveis = Array[PackedScene]([ExtResource("4_s6sq0"), ExtResource("5_6487p"), ExtResource("6_v3kjt"), ExtResource("7_v3kjt")])
 
 [node name="ColorRect" type="ColorRect" parent="."]
@@ -591,7 +592,6 @@ expand_mode = 1
 stretch_mode = 4
 
 [node name="Screen_MapSelect" type="Control" parent="."]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -642,6 +642,11 @@ grow_vertical = 2
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "Buenos Aires"
+
+[node name="LabelMapa3" type="Label" parent="Screen_MapSelect/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Sprint Test"
 
 [node name="Instruction" type="Label" parent="Screen_MapSelect"]
 layout_mode = 0

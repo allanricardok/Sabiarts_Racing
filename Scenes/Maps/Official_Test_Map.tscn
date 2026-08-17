@@ -1,6 +1,6 @@
 [gd_scene load_steps=144 format=3 uid="uid://d2rblk8h626kc"]
 
-[ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_mm1ty"]
+[ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Managers-support/Mapa_Teste_Inicio.gd" id="1_mm1ty"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="1_rakfq"]
 [ext_resource type="Texture2D" uid="uid://bkmid1n6i7ij6" path="res://Assets/2D/Test_Texture.jpg" id="4_hvv5t"]
 [ext_resource type="PackedScene" uid="uid://do7x7c5gyyp8g" path="res://Scenes/UI/PauseMenu.tscn" id="4_umdbu"]

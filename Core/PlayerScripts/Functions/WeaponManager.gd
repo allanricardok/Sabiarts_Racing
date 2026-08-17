@@ -11,6 +11,7 @@ var wheel_ui_node: WeaponWheel = null
 @export var basic_weapon_resource: WeaponResource 
 @export var fire_rate_basic : float = 0.12
 @export var MAX_POOL_SIZE : int = 5 
+@export var land_mine_scene: PackedScene # <--- AQUI VOCÊ ARRASTA O PREFAB DA MINA NO INSPECTOR
 var _previous_radar_mode : int = -1
 
 # ============================================================================
@@ -31,13 +32,15 @@ var _previous_radar_mode : int = -1
 	"HomingMissile": %HomingMissile,
 	"GrapplingMissile": %GrapplingMissile,
 	"FreezingMissile": %FreezingMissile,
-	"BazookaMissile": %BazookaMissile 
+	"BazookaMissile": %BazookaMissile, 
+	"LandMine": %LandMine
 }
 
 # --- ESTADO INTERNO ---
 var weapon_pool : Array[WeaponResource] = [] 
 var current_weapon_index : int = -1 
 var player_suffix : String = "" 
+var _last_landmine_fire_time: float = 0.0 # <--- NOVO: Cronômetro da Mina
 
 # --- VISUAL E DESTAQUE ---
 var highlight_material : StandardMaterial3D
@@ -51,18 +54,12 @@ var _cached_hud: Node = null
 var _weapon_meshes_cache: Dictionary = {}
 
 func _ready():
-	# ====================================================================
-	# OTIMIZAÇÃO: Puxa o material de destaque compartilhado direto do Cache!
-	# Como o brilho é estático e igual para todos, não usamos .duplicate()
-	# ====================================================================
 	highlight_material = MaterialCache.get_mat("WeaponHighlight")
 	
 	shooter = WeaponShooter.new()
 	add_child(shooter)
 	shooter.setup(car, targeting, weapon_nodes, basic_weapon_resource, fire_rate_basic)
 	
-	# OTIMIZAÇÃO: Guarda todas as malhas (meshes) de todas as armas na memória
-	# para não precisar usar wildcards de busca no meio do combate!
 	for key in weapon_nodes:
 		var node = weapon_nodes[key]
 		if is_instance_valid(node):
@@ -72,7 +69,6 @@ func _ready():
 				if m is MeshInstance3D: valid_meshes.append(m)
 			_weapon_meshes_cache[key] = valid_meshes
 
-	# Verifica se é bot um frame depois, garantindo que o BotBrain já setou a flag!
 	call_deferred("_late_bot_check")
 	_update_visual_selection()
 
@@ -114,7 +110,6 @@ func _process(delta):
 	if _is_bot:
 		is_firing_basic = input.is_action_pressed 
 	else:
-		# Lógica exclusiva para o Humano!
 		var wheel_action = "WeaponWheel" + input.suffix
 		
 		if Input.is_action_just_pressed(wheel_action):
@@ -148,18 +143,61 @@ func _process(delta):
 		if input.suffix.begins_with("_K"):
 			if Input.is_action_just_pressed("prev_weapon" + input.suffix): _switch_weapon(-1)
 			if Input.is_action_just_pressed("next_weapon" + input.suffix): _switch_weapon(1)
-			
+		# ====================================================================
+		# INTERCEPTAÇÃO DA LÓGICA DE TIRO (Mina ou Shooter Padrão)
+		# ====================================================================
 		var fire_special = Input.is_action_just_pressed("Fire" + input.suffix)
-
 		if fire_special:
 			var active = get_active_special()
-			if is_instance_valid(shooter) and shooter.try_fire_special(active, false):
-				active.ammo -= 1
-				if active.ammo <= 0: _remove_current_weapon()
-				_atualizar_interface()
+			if active:
+				var successfully_fired = false
+				
+				# 1. Se for a mina, checa o FIRE RATE manualmente!
+				if active.nome == "LandMine":
+					var now = Time.get_ticks_msec() / 1000.0
+					if now - _last_landmine_fire_time >= active.fire_rate:
+						successfully_fired = _fire_land_mine()
+						if successfully_fired:
+							_last_landmine_fire_time = now
+							
+				# 2. Senão, deixa o Shooter cuidar (Mísseis, etc)
+				elif is_instance_valid(shooter) and shooter.try_fire_special(active, false):
+					successfully_fired = true
+					
+				# 3. Se atirou com sucesso, gasta munição
+				if successfully_fired:
+					active.ammo -= 1
+					if active.ammo <= 0: _remove_current_weapon()
+					_atualizar_interface()
 
 	if is_instance_valid(shooter):
 		shooter.process_shooting(real_delta, is_firing_basic)
+
+func _fire_land_mine() -> bool:
+	if not land_mine_scene:
+		push_error("[WeaponManager] Faltou arrastar o Prefab da LandMine no Inspector!")
+		return false
+		
+	var mine = land_mine_scene.instantiate()
+	get_tree().current_scene.add_child(mine)
+	mine.shooter = car 
+	
+	# Puxa o Muzzle da arma visual, se existir
+	var mine_visual_node = weapon_nodes.get("LandMine")
+	var muzzle = null
+	if is_instance_valid(mine_visual_node):
+		muzzle = mine_visual_node.find_child("Muzzle", true, false)
+		
+	if is_instance_valid(muzzle):
+		# Usa a posição exata do seu Muzzle no carro
+		mine.global_position = muzzle.global_position
+	else:
+		# Fallback de segurança caso você esqueça de colocar o Muzzle
+		var drop_position = car.global_position - (car.global_transform.basis.z * 3.0) + (car.global_transform.basis.y * 1.5)
+		mine.global_position = drop_position
+		
+	mine.global_rotation = Vector3.ZERO
+	return true
 
 # --- GESTÃO DO INVENTÁRIO (POOL) ---
 func get_active_special() -> WeaponResource:
@@ -255,7 +293,6 @@ func _remove_current_weapon():
 	_atualizar_interface()
 
 func _set_weapon_highlight(weapon_name: String, is_active: bool):
-	# OTIMIZAÇÃO: Usa o cache de Meshes para evitar buscar na árvore toda vez!
 	if not _weapon_meshes_cache.has(weapon_name): return
 	
 	for mesh in _weapon_meshes_cache[weapon_name]:

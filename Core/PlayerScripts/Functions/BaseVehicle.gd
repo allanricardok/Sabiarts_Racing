@@ -511,6 +511,10 @@ func is_frozen() -> bool:
 	if effects and "is_frozen" in effects:
 		return effects.is_frozen
 	return false
+	
+func aplicar_perda_de_grip(tempo: float = 3.0):
+	if effects and effects.has_method("aplicar_perda_de_grip"):
+		effects.aplicar_perda_de_grip(tempo)
 
 func play_camera_shake(event_name: String, modifier: float = 1.0):
 	var is_bot = (input and "is_bot" in input and input.is_bot)

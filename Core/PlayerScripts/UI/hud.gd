@@ -36,6 +36,9 @@ var nametags_container = Control.new()
 @export var multiplayer_ui_scale: float = 0.7 
 const REFERENCE_WIDTH : float = 1280.0 
 
+@export_group("Missões de Entrega")
+@export var delivery_icons: Array[Control] # No editor, arraste o Item 1, Item 2 e Item 3 para cá!
+
 var _combo_display_version : int = 0
 var player_suffix : String = ""
 var my_player_id : int = -1
@@ -420,3 +423,12 @@ func play_shield_flash():
 	tween.tween_property(flash, "color:a", 0.6, 0.01)
 	tween.tween_property(flash, "color:a", 0.0, 0.2)
 	tween.tween_callback(func(): flash.visible = false)
+
+# Adicione esta função em qualquer lugar do script da HUD:
+func update_delivery_ui(held_count: int):
+	# Varre os ícones da HUD
+	for i in range(delivery_icons.size()):
+		if is_instance_valid(delivery_icons[i]):
+			# A mágica: Se o índice do ícone for menor que o número de itens na mão, ele fica visível!
+			# Ex: Pegou 1 item. held_count = 1. O Item 1 (índice 0) fica true. O resto fica false.
+			delivery_icons[i].visible = i < held_count

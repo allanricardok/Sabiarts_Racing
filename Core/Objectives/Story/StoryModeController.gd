@@ -1,4 +1,3 @@
-# StoryModeController.gd
 extends Node
 class_name StoryModeController
 
@@ -20,6 +19,7 @@ var current_mission: StoryMissionData
 var active_portal: StoryMissionPortal
 var mission_timer: float = 0.0
 var is_mission_running: bool = false
+
 # --- VARIÁVEIS MULTI-TASK ---
 var multitask_progress: Dictionary = {}
 
@@ -40,6 +40,7 @@ var delivery_items_delivered: int = 0
 # --- GERENCIADORES INTERNOS (COMPOSIÇÃO) ---
 var lifecycle: StoryMissionLifecycle
 var physics: StoryMissionPhysics
+var markers: StoryMissionMarkers # <--- NOVO
 
 func _ready():
 	process_mode = Node.PROCESS_MODE_ALWAYS 
@@ -54,6 +55,10 @@ func _ready():
 	add_child(physics)
 	physics.setup(self)
 	
+	markers = StoryMissionMarkers.new()
+	add_child(markers)
+	markers.setup(self)
+	
 	if world_env: original_env = world_env.environment
 	if sun_light:
 		original_sun_color = sun_light.light_color
@@ -62,7 +67,6 @@ func _ready():
 	if is_instance_valid(ScoreManager) and ScoreManager.has_signal("score_changed"):
 		ScoreManager.score_changed.connect(_on_global_score_changed)
 
-		
 	call_deferred("_setup_inicial_seguro")
 	call_deferred("_check_next_map_unlock")
 
@@ -73,20 +77,6 @@ func _exit_tree():
 	print("[StoryController] Mapa descarregado. Limpando dados fantasmas da memória...")
 	force_cancel_all_missions()
 
-func force_cancel_all_missions():
-	is_mission_running = false
-	current_mission = null
-	active_portal = null
-	active_classic_objective = null
-	combat_targets.clear()
-	spawned_bots.clear()
-	completed_tiers_this_run.clear()
-	current_tracked_progress = 0.0
-	current_tracked_score = 0.0
-	delivery_items_held = 0
-	delivery_items_delivered = 0
-	multitask_progress.clear()
-# ====================================================================
 
 func _on_global_score_changed(_player_id: int, new_score: int):
 	current_tracked_score = float(new_score)
@@ -107,9 +97,6 @@ func _setup_inicial_seguro():
 
 # ============================================================================
 # O GERENTE ÚNICO DE PROGRESSO
-
-# ============================================================================
-# O GERENTE ÚNICO DE PROGRESSO
 # ============================================================================
 func notify_progress(type: int, raw_value, item_id: String = ""):
 	if not is_mission_running or not current_mission: return
@@ -126,16 +113,13 @@ func notify_progress(type: int, raw_value, item_id: String = ""):
 			var tier = current_mission.mission_tiers[i]
 			if not tier: continue
 			
-			# Se o grito for do tipo que essa Tier está pedindo...
 			if tier.tier_mission_type == type:
-				# Verifica se a Tier exige um objeto específico
 				if tier.tier_target_id != "" and item_id != "" and item_id != tier.tier_target_id:
 					continue
 				
 				var prev_prog = multitask_progress.get(i, 0.0)
 				var new_prog = prev_prog
 				
-				# Aplica as regras de cada tipo independentemente!
 				match type:
 					StoryMissionData.MissionType.SPEED, StoryMissionData.MissionType.SCORE_COMBO:
 						if value > prev_prog: new_prog = value
@@ -150,10 +134,10 @@ func notify_progress(type: int, raw_value, item_id: String = ""):
 					var texto = tier.tier_name + ": " + str(int(new_prog)) + "/" + str(int(tier.target_value))
 					get_tree().call_group("HUD", "criar_toast", texto, Color.CORNFLOWER_BLUE)
 					
-		return # Encerra aqui, pois o Multi-Task já cuidou do evento!
+		return 
 	
-# --- A CORREÇÃO DO FILTRO (Agora aceita Delivery e Defend) ---
-	var is_delivery_action = (type == StoryMissionData.MissionType.DELIVERY and item_id in ["collect", "dropoff"])
+	# --- A CORREÇÃO DO FILTRO (Agora aceita "deliver" perfeitamente) ---
+	var is_delivery_action = (type == StoryMissionData.MissionType.DELIVERY and item_id in ["collect", "deliver", "dropoff"])
 	var is_defend_action = (type == StoryMissionData.MissionType.DEFEND and item_id == "vip_destroyed")
 	
 	if not is_delivery_action and not is_defend_action:
@@ -162,7 +146,6 @@ func notify_progress(type: int, raw_value, item_id: String = ""):
 			
 	var progresso_antigo = current_tracked_progress
 		
-	# CALCULA A META CORRETA MESMO SE USAR TIERS (Correção da Imagem 3)
 	var meta = int(current_mission.base_target_value)
 	if not current_mission.mission_tiers.is_empty():
 		for tier in current_mission.mission_tiers:
@@ -182,49 +165,74 @@ func notify_progress(type: int, raw_value, item_id: String = ""):
 		StoryMissionData.MissionType.COLLECT, StoryMissionData.MissionType.ROADKILL, StoryMissionData.MissionType.DESTROY:
 			current_tracked_progress += value
 			
+			# ====================================================================
+			# REAPROVEITAMENTO DA UI PARA MISSÕES DE COLETA
+			# Acende os ícones de acordo com o progresso total atingido!
+			# ====================================================================
+			if type == StoryMissionData.MissionType.COLLECT:
+				get_tree().call_group("HUD", "update_delivery_ui", int(current_tracked_progress))
+			
 		StoryMissionData.MissionType.GAP, StoryMissionData.MissionType.EXPLORE:
 			current_tracked_progress = 1.0
 		
-		# --- NOVA REGRA DE DEFESA ---
 		StoryMissionData.MissionType.DEFEND:
 			if item_id == "vip_destroyed" or value == -1:
 				get_tree().call_group("HUD", "criar_toast", "O alvo foi destruído! Missão Falhou.", Color.RED)
-				end_mission(false) # Falha imediata!
+				end_mission(false) 
 			
-# --- A CORREÇÃO DO DELIVERY ---
+		# --- A CORREÇÃO DO DELIVERY (Lê "deliver" e "collect") ---
 		StoryMissionData.MissionType.DELIVERY:
-			if item_id == "collect":
+			if item_id == "collect" or item_id == "deliver":
 				delivery_items_held += int(value)
 				get_tree().call_group("HUD", "criar_toast", "Carga recolhida! (" + str(delivery_items_held) + " no carro)", Color.YELLOW)
+				
+				# ATUALIZA A TELA AO PEGAR: Liga os ícones baseados na quantidade segurada
+				get_tree().call_group("HUD", "update_delivery_ui", delivery_items_held)
 				
 			elif item_id == "dropoff":
 				if delivery_items_held > 0:
 					delivery_items_delivered += delivery_items_held
 					delivery_items_held = 0
 					
-					# Sincroniza a barra visual da HUD com o que foi entregue!
 					current_tracked_progress = float(delivery_items_delivered) 
-					
 					get_tree().call_group("HUD", "criar_toast", "Entregue: " + str(delivery_items_delivered) + "/" + str(meta), Color.GREEN)
+					
+					# ATUALIZA A TELA AO ENTREGAR: Manda "0" para apagar todos os ícones da tela
+					get_tree().call_group("HUD", "update_delivery_ui", 0)
 
-
-	# TOAST DE PROGRESSO GERAL (Roadkill, Collect, Destroy)
 	if type in [StoryMissionData.MissionType.COLLECT, StoryMissionData.MissionType.ROADKILL, StoryMissionData.MissionType.DESTROY]:
 		if meta > 0 and current_tracked_progress > progresso_antigo:
 			var nome_base = current_mission.mission_name if current_mission.mission_name != "" else "Progresso"
 			var texto_toast = nome_base + ": " + str(int(current_tracked_progress)) + "/" + str(meta)
 			get_tree().call_group("HUD", "criar_toast", texto_toast, Color.ORANGE)
 			
-	# Debug no console
 	if current_tracked_progress > progresso_antigo:
 		print("[StoryController] Progresso da Missão atualizado: ", current_tracked_progress)
+	
+	_update_markers_safe()
+
+func force_cancel_all_missions():
+	is_mission_running = false
+	current_mission = null
+	active_portal = null
+	active_classic_objective = null
+	combat_targets.clear()
+	spawned_bots.clear()
+	completed_tiers_this_run.clear()
+	current_tracked_progress = 0.0
+	current_tracked_score = 0.0
+	delivery_items_held = 0
+	delivery_items_delivered = 0
+	multitask_progress.clear()
+	
+	# LIMPA A HUD DE COLETÁVEIS/ENTREGA AO CANCELAR A MISSÃO/SAIR DA FASE
+	get_tree().call_group("HUD", "update_delivery_ui", 0)
 		
 func _get_current_mission_progress() -> float:
 	if not current_mission: return 0.0
 	
 	match current_mission.mission_type:
 		StoryMissionData.MissionType.COMBAT_DESTROY:
-			# Regra: Combat Destroy lê automaticamente o status dos bots spawnados
 			var dead_count = 0
 			for t in combat_targets:
 				if not is_instance_valid(t) or t.is_queued_for_deletion():
@@ -238,12 +246,9 @@ func _get_current_mission_progress() -> float:
 			return float(dead_count)
 			
 		StoryMissionData.MissionType.SCORE:
-			# Regra: Score lê direto da pontuação global acumulada da run
 			return current_tracked_score
 			
 		_:
-			# Regra: SPEED, COLLECT, ROADKILL, DESTROY, GAP e EXPLORE
-			# Lê da variável alimentada pelo notify_progress
 			return current_tracked_progress
 
 func _process(delta):
@@ -252,33 +257,26 @@ func _process(delta):
 	
 	if not is_mission_running or not current_mission: return
 	
-# Lógica do Temporizador
 	if current_mission.time_limit > 0:
 		mission_timer -= delta
 		get_tree().call_group("HUD", "atualizar_timer", mission_timer)
 		
 		if mission_timer <= 0:
-			# === NOVA REGRA DE DEFESA: Sobreviver ao tempo = Vitória! ===
 			if current_mission.mission_type == StoryMissionData.MissionType.DEFEND:
-				# A CORREÇÃO: Dá a tier como concluída automaticamente ao sobreviver!
 				if not current_mission.mission_tiers.is_empty():
 					for i in range(current_mission.mission_tiers.size()):
 						if not completed_tiers_this_run.has(i):
 							completed_tiers_this_run.append(i)
-				
 				end_mission(true)
 			else:
-				# Regra padrão para outras missões
 				var won_any_tier = completed_tiers_this_run.size() > 0
 				if current_mission.mission_tiers.is_empty(): won_any_tier = false
 				end_mission(won_any_tier) 
 			return
-	# Checagem de sucesso e atualização de Tiers
+
 	var current_progress_value = _get_current_mission_progress()
 	_update_tiers_progress(current_progress_value)
 
-	# Validação para missões SIMPLES (Sem Tiers configuradas)
-# Validação para missões SIMPLES (Sem Tiers configuradas)
 	if current_mission.mission_tiers.is_empty():
 		match current_mission.mission_type:
 			StoryMissionData.MissionType.COMBAT_DESTROY:
@@ -289,7 +287,6 @@ func _process(delta):
 				if current_tracked_score >= current_mission.base_target_value:
 					end_mission(true)
 					
-			# ---> ADICIONE O DELIVERY AQUI NESTA LINHA! <---
 			StoryMissionData.MissionType.SPEED, StoryMissionData.MissionType.COLLECT, StoryMissionData.MissionType.ROADKILL, StoryMissionData.MissionType.DESTROY, StoryMissionData.MissionType.DELIVERY:
 				if current_tracked_progress >= current_mission.base_target_value:
 					end_mission(true)
@@ -304,14 +301,9 @@ func _update_tiers_progress(current_value: float):
 	for i in range(current_mission.mission_tiers.size()):
 		if completed_tiers_this_run.has(i): continue
 		var tier = current_mission.mission_tiers[i]
-		
-		# Define de onde leremos o progresso (Do geral ou do Checklist?)
 		var prog_to_check = current_value
 		
 		if current_mission.mission_type == StoryMissionData.MissionType.MULTI_TASK:
-			# =========================================================
-			# LÓGICA ISOLADA: Conta os bots mortos diretamente aqui!
-			# =========================================================
 			if tier.tier_mission_type == StoryMissionData.MissionType.COMBAT_DESTROY:
 				var dead_count = 0
 				for t in combat_targets:
@@ -328,24 +320,20 @@ func _update_tiers_progress(current_value: float):
 			elif tier.tier_mission_type == StoryMissionData.MissionType.SCORE:
 				prog_to_check = current_tracked_score
 			else:
-				# Puxa os dados dos eventos normais (Roadkill, Destroy, etc)
 				prog_to_check = multitask_progress.get(i, 0.0)
 				
-		# Se a meta da Tier foi batida
 		if prog_to_check >= tier.target_value:
 			completed_tiers_this_run.append(i)
 			
 			get_tree().call_group("HUD", "riscar_objetivo_tier", i, tier.tier_name)
 			get_tree().call_group("HUD", "criar_toast", "🏆 TAREFA CONCLUÍDA: " + tier.tier_name + "!", Color.GOLD)
 			
-			# Checa se o checklist inteiro acabou
 			if completed_tiers_this_run.size() == current_mission.mission_tiers.size():
 				end_mission(true)
 				return
 
 func _check_next_map_unlock():
-	if is_mission_running:
-		return
+	if is_mission_running: return
 
 	for p in get_tree().get_nodes_in_group("mission_portals"):
 		if p.has_method("activate_portal_safely"):
@@ -359,7 +347,6 @@ func _check_next_map_unlock():
 # ====================================================================
 # --- DELEGAÇÃO DE COMANDOS PARA OS COMPONENTES ---
 # ====================================================================
-
 func request_mission_start(portal: StoryMissionPortal, data: StoryMissionData):
 	active_portal = portal
 	current_mission = data
@@ -370,7 +357,7 @@ func request_mission_start(portal: StoryMissionPortal, data: StoryMissionData):
 		mission_ui.show_mission_prompt(data, self)
 	else:
 		push_error("[StoryController] UI da missão não configurada!")
-		
+
 func _conectar_morte_jogador():
 	var players = get_tree().get_nodes_in_group("jogadores")
 	for p in players:
@@ -385,15 +372,19 @@ func _on_player_died(_attacker):
 
 func accept_mission():
 	lifecycle.accept_mission()
+	# GARANTE QUE AS SETAS LIGUEM NO EXATO MOMENTO EM QUE A MISSÃO COMEÇA!
+	_update_markers_safe()
 
 func decline_mission():
 	lifecycle.decline_mission()
 
 func end_mission(success: bool):
 	lifecycle.end_mission(success)
+	_update_markers_safe()
 
 func restart_current_mission():
 	lifecycle.restart_current_mission()
+	_update_markers_safe()
 
 func start_last_played_mission():
 	if not last_played_mission or not is_instance_valid(last_played_portal): 
@@ -408,3 +399,8 @@ func resume_open_world():
 	current_mission = null
 	active_portal = null
 	get_tree().paused = false
+	_update_markers_safe()
+
+func _update_markers_safe():
+	if markers and markers.has_method("update_markers"):
+		markers.update_markers()

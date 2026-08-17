@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="WeaponResource" load_steps=5 format=3 uid="uid://ctk6h265ah8ie"]
+
+[ext_resource type="PackedScene" uid="uid://caxhkjik0lar" path="res://Scenes/Prefabs/Weapons/Projectiles/LandMine.tscn" id="1_jpblg"]
+[ext_resource type="Script" uid="uid://5wgfj8fmfmgf" path="res://Core/Weapons/WeaponItems/WeaponResource.gd" id="3_55dwg"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5ilok"]
+albedo_color = Color(0.21039625, 0.42632556, 0.07616985, 1)
+distance_fade_mode = 2
+distance_fade_min_distance = 400.0
+distance_fade_max_distance = 300.0
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_fv1sf"]
+material = SubResource("StandardMaterial3D_5ilok")
+radius = 1.0
+height = 3.0
+radial_segments = 12
+rings = 4
+
+[resource]
+script = ExtResource("3_55dwg")
+nome = "LandMine"
+projectile_scene = ExtResource("1_jpblg")
+dano = 10.0
+fire_rate = 2.0
+ammo = 5
+max_ammo = 12
+causes_aoe_damage = true
+aoe_radius = 20.0
+aoe_damage = 8.0
+aoe_knockback = 30.0
+self_damage_multiplier = 0.8
+custom_mesh = SubResource("CapsuleMesh_fv1sf")
+mesh_scale = Vector3(1.4, 1, 1)
+item_color = Color(0.288, 0.6, 0.21000002, 1)
+metadata/_custom_type_script = "uid://5wgfj8fmfmgf"

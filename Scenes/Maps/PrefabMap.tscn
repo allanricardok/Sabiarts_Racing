@@ -1,7 +1,7 @@
 [gd_scene load_steps=48 format=3 uid="uid://co2p3y25ip5j3"]
 
-[ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Mapa_Teste_Inicio.gd" id="1_5yj5g"]
-[ext_resource type="PackedScene" uid="uid://cw8ofahu5mqhn" path="res://Scenes/Prefabs/Vehicles/BaseVehicle.tscn" id="2_v51tm"]
+[ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Managers-support/Mapa_Teste_Inicio.gd" id="1_5yj5g"]
+[ext_resource type="PackedScene" path="res://Scenes/Prefabs/Vehicles/BaseVehicle.tscn" id="2_v51tm"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="3_q5716"]
 [ext_resource type="PackedScene" uid="uid://cd7vj18kiokji" path="res://Scenes/Prefabs/Triggers/Speedtrap.tscn" id="5_rxjnh"]
 [ext_resource type="Texture2D" uid="uid://wlhx07iu8h7s" path="res://Assets/2D/Screenshot 2026-02-11 at 00-24-39 Maps Layout - Google Planilhas - V8map.pdf.png" id="6_4xqc6"]

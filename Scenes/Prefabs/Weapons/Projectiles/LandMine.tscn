@@ -1,0 +1,48 @@
+[gd_scene load_steps=7 format=3 uid="uid://caxhkjik0lar"]
+
+[ext_resource type="Script" uid="uid://cohu0u70gufi7" path="res://Core/Weapons/Projectiles/LandMine.gd" id="1_ilcr1"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_4odwg"]
+height = 1.5
+radius = 12.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4odwg"]
+albedo_color = Color(0.16665332, 0.29, 0.0348, 1)
+metallic = 0.55
+metallic_specular = 1.0
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_4odwg"]
+material = SubResource("StandardMaterial3D_4odwg")
+top_radius = 0.8
+bottom_radius = 1.2
+height = 0.3
+radial_segments = 16
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ilcr1"]
+transparency = 1
+albedo_color = Color(0.6, 0, 0, 0.105882354)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_3nwn7"]
+material = SubResource("StandardMaterial3D_ilcr1")
+top_radius = 10.0
+bottom_radius = 12.0
+height = 0.2
+radial_segments = 16
+
+[node name="LandMine" type="Area3D"]
+collision_layer = 8
+collision_mask = 3
+script = ExtResource("1_ilcr1")
+damage = 10.0
+explosion_radius = 15.0
+explosion_size = 20.0
+explosion_smoke_size = 8.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CylinderShape3D_4odwg")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CylinderMesh_4odwg")
+
+[node name="RedAccent" type="MeshInstance3D" parent="."]
+mesh = SubResource("CylinderMesh_3nwn7")

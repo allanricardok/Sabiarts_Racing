@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://cr2vgv1qfxty1"]
 
-[ext_resource type="Script" uid="uid://b4jhafh005ox" path="res://Core/race_manager.gd" id="1_y5n2j"]
+[ext_resource type="Script" uid="uid://b4jhafh005ox" path="res://Core/Old-or-uncategorized/_Deprecated-race_manager.gd" id="1_y5n2j"]
 [ext_resource type="PackedScene" uid="uid://otkba37h2pp0" path="res://Scenes/UI/FinishMenu.tscn" id="2_qifse"]
 
 [node name="RaceManager" type="Node"]

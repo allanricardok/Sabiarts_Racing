@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://do7x7c5gyyp8g"]
 
-[ext_resource type="Script" uid="uid://w3cry4lirhyi" path="res://Core/pause_menu.gd" id="1_nov15"]
+[ext_resource type="Script" uid="uid://w3cry4lirhyi" path="res://Core/Old-or-uncategorized/pause_menu.gd" id="1_nov15"]
 [ext_resource type="FontFile" uid="uid://bhdcwsw7cnrmv" path="res://burrito.TTF" id="2_etnfi"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_n4i8v"]

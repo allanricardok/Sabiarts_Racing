@@ -101,6 +101,8 @@ func accept_mission():
 	ctrl.mission_timer = ctrl.current_mission.time_limit
 	ctrl.is_mission_running = true
 	get_tree().paused = false
+	
+	ctrl.markers.update_markers()
 
 func restart_current_mission():
 	if not ctrl.is_mission_running or not ctrl.current_mission: return

@@ -1,0 +1,30 @@
+[gd_scene load_steps=4 format=3 uid="uid://dhu7ovfc6vhbb"]
+
+[ext_resource type="Script" uid="uid://deoiys01m0uhv" path="res://Core/Objectives/MissionPointer.gd" id="1_4ds4c"]
+[ext_resource type="Texture2D" uid="uid://8n2h73qrdjw5" path="res://Assets/2D/down-arrow.png" id="1_x5i08"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4ds4c"]
+transparency = 1
+no_depth_test = true
+disable_fog = true
+vertex_color_use_as_albedo = true
+albedo_color = Color(1.4687854, 1.2762059, 0, 1)
+albedo_texture = ExtResource("1_x5i08")
+emission_enabled = true
+emission = Color(0.5302198, 0.30088148, 0, 1)
+emission_energy_multiplier = 10.55
+billboard_mode = 1
+billboard_keep_scale = true
+
+[node name="MissionPointer" type="Node3D"]
+script = ExtResource("1_4ds4c")
+
+[node name="Sprite3D" type="Sprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
+material_override = SubResource("StandardMaterial3D_4ds4c")
+pixel_size = 0.06
+billboard = 1
+no_depth_test = true
+fixed_size = true
+render_priority = 1
+texture = ExtResource("1_x5i08")

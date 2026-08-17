@@ -22,6 +22,7 @@ mission_tiers = Array[ExtResource("2_r7en5")]([SubResource("Resource_4i2xs")])
 mission_environment = ExtResource("1_4i2xs")
 mission_sun_color = Color(0.1898, 0.47790667, 0.73, 0.32156864)
 mission_sun_energy = 0.2
+nodes_to_enable = Array[NodePath]([NodePath("../MissionPointerGap2"), NodePath("../MissionPointerGap")])
 enemy_count = 0
 required_unlock_points = 1000
 metadata/_custom_type_script = "uid://o1ox0n7mmqv"
