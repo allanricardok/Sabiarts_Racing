@@ -7,7 +7,7 @@
 [sub_resource type="Resource" id="Resource_71xcs"]
 script = ExtResource("2_rbsy3")
 tier_name = "Kill Everyone"
-target_value = 15.0
+target_value = 19.0
 reward_points = 2500
 metadata/_custom_type_script = "uid://dcan8ccd3nmwc"
 
@@ -15,14 +15,17 @@ metadata/_custom_type_script = "uid://dcan8ccd3nmwc"
 script = ExtResource("6_0pt1e")
 mission_type = 0
 mission_id = "m_03"
-mission_name = "Carnage X15"
-mission_description = "Deguste o ânus de 15 oponentes"
+mission_name = "Carnage X19"
+mission_description = "Deguste o ânus de 19 oponentes"
 time_limit = 360.0
 mission_tiers = Array[ExtResource("2_rbsy3")]([SubResource("Resource_71xcs")])
 mission_environment = ExtResource("1_k4xnr")
 mission_sun_color = Color(1.5003835, 0, 0, 0.33100003)
 mission_sun_energy = 0.6
-enemy_count = 45
+enemy_count = 19
 enemy_damage_received_mult = 2.0
+player_focus_base = 100.0
+player_focus_variance = 0.0
+bot_hostility_base = 0.0
 required_unlock_points = 3000
 metadata/_custom_type_script = "uid://o1ox0n7mmqv"

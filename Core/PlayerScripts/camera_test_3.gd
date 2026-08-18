@@ -120,7 +120,12 @@ func _physics_process(delta):
 		
 		return 
 
-	var is_actually_in_air = not air_move.check_grounded()
+	# ====================================================================
+	# CORREÇÃO: Usando a nova função do AirMovementComponent
+	# Se tiver menos de 3 rodas no chão, consideramos que está "no ar"
+	# ====================================================================
+	var is_actually_in_air = air_move.get_grounded_wheels_count() < 3
+	
 	var current_air_time = trick_manager.air_time if is_instance_valid(trick_manager) else 0.0
 	var is_stunting = air_move.is_doing_stunt 
 	var is_looking_back = input.is_look_behind_pressed 

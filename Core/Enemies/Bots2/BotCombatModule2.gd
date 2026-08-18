@@ -6,6 +6,9 @@ var input: Node
 var stats: Node
 var radar: BotRadarV2
 
+# --- PONTE DO CÉREBRO ---
+var target: Node3D = null 
+
 var ammo_regen_timer: float = 3.0
 var ammo_added_to_current: int = 0
 var disparos_especiais_seguidos: int = 0
@@ -43,11 +46,16 @@ func processar_combate(delta: float):
 		
 	_gerenciar_regeneracao_municao(delta)
 
-# ==============================================================================
-# AÇÕES OFENSIVAS (Injetadas pela Camada 3 do Cérebro)
-# ==============================================================================
-func tentar_atirar(alvo: Node3D, is_extreme_attack: bool = false):
-	# A metralhadora básica (se houver) atira sempre que o alvo está na mira
+func set_target(novo_alvo: Node3D):
+	target = novo_alvo
+	
+# Modifique o tentar_atirar para usar a variável do Cérebro
+func tentar_atirar(alvo_direto: Node3D, is_extreme_attack: bool = false):
+	# Se a Tática mandou atirar, garantimos que estamos atirando no alvo do Cérebro
+	var alvo_real = target if is_instance_valid(target) else alvo_direto
+	
+	if not is_instance_valid(alvo_real): return
+	
 	input.is_action_pressed = true 
 	
 	var wm = car.get_node_or_null("%WeaponManager")
@@ -60,13 +68,12 @@ func tentar_atirar(alvo: Node3D, is_extreme_attack: bool = false):
 	if wm.shooter.special_cooldowns.get(active_w.nome, 0.0) <= 0:
 		if wm.shooter.try_fire_special(active_w, false):
 			
-			# Modula a agressividade dos tiros
 			if is_extreme_attack:
 				_delay_tiro_especial = randf_range(0.8, 1.5)
 			else:
 				_delay_tiro_especial = randf_range(1.5, 3.0)
 				
-			if is_instance_valid(alvo) and alvo.is_in_group("destructible_vips"):
+			if alvo_real.is_in_group("destructible_vips"):
 				disparou_no_vip = true 
 				
 			active_w.ammo -= 1
@@ -76,7 +83,6 @@ func tentar_atirar(alvo: Node3D, is_extreme_attack: bool = false):
 			ammo_added_to_current = 0
 			disparos_especiais_seguidos += 1
 			
-			# Troca de arma automática para manter o dinamismo
 			if disparos_especiais_seguidos >= 2:
 				disparos_especiais_seguidos = 0
 				if wm.weapon_pool.size() > 1:
@@ -126,7 +132,7 @@ func _gerenciar_regeneracao_municao(delta: float):
 	
 	ammo_regen_timer -= delta
 	if ammo_regen_timer <= 0:
-		ammo_regen_timer = 3.0 
+		ammo_regen_timer = 2.0 
 		
 		if ammo_added_to_current < 8:
 			active_w.ammo += 1

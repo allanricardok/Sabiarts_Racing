@@ -97,9 +97,8 @@ func _physics_process(delta):
 
 func _check_wallride_entry() -> bool:
 	if wallride_cooldown > 0: return false
-	if air_move.check_grounded(): return false
+	if air_move.get_grounded_wheels_count() >= 3: return false
 	
-	# OTIMIZAÇÃO: Usando length_squared para evitar raiz quadrada na checagem de velocidade
 	var min_speed_mps = min_speed_kmh / 3.6
 	if car.linear_velocity.length_squared() < (min_speed_mps * min_speed_mps): 
 		return false
@@ -116,15 +115,23 @@ func _check_wallride_entry() -> bool:
 
 	var wall_info = scanner.find_best_wall_360()
 	if wall_info.has("normal"):
-		var dist_ground = scanner.get_ground_distance(Vector3.ZERO)
-		if dist_ground > scanner.min_ground_height:
-			
-			if is_transfer_attempt and is_instance_valid(ability_component) and "current_energy" in ability_component:
-				ability_component.current_energy -= 1
-				if ability_component.has_method("_start_cooldown"): ability_component._start_cooldown()
+		# ====================================================================
+		# NOVA REGRA: Filtro de Inclinação da Parede
+		# ====================================================================
+		var angulo_radianos = acos(wall_info.normal.dot(Vector3.UP))
+		var angulo_graus = rad_to_deg(angulo_radianos)
+		
+		# Só aceita se a inclinação for entre 75º e 105º (Parede quase reta)
+		if angulo_graus >= 75.0 and angulo_graus <= 105.0:
+			var dist_ground = scanner.get_ground_distance(Vector3.ZERO)
+			if dist_ground > scanner.min_ground_height:
 				
-			_start_wallride(wall_info.normal)
-			return true
+				if is_transfer_attempt and is_instance_valid(ability_component) and "current_energy" in ability_component:
+					ability_component.current_energy -= 1
+					if ability_component.has_method("_start_cooldown"): ability_component._start_cooldown()
+					
+				_start_wallride(wall_info.normal)
+				return true
 			
 	return false
 
@@ -178,6 +185,18 @@ func _process_wallride_active(delta):
 	var target_vel_wall = 0.0
 
 	if result:
+		# ====================================================================
+		# NOVA REGRA (Sua Lógica Aplicada): O raio de manutenção bateu em algo.
+		# É uma parede ou o carro escorregou e o raio atingiu o chão/rampa?
+		# ====================================================================
+		var angulo_rad = acos(result.normal.dot(Vector3.UP))
+		var angulo_graus = rad_to_deg(angulo_rad)
+		
+		if angulo_graus < 75.0 or angulo_graus > 105.0:
+			_stop_wallride("O raio de manutenção atingiu um chão/rampa.")
+			return
+			
+		# Se passou pela validação acima, é uma parede de verdade!
 		current_wall_normal = result.normal
 		wall_lost_timer = 0.0 
 		var dist_to_wall = car.global_position.distance_to(result.position)
@@ -185,11 +204,6 @@ func _process_wallride_active(delta):
 		target_vel_wall = clamp(-error * mechanics.wall_magnet_speed, -15.0, 15.0)
 	else:
 		wall_lost_timer += delta
-		# ====================================================================
-		# CORREÇÃO: Tolerância reduzida de 1.0s para 0.15s.
-		# Dá tempo de cruzar emendas mal modeladas na pista, mas desliga 
-		# imediatamente a gravidade falsa se o carro sair pelo topo da parede!
-		# ====================================================================
 		if wall_lost_timer > 0.15: 
 			_stop_wallride("Parede perdida (Timeout).")
 			return

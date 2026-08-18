@@ -40,7 +40,7 @@ var delivery_items_delivered: int = 0
 # --- GERENCIADORES INTERNOS (COMPOSIÇÃO) ---
 var lifecycle: StoryMissionLifecycle
 var physics: StoryMissionPhysics
-var markers: StoryMissionMarkers # <--- NOVO
+var markers: StoryMissionMarkers 
 
 func _ready():
 	process_mode = Node.PROCESS_MODE_ALWAYS 
@@ -105,9 +105,6 @@ func notify_progress(type: int, raw_value, item_id: String = ""):
 	# REGRA DE PROTEÇÃO 1: O evento pertence ao tipo de missão atual? (Agora aceita MULTI_TASK)
 	if current_mission.mission_type != type and current_mission.mission_type != StoryMissionData.MissionType.MULTI_TASK: return
 	
-	# =================================================================
-	# NOVA ROTA: LÓGICA MULTI_TASK (CHECKLIST)
-	# =================================================================
 	if current_mission.mission_type == StoryMissionData.MissionType.MULTI_TASK:
 		for i in range(current_mission.mission_tiers.size()):
 			var tier = current_mission.mission_tiers[i]
@@ -136,7 +133,6 @@ func notify_progress(type: int, raw_value, item_id: String = ""):
 					
 		return 
 	
-	# --- A CORREÇÃO DO FILTRO (Agora aceita "deliver" perfeitamente) ---
 	var is_delivery_action = (type == StoryMissionData.MissionType.DELIVERY and item_id in ["collect", "deliver", "dropoff"])
 	var is_defend_action = (type == StoryMissionData.MissionType.DEFEND and item_id == "vip_destroyed")
 	
@@ -156,7 +152,6 @@ func notify_progress(type: int, raw_value, item_id: String = ""):
 			var last_tier = current_mission.mission_tiers[-1]
 			if last_tier: meta = int(last_tier.target_value)
 			
-	# APLICAÇÃO DAS REGRAS
 	match type:
 		StoryMissionData.MissionType.SPEED, StoryMissionData.MissionType.SCORE_COMBO:
 			if value > current_tracked_progress:
@@ -164,11 +159,6 @@ func notify_progress(type: int, raw_value, item_id: String = ""):
 				
 		StoryMissionData.MissionType.COLLECT, StoryMissionData.MissionType.ROADKILL, StoryMissionData.MissionType.DESTROY:
 			current_tracked_progress += value
-			
-			# ====================================================================
-			# REAPROVEITAMENTO DA UI PARA MISSÕES DE COLETA
-			# Acende os ícones de acordo com o progresso total atingido!
-			# ====================================================================
 			if type == StoryMissionData.MissionType.COLLECT:
 				get_tree().call_group("HUD", "update_delivery_ui", int(current_tracked_progress))
 			
@@ -180,13 +170,10 @@ func notify_progress(type: int, raw_value, item_id: String = ""):
 				get_tree().call_group("HUD", "criar_toast", "O alvo foi destruído! Missão Falhou.", Color.RED)
 				end_mission(false) 
 			
-		# --- A CORREÇÃO DO DELIVERY (Lê "deliver" e "collect") ---
 		StoryMissionData.MissionType.DELIVERY:
 			if item_id == "collect" or item_id == "deliver":
 				delivery_items_held += int(value)
 				get_tree().call_group("HUD", "criar_toast", "Carga recolhida! (" + str(delivery_items_held) + " no carro)", Color.YELLOW)
-				
-				# ATUALIZA A TELA AO PEGAR: Liga os ícones baseados na quantidade segurada
 				get_tree().call_group("HUD", "update_delivery_ui", delivery_items_held)
 				
 			elif item_id == "dropoff":
@@ -196,8 +183,6 @@ func notify_progress(type: int, raw_value, item_id: String = ""):
 					
 					current_tracked_progress = float(delivery_items_delivered) 
 					get_tree().call_group("HUD", "criar_toast", "Entregue: " + str(delivery_items_delivered) + "/" + str(meta), Color.GREEN)
-					
-					# ATUALIZA A TELA AO ENTREGAR: Manda "0" para apagar todos os ícones da tela
 					get_tree().call_group("HUD", "update_delivery_ui", 0)
 
 	if type in [StoryMissionData.MissionType.COLLECT, StoryMissionData.MissionType.ROADKILL, StoryMissionData.MissionType.DESTROY]:
@@ -225,7 +210,6 @@ func force_cancel_all_missions():
 	delivery_items_delivered = 0
 	multitask_progress.clear()
 	
-	# LIMPA A HUD DE COLETÁVEIS/ENTREGA AO CANCELAR A MISSÃO/SAIR DA FASE
 	get_tree().call_group("HUD", "update_delivery_ui", 0)
 		
 func _get_current_mission_progress() -> float:
@@ -370,9 +354,25 @@ func _on_player_died(_attacker):
 		print("[StoryController] O jogador foi destruído! Encerrando a missão com falha...")
 		end_mission(false)
 
+
+# ====================================================================
+# A PONTE DE COMUNICAÇÃO DA MISSÃO -> SPAWNER
+# ====================================================================
+func _configurar_bots_da_missao():
+	if is_instance_valid(bot_spawnerV2) and current_mission != null:
+		# Pega as variáveis que você configurou no Inspetor do Godot
+		bot_spawnerV2.current_focus_base = current_mission.player_focus_base
+		bot_spawnerV2.current_focus_variance = current_mission.player_focus_variance
+		bot_spawnerV2.current_bot_hostility_base = current_mission.bot_hostility_base
+		bot_spawnerV2.current_bot_hostility_variance = current_mission.bot_hostility_variance
+		print("[StoryController] Bots configurados com Player Focus: ", bot_spawnerV2.current_focus_base, "% e Hostilidade: ", bot_spawnerV2.current_bot_hostility_base, "%")
+
+
 func accept_mission():
+	# PREPARA A FASE DE BOTS COM OS DADOS DA MISSÃO ATUAL
+	_configurar_bots_da_missao()
+	
 	lifecycle.accept_mission()
-	# GARANTE QUE AS SETAS LIGUEM NO EXATO MOMENTO EM QUE A MISSÃO COMEÇA!
 	_update_markers_safe()
 
 func decline_mission():
@@ -383,6 +383,7 @@ func end_mission(success: bool):
 	_update_markers_safe()
 
 func restart_current_mission():
+	_configurar_bots_da_missao()
 	lifecycle.restart_current_mission()
 	_update_markers_safe()
 

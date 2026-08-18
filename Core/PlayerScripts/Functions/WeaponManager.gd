@@ -143,8 +143,9 @@ func _process(delta):
 		if input.suffix.begins_with("_K"):
 			if Input.is_action_just_pressed("prev_weapon" + input.suffix): _switch_weapon(-1)
 			if Input.is_action_just_pressed("next_weapon" + input.suffix): _switch_weapon(1)
+			
 		# ====================================================================
-		# INTERCEPTAÇÃO DA LÓGICA DE TIRO (Mina ou Shooter Padrão)
+		# INTERCEPTAÇÃO DA LÓGICA DE TIRO
 		# ====================================================================
 		var fire_special = Input.is_action_just_pressed("Fire" + input.suffix)
 		if fire_special:
@@ -152,7 +153,6 @@ func _process(delta):
 			if active:
 				var successfully_fired = false
 				
-				# 1. Se for a mina, checa o FIRE RATE manualmente!
 				if active.nome == "LandMine":
 					var now = Time.get_ticks_msec() / 1000.0
 					if now - _last_landmine_fire_time >= active.fire_rate:
@@ -160,11 +160,9 @@ func _process(delta):
 						if successfully_fired:
 							_last_landmine_fire_time = now
 							
-				# 2. Senão, deixa o Shooter cuidar (Mísseis, etc)
 				elif is_instance_valid(shooter) and shooter.try_fire_special(active, false):
 					successfully_fired = true
 					
-				# 3. Se atirou com sucesso, gasta munição
 				if successfully_fired:
 					active.ammo -= 1
 					if active.ammo <= 0: _remove_current_weapon()
@@ -182,17 +180,14 @@ func _fire_land_mine() -> bool:
 	get_tree().current_scene.add_child(mine)
 	mine.shooter = car 
 	
-	# Puxa o Muzzle da arma visual, se existir
 	var mine_visual_node = weapon_nodes.get("LandMine")
 	var muzzle = null
 	if is_instance_valid(mine_visual_node):
 		muzzle = mine_visual_node.find_child("Muzzle", true, false)
 		
 	if is_instance_valid(muzzle):
-		# Usa a posição exata do seu Muzzle no carro
 		mine.global_position = muzzle.global_position
 	else:
-		# Fallback de segurança caso você esqueça de colocar o Muzzle
 		var drop_position = car.global_position - (car.global_transform.basis.z * 3.0) + (car.global_transform.basis.y * 1.5)
 		mine.global_position = drop_position
 		
@@ -237,14 +232,23 @@ func equip_special_weapon(new_weapon_res: WeaponResource) -> bool:
 				var old_weapon = weapon_pool[current_weapon_index]
 				
 				if is_instance_valid(LootDropManager) and is_instance_valid(car):
-					var eject_dir = car.global_transform.basis.z.normalized()
-					LootDropManager.spawn_ejected_loot(
-						car.global_position, 
+					# ====================================================================
+					# LÓGICA DE EJETAR A ARMA ATUALIZADA
+					# Joga para trás e levemente para cima (Arco) com mais força
+					# ====================================================================
+					var eject_dir = (car.global_transform.basis.z + (Vector3.UP * 0.8)).normalized()
+					var drop_pos = car.global_position + Vector3(0, 1.5, 0) # Sai de um ponto um pouco mais alto
+					
+					var dropped_item = LootDropManager.spawn_ejected_loot(
+						drop_pos, 
 						eject_dir, 
 						drop_item_scene, 
 						old_weapon, 
-						7.0
+						15.0 # <--- Força dobrada (era 7.0)
 					)
+					
+					if is_instance_valid(dropped_item):
+						_temporarily_disable_collider(dropped_item)
 				
 				weapon_pool[current_weapon_index] = dup
 				success = true
@@ -261,6 +265,23 @@ func equip_special_weapon(new_weapon_res: WeaponResource) -> bool:
 		return true
 
 	return false
+
+# ============================================================================
+# DESABILITADOR TEMPORÁRIO DE COLISÃO
+# ============================================================================
+func _temporarily_disable_collider(loot_node: Node):
+	var colliders = loot_node.find_children("*", "CollisionShape3D", true, false)
+	
+	for col in colliders:
+		col.set_deferred("disabled", true)
+		
+	# Espera 0.5s assíncronamente (não trava o jogo)
+	await get_tree().create_timer(0.5, false).timeout
+	
+	if is_instance_valid(loot_node):
+		for col in colliders:
+			if is_instance_valid(col):
+				col.set_deferred("disabled", false)
 
 func _trigger_pickup_flash(success: bool):
 	if _is_bot: return

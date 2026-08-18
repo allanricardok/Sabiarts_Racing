@@ -1,9 +1,14 @@
-# BotSpawnerV2.gd
 extends Node3D
 class_name BotSpawnerV2
 
 @export var car_prefabs: Array[PackedScene] # Coloque os carros aqui no Inspector
 @export var spawn_points: Array[Marker3D] # Coloque os Markers aqui
+
+# --- VARIÁVEIS INJETADAS PELO CONTROLADOR DE MISSÃO ---
+var current_focus_base: float = 10.0
+var current_focus_variance: float = 33.0
+var current_bot_hostility_base: float = 100.0
+var current_bot_hostility_variance: float = 0.0
 
 func _ready():
 	# Dá um pequeno delay para garantir que a HUD e o mapa carregaram primeiro
@@ -57,8 +62,18 @@ func _create_bot_at_position(spawn_pos: Marker3D, bot_id: int) -> Node:
 		
 	# --- INJEÇÃO DA INTELIGÊNCIA ARTIFICIAL ---
 	var brain = Node.new()
-	brain.name = "BotBrainV2" # Opcional mudar o nome, mas ajuda no debug
+	brain.name = "BotBrainV2" 
 	brain.set_script(preload("res://Core/Enemies/Bots2/BotBrain2.gd")) 
+	
+	# ==============================================================================
+	# A PONTE DA MISSÃO: Passa as variáveis do Spawner para o BotBrainV2
+	# Usamos brain.set() porque o script acabou de ser atrelado dinamicamente
+	# ==============================================================================
+	brain.set("player_focus_base", current_focus_base)
+	brain.set("player_focus_variance", current_focus_variance)
+	brain.set("bot_hostility_base", current_bot_hostility_base)
+	brain.set("bot_hostility_variance", current_bot_hostility_variance)
+	
 	bot.add_child(brain)
 	
 	# --- INTEGRAÇÃO COM OS SEUS SISTEMAS ---
@@ -76,5 +91,5 @@ func _create_bot_at_position(spawn_pos: Marker3D, bot_id: int) -> Node:
 	bot.global_position = spawn_pos.global_position
 	bot.global_rotation = spawn_pos.global_rotation
 	
-	print("[BotSpawnerV2] Spawnou dinamicamente: ", bot.name)
+	print("[BotSpawnerV2] Spawnou dinamicamente: ", bot.name, " | Focus: ", current_focus_base, "%")
 	return bot

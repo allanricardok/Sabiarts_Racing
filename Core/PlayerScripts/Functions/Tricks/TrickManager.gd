@@ -45,6 +45,7 @@ var _wall_ride_orchestrator: Node = null
 var _ground_trick_manager: Node = null
 var _ability_component: Node = null
 var _rage_component: Node = null
+var _manual_component: Node = null # <--- NOVA REFERÊNCIA PARA O MANUAL
 
 func _ready():
 	_trick_builder = car.get_node_or_null("%TrickBuilder")
@@ -52,6 +53,11 @@ func _ready():
 	_ground_trick_manager = car.get_node_or_null("%GroundTrickManager")
 	_ability_component = car.find_child("AbilityComponent", true, false)
 	_rage_component = car.get_node_or_null("%RageComponent")
+	
+	# Busca o script do manual com segurança
+	_manual_component = car.get_node_or_null("%ManualTrickComponent")
+	if not _manual_component:
+		_manual_component = car.find_child("ManualTrick*", true, false)
 
 func _process(delta):
 	if combo_immunity_timer > 0.0:
@@ -86,7 +92,6 @@ func add_external_action(action_name: String, points: int, color_hex: String = "
 	_update_live_display()
 
 func add_trick_manually(id: String):
-	# OTIMIZAÇÃO: Uso de cache
 	if is_instance_valid(_trick_builder) and _trick_builder.TRICK_DATA.has(id):
 		var data = _trick_builder.TRICK_DATA[id]
 		register_builder_trick(id, data.name, data.points)
@@ -115,7 +120,6 @@ func register_builder_trick(id: String, trick_name: String, base_pts: int):
 	global_stunt_uses[id] = g_count + 1
 	_update_live_display()
 	
-	# OTIMIZAÇÃO: Uso de cache
 	if is_instance_valid(_rage_component):
 		_rage_component.add_trick(1) 
 
@@ -131,7 +135,6 @@ func _start_new_jump():
 	if _active_gaps_ids.is_empty():
 		_gaps_completed_this_jump.clear()
 	
-	# OTIMIZAÇÃO: Uso de cache
 	if is_instance_valid(_ground_trick_manager) and _ground_trick_manager.tracking_combo:
 		for i in range(_ground_trick_manager.actions_done.size()):
 			tricks_done.append(_ground_trick_manager.actions_done[i])
@@ -147,10 +150,7 @@ func _start_new_jump():
 # --- FILTRO DE HUD PARA BOTS ---
 func _get_local_hud() -> Node:
 	if not is_instance_valid(car) or not is_instance_valid(car.input): return null
-	
-	if "is_bot" in car.input and car.input.is_bot:
-		return null
-		
+	if "is_bot" in car.input and car.input.is_bot: return null
 	return get_tree().get_first_node_in_group("HUD" + car.input.suffix)
 
 
@@ -203,7 +203,6 @@ func _finalize_score():
 	if stats and stats.has_method("add_heal_score"):
 		stats.add_heal_score(final_score)
 	
-	# OTIMIZAÇÃO: Uso de cache para o AbilityComponent
 	if is_instance_valid(_ability_component) and "current_energy" in _ability_component and "MAX_ENERGY" in _ability_component:
 		var energy_gained = final_score * 0.005
 		var old_energy = _ability_component.current_energy
@@ -230,7 +229,6 @@ func _finalize_score():
 	_update_final_display(hud, final_score, mult)
 
 func reset_trick():
-	# OTIMIZAÇÃO: Uso de cache para o WallRide
 	if is_instance_valid(_wall_ride_orchestrator) and _wall_ride_orchestrator.has_method("has_combo_shield"):
 		if _wall_ride_orchestrator.has_combo_shield():
 			return 
@@ -294,12 +292,9 @@ func _get_dynamic_multiplier() -> float:
 	for t_name in tricks_done:
 		if not trick_counts.has(t_name):
 			trick_counts[t_name] = 0
-			
 		trick_counts[t_name] += 1
-		
 		if trick_counts[t_name] == 1: mult += 1.0 
 		elif trick_counts[t_name] <= 5: mult += 0.5 
-
 	return mult
 
 # --- LOOP DE AR ---
@@ -309,9 +304,12 @@ func process_air_time(_delta: float, _is_near_ground: bool):
 		if not _is_near_ground: _start_new_jump()
 		else: return
 	
-	air_time += _delta
+	# ==============================================================================
+	# CORREÇÃO 1: Congela o contador de AirTime se o carro estiver no chão em manual
+	# ==============================================================================
+	if not _is_near_ground:
+		air_time += _delta
 	
-	# OTIMIZAÇÃO: Uso de cache
 	if is_instance_valid(_trick_builder):
 		_trick_builder.process_maneuvers(_delta)
 		
@@ -320,11 +318,20 @@ func process_air_time(_delta: float, _is_near_ground: bool):
 
 func check_landing(is_clean: bool):
 	if tracking_jump:
-		# OTIMIZAÇÃO: Uso de cache para o WallRide
 		if is_instance_valid(_wall_ride_orchestrator) and _wall_ride_orchestrator.has_method("has_combo_shield"):
 			if _wall_ride_orchestrator.has_combo_shield():
 				return 
 				
+		# ==============================================================================
+		# CORREÇÃO 2: Escudo do Combo (Respeita a flag is_manual_armed e o Estado)
+		# ==============================================================================
+		if is_instance_valid(_manual_component):
+			var is_armed = _manual_component.get("is_manual_armed")
+			var state = _manual_component.get("current_state")
+			# Se estiver engatilhado aguardando o chão, OU já estiver fazendo o manual (estado diferente de IDLE que é 0)
+			if is_armed == true or (state != null and state != 0):
+				return # Ignora o check de pouso e mantém o combo vivo!
+
 		if is_clean:
 			if air_time >= AIR_TIME_THRESHOLD or tricks_done.size() > 0: 
 				_finalize_score()
@@ -334,3 +341,14 @@ func check_landing(is_clean: bool):
 			reset_trick()
 			
 	tracking_jump = false
+
+# ==============================================================================
+# CORREÇÃO 3: Nova função que o Manual chama para "sacar" o dinheiro do combo
+# ==============================================================================
+func cash_out_combo():
+	if tracking_jump and not is_showing_final_score:
+		if air_time >= AIR_TIME_THRESHOLD or tricks_done.size() > 0:
+			_finalize_score()
+		else:
+			reset_trick()
+		tracking_jump = false

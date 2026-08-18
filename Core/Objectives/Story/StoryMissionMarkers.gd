@@ -1,5 +1,4 @@
 extends Node
-class_name StoryMissionMarkers
 
 var ctrl: Node # Referência ao StoryModeController
 

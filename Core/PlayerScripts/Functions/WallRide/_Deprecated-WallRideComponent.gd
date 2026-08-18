@@ -76,8 +76,7 @@ func _check_wallride_entry() -> bool:
 		# print("[WALLRIDE DEBUG] Entrada recusada: Cooldown ativo (", snapped(wallride_cooldown, 0.1), "s)")
 		return false
 		
-	if air_move.check_grounded(): 
-		return false
+	if air_move.get_grounded_wheels_count() >= 3: return false
 	
 	var speed_kmh = car.linear_velocity.length() * 3.6
 	if speed_kmh < min_speed_kmh: 

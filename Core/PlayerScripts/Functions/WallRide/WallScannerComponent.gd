@@ -45,7 +45,14 @@ func find_best_wall_360() -> Dictionary:
 		var result = shoot_ray_ignoring_holos(car.global_position, car.global_position + (dir * max_wall_distance))
 		
 		if result:
-			if abs(result.normal.y) < 0.4:
+			# ====================================================================
+			# A CORREÇÃO: Traduz a normal pura para Graus humanos (75º a 105º)
+			# Rejeitando assim qualquer rampa ou ladeira agressiva!
+			# ====================================================================
+			var angulo_rad = acos(result.normal.dot(Vector3.UP))
+			var angulo_graus = rad_to_deg(angulo_rad)
+			
+			if angulo_graus >= 75.0 and angulo_graus <= 105.0:
 				var dist = car.global_position.distance_to(result.position)
 				if dist < closest_dist:
 					closest_dist = dist
@@ -60,6 +67,8 @@ func get_ground_distance(offset_from_wall: Vector3) -> float:
 	var result = shoot_ray_ignoring_holos(ray_start, ray_start + Vector3.DOWN * 15.0)
 	
 	if result:
+		# Aqui a tolerância é bem maior, pois o chão é considerado
+		# qualquer coisa com mais de ~31 graus de planicidade
 		if result.normal.y > 0.85:
 			return ray_start.distance_to(result.position)
 	return INF

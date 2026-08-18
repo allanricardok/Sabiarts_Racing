@@ -61,8 +61,8 @@ func _physics_process(delta):
 	if suffix == "": return
 	
 	is_grounded = true
-	if air_move and air_move.has_method("check_grounded"):
-		is_grounded = air_move.check_grounded()
+	if air_move and air_move.has_method("get_grounded_wheels_count"):
+		is_grounded = air_move.get_grounded_wheels_count() >= 3
 	
 	if suffix.begins_with("_K"):
 		_handle_global_mouse(delta)

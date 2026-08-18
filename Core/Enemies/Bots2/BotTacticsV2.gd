@@ -23,57 +23,28 @@ var _is_doing_burnout_180: bool = false
 var _180_steer_dir: float = 0.0
 var _random_stunt_timer: float = 15.0
 
-func setup(_car: BaseVehicle, _brain: BotBrainV2, _driver: BotDriverV2, _radar: BotRadarV2, _combat: BotCombatModuleV2, _stats: Node):
-	car = _car
-	brain = _brain
-	driver = _driver
-	radar = _radar
-	combat = _combat
-	stats = _stats
-	
-	if is_instance_valid(stats) and stats.has_signal("took_damage"):
-		stats.took_damage.connect(func(atk): if is_instance_valid(atk): _last_attacker = atk)
+# --- A PONTE QUE FALTAVA ---
+# O Cérebro chama "tactics.target = x", nós interceptamos e forçamos no current_target
+var target: Node3D:
+	get: return current_target
+	set(value):
+		current_target = value
 
-func reset_target():
-	current_target = null
-	_is_getting_distance = false
-	_close_combat_timer = 0.0
-	_seek_timer = 0.0
-	_is_doing_180 = false
-	_is_doing_burnout_180 = false
+func set_forced_target(novo_alvo: Node3D):
+	current_target = novo_alvo
 
-# --- CORRIGIDO: Retorna um Dictionary para o Cérebro fazer o Time-Slicing ---
-func execute(delta: float, current_macro_state: int) -> Dictionary:
-	var intencoes = {"throttle": 0.0, "steering": 0.0, "jump": false, "force_straight": false, "handbrake": false}
-	
-	match current_macro_state:
-		BotBrainV2.MacroState.BATTLE: intencoes = _tactic_battle(delta)
-		BotBrainV2.MacroState.SEEK:   intencoes = _tactic_seek(delta)
-		BotBrainV2.MacroState.FLEE:   intencoes = _tactic_flee(delta)
-		BotBrainV2.MacroState.WANDER: intencoes = _tactic_wander(delta)
-		
-	# --- MANOBRAS DE EXIBIÇÃO ALEATÓRIAS ---
-	_random_stunt_timer -= delta
-	if _random_stunt_timer <= 0.0:
-		_random_stunt_timer = randf_range(12.0, 30.0) # Sorteia o próximo showoff
-		var speed_kmh = car.linear_velocity.length() * 3.6
-		if speed_kmh > 40.0: # Só faz graça se estiver correndo
-			intencoes.jump = true
-			current_action_name = "Showoff Stunt!"
-			
-	# Retorna a decisão para o Cérebro guardar no cache!
-	return intencoes
-
+# Agora a função de batalha confia no cérebro
 func _tactic_battle(delta: float) -> Dictionary:
 	var intencoes = {"throttle": 0.0, "steering": 0.0, "jump": false, "force_straight": false, "handbrake": false}
 	
+	# Só escolhe sozinho se o cérebro esqueceu de mandar a ordem
 	if not is_instance_valid(current_target) or current_target.is_queued_for_deletion():
 		current_target = _get_best_combat_target()
 		
 	if not is_instance_valid(current_target):
 		current_action_name = "Idle (Sem Alvo)"
 		return intencoes
-
+	
 	var car_pos = car.global_position
 	var target_pos = current_target.global_position
 	var dist_sq = car_pos.distance_squared_to(target_pos)
@@ -185,6 +156,47 @@ func _tactic_battle(delta: float) -> Dictionary:
 	if dot_p > 0.85 and is_instance_valid(combat):
 		combat.tentar_atirar(current_target, (target_hp_pct > 80.0))
 
+	return intencoes
+
+func setup(_car: BaseVehicle, _brain: BotBrainV2, _driver: BotDriverV2, _radar: BotRadarV2, _combat: BotCombatModuleV2, _stats: Node):
+	car = _car
+	brain = _brain
+	driver = _driver
+	radar = _radar
+	combat = _combat
+	stats = _stats
+	
+	if is_instance_valid(stats) and stats.has_signal("took_damage"):
+		stats.took_damage.connect(func(atk): if is_instance_valid(atk): _last_attacker = atk)
+
+func reset_target():
+	current_target = null
+	_is_getting_distance = false
+	_close_combat_timer = 0.0
+	_seek_timer = 0.0
+	_is_doing_180 = false
+	_is_doing_burnout_180 = false
+
+# --- CORRIGIDO: Retorna um Dictionary para o Cérebro fazer o Time-Slicing ---
+func execute(delta: float, current_macro_state: int) -> Dictionary:
+	var intencoes = {"throttle": 0.0, "steering": 0.0, "jump": false, "force_straight": false, "handbrake": false}
+	
+	match current_macro_state:
+		BotBrainV2.MacroState.BATTLE: intencoes = _tactic_battle(delta)
+		BotBrainV2.MacroState.SEEK:   intencoes = _tactic_seek(delta)
+		BotBrainV2.MacroState.FLEE:   intencoes = _tactic_flee(delta)
+		BotBrainV2.MacroState.WANDER: intencoes = _tactic_wander(delta)
+		
+	# --- MANOBRAS DE EXIBIÇÃO ALEATÓRIAS ---
+	_random_stunt_timer -= delta
+	if _random_stunt_timer <= 0.0:
+		_random_stunt_timer = randf_range(12.0, 30.0) # Sorteia o próximo showoff
+		var speed_kmh = car.linear_velocity.length() * 3.6
+		if speed_kmh > 40.0: # Só faz graça se estiver correndo
+			intencoes.jump = true
+			current_action_name = "Showoff Stunt!"
+			
+	# Retorna a decisão para o Cérebro guardar no cache!
 	return intencoes
 	
 func _tactic_seek(delta: float) -> Dictionary:

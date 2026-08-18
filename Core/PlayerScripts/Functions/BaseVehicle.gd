@@ -474,21 +474,12 @@ func _spawn_loot_safely(origin_pos: Vector3):
 		if drop_item_resource_1: items_to_drop.append(drop_item_resource_1)
 		if drop_item_resource_2: items_to_drop.append(drop_item_resource_2)
 
-	# 3. EJETA OS ITENS EM UM RAIO DE 360 GRAUS
+	# 3. EJETA OS ITENS (O LootDropManager cuida do 360º e da altura da parábola)
 	for item_res in items_to_drop:
-		# Sorteia um ângulo entre 0 e 360 graus (TAU)
-		var random_angle = randf_range(0.0, TAU)
+		# Mandamos Vector3.ZERO como direção porque o Manager ignora isso e sorteia o 360 graus sozinho.
+		# Alteramos a distância de 6.0 para 15.0 para voar mais longe!
+		LootDropManager.spawn_ejected_loot(origin_pos, Vector3.ZERO, drop_item_scene, item_res, 15.0)
 		
-		# cos() e sin() desenham o círculo no chão (eixos X e Z).
-		# Colocamos um Y positivo (0.5 a 0.8) para o item dar um "pulo" ao nascer.
-		var eject_dir = Vector3(
-			cos(random_angle), 
-			randf_range(0.5, 0.8), 
-			sin(random_angle)
-		).normalized()
-		
-		LootDropManager.spawn_ejected_loot(origin_pos, eject_dir, drop_item_scene, item_res, 6.0)
-
 func atualizar_visao_nametags(categoria_index: int):
 	var my_camera = find_child("Camera3D", true, false)
 	if not my_camera: return

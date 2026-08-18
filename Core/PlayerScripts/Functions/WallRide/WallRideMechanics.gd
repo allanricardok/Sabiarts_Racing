@@ -32,7 +32,9 @@ func apply_wall_physics(delta: float, current_wall_normal: Vector3, time_in_wall
 	forward_dir = forward_dir.normalized()
 	
 	if abs(input_steering) > 0.05:
-		forward_dir = forward_dir.rotated(current_wall_normal, -input_steering * wall_turn_speed * delta).normalized()
+		# Só rotaciona se a normal da parede realmente existir e não for zero
+		if current_wall_normal.length_squared() > 0.01:
+			forward_dir = forward_dir.rotated(current_wall_normal, -input_steering * wall_turn_speed * delta).normalized()
 	
 	var motor_force = Vector3.ZERO
 	if input_throttle > 0:
@@ -45,19 +47,22 @@ func apply_wall_physics(delta: float, current_wall_normal: Vector3, time_in_wall
 	var y_axis = current_wall_normal 
 	var x_axis = y_axis.cross(z_axis)
 	
-	# O SEGREDO AQUI: Se o produto vetorial der Zero (carro embicou reto na parede)
+	# SEGREDO BLINDADO DEFINITIVO: Se o produto vetorial zerar (vetores paralelos)
 	if x_axis.length_squared() < 0.001:
-		# Dá um micro-desvio no eixo Z só para a matemática conseguir calcular o X!
-		z_axis = z_axis.rotated(Vector3.UP, 0.05).normalized()
-		x_axis = y_axis.cross(z_axis)
+		# Escolhemos um eixo de escape arbitrário para forçar o cálculo matemático
+		var fallback_up = Vector3.UP if abs(y_axis.y) < 0.9 else Vector3.RIGHT
+		x_axis = y_axis.cross(fallback_up)
 		
 	x_axis = x_axis.normalized()
 	z_axis = x_axis.cross(y_axis).normalized() 
 	
-	var target_basis = Basis(x_axis, y_axis, z_axis).orthonormalized()
-	car.global_transform.basis = car.global_transform.basis.slerp(target_basis, delta * 15.0)
+	var target_basis = Basis(x_axis, y_axis, z_axis)
+	
+	# Última trava de segurança antes de aplicar a rotação na física do Godot
+	if target_basis.determinant() != 0:
+		car.global_transform.basis = car.global_transform.basis.orthonormalized().slerp(target_basis, delta * 15.0)
+		
 	car.angular_velocity = Vector3.ZERO
-
 	return forward_dir
 
 func apply_wall_jump(current_wall_normal: Vector3, applied_jump_force: float):
