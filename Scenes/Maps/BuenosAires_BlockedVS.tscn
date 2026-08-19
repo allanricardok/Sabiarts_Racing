@@ -1,4 +1,4 @@
-[gd_scene load_steps=349 format=3 uid="uid://d1rl8sskrmddj"]
+[gd_scene load_steps=356 format=3 uid="uid://d1rl8sskrmddj"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Managers-support/Mapa_Teste_Inicio.gd" id="1_u8o8m"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="3_is8dr"]
@@ -71,6 +71,9 @@
 [ext_resource type="Resource" uid="uid://co81ub7qh40jo" path="res://Resources/MapMissions/Missions/Missao_Teste_DELIVERY.tres" id="53_kbvtn"]
 [ext_resource type="PackedScene" uid="uid://dpwm3nbh0pryq" path="res://Scenes/UI/TokenRewardUI.tscn" id="54_g7yph"]
 [ext_resource type="Resource" uid="uid://bm5ftfnhiycvr" path="res://Resources/MapMissions/Missions/Missao_Teste_CARNAGEputaria.tres" id="57_0wot0"]
+[ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="59_h16if"]
+[ext_resource type="Script" uid="uid://dcan8ccd3nmwc" path="res://Core/Objectives/Story/StoryMissionTier.gd" id="60_6lhgc"]
+[ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/Story/StoryMissionData.gd" id="61_hekgo"]
 [ext_resource type="Script" uid="uid://uacqxwc54p58" path="res://Core/GeneralObjects/HoloWall.gd" id="61_pe38o"]
 [ext_resource type="Shader" uid="uid://t04eyi1mmkys" path="res://Scenes/Prefabs/MapObjects/HoloWall.gdshader" id="62_d03gb"]
 [ext_resource type="Script" uid="uid://d2ehpgk5o8r5l" path="res://Core/Managers-support/VoidKillPlane.gd" id="64_0wot0"]
@@ -924,6 +927,43 @@ albedo_color = Color(1, 0.14999998, 0.14999998, 1)
 
 [sub_resource type="SphereMesh" id="SphereMesh_ioiyf"]
 material = SubResource("StandardMaterial3D_0p4fw")
+radius = 4.0
+height = 8.0
+radial_segments = 12
+rings = 12
+
+[sub_resource type="Resource" id="Resource_71xcs"]
+script = ExtResource("60_6lhgc")
+tier_name = "Kill Everyone"
+target_value = 7.0
+reward_points = 2500
+metadata/_custom_type_script = "uid://dcan8ccd3nmwc"
+
+[sub_resource type="Resource" id="Resource_7fx2c"]
+script = ExtResource("61_hekgo")
+mission_type = 0
+mission_id = "m_067"
+mission_name = "Carnage Xtra Hard"
+mission_description = "Mate os 7 assassinos"
+time_limit = 360.0
+mission_tiers = Array[ExtResource("60_6lhgc")]([SubResource("Resource_71xcs")])
+mission_environment = ExtResource("59_h16if")
+mission_sun_color = Color(1.3093103, 0.44859967, 0.7807402, 0.331)
+mission_sun_energy = 0.7
+enemy_count = 7
+enemy_damage_dealt_mult = 1.2
+enemy_damage_received_mult = 0.5
+player_focus_base = 100.0
+player_focus_variance = 0.0
+bot_hostility_base = 0.0
+required_unlock_points = 5500
+metadata/_custom_type_script = "uid://o1ox0n7mmqv"
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_77hkh"]
+albedo_color = Color(0.6, 0, 0, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_bq51w"]
+material = SubResource("StandardMaterial3D_77hkh")
 radius = 4.0
 height = 8.0
 radial_segments = 12
@@ -7227,7 +7267,7 @@ outline_size = 20
 uppercase = true
 
 [node name="Roadkill" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 98.66676, 1.9364719, -24.607231)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 82.97238, 1.9364719, -37.170067)
 disable_mode = 2
 collision_layer = 4
 collision_mask = 2
@@ -7330,7 +7370,7 @@ outline_size = 20
 uppercase = true
 
 [node name="CARNAGE" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -203.60689, 1.9364719, 47.982536)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -203.60689, 1.9364719, -131.88416)
 disable_mode = 2
 collision_layer = 4
 collision_mask = 2
@@ -7375,6 +7415,32 @@ billboard = 1
 modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
 outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
 text = "Carnage X19"
+font_size = 30
+outline_size = 20
+uppercase = true
+
+[node name="CARNAGE3" type="Area3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -340.63885, 1.9364719, 47.982536)
+disable_mode = 2
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("40_4e1cd")
+mission_data = SubResource("Resource_7fx2c")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/CARNAGE3"]
+shape = SubResource("SphereShape3D_44s4c")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/CARNAGE3"]
+mesh = SubResource("SphereMesh_bq51w")
+
+[node name="Label3D" type="Label3D" parent="GridContainer/Cont_P1/View_P1/Map/StoryMissions/CARNAGE3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.9194775, 0)
+pixel_size = 0.05
+billboard = 1
+modulate = Color(0.26557478, 0.53107274, 0.82693887, 1)
+outline_modulate = Color(18.892157, 18.892157, 18.892157, 1)
+text = "Carnage XTRA HARD
+(Experimental)"
 font_size = 30
 outline_size = 20
 uppercase = true

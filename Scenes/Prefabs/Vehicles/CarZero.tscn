@@ -1,4 +1,4 @@
-[gd_scene load_steps=68 format=3 uid="uid://ry75iugdg8sl"]
+[gd_scene load_steps=67 format=3 uid="uid://ry75iugdg8sl"]
 
 [ext_resource type="Script" uid="uid://b0i2wvnkcrknc" path="res://Core/PlayerScripts/Functions/BaseVehicle.gd" id="1_drg00"]
 [ext_resource type="PackedScene" uid="uid://bp4khshtfj0rp" path="res://Scenes/Prefabs/Items/UniversalPickup.tscn" id="2_4a360"]
@@ -42,7 +42,6 @@
 [ext_resource type="Script" uid="uid://cie8v7vytopq5" path="res://Core/PlayerScripts/Functions/Tricks/TrickEnergyRingsFX.gd" id="28_y0tcj"]
 [ext_resource type="Script" uid="uid://cre5uqt5tupo4" path="res://Core/PlayerScripts/Functions/UIScannerComponent.gd" id="31_ocy3r"]
 [ext_resource type="Script" uid="uid://b2xmtaoyrsfb7" path="res://Core/PlayerScripts/Functions/WallRide/WallRideOrchestrator.gd" id="36_mb2us"]
-[ext_resource type="Script" uid="uid://ddx61pd04mvpi" path="res://Core/PlayerScripts/Functions/Tricks/ManualTrickComponent.gd" id="38_66r05"]
 [ext_resource type="Script" uid="uid://v6463i3nyckg" path="res://Core/Weapons/Projectiles/HitscanMachineGun.gd" id="42_hifds"]
 [ext_resource type="PackedScene" uid="uid://caxhkjik0lar" path="res://Scenes/Prefabs/Weapons/Projectiles/LandMine.tscn" id="42_u0l7s"]
 
@@ -1434,10 +1433,6 @@ min_speed_kmh = 12.0
 min_ground_height = 2.0
 anti_gravity_decay_time = 2.0
 validation_time = 0.5
-
-[node name="ManualTrickComponent" type="Node" parent="Scripts"]
-unique_name_in_owner = true
-script = ExtResource("38_66r05")
 
 [node name="VehicleEffects" type="Node" parent="Scripts"]
 unique_name_in_owner = true

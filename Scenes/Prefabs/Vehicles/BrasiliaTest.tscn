@@ -124,7 +124,7 @@ albedo_color = Color(0.012617188, 0.012617188, 0.012617188, 1)
 material = SubResource("StandardMaterial3D_tk6n2")
 
 [node name="BaseVehicle" node_paths=PackedStringArray("mesh_new", "mesh_damaged", "mesh_skeleton") instance=ExtResource("1_a8bp4")]
-mass = 420.0
+mass = 450.0
 gravity_scale = 1.32
 divisor_de_massa = 1100.0
 multiplicador_dano = 1.6
@@ -177,13 +177,22 @@ mesh = SubResource("CylinderMesh_v71gj")
 [node name="NameTag" parent="." index="8"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.1699355, 0)
 
+[node name="MovementComponent" parent="Scripts" index="3"]
+burnout_max_time = 1.8
+burnout_max_mult = 2.9
+EXTRA_FALL_GRAVITY = 26.0
+
 [node name="AirMovementComponent" parent="Scripts" index="6"]
-EXTRA_FALL_FORCE = 12.0
+AIR_CONTROL_FORCE = 22.0
+EXTRA_FALL_FORCE = 13.0
 
 [node name="WallRideComponent" parent="Scripts" index="10"]
 min_speed_kmh = 1.0
 anti_gravity_end = 1.2
 wall_target_distance = 0.6
+
+[node name="LandMine" parent="Guns" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.12212825, -4.880069)
 
 [node name="Muzzle" parent="Guns/BigSlow" index="1"]
 transform = Transform3D(-0.9997806, 0.0004751295, 0.020937108, 0, 0.9997426, -0.022687333, -0.020942498, -0.022682358, -0.9995233, 0.89359033, 0.9219358, 1.6064427)
@@ -194,8 +203,8 @@ transform = Transform3D(0.9659258, 0.25881904, 0, -0.25881904, 0.9659258, 0, 0, 
 [node name="Muzzle" parent="Guns/BazookaMissile" index="1"]
 transform = Transform3D(-0.9657175, 0.2591297, 0.015540287, 0.2587632, 0.96568483, -0.022232069, -0.020768011, -0.017448641, -0.9996321, 0.77085274, 0.84838545, 1.6064427)
 
-[node name="GrapplingMissile" parent="Guns" index="4"]
+[node name="GrapplingMissile" parent="Guns" index="5"]
 transform = Transform3D(1, 0, 0, 0, 0.9998431, 0.017714167, 0, -0.017714167, 0.9998431, -0.2062447, 0, 0.29715776)
 
-[node name="FreezingMissile" parent="Guns" index="5"]
+[node name="FreezingMissile" parent="Guns" index="6"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.8354658, 0, 0.070715785)

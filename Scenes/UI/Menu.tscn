@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://ce2gdvomfunn8"]
+[gd_scene load_steps=14 format=3 uid="uid://ce2gdvomfunn8"]
 
 [ext_resource type="Script" uid="uid://dsev4t7ikm1du" path="res://Core/Menus/lobby.gd" id="1_qyifk"]
 [ext_resource type="PackedScene" uid="uid://d2rblk8h626kc" path="res://Scenes/Maps/Official_Test_Map.tscn" id="2_353f8"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://cxnfwc3ovajua" path="res://Scenes/Prefabs/Vehicles/LakesterTest.tscn" id="6_v3kjt"]
 [ext_resource type="Script" uid="uid://trjeds0uu4yu" path="res://Core/PlayerScripts/UI/RotateCarMenu.gd" id="7_6487p"]
 [ext_resource type="PackedScene" uid="uid://oqlfy56yme5y" path="res://Scenes/Prefabs/Vehicles/FireTruckTest.tscn" id="7_v3kjt"]
+[ext_resource type="PackedScene" uid="uid://ckv4e7sposwr4" path="res://Scenes/Prefabs/Vehicles/Stealth.tscn" id="9_vlcut"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jrgwx"]
 content_margin_left = 25.0
@@ -45,7 +46,7 @@ grow_vertical = 2
 script = ExtResource("1_qyifk")
 nomes_dos_mapas = Array[String](["Tutorial Map", "Buenos Aires", "Sprint test"])
 cenas_dos_mapas = Array[PackedScene]([ExtResource("2_353f8"), ExtResource("3_6jtbh"), ExtResource("4_3hayu")])
-carros_disponiveis = Array[PackedScene]([ExtResource("4_s6sq0"), ExtResource("5_6487p"), ExtResource("6_v3kjt"), ExtResource("7_v3kjt")])
+carros_disponiveis = Array[PackedScene]([ExtResource("4_s6sq0"), ExtResource("5_6487p"), ExtResource("6_v3kjt"), ExtResource("7_v3kjt"), ExtResource("9_vlcut")])
 
 [node name="ColorRect" type="ColorRect" parent="."]
 layout_mode = 1
@@ -592,6 +593,7 @@ expand_mode = 1
 stretch_mode = 4
 
 [node name="Screen_MapSelect" type="Control" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -751,7 +753,7 @@ theme_override_colors/font_color = Color(0.8745098, 0.28235295, 0, 1)
 theme_override_font_sizes/font_size = 22
 text = "Reset Scores"
 
-[connection signal="pressed" from="Screen_Settings/ClearDataButton" to="." method="_on_clear_data_button_pressed"]
 [connection signal="pressed" from="Screen_Settings/ClearDataButton" to="." method="_on_clear_data_pressed"]
-[connection signal="pressed" from="Screen_Settings/ClearScoresButton" to="." method="_on_clear_scores_button_pressed"]
+[connection signal="pressed" from="Screen_Settings/ClearDataButton" to="." method="_on_clear_data_button_pressed"]
 [connection signal="pressed" from="Screen_Settings/ClearScoresButton" to="." method="_on_botao_apagar_scores_pressed"]
+[connection signal="pressed" from="Screen_Settings/ClearScoresButton" to="." method="_on_clear_scores_button_pressed"]
