@@ -36,26 +36,21 @@ func open_wheel(weapon_pool: Array):
 func update_selection(direcao: Vector2) -> int:
 	var novo_index = 0
 	
-	# Se o analógico estiver solto ou quase no meio (Zona Morta)
 	if direcao.length() < 0.3:
 		novo_index = 0 # Centro
 	else:
-		# Pega o ângulo em radianos do analógico
 		var angulo = direcao.angle()
 		
-		# Divide o círculo em um "X" (Fatias de 90 graus)
+		# CORREÇÃO DEFINITIVA: Trocamos os índices 2 e 4 de lugar!
 		if angulo > -PI/4 and angulo <= PI/4:
-			novo_index = 2 # Direita
+			novo_index = 4 # Agora força ESQUERDA
 		elif angulo > PI/4 and angulo <= 3*PI/4:
 			novo_index = 3 # Baixo
 		elif angulo > -3*PI/4 and angulo <= -PI/4:
 			novo_index = 1 # Cima
 		else:
-			novo_index = 4 # Esquerda
+			novo_index = 2 # Agora força DIREITA
 			
-	# --- TRAVA REMOVIDA DAQUI! Agora ele destaca os slots vazios normalmente ---
-
-	# Atualiza o visual apenas se mudou de slot
 	if novo_index != current_selected_index:
 		highlight_slot(novo_index)
 		

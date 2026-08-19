@@ -11,6 +11,10 @@ const PIN_TEXTURE = preload("res://Assets/2D/location-pin.png")
 @onready var target_name_label = get_node_or_null("UI_Base/TargetInfoPanel/NameLabel")
 @onready var target_hp_bar = get_node_or_null("UI_Base/TargetInfoPanel/HPBar")
 @onready var category_label = get_node_or_null("UI_Base/TargetInfoPanel/CategoryLabel")
+# Puxando as referências baseadas na estrutura da sua imagem
+@onready var slomo_container = get_node_or_null("SloMo")
+@onready var slomo_bar = get_node_or_null("SloMo/SlowMoBar")
+@onready var slomo_label = get_node_or_null("SloMo/SloMoLabel")
 
 var _radar_targets : Array = []
 var _radar_current_target : Node3D = null
@@ -28,6 +32,19 @@ var _radar_range : float = 180.0
 @onready var score_label = $UI_Base/ScoreLabel
 @onready var timer_label = $UI_Base/TimerLabel
 @onready var player_id_label = get_node_or_null("UI_Base/PlayerIDLabel")
+
+# ====================================================================
+# UI DE QUADRADOS DAS ARMAS
+# ====================================================================
+@onready var weapon_squares = [
+	$UI_Base/WeaponLabel/W1,
+	$UI_Base/WeaponLabel/W2,
+	$UI_Base/WeaponLabel/W3,
+	$UI_Base/WeaponLabel/W4,
+	$UI_Base/WeaponLabel/W5
+]
+
+var _base_square_y : Array[float] = []
 
 var _nametags_dict : Dictionary = {}
 var nametags_container = Control.new()
@@ -70,6 +87,21 @@ func _ready():
 	
 	if Global.current_run_mode == Global.RunMode.STORY:
 		call_deferred("esconder_timer")
+	
+	# Salva a posição Y original e cria o contorno de seleção automaticamente
+	for sq in weapon_squares:
+		_base_square_y.append(sq.position.y)
+		sq.hide() # Começa invisível
+		
+		# Cria um ReferenceRect para servir de contorno brilhante
+		var outline = ReferenceRect.new()
+		outline.name = "Outline"
+		outline.set_anchors_preset(Control.PRESET_FULL_RECT)
+		outline.border_width = 3.0
+		outline.editor_only = false
+		outline.border_color = Color(1.0, 1.0, 1.0, 1.0) # Branco puro para destaque
+		outline.hide()
+		sq.add_child(outline)
 		
 	# ====================================================================
 	# OTIMIZAÇÃO: Conecta a mudança de escala a um evento (Signal) em vez
@@ -432,3 +464,53 @@ func update_delivery_ui(held_count: int):
 			# A mágica: Se o índice do ícone for menor que o número de itens na mão, ele fica visível!
 			# Ex: Pegou 1 item. held_count = 1. O Item 1 (índice 0) fica true. O resto fica false.
 			delivery_icons[i].visible = i < held_count
+
+# ====================================================================
+# PROGRESS BAR DO SLOW-MO E TIMER
+# ====================================================================
+
+
+func atualizar_barra_slomo(pct: float, tempo_restante: float):
+	# Mostra o grupo inteiro (pai)
+	if slomo_container:
+		slomo_container.show()
+		
+	if slomo_bar:
+		slomo_bar.value = pct * 100.0
+		
+	if slomo_label:
+		# Formata para mostrar 1 casa decimal e a letra 's'. Ex: "2.8s"
+		# Se quiser apenas números inteiros (3, 2, 1), troque "%.1fs" por "%ds" e passe int(ceil(tempo_restante))
+		slomo_label.text = "%.1fs" % tempo_restante
+
+func esconder_barra_slomo():
+	# Esconde o grupo inteiro (pai e filhos)
+	if slomo_container:
+		slomo_container.hide()
+
+func atualizar_lista_armas(weapon_pool: Array, current_index: int):
+	for i in range(weapon_squares.size()):
+		var sq = weapon_squares[i]
+		var outline = sq.get_node_or_null("Outline")
+		
+		if i < weapon_pool.size():
+			sq.show()
+			var weapon = weapon_pool[i]
+			
+			# REAPROVEITANDO A VARIÁVEL EXISTENTE: item_color
+			if "item_color" in weapon:
+				sq.color = weapon.item_color
+				
+			# Animação de Seleção
+			if i == current_index:
+				# Sobe 20 pixels com um efeito elástico (TRANS_BACK)
+				create_tween().tween_property(sq, "position:y", _base_square_y[i] - 20.0, 0.15).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+				if outline: 
+					outline.show()
+			else:
+				# Volta para a posição original
+				create_tween().tween_property(sq, "position:y", _base_square_y[i], 0.15).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+				if outline: 
+					outline.hide()
+		else:
+			sq.hide()

@@ -18,6 +18,7 @@ class_name AbilityComponent
 @export var COST_SHIELD : float = 50.0
 @export var COST_BOOST : float = 20.0
 @export var COST_HARD_BRAKE : float = 15.0 
+@export var COST_SLOW_MO : float = 30.0 # NOVO Custo do Slow-mo inicial
 
 @export_group("Cooldown")
 @export var SHARED_COOLDOWN_TIME : float = .8
@@ -34,6 +35,7 @@ var shield_material : StandardMaterial3D
 @export var BOOST_IMPULSE : float = 65.0
 @export var SHIELD_TIME : float = 2.5
 @export var HARD_BRAKE_POWER : float = 100.0 
+@export var SLOW_MO_DURATION : float = 3.0 # Quanto tempo dura o Slow-mo se ele ativou como golpe tático
 
 @export var sequenced_burst_delay : float = 0.08
 
@@ -65,6 +67,10 @@ var _turbo_fx_nodes: Array[Node] = []
 var _front_fx_nodes: Array[Node] = [] 
 var _car_meshes: Array[MeshInstance3D] = []
 
+# --- VARIÁVEIS DE SLOW-MO ---
+var _is_slow_mo_active: bool = false
+var _slow_mo_timer: float = 0.0
+
 func _ready():
 	spawn_transform = car.global_transform
 	current_energy = MAX_ENERGY
@@ -84,10 +90,6 @@ func _ready():
 	_trick_manager = car.get_node_or_null("%TrickManager")
 	_camera_3d = car.find_child("Camera3D", true, false)
 	
-	# ====================================================================
-	# SOLUÇÃO BLINDADA: Lê o nome real do arquivo .gd da sua pasta FX
-	# Otimizado: Busca apenas em Node3D, ignorando lixo da engine.
-	# ====================================================================
 	var todos_os_nos3d = car.find_children("*", "Node3D", true, false)
 	for no in todos_os_nos3d:
 		if no.get_script() != null and no.has_method("burst_fire_sequenced"):
@@ -106,6 +108,20 @@ func _ready():
 func _physics_process(delta):
 	if car.has_method("is_frozen") and car.is_frozen(): 
 		return
+
+# Lógica do Slow-mo (Rodando independentemente da trava do carro)
+	if _is_slow_mo_active:
+		var real_delta = delta / Engine.time_scale if Engine.time_scale > 0.01 else delta
+		_slow_mo_timer -= real_delta
+		
+		var tempo_restante_pct = _slow_mo_timer / SLOW_MO_DURATION
+		
+		# CORREÇÃO AQUI: Agora mandamos a porcentagem E o tempo em segundos exato!
+		get_tree().call_group("HUD", "atualizar_barra_slomo", tempo_restante_pct, _slow_mo_timer)
+		
+		if _slow_mo_timer <= 0.0:
+			_set_slow_motion(false)
+			get_tree().call_group("HUD", "esconder_barra_slomo")
 
 	var regen_mult = _rage_component.get_ability_recovery_mult() if is_instance_valid(_rage_component) else 1.0
 
@@ -203,9 +219,19 @@ func _physics_process(delta):
 			_fire_back_buffer = 0.0
 
 func _checar_combos_habilidade():
-	if input.ability_left and tap_count >= 2:
+	# CÍRCULO + CIMA = SLOW-MO TÁTICO
+	if input.ability_up:
+		if current_energy >= COST_SLOW_MO and not _is_slow_mo_active:
+			_execute_slow_mo()
+		elif current_energy < COST_SLOW_MO and not _is_slow_mo_active:
+			_erro_falta_energia()
+			
+	# CÍRCULO + ESQUERDA = TELEPORT (Exige 2 toques pra não errar)
+	elif input.ability_left and tap_count >= 2:
 		if current_energy >= COST_TELEPORT: _execute_teleport()
 		else: _erro_falta_energia()
+		
+	# CÍRCULO + DIREITA = SHIELD
 	elif input.ability_right:
 		if current_energy >= COST_SHIELD: _execute_shield()
 		else: _erro_falta_energia()
@@ -285,36 +311,6 @@ func _execute_hard_brake():
 
 	_start_cooldown()
 
-func _disparar_fogo_local(multiplicador: float):
-	for fx in _turbo_fx_nodes:
-		if is_instance_valid(fx) and fx.has_method("burst_fire_sequenced"):
-			fx.burst_fire_sequenced(multiplicador)
-
-func _disparar_fogo_frontal(multiplicador: float):
-	for fx in _front_fx_nodes:
-		if is_instance_valid(fx) and fx.has_method("burst_fire_sequenced"):
-			fx.burst_fire_sequenced(multiplicador)
-
-func execute_burnout_boost(charge_multiplier: float = 1.0):
-	get_tree().call_group("TutorialUI", "complete_task", "turbo")
-	var mult = stats.speed_multiplier if stats else 1.0
-	
-	if car.has_method("play_camera_shake"):
-		car.play_camera_shake("Turbo")
-		
-	if is_instance_valid(_camera_3d) and _camera_3d.has_method("apply_turbo_kickback"):
-		_camera_3d.apply_turbo_kickback()
-	
-	_disparar_fogo_local(0.5) 
-	get_tree().create_timer(sequenced_burst_delay).timeout.connect(func(): _disparar_fogo_local(1.0))
-	get_tree().create_timer(sequenced_burst_delay * 2).timeout.connect(func(): _disparar_fogo_local(0.75))
-	get_tree().create_timer(sequenced_burst_delay * 3).timeout.connect(func(): _disparar_fogo_local(0.5))
-	get_tree().create_timer(sequenced_burst_delay * 4).timeout.connect(func(): _disparar_fogo_local(0.25))
-
-	var final_boost = BOOST_IMPULSE * mult * charge_multiplier
-	car.apply_central_impulse(car.global_transform.basis.z * final_boost * car.mass)
-	_start_cooldown()
-
 func _execute_teleport():
 	var teleport_markers = get_tree().get_nodes_in_group("AbilityTeleport")
 	if teleport_markers.is_empty(): return
@@ -353,6 +349,25 @@ func _execute_shield():
 		_set_car_silver_effect(false)
 	)
 
+# ====================================================================
+# A NOVA CÂMERA LENTA (SLOW-MO)
+# ====================================================================
+func _execute_slow_mo():
+	current_energy -= COST_SLOW_MO
+	_set_slow_motion(true)
+	_start_cooldown()
+
+func _set_slow_motion(active: bool):
+	_is_slow_mo_active = active
+	
+	# Pára o tempo brutalmente (Fator 0.2 é muito usado em Action Games)
+	Engine.time_scale = 0.2 if active else 1.0
+	
+	if active:
+		_slow_mo_timer = SLOW_MO_DURATION
+	else:
+		_slow_mo_timer = 0.0
+
 func _execute_fire_backwards():
 	if is_instance_valid(weapons):
 		var active_weapon = weapons.get_active_special()
@@ -368,6 +383,36 @@ func _set_car_silver_effect(active: bool):
 		if is_instance_valid(mesh):
 			if active: mesh.material_override = shield_material
 			else: mesh.material_override = null
+
+func _disparar_fogo_local(multiplicador: float):
+	for fx in _turbo_fx_nodes:
+		if is_instance_valid(fx) and fx.has_method("burst_fire_sequenced"):
+			fx.burst_fire_sequenced(multiplicador)
+
+func _disparar_fogo_frontal(multiplicador: float):
+	for fx in _front_fx_nodes:
+		if is_instance_valid(fx) and fx.has_method("burst_fire_sequenced"):
+			fx.burst_fire_sequenced(multiplicador)
+
+func execute_burnout_boost(charge_multiplier: float = 1.0):
+	get_tree().call_group("TutorialUI", "complete_task", "turbo")
+	var mult = stats.speed_multiplier if stats else 1.0
+	
+	if car.has_method("play_camera_shake"):
+		car.play_camera_shake("Turbo")
+		
+	if is_instance_valid(_camera_3d) and _camera_3d.has_method("apply_turbo_kickback"):
+		_camera_3d.apply_turbo_kickback()
+	
+	_disparar_fogo_local(0.5) 
+	get_tree().create_timer(sequenced_burst_delay).timeout.connect(func(): _disparar_fogo_local(1.0))
+	get_tree().create_timer(sequenced_burst_delay * 2).timeout.connect(func(): _disparar_fogo_local(0.75))
+	get_tree().create_timer(sequenced_burst_delay * 3).timeout.connect(func(): _disparar_fogo_local(0.5))
+	get_tree().create_timer(sequenced_burst_delay * 4).timeout.connect(func(): _disparar_fogo_local(0.25))
+
+	var final_boost = BOOST_IMPULSE * mult * charge_multiplier
+	car.apply_central_impulse(car.global_transform.basis.z * final_boost * car.mass)
+	_start_cooldown()
 
 func _start_cooldown():
 	current_cooldown = SHARED_COOLDOWN_TIME

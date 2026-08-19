@@ -1,4 +1,3 @@
-# InputComponent.gd
 extends Node
 class_name InputComponent
 
@@ -26,17 +25,23 @@ var mouse_look : Vector2 = Vector2.ZERO
 # --- BOTÕES E ESTADOS ---
 var is_action_pressed : bool = false
 var is_fire_pressed : bool = false
-var is_attribute_pressed : bool = false
+var is_attribute_pressed : bool = false 
 var is_stunt_pressed: bool = false
-var is_change_weapon_pressed: bool = false
+var is_change_weapon_pressed: bool = false 
 
-# A NOSSA NOVA VARIÁVEL MASTIGADA PARA O WEAPON MANAGER:
 var is_fire_backwards_pressed: bool = false 
 
-var ability_up : bool = false
-var ability_down : bool = false
-var ability_left : bool = false
-var ability_right : bool = false
+# Comandos de Habilidade Tática (Círculo + L-Joy)
+var ability_up : bool = false 
+var ability_down : bool = false 
+var ability_left : bool = false 
+var ability_right : bool = false 
+
+# --- D-PAD COMBOS (CÍRCULO + D-PAD) ---
+var target_next_pressed : bool = false
+var target_prev_pressed : bool = false
+var radar_next_pressed : bool = false
+var radar_prev_pressed : bool = false
 
 var air_move : Node = null
 var debug_timer : float = 0.0
@@ -46,7 +51,6 @@ var last_throttle_time : float = 0.0
 var is_turbo_pressed : bool = false 
 var is_jump_pressed: bool = false 
 
-# --- VARIÁVEIS PARA O ZERINHO (BURNOUT) ---
 var is_accelerating : bool = false
 var is_braking : bool = false
 
@@ -82,7 +86,6 @@ func _physics_process(delta):
 		steering = Input.get_axis("Right" + suffix, "Left" + suffix)
 		pitch = Input.get_axis("Pitch_Down" + suffix, "Pitch_Up" + suffix)
 
-	# --- ATUALIZAÇÃO DOS ESTADOS DE ACELERAÇÃO E FREIO ---
 	is_accelerating = Input.is_action_pressed("Forward" + suffix)
 	is_braking = Input.is_action_pressed("Backward" + suffix)
 
@@ -100,41 +103,49 @@ func _physics_process(delta):
 	is_action_pressed = Input.is_action_pressed("Action" + suffix)
 	is_fire_pressed = Input.is_action_pressed("Fire" + suffix)
 	is_stunt_pressed = Input.is_action_pressed("Stunt" + suffix)
+	is_attribute_pressed = Input.is_action_pressed("Attribute" + suffix)
 	is_look_behind_pressed = Input.is_action_pressed("LookBehind" + suffix)
 	
-	if suffix.begins_with("_K"):
-		is_change_weapon_pressed = Input.is_action_just_pressed("change_weapon" + suffix)
-	else:
-		is_change_weapon_pressed = false
+	var wp_action = "next_weapon" + suffix
+	is_change_weapon_pressed = Input.is_action_just_pressed(wp_action) if InputMap.has_action(wp_action) else false
 	
 	if suffix.begins_with("_J"):
-		is_attribute_pressed = Input.is_action_pressed("Attribute" + suffix)
 		var joy_x = Input.get_axis("LookLeft" + suffix, "LookRight" + suffix)
 		var joy_y = Input.get_axis("LookUp" + suffix, "LookDown" + suffix)
-		look_vector = Vector2(joy_x, joy_y)
-	else:
-		is_attribute_pressed = Input.is_action_pressed("AbilityUp" + suffix) or \
-							   Input.is_action_pressed("AbilityDown" + suffix) or \
-							   Input.is_action_pressed("AbilityLeft" + suffix) or \
-							   Input.is_action_pressed("AbilityRight" + suffix)
+		look_vector = Vector2(joy_x, joy_y) 
 
+	var dpad_up = false
+	var dpad_down = false
+	var dpad_left = false
+	var dpad_right = false
+	
+	if InputMap.has_action("target_up" + suffix): dpad_up = Input.is_action_just_pressed("target_up" + suffix)
+	if InputMap.has_action("target_down" + suffix): dpad_down = Input.is_action_just_pressed("target_down" + suffix)
+	if InputMap.has_action("cat_left" + suffix): dpad_left = Input.is_action_just_pressed("cat_left" + suffix)
+	if InputMap.has_action("cat_right" + suffix): dpad_right = Input.is_action_just_pressed("cat_right" + suffix)
+
+	target_next_pressed = dpad_up and is_attribute_pressed
+	target_prev_pressed = dpad_down and is_attribute_pressed
+	radar_prev_pressed = dpad_left and is_attribute_pressed
+	radar_next_pressed = dpad_right and is_attribute_pressed
+
+# ====================================================================
+	# O NÚCLEO TÁTICO: Círculo (Attribute) + L-Joy
+	# ====================================================================
 	if is_attribute_pressed:
+		var normal_threshold = 0.5 
+		
 		if suffix.begins_with("_J"):
-			var ab_x = Input.get_axis("AbilityLeft" + suffix, "AbilityRight" + suffix)
-			var ab_y = Input.get_axis("AbilityUp" + suffix, "AbilityDown" + suffix)
-			
-			var normal_threshold = 0.5 
-			var strict_tolerance = 0.25 
-			
-			ability_left = (ab_x < -normal_threshold) and (abs(ab_y) < strict_tolerance)
-			ability_right = (ab_x > normal_threshold)
-			ability_up = (ab_y < -normal_threshold)
-			ability_down = (ab_y > normal_threshold)
+			ability_left = Input.get_action_strength("Left" + suffix) > normal_threshold
+			ability_right = Input.get_action_strength("Right" + suffix) > normal_threshold
+			# CORREÇÃO AQUI: Trocamos o Up e Down de lugar para compensar o eixo invertido (Pitch de Avião)
+			ability_up = Input.get_action_strength("Pitch_Down" + suffix) > normal_threshold
+			ability_down = Input.get_action_strength("Pitch_Up" + suffix) > normal_threshold
 		else:
-			ability_up = Input.is_action_pressed("AbilityUp" + suffix)
-			ability_down = Input.is_action_pressed("AbilityDown" + suffix)
-			ability_left = Input.is_action_pressed("AbilityLeft" + suffix)
-			ability_right = Input.is_action_pressed("AbilityRight" + suffix)
+			ability_left = Input.get_action_strength("AbilityLeft" + suffix) > normal_threshold
+			ability_right = Input.get_action_strength("AbilityRight" + suffix) > normal_threshold
+			ability_up = Input.get_action_strength("AbilityUp" + suffix) > normal_threshold
+			ability_down = Input.get_action_strength("AbilityDown" + suffix) > normal_threshold
 	else:
 		ability_up = false
 		ability_down = false
@@ -143,20 +154,11 @@ func _physics_process(delta):
 
 	is_fire_backwards_pressed = false
 	
-	var is_physically_down = false
-	if suffix.begins_with("_K"):
-		is_physically_down = Input.is_action_pressed("AbilityDown" + suffix) or Input.is_action_pressed("Pitch_Down" + suffix)
-	else:
-		is_physically_down = ability_down
-
-	var attr_held = Input.is_action_pressed("Attribute" + suffix)
 	var attr_just_pressed = Input.is_action_just_pressed("Attribute" + suffix)
-
-	if is_physically_down and attr_just_pressed:
+	var joy_down_just_pressed = Input.is_action_just_pressed("Pitch_Down" + suffix) or Input.is_action_just_pressed("AbilityDown" + suffix)
+	
+	if ability_down and (attr_just_pressed or joy_down_just_pressed):
 		is_fire_backwards_pressed = true
-	elif attr_held and is_physically_down:
-		if Input.is_action_just_pressed("AbilityDown" + suffix) or Input.is_action_just_pressed("Pitch_Down" + suffix):
-			is_fire_backwards_pressed = true
 
 func _handle_global_mouse(delta):
 	if get_tree().paused:
@@ -168,30 +170,22 @@ func _handle_global_mouse(delta):
 		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
 	var mouse_vel = Input.get_last_mouse_velocity()
-	
 	var current_cam_sens = camera_sensitivity
-	if not is_grounded:
-		current_cam_sens *= air_camera_multiplier
+	if not is_grounded: current_cam_sens *= air_camera_multiplier
 	
 	if mouse_vel.length() > (mouse_maneuver_threshold * 0.2): 
-		
 		look_vector.x += mouse_vel.x * current_cam_sens
 		look_vector.y -= mouse_vel.y * current_cam_sens
 		look_vector.x = clamp(look_vector.x, -1.0, 1.0)
 		look_vector.y = clamp(look_vector.y, -1.0, 1.0)
 
-		if abs(mouse_vel.x) > mouse_maneuver_threshold:
-			mouse_look.x = sign(mouse_vel.x)
-		else:
-			mouse_look.x = move_toward(mouse_look.x, 0.0, delta * mouse_return_speed)
+		if abs(mouse_vel.x) > mouse_maneuver_threshold: mouse_look.x = sign(mouse_vel.x)
+		else: mouse_look.x = move_toward(mouse_look.x, 0.0, delta * mouse_return_speed)
 			
-		if abs(mouse_vel.y) > mouse_maneuver_threshold:
-			mouse_look.y = -sign(mouse_vel.y)
-		else:
-			mouse_look.y = move_toward(mouse_look.y, 0.0, delta * mouse_return_speed)
+		if abs(mouse_vel.y) > mouse_maneuver_threshold: mouse_look.y = -sign(mouse_vel.y)
+		else: mouse_look.y = move_toward(mouse_look.y, 0.0, delta * mouse_return_speed)
 		
-		if Time.get_ticks_msec() > debug_timer:
-			debug_timer = Time.get_ticks_msec() + 500
+		if Time.get_ticks_msec() > debug_timer: debug_timer = Time.get_ticks_msec() + 500
 	else:
 		look_vector = look_vector.move_toward(Vector2.ZERO, delta)
 		mouse_look = mouse_look.move_toward(Vector2.ZERO, delta * mouse_return_speed)

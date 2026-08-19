@@ -63,10 +63,13 @@ func _physics_process(delta):
 	var is_wheel_open = is_instance_valid(weapons) and "is_wheel_open" in weapons and weapons.is_wheel_open
 	
 	if not is_wheel_open:
-		if InputMap.has_action("cat_left" + input.suffix) and Input.is_action_just_pressed("cat_left" + input.suffix): _cycle_category(-1)
-		if InputMap.has_action("cat_right" + input.suffix) and Input.is_action_just_pressed("cat_right" + input.suffix): _cycle_category(1)
-		if InputMap.has_action("target_up" + input.suffix) and Input.is_action_just_pressed("target_up" + input.suffix): _cycle_target(-1)
-		if InputMap.has_action("target_down" + input.suffix) and Input.is_action_just_pressed("target_down" + input.suffix): _cycle_target(1)
+		# ====================================================================
+		# LÓGICA DE NAVEGAÇÃO DE ALVOS (Lendo do novo InputComponent)
+		# ====================================================================
+		if input.radar_prev_pressed: _cycle_category(-1)
+		if input.radar_next_pressed: _cycle_category(1)
+		if input.target_prev_pressed: _cycle_target(-1)
+		if input.target_next_pressed: _cycle_target(1)
 
 	radar_update_timer -= real_delta
 	if radar_update_timer <= 0:

@@ -696,12 +696,13 @@ theme_override_font_sizes/font_size = 18
 text = "Joystick (Sony Layout):
 R2 L2 = Accelerate Brake
 Left Joy = Land + Air movement
-X = Machine Gun                            L3 = SloMo (press)
+X = Machine Gun                            L3 = Look Back
 Square = Special Gun                    Up/Down = Target
 L1 = Jump                                         Double R2 = Turbo
-R1 = Change Map Category
+R1 = Change Weapon                    Double L2 = Backwards
 Triangle = Tricks
-Circle + Left Joy = shield, teleport, shoot back
+Circle + Left Joy = shield, teleport, shoot back, SloMo
+Circle + Dpad = Map controls
 Right Joy = Camera
 "
 

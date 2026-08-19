@@ -24,7 +24,7 @@ extends Camera3D
 var air_mode_weight : float = 0.0
 
 @export_group("Colisão da Câmera")
-@export var camera_collision_margin := 0.2
+@export var camera_collision_margin := 0.5 # Aumentado para não varar paredes
 @export_flags_3d_physics var collision_mask = 1
 
 @onready var target_node = $"../CameraTarget"
@@ -52,7 +52,6 @@ var original_target_offset : Vector3
 var original_look_offset : float
 var current_camera_mode : int = 0
 
-# OTIMIZAÇÃO: Cache de Identidade e RID
 var _is_bot: bool = false
 var _car_rid: RID
 
@@ -70,7 +69,6 @@ func _ready():
 func _late_bot_check():
 	if is_instance_valid(input) and "is_bot" in input and input.is_bot:
 		_is_bot = true
-		# A MÁGICA DE PERFORMANCE AQUI: O bot ignora 100% o processamento desta câmera e desliga ela
 		set_physics_process(false)
 		current = false
 
@@ -120,10 +118,6 @@ func _physics_process(delta):
 		
 		return 
 
-	# ====================================================================
-	# CORREÇÃO: Usando a nova função do AirMovementComponent
-	# Se tiver menos de 3 rodas no chão, consideramos que está "no ar"
-	# ====================================================================
 	var is_actually_in_air = air_move.get_grounded_wheels_count() < 3
 	
 	var current_air_time = trick_manager.air_time if is_instance_valid(trick_manager) else 0.0
@@ -160,6 +154,9 @@ func _physics_process(delta):
 		target_local_pos.z = -target_local_pos.z * look_back_distance_multiplier
 		target_local_pos.y += look_back_height_offset
 
+	# ====================================================================
+	# CAMERA LIVRE (R-JOY) RESTAURADA 
+	# ====================================================================
 	var look_dir = input.look_vector
 	target_local_pos.x += look_dir.x * stick_sensitivity_x
 	var offset_y = -look_dir.y * stick_sensitivity_y
@@ -192,7 +189,6 @@ func _physics_process(delta):
 	var space_state = get_world_3d().direct_space_state
 	var ray_origin = car.global_position + Vector3.UP * 0.5
 	var ray_query = PhysicsRayQueryParameters3D.create(ray_origin, ideal_global_pos, collision_mask)
-	# OTIMIZAÇÃO: Usar o RID em cache!
 	ray_query.exclude = [_car_rid]
 	var collision = space_state.intersect_ray(ray_query)
 	

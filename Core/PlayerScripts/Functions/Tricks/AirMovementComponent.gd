@@ -20,18 +20,14 @@ var wallride_drop_immunity_timer : float = 0.0
 
 # --- ESTADO COMPARTILHADO ---
 var is_doing_stunt := false
-var is_slow_mo_active := false
 var original_angular_damp : float = 0.0
-
-var slomo_drain_timer : float = 0.0
-const SLOMO_DRAIN_INTERVAL : float = 0.1 
 
 # --- VARIÁVEIS DE QUEDA (SHAKE) ---
 var was_on_ground := true
 var max_air_height := 0.0
 
 # ==============================================================================
-# OTIMIZAÇÃO: MEMÓRIA CACHE (Salva milhares de buscas por segundo)
+# OTIMIZAÇÃO: MEMÓRIA CACHE
 # ==============================================================================
 var _wall_rider: Node
 var _ability_component: Node
@@ -43,12 +39,10 @@ func _ready():
 	if stunt_processor:
 		stunt_processor.setup(self, car)
 		
-	# --- PREENCHE OS CACHES NA INICIALIZAÇÃO ---
 	_wall_rider = car.get_node_or_null("%WallRideComponent")
 	_ability_component = car.get_node_or_null("%AbilityComponent")
 	_car_rid = car.get_rid()
 	
-	# Filtra as rodas uma única vez
 	for child in car.get_children():
 		if child is VehicleWheel3D:
 			_wheels.append(child)
@@ -68,23 +62,15 @@ func _physics_process(delta):
 	var is_on_ground = false
 	var is_transfer_protected = (time_out_of_wall < 0.5) and input.is_stunt_pressed and (orientation > 0.3)
 	
-	# --- CONTAGEM DE RODAS NO CHÃO ---
 	var grounded_wheels = get_grounded_wheels_count()
 	
 	if not is_wallriding and not is_transfer_protected:
 		is_on_ground = (grounded_wheels >= 3) and (orientation > 0.3)
 	
-	if is_on_ground and is_slow_mo_active:
-		_set_slow_motion(false)
-	
-	if is_slow_mo_active:
-		_process_slomo_drain(delta)
-	
 	if not is_on_ground:
 		max_air_height = max(max_air_height, car.global_position.y)
 		var is_coyote_air_active = (time_out_of_wall < 1.0) and (orientation > 0.3)
 		
-		# Passamos as rodas para a lógica aérea para poder cancelar o boost
 		_handle_air_logic(delta, is_coyote_air_active, grounded_wheels)
 	else:
 		if not was_on_ground:
@@ -104,14 +90,6 @@ func _physics_process(delta):
 	was_on_ground = is_on_ground
 
 func _handle_air_logic(delta, forcing_coyote: bool, grounded_wheels: int):
-	if Input.is_action_just_pressed("slow_mo"): 
-		if not is_slow_mo_active:
-			if _modify_energy(0.0): 
-				_set_slow_motion(true)
-		else:
-			_set_slow_motion(false)
-		get_viewport().set_input_as_handled()
-		
 	var near_ground = false if forcing_coyote else is_near_ground()
 	
 	trick_manager.process_air_time(delta, near_ground)
@@ -120,8 +98,6 @@ func _handle_air_logic(delta, forcing_coyote: bool, grounded_wheels: int):
 	
 	if not is_riding:
 		_apply_fast_fall(delta)
-		
-		# AQUI enviamos a contagem de rodas para o controle de ar
 		_handle_air_control(delta, grounded_wheels)
 		
 		if is_doing_stunt:
@@ -148,19 +124,10 @@ func get_grounded_wheels_count() -> int:
 				
 	return wheels_on_ground
 
-func _process_slomo_drain(delta):
-	slomo_drain_timer += delta / Engine.time_scale
-	if slomo_drain_timer >= SLOMO_DRAIN_INTERVAL:
-		slomo_drain_timer = 0.0
-		var success = _modify_energy(-1.0)
-		if not success:
-			_set_slow_motion(false)
-
 func execute_stunt_command(axis: Vector3, trick_id: String):
 	if is_doing_stunt:
 		return
 		
-	# NOVA REGRA: Zona Morta de 4 Metros para Flips e Rolls
 	if trick_id in ["BACKFLIP", "FRONTFLIP", "ROLL_L", "ROLL_R"]:
 		if is_too_close_for_flip():
 			print("[AirMovement] FLIP BLOQUEADO (A menos de 4m do chão)! Área livre para mirar o Manual.")
@@ -184,10 +151,6 @@ func _modify_energy(amount: float) -> bool:
 func _handle_air_control(delta, grounded_wheels: int):
 	var forward_in_air = max(input.throttle, 0.0)
 	
-	# ====================================================================
-	# MITIGAÇÃO DO OVERLAP DE VELOCIDADE
-	# Se tiver pelo menos 1 roda no chão (empinando), cancela o boost do ar
-	# ====================================================================
 	if grounded_wheels > 0:
 		forward_in_air = 0.0
 		
@@ -205,11 +168,6 @@ func is_near_ground() -> bool:
 	var query = PhysicsRayQueryParameters3D.create(car.global_position, car.global_position + Vector3.DOWN * FALL_FORCE_BUFFER_DISTANCE, 1)
 	query.exclude = [_car_rid]
 	return space_state.intersect_ray(query).size() > 0
-
-func _set_slow_motion(active: bool):
-	is_slow_mo_active = active
-	Engine.time_scale = 0.2 if active else 1.0
-	slomo_drain_timer = 0.0
 
 func is_too_close_for_flip() -> bool:
 	var space_state = car.get_world_3d().direct_space_state

@@ -1,4 +1,4 @@
-[gd_scene load_steps=67 format=3 uid="uid://ry75iugdg8sl"]
+[gd_scene load_steps=68 format=3 uid="uid://ry75iugdg8sl"]
 
 [ext_resource type="Script" uid="uid://b0i2wvnkcrknc" path="res://Core/PlayerScripts/Functions/BaseVehicle.gd" id="1_drg00"]
 [ext_resource type="PackedScene" uid="uid://bp4khshtfj0rp" path="res://Scenes/Prefabs/Items/UniversalPickup.tscn" id="2_4a360"]
@@ -147,6 +147,18 @@ content_margin_right = 0.0
 content_margin_bottom = 0.0
 bg_color = Color(18.892157, 18.892157, 18.892157, 1)
 corner_detail = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_u0l7s"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0, 0.98039216, 0.78431374, 0.80784315)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+corner_detail = 6
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kryjj"]
 albedo_color = Color(0.87, 0, 0, 1)
@@ -747,6 +759,75 @@ theme_override_font_sizes/font_size = 32
 text = "No weapons: 0"
 horizontal_alignment = 2
 
+[node name="W1" type="ColorRect" parent="HUD/UI_Base/WeaponLabel"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -116.0
+offset_bottom = -76.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="W2" type="ColorRect" parent="HUD/UI_Base/WeaponLabel"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -107.0
+offset_top = -116.0
+offset_right = -67.0
+offset_bottom = -76.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="W3" type="ColorRect" parent="HUD/UI_Base/WeaponLabel"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -178.0
+offset_top = -116.0
+offset_right = -138.0
+offset_bottom = -76.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="W4" type="ColorRect" parent="HUD/UI_Base/WeaponLabel"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -247.0
+offset_top = -116.0
+offset_right = -207.0
+offset_bottom = -76.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="W5" type="ColorRect" parent="HUD/UI_Base/WeaponLabel"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -314.0
+offset_top = -116.0
+offset_right = -274.0
+offset_bottom = -76.0
+grow_horizontal = 0
+grow_vertical = 0
+
 [node name="Score" type="Label" parent="HUD/UI_Base"]
 layout_mode = 1
 anchors_preset = 7
@@ -937,9 +1018,9 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -362.0
-offset_top = -439.0
+offset_top = -505.0
 offset_right = -15.0
-offset_bottom = -84.0
+offset_bottom = -150.0
 grow_horizontal = 0
 grow_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_yo5km")
@@ -1231,6 +1312,49 @@ text = "Carlinhos Kpeão: 24"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
+
+[node name="SloMo" type="Control" parent="HUD"]
+visible = false
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -91.0
+offset_top = -196.0
+offset_right = 91.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="SlowMoBar" type="ProgressBar" parent="HUD/SloMo"]
+layout_mode = 0
+offset_right = 182.0
+offset_bottom = 26.0
+theme_override_styles/fill = SubResource("StyleBoxFlat_u0l7s")
+show_percentage = false
+
+[node name="SloMoLabel" type="Label" parent="HUD/SloMo"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -116.0
+offset_top = -124.0
+offset_right = -67.0
+offset_bottom = -60.0
+grow_horizontal = 2
+grow_vertical = 2
+rotation = -0.31191546
+theme_override_font_sizes/font_size = 46
+text = "3s"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 volume_db = -8.62
