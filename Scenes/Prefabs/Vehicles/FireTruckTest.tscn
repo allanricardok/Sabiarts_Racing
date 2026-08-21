@@ -104,7 +104,7 @@ transform = Transform3D(2.0000002, 0, 0, 0, 2, 0, 2.9802322e-08, 0, 2, -0.013972
 shape = SubResource("BoxShape3D_68bje")
 
 [node name="TrasEsq" parent="." index="4"]
-transform = Transform3D(1.190415, 0, 0, 0, 0.9876782, 0, 0, 0, 1.0125959, 1.1, 0.04846418, -1.803283)
+transform = Transform3D(1.190415, 0, 0, 0, 0.9876782, 0, 0, 0, 1.0125959, 1.1, 0.15038109, -1.803283)
 suspension_travel = 0.5
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="TrasEsq" index="0"]
@@ -112,7 +112,7 @@ transform = Transform3D(-3.4969112e-08, -0.15, 0, 0.8, -6.5567085e-09, 0, 0, 0, 
 mesh = SubResource("CylinderMesh_v71gj")
 
 [node name="TrasDir" parent="." index="5"]
-transform = Transform3D(1.1767989, 0, 0, 0, 0.9992312, 0, 0, 0, 1.0053065, -1.1, 0.047831893, -1.800283)
+transform = Transform3D(1.1767989, 0, 0, 0, 0.9992312, 0, 0, 0, 1.0053065, -1.1, 0.1497488, -1.800283)
 suspension_travel = 0.5
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="TrasDir" index="0"]
@@ -120,7 +120,7 @@ transform = Transform3D(-3.4969112e-08, -0.15, 0, 0.8, -6.5567085e-09, 0, 0, 0, 
 mesh = SubResource("CylinderMesh_v71gj")
 
 [node name="FreDir" parent="." index="6"]
-transform = Transform3D(1.081924, 0, 0, 0, 1.0797312, 0, 0, 0, 0.95451486, -1.1, 0.10446417, 1.9920911)
+transform = Transform3D(1.081924, 0, 0, 0, 1.0797312, 0, 0, 0, 0.95451486, -1.1, 0.20638108, 1.9920911)
 suspension_travel = 0.5
 
 [node name="MeshInstance3D3" type="MeshInstance3D" parent="FreDir" index="0"]
@@ -128,7 +128,7 @@ transform = Transform3D(-3.4969112e-08, -0.15, 0, 0.8, -6.5567085e-09, 0, 0, 0, 
 mesh = SubResource("CylinderMesh_v71gj")
 
 [node name="FreEsq" parent="." index="7"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.1, 0.10446417, 1.9920911)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.1, 0.20638108, 1.9920911)
 suspension_travel = 0.5
 
 [node name="MeshInstance3D4" type="MeshInstance3D" parent="FreEsq" index="0"]
@@ -198,7 +198,7 @@ min_ground_height = 2.5
 anti_gravity_start = 1.5
 anti_gravity_end = 0.6
 
-[node name="WeaponManager" parent="Scripts" index="14"]
+[node name="WeaponManager" parent="Scripts" index="13"]
 fire_rate_basic = 0.09
 
 [node name="MachineGun" parent="Guns" index="0"]

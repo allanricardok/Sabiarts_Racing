@@ -22,9 +22,10 @@ var wallride_drop_immunity_timer : float = 0.0
 var is_doing_stunt := false
 var original_angular_damp : float = 0.0
 
-# --- VARIÁVEIS DE QUEDA (SHAKE) ---
+# --- VARIÁVEIS DE QUEDA E TIMERS ---
 var was_on_ground := true
 var max_air_height := 0.0
+var _air_timer := 0.0 
 
 # ==============================================================================
 # OTIMIZAÇÃO: MEMÓRIA CACHE
@@ -59,10 +60,18 @@ func _physics_process(delta):
 		is_wallriding = _wall_rider.get("is_wallriding")
 		time_out_of_wall = _wall_rider.get("time_since_last_wallride")
 	
+	var grounded_wheels = get_grounded_wheels_count()
+	
+	# ====================================================================
+	# REGISTRO DO CRONÔMETRO DE AR
+	# ====================================================================
+	if grounded_wheels == 4:
+		_air_timer = 0.0 # Bateu as 4 rodas, zera o timer instantaneamente
+	else:
+		_air_timer += delta # Começa a transição assim que perde 1 roda
+		
 	var is_on_ground = false
 	var is_transfer_protected = (time_out_of_wall < 0.5) and input.is_stunt_pressed and (orientation > 0.3)
-	
-	var grounded_wheels = get_grounded_wheels_count()
 	
 	if not is_wallriding and not is_transfer_protected:
 		is_on_ground = (grounded_wheels >= 3) and (orientation > 0.3)
@@ -98,15 +107,32 @@ func _handle_air_logic(delta, forcing_coyote: bool, grounded_wheels: int):
 	
 	if not is_riding:
 		_apply_fast_fall(delta)
-		_handle_air_control(delta, grounded_wheels)
+		
+		# ====================================================================
+		# CURVA PROGRESSIVA DE FORÇA AÉREA (O FADE-IN)
+		# ====================================================================
+		var target_wheel_mult = 0.0
+		
+		if grounded_wheels == 0:
+			target_wheel_mult = 1.0  # Voo completo: Alvo é 100% de força
+		elif grounded_wheels <= 2:
+			target_wheel_mult = 0.5  # 1 ou 2 rodas no chão: Alvo é 50% de força
+			
+		var time_mult = 0.0
+		if _air_timer > 0.2:
+			# Transforma o tempo de 0.2s a 0.5s em um valor de 0.0 a 1.0
+			time_mult = clamp(remap(_air_timer, 0.2, 0.5, 0.0, 1.0), 0.0, 1.0)
+			
+		# Multiplica o alvo das rodas pelo tempo decorrido
+		var final_air_multiplier = target_wheel_mult * time_mult
+		
+		if final_air_multiplier > 0.0:
+			_handle_air_control(delta, grounded_wheels, final_air_multiplier)
 		
 		if is_doing_stunt:
 			stunt_processor.process_stunt_rotation(delta)
 
 func get_grounded_wheels_count() -> int:
-	if car.linear_velocity.y > 2.0:
-		return 0
-
 	var space_state = car.get_world_3d().direct_space_state
 	var wheels_on_ground = 0
 	
@@ -148,16 +174,27 @@ func _modify_energy(amount: float) -> bool:
 	_ability_component.current_energy = min(_ability_component.current_energy + amount, _ability_component.MAX_ENERGY)
 	return true
 
-func _handle_air_control(delta, grounded_wheels: int):
+func _handle_air_control(delta, grounded_wheels: int, multiplier: float):
 	var forward_in_air = max(input.throttle, 0.0)
 	
 	if grounded_wheels > 0:
 		forward_in_air = 0.0
 		
+	# Direção baseada na orientação local do carro
 	var move_dir = (car.global_transform.basis.x * input.steering) + (car.global_transform.basis.z * forward_in_air)
-	car.apply_central_force(move_dir * AIR_CONTROL_FORCE * car.mass)
-	car.apply_torque(-car.global_transform.basis.x * input.pitch * AIR_TORQUE_FORCE * car.mass)
-	car.apply_torque(car.global_transform.basis.y * input.steering * AIR_TORQUE_FORCE * car.mass)
+	
+	# Calcula a força direcional completa
+	var control_force = move_dir * AIR_CONTROL_FORCE * car.mass * multiplier
+	
+	# ====================================================================
+	# LIMITADOR DE VOO (Corta a força vertical pela metade)
+	# ====================================================================
+	control_force.y *= 0.25 
+	
+	# Aplica as forças finais
+	car.apply_central_force(control_force)
+	car.apply_torque(-car.global_transform.basis.x * input.pitch * AIR_TORQUE_FORCE * car.mass * multiplier)
+	car.apply_torque(car.global_transform.basis.y * input.steering * AIR_TORQUE_FORCE * car.mass * multiplier)
 
 func _apply_fast_fall(_delta):
 	if not is_near_ground():

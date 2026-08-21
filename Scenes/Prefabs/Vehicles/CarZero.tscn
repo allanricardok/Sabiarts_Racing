@@ -280,12 +280,12 @@ engine_force = 1.0
 brake = 1.0
 use_as_traction = true
 wheel_roll_influence = 0.3
-wheel_rest_length = 0.06
+wheel_rest_length = 0.22
 wheel_friction_slip = 2.35
 suspension_travel = 0.4
 suspension_stiffness = 120.0
 suspension_max_force = 62000.0
-damping_compression = 0.95
+damping_compression = 5.5
 damping_relaxation = 6.0
 
 [node name="TrasDir" type="VehicleWheel3D" parent="."]
@@ -294,12 +294,12 @@ engine_force = 1.0
 brake = 1.0
 use_as_traction = true
 wheel_roll_influence = 0.3
-wheel_rest_length = 0.06
+wheel_rest_length = 0.22
 wheel_friction_slip = 2.35
 suspension_travel = 0.4
 suspension_stiffness = 120.0
 suspension_max_force = 62000.0
-damping_compression = 0.95
+damping_compression = 5.5
 damping_relaxation = 6.0
 
 [node name="FreDir" type="VehicleWheel3D" parent="."]
@@ -308,12 +308,12 @@ engine_force = 5.0
 brake = 1.0
 use_as_steering = true
 wheel_roll_influence = 0.2
-wheel_rest_length = 0.06
+wheel_rest_length = 0.22
 wheel_friction_slip = 3.0
 suspension_travel = 0.4
 suspension_stiffness = 100.0
 suspension_max_force = 60000.0
-damping_compression = 0.95
+damping_compression = 5.5
 damping_relaxation = 5.0
 
 [node name="FreEsq" type="VehicleWheel3D" parent="."]
@@ -322,12 +322,12 @@ engine_force = 5.0
 brake = 1.0
 use_as_steering = true
 wheel_roll_influence = 0.2
-wheel_rest_length = 0.06
+wheel_rest_length = 0.22
 wheel_friction_slip = 3.0
 suspension_travel = 0.4
 suspension_stiffness = 100.0
 suspension_max_force = 60000.0
-damping_compression = 0.95
+damping_compression = 5.5
 damping_relaxation = 5.0
 
 [node name="NameTag" type="Label3D" parent="."]

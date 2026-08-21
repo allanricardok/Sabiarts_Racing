@@ -96,7 +96,7 @@ transform = Transform3D(-1, 9.1381684e-09, -8.694387e-08, 0, 0.9945219, 0.104528
 transform = Transform3D(2.0000002, 0, 0, 7.874141e-10, 1.9993128, 0.052842464, 2.9792082e-08, -0.052842464, 1.9993128, 0, 1.0266337, -0.05705855)
 
 [node name="TrasEsq" parent="." index="4"]
-transform = Transform3D(1.2, 0, 0, 0, 1.0000001, -3.7252903e-09, 0, 3.7252903e-09, 1.0000001, 0.945, 0.36691412, -1.5187664)
+transform = Transform3D(1.2, 0, 0, 0, 1.0000002, -3.7252903e-09, 0, 3.7252903e-09, 1.0000002, 0.945, 0.44488654, -1.5223099)
 wheel_radius = 0.6
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="TrasEsq" index="0"]
@@ -104,7 +104,7 @@ transform = Transform3D(-1.9582702e-08, 0.22299999, 0, -0.44799998, -9.74764e-09
 mesh = ExtResource("3_lm3y0")
 
 [node name="TrasDir" parent="." index="5"]
-transform = Transform3D(1.2, 0, 0, 0, 1.0000001, -3.7252903e-09, 0, 3.7252903e-09, 1.0000001, -0.9450669, 0.36736864, -1.5192149)
+transform = Transform3D(1.2, 0, 0, 0, 1.0000002, -3.7252903e-09, 0, 3.7252903e-09, 1.0000002, -0.9450669, 0.4453411, -1.5227585)
 wheel_radius = 0.6
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="TrasDir" index="0"]
@@ -112,7 +112,7 @@ transform = Transform3D(-1.9582696e-08, -0.22299998, 0, 0.44799986, -9.747638e-0
 mesh = ExtResource("3_lm3y0")
 
 [node name="FreDir" parent="." index="6"]
-transform = Transform3D(1, 0, 0, 0, 1.0000002, -3.7252903e-09, 0, 3.7252903e-09, 1.0000002, -0.7, 0.40460926, 1.661594)
+transform = Transform3D(1, 0, 0, 0, 1.0000004, -7.450581e-09, 0, 7.450581e-09, 1.0000004, -0.7, 0.4825817, 1.6580508)
 wheel_radius = 0.6
 suspension_travel = 0.5
 suspension_stiffness = 50.0
@@ -123,7 +123,7 @@ transform = Transform3D(-1.65229e-08, -0.16999999, 0, 0.3779999, -7.430936e-09, 
 mesh = ExtResource("3_lm3y0")
 
 [node name="FreEsq" parent="." index="7"]
-transform = Transform3D(1, 0, 0, 0, 1.0000002, -3.7252903e-09, 0, 3.7252903e-09, 1.0000002, 0.7, 0.40460926, 1.661594)
+transform = Transform3D(1, 0, 0, 0, 1.0000004, -7.450581e-09, 0, 7.450581e-09, 1.0000004, 0.7, 0.4825817, 1.6580508)
 wheel_radius = 0.6
 suspension_travel = 0.5
 suspension_stiffness = 50.0
