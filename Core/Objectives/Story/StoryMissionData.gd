@@ -29,6 +29,16 @@ enum MissionType { COMBAT_DESTROY, SCORE, SPEED, COLLECT, GAP, EXPLORE, ROADKILL
 @export var enemy_damage_dealt_mult: float = 1.0
 @export var enemy_damage_received_mult: float = 1.0
 
+# ====================================================================
+# VARIÁVEIS DO DIRETOR DE DIFICULDADE DE COMBATE
+# ====================================================================
+## Munição inicial que o bot recebe ao nascer (0 = começa vazio).
+@export var bot_initial_ammo: int = 8
+## Tempo (em segundos) para o bot gerar 1 de munição nova. (Maior = mais fácil)
+@export var bot_ammo_regen_rate: float = 3.0
+## Dano máximo que o bot pode causar a um alvo antes de trocar temporariamente (evita massacre no player).
+@export_range(20.0, 100.0) var bot_max_damage_per_target: float = 50.0
+
 @export_group("Comportamento da IA (Bots)")
 ## Faz os bots tentarem roubar as maletas com este ID (Ex: "maleta_01"):
 @export var bot_target_collect_id: String = ""

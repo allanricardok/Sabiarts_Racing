@@ -179,21 +179,34 @@ func iniciar_manobra_chao():
 				sp.initiate_stunt(Vector3(1, 0, 0), "BACKFLIP")
 	)
 
-# ==============================================================================
-# APLICAÇÃO FÍSICA E REFLEXOS (Avoidance)
-# ==============================================================================
 func aplicar_inputs_finais(delta: float, intencoes: Dictionary):
 	input.pitch = 0.0
 	input.is_attribute_pressed = false
 	input.ability_up = false
 	input.ability_down = false
 	
+	# ====================================================================
+	# OVERRIDE BRUTAL DO BURNOUT: Se pediu burnout, ignora tudo e força os botões
+	# ====================================================================
+	if intencoes.get("burnout_force", false):
+		input.throttle = 1.0
+		input.steering = intencoes.get("steering", 0.0)
+		
+		# CHECAGEM DE SEGURANÇA ADICIONADA AQUI:
+		if "brake" in input: input.brake = 1.0
+		
+		if "is_accelerating" in input: input.is_accelerating = true
+		if "is_braking" in input: input.is_braking = true
+		if "handbrake" in input: input.handbrake = false
+		
+		_atualizar_botoes_do_carro()
+		return
+	
 	var steer_final = intencoes.get("steering", 0.0)
 	var throttle_final = intencoes.get("throttle", 1.0)
 	var force_straight = intencoes.get("force_straight", false)
 	var ignore_avoidance = intencoes.get("ignore_avoidance", false)
 	
-	# Funde o handbrake no freio normal
 	var freio_final = intencoes.get("brake", 0.0)
 	if intencoes.get("handbrake", false): 
 		freio_final = 1.0 
@@ -203,12 +216,10 @@ func aplicar_inputs_finais(delta: float, intencoes: Dictionary):
 	
 	stunt_cooldown -= delta
 	
-	# --- GATILHO UNIVERSAL DE MANOBRAS ---
 	if intencoes.get("jump", false) and doing_stunt_timer <= 0.0 and stunt_cooldown <= 0.0:
 		iniciar_manobra_chao()
 		stunt_cooldown = 4.0 
 		
-	# --- ANTI-STUCK (Ré Automática) ---
 	var speed = car.linear_velocity.length()
 	if ignore_avoidance:
 		stuck_timer = 0.0
@@ -228,9 +239,6 @@ func aplicar_inputs_finais(delta: float, intencoes: Dictionary):
 		_atualizar_botoes_do_carro()
 		return 
 		
-	# ==========================================================
-	# OTIMIZAÇÃO: CULLING DE RAYCASTS
-	# ==========================================================
 	var usar_raycasts = (current_lod_level < 2)
 	ray_center.enabled = usar_raycasts
 	ray_left.enabled = usar_raycasts
@@ -264,7 +272,7 @@ func aplicar_inputs_finais(delta: float, intencoes: Dictionary):
 	
 	var steer_speed = clamp(speed * 0.5, 8.0, 20.0)
 	if is_avoiding: input.steering = lerp(input.steering, steer_final, delta * steer_speed)
-	elif ignore_avoidance: input.steering = steer_final # Trava volante no 180 sem lerp
+	elif ignore_avoidance: input.steering = steer_final
 	else: input.steering = clamp(steer_final, -1.0, 1.0)
 	
 	_atualizar_botoes_do_carro()

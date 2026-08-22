@@ -147,12 +147,14 @@ transform = Transform3D(0.49999997, -0.22414385, -0.83651614, 0, 0.9659257, -0.2
 transform = Transform3D(0.49999985, 0.22414383, 0.83651614, 0, 0.96592563, -0.25881898, -0.86602527, 0.12940948, 0.48296276, -0.5, 0.2788264, -0.273)
 
 [node name="MovementComponent" parent="Scripts" index="3"]
-ENGINE_POWER = 2000.0
+ENGINE_POWER = 1800.0
 MAX_STEER = 0.6
 BRAKE_POWER = 30.0
-START_BOOST = 3.0
-BOOST_LIMIT_SPEED = 20.0
+START_BOOST = 2.0
 AIR_RESISTANCE = 0.078
+STATIONARY_TURN_SPEED = 88.0
+burnout_min_mult = 0.8
+burnout_max_mult = 2.2
 EXTRA_FALL_GRAVITY = 1.0
 
 [node name="StatsComponent" parent="Scripts" index="4"]
@@ -171,6 +173,8 @@ AIR_TORQUE_FORCE = 45.0
 [node name="WallRideComponent" parent="Scripts" index="10"]
 min_speed_kmh = 1.0
 min_ground_height = 1.0
+anti_gravity_start = 1.6
+anti_gravity_end = 0.6
 anti_gravity_decay_time = 5.0
 validation_time = 0.3
 

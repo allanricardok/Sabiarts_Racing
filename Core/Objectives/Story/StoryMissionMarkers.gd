@@ -24,44 +24,55 @@ func update_markers():
 func _handle_delivery_rules():
 	var held = ctrl.delivery_items_held
 	var delivered = ctrl.delivery_items_delivered
-	
+
 	# Descobre qual é o total de itens (meta) que a missão exige
 	var meta = int(ctrl.current_mission.base_target_value)
-	
+
 	if not ctrl.current_mission.mission_tiers.is_empty():
 		for tier in ctrl.current_mission.mission_tiers:
 			if tier and delivered < int(tier.target_value):
 				meta = int(tier.target_value)
 				break
-	
+
 	# A base de entrega só acende se a soma do que você tem na mão 
 	# com o que já foi entregue for maior ou igual à meta
 	var can_deliver = (held + delivered) >= meta 
-	
+
 	for pointer in get_tree().get_nodes_in_group("mission_pointers"):
 		if not is_instance_valid(pointer): continue
-		
+
 		if pointer.pointer_type == "dropoff":
 			pointer.visible = can_deliver
-			
 		elif pointer.pointer_type == "collectable":
 			pointer.visible = true
 		else:
-			pointer.visible = true
+			pointer.visible = false # Apaga qualquer outra seta (fantasmas)
 
 # ====================================================================
 # REGRA DE NEGÓCIO: GENÉRICA (Collect, Explore, Destroy, etc)
 # ====================================================================
 func _handle_generic_rules():
+	var current_mission_type = ctrl.current_mission.mission_type
+	
 	for pointer in get_tree().get_nodes_in_group("mission_pointers"):
 		if not is_instance_valid(pointer): continue
+
+		# 1. Começa apagando TUDO por padrão para esconder fantasmas
+		pointer.visible = false 
 		
-		# A CORREÇÃO ESTÁ AQUI:
-		# Se a missão atual NÃO é de Delivery, as bases de entrega NUNCA devem acender!
-		if pointer.pointer_type == "dropoff":
-			pointer.visible = false
-		else:
-			# Coletáveis, Alvos ou Gerais podem acender normalmente
+		# 2. Acende APENAS o ponteiro que combina com o tipo de missão ativa!
+		# (Verifique se os nomes dos pointer_type batem exatamente com as strings do seu jogo)
+		
+		if current_mission_type == StoryMissionData.MissionType.DEFEND and pointer.pointer_type == "defend":
+			pointer.visible = true
+			
+		elif current_mission_type == StoryMissionData.MissionType.DESTROY and pointer.pointer_type == "destroy":
+			pointer.visible = true
+			
+		elif current_mission_type == StoryMissionData.MissionType.COLLECT and pointer.pointer_type == "collectable":
+			pointer.visible = true
+			
+		elif current_mission_type == StoryMissionData.MissionType.EXPLORE and pointer.pointer_type == "explore":
 			pointer.visible = true
 
 # ====================================================================

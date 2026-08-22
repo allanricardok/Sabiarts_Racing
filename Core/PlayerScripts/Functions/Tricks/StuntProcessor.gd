@@ -102,9 +102,6 @@ func _emitir_falha_energia():
 		_ability_component._erro_falta_energia()
 
 func _start_rotation_stunt(axis: Vector3, p_mult: float):
-	print("=========================================")
-	print("[STUNT PROCESSOR] 🎬 INICIANDO MANOBRA: ", current_trick_id)
-	print(" -> Retirando atrito (angular_damp = 0.01)")
 	
 	parent.is_doing_stunt = true
 	accumulated_angle = 0.0
@@ -170,12 +167,9 @@ func process_stunt_rotation(delta):
 		apply_stunt_brake("Timeout estourou.")
 
 func apply_stunt_brake(motivo: String = "Chamada Forçada"):
-	print("[STUNT PROCESSOR] 🛑 FREIO ACIONADO! Motivo: ", motivo)
-	
 	if is_invincible: _call_ability_shield(false)
 	
 	car.angular_damp = parent.original_angular_damp
-	print(" -> Atrito restaurado para normal: ", parent.original_angular_damp)
 	
 	if current_trick_id != "EMOTE" and current_trick_id != "":
 		var local_vel = car.global_transform.basis.inverse() * car.angular_velocity
@@ -185,7 +179,6 @@ func apply_stunt_brake(motivo: String = "Chamada Forçada"):
 	parent.is_doing_stunt = false
 	current_trick_id = ""
 	accumulated_angle = 0.0
-	print("=========================================")
 
 func _confirm_trick_success():
 	if current_trick_id != "" and parent.trick_manager:

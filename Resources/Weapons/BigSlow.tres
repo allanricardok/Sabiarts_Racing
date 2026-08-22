@@ -8,13 +8,13 @@
 script = ExtResource("1_ddf8q")
 nome = "BigSlow"
 projectile_scene = ExtResource("1_etxkf")
-dano = 20.0
-fire_rate = 1.0
+dano = 15.0
+fire_rate = 1.4
 max_ammo = 18
 causes_aoe_damage = true
 aoe_radius = 20.0
 aoe_damage = 5.0
-aoe_knockback = 25.0
+aoe_knockback = 10.0
 self_damage_multiplier = 0.25
 custom_mesh = ExtResource("1_r2y01")
 mesh_scale = Vector3(1.4, 1.4, 1.4)

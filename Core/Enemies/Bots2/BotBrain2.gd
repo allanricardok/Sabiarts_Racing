@@ -37,6 +37,11 @@ var _tempo_oportunidade: float = 0.0
 var ameacas_detectadas : int = 0
 var _blacklisted_loots: Array[Node3D] = [] 
 
+# --- VARIÁVEIS RECEBIDAS DO SPAWNER ---
+var bot_initial_ammo: int = 8
+var bot_ammo_regen_rate: float = 3.0
+var bot_max_damage_per_target: float = 50.0
+
 # --- PERSONALIDADE & ALVOS ---
 var _my_player_focus_chance: float = 0.0 
 var _my_bot_hostility_chance: float = 100.0 
@@ -75,6 +80,7 @@ func _ready():
 	car = get_parent()
 	if not is_instance_valid(car): return 
 	
+	
 	input = car.get_node_or_null("%InputComponent")
 	stats = car.get_node_or_null("%StatsComponent")
 	
@@ -92,6 +98,14 @@ func _ready():
 	combat = BotCombatModuleV2.new()
 	combat.name = "BotCombatModuleV2"
 	add_child(combat)
+	
+	# Passa as variáveis da missão adiante ANTES de ligar o combate
+	combat.initial_ammo = bot_initial_ammo
+	combat.ammo_regen_rate = bot_ammo_regen_rate
+	combat.max_damage_per_target = bot_max_damage_per_target
+	
+	driver.setup(car, input)
+	combat.setup(car, input, stats, radar) # O Setup agora tem os dados certos!
 	
 	tactics = BotTacticsV2.new()
 	tactics.name = "BotTacticsV2"
@@ -287,72 +301,6 @@ func _processar_desvio_de_minas(intencoes: Dictionary):
 			intencoes["throttle"] = min(intencoes.get("throttle", 1.0), 0.3)
 			if abs(local_pos.z) < 8.0:
 				intencoes["handbrake"] = true
-
-
-# ====================================================================
-# ESCOLHA INTELIGENTE DE ALVOS (ANTI-SPAM)
-# ====================================================================
-func _decide_battle_target():
-	var final_target: Node3D = null
-	
-	if _is_hunting_player and is_instance_valid(_cached_player_target):
-		final_target = _cached_player_target
-	else:
-		if is_instance_valid(_cached_player_target):
-			var dice_roll = randf() * 100.0
-			if dice_roll <= _my_player_focus_chance:
-				final_target = _cached_player_target
-
-		if final_target == null and radar.inimigos_proximos.size() > 0:
-			var bot_dice = randf() * 100.0
-			if bot_dice <= _my_bot_hostility_chance:
-				var target_is_weakest = (randf() <= 0.25)
-				final_target = _find_best_bot_target(target_is_weakest)
-
-	if final_target == null:
-		if _current_brain_target != null:
-			print("[BotBrainV2] ", car.name, " perdeu os alvos visíveis. Voltando para WANDER!")
-			_current_brain_target = null
-			
-		current_macro_state = MacroState.WANDER
-		if is_instance_valid(tactics): tactics.reset_target()
-		if is_instance_valid(combat) and "target" in combat: combat.target = null
-		return
-		
-	# LOG E ATUALIZAÇÃO APENAS SE MUDOU DE ALVO
-	if final_target != _current_brain_target:
-		print("[BotBrainV2] ⚔️ ALVO TRAVADO! ", car.name, " vai atacar -> ", final_target.name)
-		_current_brain_target = final_target
-		
-	if is_instance_valid(tactics):
-		if tactics.has_method("set_forced_target"):
-			tactics.set_forced_target(final_target)
-		elif "target" in tactics: 
-			tactics.target = final_target
-
-	# APLICA A DECISÃO TAMBÉM NAS ARMAS (Evita Fogo Amigo Rebelde)
-	if is_instance_valid(combat):
-		if combat.has_method("set_target"):
-			combat.set_target(final_target)
-		elif "target" in combat:
-			combat.target = final_target
-
-func _find_best_bot_target(buscar_fraco: bool) -> Node3D:
-	var best_target: Node3D = null
-	var best_health: float = 999999.0 if buscar_fraco else -1.0
-	
-	for ini in radar.inimigos_proximos:
-		if not is_instance_valid(ini) or ini.is_queued_for_deletion(): continue
-		var ini_stats = ini.get_node_or_null("%StatsComponent")
-		if ini_stats:
-			var hp = ini_stats.current_health
-			if buscar_fraco and hp < best_health:
-				best_health = hp
-				best_target = ini
-			elif not buscar_fraco and hp > best_health:
-				best_health = hp
-				best_target = ini
-	return best_target
 
 func _scan_for_closest_player():
 	_cached_player_target = null
@@ -551,3 +499,76 @@ func _reset_inputs():
 	input.pitch = 0.0
 	if "handbrake" in input: input.handbrake = false
 	input.is_action_pressed = false
+
+# Adicione esta função em algum lugar do seu BotBrainV2
+func notificar_alvo_esgotado(alvo: Node3D):
+	print("[BotBrainV2] Cota de dano máxima atingida no alvo: ", alvo.name)
+	if _current_brain_target == alvo:
+		_current_brain_target = null
+		if is_instance_valid(tactics): tactics.reset_target()
+		
+	_decide_battle_target()
+	
+	# Se a função acima não encontrou nenhum alvo válido novo (todos estão esgotados ou longe)
+	if _current_brain_target == null:
+		state_lock_timer = 0.0 # Força o _evaluate_utility rodar imediatamente para pular pra WANDER/SEEK
+
+# Atualize estas duas funções para evitar focar em quem já apanhou demais:
+func _decide_battle_target():
+	var final_target: Node3D = null
+	
+	# IGNORA alvo esgotado
+	if _is_hunting_player and is_instance_valid(_cached_player_target) and not combat.targets_exhausted.has(_cached_player_target):
+		final_target = _cached_player_target
+	else:
+		if is_instance_valid(_cached_player_target) and not combat.targets_exhausted.has(_cached_player_target):
+			var dice_roll = randf() * 100.0
+			if dice_roll <= _my_player_focus_chance:
+				final_target = _cached_player_target
+
+		if final_target == null and radar.inimigos_proximos.size() > 0:
+			var bot_dice = randf() * 100.0
+			if bot_dice <= _my_bot_hostility_chance:
+				var target_is_weakest = (randf() <= 0.25)
+				final_target = _find_best_bot_target(target_is_weakest)
+
+	if final_target == null:
+		if _current_brain_target != null:
+			print("[BotBrainV2] ", car.name, " perdeu os alvos visíveis ou esgotou as cotas. Voltando para WANDER!")
+			_current_brain_target = null
+			
+		current_macro_state = MacroState.WANDER
+		if is_instance_valid(tactics): tactics.reset_target()
+		if is_instance_valid(combat) and "target" in combat: combat.target = null
+		return
+		
+	if final_target != _current_brain_target:
+		print("[BotBrainV2] ⚔️ ALVO TRAVADO! ", car.name, " vai atacar -> ", final_target.name)
+		_current_brain_target = final_target
+		
+	if is_instance_valid(tactics):
+		if tactics.has_method("set_forced_target"): tactics.set_forced_target(final_target)
+		elif "target" in tactics: tactics.target = final_target
+
+	if is_instance_valid(combat):
+		if combat.has_method("set_target"): combat.set_target(final_target)
+		elif "target" in combat: combat.target = final_target
+
+func _find_best_bot_target(buscar_fraco: bool) -> Node3D:
+	var best_target: Node3D = null
+	var best_health: float = 999999.0 if buscar_fraco else -1.0
+	
+	for ini in radar.inimigos_proximos:
+		if not is_instance_valid(ini) or ini.is_queued_for_deletion(): continue
+		if combat.targets_exhausted.has(ini): continue # IGNORA ALVOS DA COTA CHEIA
+		
+		var ini_stats = ini.get_node_or_null("%StatsComponent")
+		if ini_stats:
+			var hp = ini_stats.current_health
+			if buscar_fraco and hp < best_health:
+				best_health = hp
+				best_target = ini
+			elif not buscar_fraco and hp > best_health:
+				best_health = hp
+				best_target = ini
+	return best_target

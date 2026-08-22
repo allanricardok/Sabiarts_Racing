@@ -175,19 +175,22 @@ func _modify_energy(amount: float) -> bool:
 	return true
 
 func _handle_air_control(delta, grounded_wheels: int, multiplier: float):
-	var forward_in_air = max(input.throttle, 0.0)
+	# ====================================================================
+	# NERF DE VELOCIDADE AÉREA: Corta a aceleração frontal pela metade (50%)
+	# ====================================================================
+	var forward_in_air = max(input.throttle, 0.0) * 0.5
 	
 	if grounded_wheels > 0:
 		forward_in_air = 0.0
 		
-	# Direção baseada na orientação local do carro
+	# Direção baseada na orientação local do carro (O X continua com 100% de força para você desviar)
 	var move_dir = (car.global_transform.basis.x * input.steering) + (car.global_transform.basis.z * forward_in_air)
 	
 	# Calcula a força direcional completa
 	var control_force = move_dir * AIR_CONTROL_FORCE * car.mass * multiplier
 	
 	# ====================================================================
-	# LIMITADOR DE VOO (Corta a força vertical pela metade)
+	# LIMITADOR DE FLUTUAÇÃO (Corta a força vertical para 25%)
 	# ====================================================================
 	control_force.y *= 0.25 
 	

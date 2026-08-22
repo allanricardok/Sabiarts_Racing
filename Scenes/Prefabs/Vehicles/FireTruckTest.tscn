@@ -170,6 +170,7 @@ BRAKE_ASSIST_FORCE = 60.0
 START_BOOST = 2.0
 BOOST_LIMIT_SPEED = 40.0
 AIR_RESISTANCE = 0.09
+STATIONARY_TURN_SPEED = 100.0
 burnout_min_time = 0.3
 burnout_max_time = 2.0
 burnout_min_mult = 0.8
@@ -189,8 +190,9 @@ BOOST_IMPULSE = 14.0
 HARD_BRAKE_POWER = 150.0
 
 [node name="AirMovementComponent" parent="Scripts" index="6"]
-AIR_CONTROL_FORCE = 12.0
-EXTRA_FALL_FORCE = 12.0
+AIR_CONTROL_FORCE = 18.0
+AIR_TORQUE_FORCE = 35.0
+EXTRA_FALL_FORCE = 14.0
 
 [node name="WallRideComponent" parent="Scripts" index="10"]
 max_wall_distance = 3.8

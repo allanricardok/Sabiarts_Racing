@@ -18,7 +18,7 @@ var look_vector : Vector2 = Vector2.ZERO
 var mouse_look : Vector2 = Vector2.ZERO  
 
 @export var camera_sensitivity : float = 0.000005 
-@export var air_camera_multiplier : float = 0.2    
+@export var air_camera_multiplier : float = 0.2   
 @export var mouse_return_speed : float = 5.0      
 @export var mouse_maneuver_threshold : float = 1000.0 
 
@@ -27,7 +27,10 @@ var is_action_pressed : bool = false
 var is_fire_pressed : bool = false
 var is_attribute_pressed : bool = false 
 var is_stunt_pressed: bool = false
+
+# --- SISTEMA DE ARMAS ---
 var is_change_weapon_pressed: bool = false 
+var is_prev_weapon_pressed: bool = false 
 
 var is_fire_backwards_pressed: bool = false 
 
@@ -88,6 +91,19 @@ func _physics_process(delta):
 
 	is_accelerating = Input.is_action_pressed("Forward" + suffix)
 	is_braking = Input.is_action_pressed("Backward" + suffix)
+	
+	is_accelerating = Input.is_action_pressed("Forward" + suffix)
+	is_braking = Input.is_action_pressed("Backward" + suffix)
+
+	# ====================================================================
+	# HACK ANTI-GHOSTING PARA O BURNOUT (Ideal para Teclado)
+	# ====================================================================
+	var burnout_action = "Burnout" + suffix
+	if InputMap.has_action(burnout_action) and Input.is_action_pressed(burnout_action):
+		is_accelerating = true
+		is_braking = true
+		throttle = 1.0 # Força o acelerador no talo para o motor girar
+	# ====================================================================
 
 	if Input.is_action_just_pressed("Forward" + suffix):
 		var current_time = Time.get_ticks_msec() / 1000.0
@@ -106,8 +122,14 @@ func _physics_process(delta):
 	is_attribute_pressed = Input.is_action_pressed("Attribute" + suffix)
 	is_look_behind_pressed = Input.is_action_pressed("LookBehind" + suffix)
 	
-	var wp_action = "next_weapon" + suffix
-	is_change_weapon_pressed = Input.is_action_just_pressed(wp_action) if InputMap.has_action(wp_action) else false
+	# ====================================================================
+	# TROCA DE ARMAS BIDIRECIONAL
+	# ====================================================================
+	var wp_next_action = "next_weapon" + suffix
+	is_change_weapon_pressed = Input.is_action_just_pressed(wp_next_action) if InputMap.has_action(wp_next_action) else false
+	
+	var wp_prev_action = "prev_weapon" + suffix
+	is_prev_weapon_pressed = Input.is_action_just_pressed(wp_prev_action) if InputMap.has_action(wp_prev_action) else false
 	
 	if suffix.begins_with("_J"):
 		var joy_x = Input.get_axis("LookLeft" + suffix, "LookRight" + suffix)
@@ -129,7 +151,7 @@ func _physics_process(delta):
 	radar_prev_pressed = dpad_left and is_attribute_pressed
 	radar_next_pressed = dpad_right and is_attribute_pressed
 
-# ====================================================================
+	# ====================================================================
 	# O NÚCLEO TÁTICO: Círculo (Attribute) + L-Joy
 	# ====================================================================
 	if is_attribute_pressed:
@@ -138,7 +160,6 @@ func _physics_process(delta):
 		if suffix.begins_with("_J"):
 			ability_left = Input.get_action_strength("Left" + suffix) > normal_threshold
 			ability_right = Input.get_action_strength("Right" + suffix) > normal_threshold
-			# CORREÇÃO AQUI: Trocamos o Up e Down de lugar para compensar o eixo invertido (Pitch de Avião)
 			ability_up = Input.get_action_strength("Pitch_Down" + suffix) > normal_threshold
 			ability_down = Input.get_action_strength("Pitch_Up" + suffix) > normal_threshold
 		else:

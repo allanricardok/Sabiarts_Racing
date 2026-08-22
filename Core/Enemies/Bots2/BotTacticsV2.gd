@@ -22,6 +22,7 @@ var _is_doing_180: bool = false
 var _is_doing_burnout_180: bool = false
 var _180_steer_dir: float = 0.0
 var _random_stunt_timer: float = 15.0
+var _180_timer = 0.0
 
 # --- A PONTE QUE FALTAVA ---
 # O Cérebro chama "tactics.target = x", nós interceptamos e forçamos no current_target
@@ -100,37 +101,50 @@ func _tactic_battle(delta: float) -> Dictionary:
 	# Gatilho Inicial: Inimigo nas costas
 	if not _is_doing_180 and dot_p < -0.5:
 		_is_doing_180 = true
-		_180_steer_dir = 1.0 if flat_forward.cross(flat_dir).y > 0 else -1.0
-		# Se já está devagar, entra direto no Burnout!
+		_180_steer_dir = 1.0 if randf() > 0.5 else -1.0 # NOVO: Gira para um lado aleatório
 		_is_doing_burnout_180 = (speed_kmh < 50.0) 
+		_180_timer = 0.0 # Zera o cronômetro de falha
 
 	if _is_doing_180:
+		_180_timer += delta
+		
+		# Failsafe: Se ficar travado no burnout tentando girar por mais de 2.5s, desiste!
+		if _180_timer > 2.5:
+			_is_doing_180 = false
+			_is_doing_burnout_180 = false
+			
 		if _is_doing_burnout_180:
 			current_action_name = "180: Burnout Recovery"
 			# CONDIÇÃO 3 (< 50km/h): Acelera e Freia ao mesmo tempo!
-			if dot_p > 0.8: # Já rotacionou o suficiente pra ficar de frente
+			if dot_p > 0.7: # Flexibilizado um pouco (de 0.8 para 0.7) para soltar o freio mais rápido
 				_is_doing_180 = false
 				_is_doing_burnout_180 = false
 			else:
+				# NOVO: Injeta uma força de rotação bruta para ajudar veículos pesados (Bombeiro) a girarem
+				var spin_force = 15.0 * car.mass * _180_steer_dir
+				car.apply_torque(car.global_transform.basis.y * spin_force * delta * 60.0)
+				
+				# Manda a nova flag explícita pro Driver esmagar os pedais juntos
+				intencoes.burnout_force = true 
 				intencoes.throttle = 1.0
-				intencoes.brake = 1.0 # Acende a lanterna e trava pneu
+				intencoes.brake = 1.0 
 				intencoes.steering = _180_steer_dir
+				intencoes.ignore_avoidance = true # NOVO: Desliga os sensores anti-parede para não abortar o giro!
 				return intencoes
 		else:
 			if speed_kmh > 70.0:
 				current_action_name = "180: High Speed Drift"
-				# CONDIÇÃO 1 (> 70km/h): Freia e vira (sem acelerar)
 				if dot_p > 0.8:
 					_is_doing_180 = false
 				else:
 					intencoes.throttle = 0.0
 					intencoes.brake = 1.0
 					intencoes.steering = _180_steer_dir
+					intencoes.ignore_avoidance = true
 					return intencoes
 					
 			elif speed_kmh >= 50.0 and speed_kmh <= 70.0:
 				current_action_name = "180: Speeding Up"
-				# CONDIÇÃO 2 (50 a 70km/h): Acelera reto com turbo
 				intencoes.throttle = 1.0
 				intencoes.brake = 0.0
 				intencoes.force_straight = true
@@ -141,7 +155,6 @@ func _tactic_battle(delta: float) -> Dictionary:
 				return intencoes
 				
 			else:
-				# FAILSAFE: Caiu abaixo de 50km/h no meio da derrapagem! Trava no Burnout (Condição 3).
 				_is_doing_burnout_180 = true
 				return intencoes
 	# ====================================================================
@@ -295,10 +308,16 @@ func _tactic_wander(delta: float) -> Dictionary:
 			return inte
 			
 	if radar.teleporters_proximos.size() > 0 and is_instance_valid(radar.teleporters_proximos[0]):
-		if car.global_position.distance_squared_to(radar.teleporters_proximos[0].global_position) < 10000.0:
+		var dist_sq = car.global_position.distance_squared_to(radar.teleporters_proximos[0].global_position)
+		if dist_sq < 10000.0:
 			current_action_name = "Seek Teleport"
 			var inte = driver.navegar_para_ponto(radar.teleporters_proximos[0].global_position, delta)
-			inte.throttle = 1.0
+			
+			# NOVO: Freio de aproximação para não passar lotado!
+			if dist_sq < 250.0:
+				inte.throttle = 0.4
+			else:
+				inte.throttle = 1.0
 			return inte
 
 	if _roam_pause_timer > 0.0:
@@ -320,30 +339,31 @@ func _tactic_wander(delta: float) -> Dictionary:
 	intencoes.throttle = 0.9
 	return intencoes
 	
+# Atualize apenas esta função no seu BotTacticsV2
 func _get_best_combat_target() -> Node3D:
 	if radar.inimigos_proximos.is_empty(): return null
 	
-	# Desempate 1: Vingança (Último que atirou) com checagem reforçada
+	# Desempate 1: Vingança (Último que atirou). Mas só se ele NÃO estiver esgotado
 	if is_instance_valid(_last_attacker) and not _last_attacker.is_queued_for_deletion() and radar.inimigos_proximos.has(_last_attacker):
-		return _last_attacker
+		if not combat.targets_exhausted.has(_last_attacker):
+			return _last_attacker
 		
-	# Inicia nulo para evitar fantasmas
 	var best_target: Node3D = null
 	var highest_hp_pct = -1.0
 	
 	for ini in radar.inimigos_proximos:
-		# Filtro anti-crash
-		if is_instance_valid(ini) and not ini.is_queued_for_deletion():
-			var t_stats = ini.get_node_or_null("%StatsComponent")
-			if t_stats:
-				var hp_pct = (t_stats.current_health / t_stats.max_health) * 100.0
-				if hp_pct > highest_hp_pct:
-					highest_hp_pct = hp_pct
-					best_target = ini
-			else:
-				# Fallback de segurança se o objeto não tiver Stats
-				if highest_hp_pct == -1.0: 
-					best_target = ini
+		if not is_instance_valid(ini) or ini.is_queued_for_deletion(): continue
+		if combat.targets_exhausted.has(ini): continue # Filtro Anti-Massacre
+		
+		var t_stats = ini.get_node_or_null("%StatsComponent")
+		if t_stats:
+			var hp_pct = (t_stats.current_health / t_stats.max_health) * 100.0
+			if hp_pct > highest_hp_pct:
+				highest_hp_pct = hp_pct
+				best_target = ini
+		else:
+			if highest_hp_pct == -1.0: 
+				best_target = ini
 					
 	return best_target
 

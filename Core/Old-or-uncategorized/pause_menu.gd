@@ -1,7 +1,11 @@
-# pause_menu.gd
 extends CanvasLayer
 
 var pode_pausar: bool = true
+
+# ==============================================================================
+# NOVO: Variável que guarda o "crachá" de quem pausou o jogo (Ex: "K1", "J1")
+# ==============================================================================
+var pauser_scheme: String = "" 
 
 @export var start_menu: CanvasLayer
 @onready var mission_container = %MissionList
@@ -9,7 +13,6 @@ var pode_pausar: bool = true
 @onready var end_match_btn = get_node_or_null("%EndMatchBtn")
 @onready var main_button_container = $Control/VBoxContainer
 
-# --- BOTÕES QUE AGORA VÊM DIRETAMENTE DO EDITOR ---
 @onready var abort_mission_btn = get_node_or_null("%AbortMissionBtn")
 @onready var reset_mission_btn = get_node_or_null("%ResetMissionBtn")
 @onready var retry_last_btn = get_node_or_null("%RetryLastBtn")
@@ -17,7 +20,6 @@ var pode_pausar: bool = true
 @onready var toggle_ps1_btn = get_node_or_null("%TogglePS1Btn")
 
 func _ready():
-	# Conecta os outros botões (caso não estejam conectados no editor)
 	if abort_mission_btn and not abort_mission_btn.pressed.is_connected(_on_abort_mission_btn_pressed):
 		abort_mission_btn.pressed.connect(_on_abort_mission_btn_pressed)
 	if reset_mission_btn and not reset_mission_btn.pressed.is_connected(_on_reset_mission_btn_pressed):
@@ -25,85 +27,78 @@ func _ready():
 	if retry_last_btn and not retry_last_btn.pressed.is_connected(_on_retry_last_btn_pressed):
 		retry_last_btn.pressed.connect(_on_retry_last_btn_pressed)
 
-# --- CONEXÃO DO BOTÃO PS1 ---
 	if toggle_ps1_btn:
-		# CheckButtons usam o sinal 'toggled', que já entrega um bool (true/false)
 		if not toggle_ps1_btn.toggled.is_connected(_on_toggle_ps1_toggled):
 			toggle_ps1_btn.toggled.connect(_on_toggle_ps1_toggled)
-			
-		# Opcional, mas muito bom: Sincroniza o botão com o estado inicial do shader
 		var shader = get_tree().get_first_node_in_group("ps1_shaders")
 		if shader:
 			toggle_ps1_btn.button_pressed = shader.visible
 
-	# --- CONFIGURAÇÃO BLINDADA DO SUBMENU DE CÂMERA ---
 	if camera_select_btn:
-		# 1. Garante que o sinal "selecionou item" dispare a função
 		if not camera_select_btn.item_selected.is_connected(_on_camera_selected):
 			camera_select_btn.item_selected.connect(_on_camera_selected)
-			
-		# 2. Limpa qualquer lixo que tenha ficado no Editor e cria o submenu limpo!
 		camera_select_btn.clear()
 		camera_select_btn.add_item("Opções de Câmera", 999) 
 		camera_select_btn.add_item("Câmera: Normal", 0)
 		camera_select_btn.add_item("Câmera: Capô", 1)
 		camera_select_btn.add_item("Câmera: Longe", 2)
 
-func _on_camera_selected(index: int):
-	# Se for o título (ID 999), ignora
-	if camera_select_btn.get_item_id(index) == 999: return
-	
-	# Pega o ID (0, 1 ou 2) e manda o carro executar
-	var mode = camera_select_btn.get_item_id(index)
-	get_tree().call_group("jogadores", "set_camera_mode", mode)
 
 func _input(event):
 	if start_menu and start_menu.visible:
 		return
 
-	if pode_pausar and Input.is_action_just_pressed("Pause"):
-		_toggle_pause()
-
-func _toggle_pause():
 	if not pode_pausar: return
+	
+	var esquemas = ["K1", "J1", "J2", "J3", "J4"]
+	
+	if not get_tree().paused:
+		# JOGO RODANDO: Qualquer um pode apertar o seu próprio botão de pausa
+		for esquema in esquemas:
+			# ATENÇÃO: No Input Map do Godot, você precisará criar as ações "Pause_K1", "Pause_J1", etc.
+			if event.is_action_pressed("Pause_" + esquema):
+				_toggle_pause(esquema)
+				return
+	else:
+		# JOGO PAUSADO: Apenas quem pausou pode despausar!
+		if event.is_action_pressed("Pause_" + pauser_scheme):
+			_toggle_pause("")
+			return
+
+
+func _toggle_pause(quem_pausou: String = ""):
+	if not pode_pausar: return
+	
+	# Salva a identificação de quem abriu o menu
+	pauser_scheme = quem_pausou
 	
 	if Global.current_run_mode == Global.RunMode.FREE_ROAM:
 		%ScrollContainer.visible = false
 	
-	var new_pause_state = !get_tree().paused
+	var new_pause_state = (pauser_scheme != "")
 	get_tree().paused = new_pause_state
 	visible = new_pause_state
 	
 	if new_pause_state:
 		_atualizar_lista_missoes()
-		
 		var story_controller = get_tree().get_first_node_in_group("StoryController")
 		var has_mission = false
 		var can_retry = false
 		
 		if story_controller:
-			# Lemos a variável booleana diretamente do controlador
 			has_mission = story_controller.get("is_mission_running") == true
-			
-			# Pode tentar de novo se NÃO estiver em missão E tiver uma missão salva no histórico
 			can_retry = (not has_mission) and (story_controller.get("last_played_mission") != null)
 		
-		# =================================================================
-		# LÓGICA DE TOGGLE (Visibilidade e Bloqueio)
-		# =================================================================
 		if abort_mission_btn:
 			abort_mission_btn.visible = has_mission
 			abort_mission_btn.disabled = not has_mission
-			
 		if reset_mission_btn:
 			reset_mission_btn.visible = has_mission
 			reset_mission_btn.disabled = not has_mission
-			
 		if retry_last_btn:
 			retry_last_btn.visible = can_retry
 			retry_last_btn.disabled = not can_retry
 		
-		# Gerenciamento de Foco Automático
 		if has_mission and reset_mission_btn:
 			reset_mission_btn.grab_focus()
 		elif can_retry and retry_last_btn:
@@ -114,6 +109,39 @@ func _toggle_pause():
 			resume_btn.grab_focus()
 	else:
 		get_viewport().gui_release_focus()
+
+func _process(delta):
+	# BLINDAGEM DE INPUT: Apenas o dono da pausa pode apertar (Action) os botões
+	if visible and pauser_scheme != "":
+		if Input.is_action_just_pressed("Action_" + pauser_scheme):
+			var focused_node = get_viewport().gui_get_focus_owner()
+			if focused_node is OptionButton:
+				focused_node.show_popup()
+			elif focused_node is Button:
+				focused_node.pressed.emit()
+
+# =================================================================
+# --- SISTEMA DE CÂMERA INDIVIDUAL ---
+# =================================================================
+func _on_camera_selected(index: int):
+	if camera_select_btn.get_item_id(index) == 999: return
+	var mode = camera_select_btn.get_item_id(index)
+	
+	# Em vez de chamar o grupo, busca exatamente o carro de quem pausou
+	var jogador = _get_jogador_que_pausou()
+	if jogador and jogador.has_method("set_camera_mode"):
+		jogador.set_camera_mode(mode)
+
+func _get_jogador_que_pausou() -> Node:
+	for p in get_tree().get_nodes_in_group("jogadores"):
+		var inp = p.get_node_or_null("%InputComponent")
+		
+		# O seu InputComponent salva a identificação com um underline na frente (ex: "_K1")
+		# Então nós juntamos "_" + pauser_scheme ("K1") para dar o match perfeito!
+		if inp and inp.get("suffix") == "_" + pauser_scheme:
+			return p
+			
+	return null
 
 func _on_toggle_ps1_toggled(toggled_on: bool):
 	# Pega todos os shaders (caso você adicione suporte a split-screen no futuro) e altera a visibilidade
@@ -274,16 +302,6 @@ func _on_end_match_btn_pressed():
 	var controller = get_tree().get_first_node_in_group("LevelController")
 	if controller and controller.has_method("encerrar_partida"):
 		controller.encerrar_partida()
-
-func _process(delta):
-	if visible:
-		for esquema in ["K1", "J1", "J2", "J3", "J4"]:
-			if Input.is_action_just_pressed("Action_" + esquema):
-				var focused_node = get_viewport().gui_get_focus_owner()
-				if focused_node is OptionButton:
-					focused_node.show_popup()
-				elif focused_node is Button:
-					focused_node.pressed.emit() # Voltou a ser exatamente o que você tinha!
 
 # Conectado ao TogglePS1Btn (Apenas Mapa)
 func _on_toggle_ps1_btn_toggled(toggled_on: bool):

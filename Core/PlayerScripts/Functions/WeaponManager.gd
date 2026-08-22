@@ -101,9 +101,12 @@ func _process(delta):
 	if _is_bot:
 		is_firing_basic = input.is_action_pressed 
 	else:
-		# CORREÇÃO AQUI: Usando o nome real da sua ação de arma!
+		# ====================================================================
+		# LÓGICA DA RODA DE ARMAS E TROCA RÁPIDA (BIDIRECIONAL)
+		# ====================================================================
 		var wheel_action = "next_weapon" + input.suffix 
 		
+		# Avança a arma (Roda para Cima / Botão Next)
 		if InputMap.has_action(wheel_action):
 			if Input.is_action_pressed(wheel_action):
 				_wheel_hold_timer += unscaled_delta
@@ -122,9 +125,13 @@ func _process(delta):
 						wheel_ui_node.close_wheel()
 						equip_weapon_by_pool_index(hovered_weapon_index)
 				else:
-					_switch_weapon(1)
+					_switch_weapon(1) # Roda para a PRÓXIMA arma
 					
 				_wheel_hold_timer = 0.0
+				
+		# Retrocede a arma (Roda para Baixo / Botão Prev)
+		if input.is_prev_weapon_pressed and not is_wheel_open:
+			_switch_weapon(-1) # Roda para a arma ANTERIOR
 
 		if is_wheel_open:
 			var analog_dir = input.look_vector

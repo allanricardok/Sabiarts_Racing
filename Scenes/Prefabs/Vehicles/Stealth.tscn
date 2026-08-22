@@ -101,7 +101,7 @@ albedo_color = Color(0.31, 0.31, 0.31, 1)
 
 [node name="BaseVehicle" instance=ExtResource("1_r2pxo")]
 transform = Transform3D(1, 0, 0, 0, 0.99896896, -0.04539786, 0, 0.04539786, 0.99896896, 0, 0, 0)
-mass = 333.0
+mass = 350.0
 gravity_scale = 1.3
 center_of_mass = Vector3(0, -0.32, 0.08)
 hit_weight = 10.0
@@ -202,7 +202,6 @@ START_BOOST = 3.0
 BOOST_LIMIT_SPEED = 70.0
 AIR_RESISTANCE = 0.06
 speed_max_friction = 200.0
-friction_rear_min = 2.0
 friction_rear_max = 6.0
 friction_front_min = 4.0
 friction_front_max = 10.0
@@ -227,7 +226,6 @@ COST_JUMP = 15.0
 COST_SHIELD = 30.0
 COST_BOOST = 15.0
 COST_HARD_BRAKE = 10.0
-JUMP_FORCE = 19.0
 HARD_BRAKE_POWER = 200.0
 
 [node name="AirMovementComponent" parent="Scripts" index="6"]
@@ -236,7 +234,9 @@ AIR_TORQUE_FORCE = 40.0
 EXTRA_FALL_FORCE = 20.0
 
 [node name="WallRideComponent" parent="Scripts" index="10"]
+anti_gravity_start = 2.0
 anti_gravity_end = 1.2
+jump_up_force = 15.0
 
 [node name="Guns" parent="." index="20"]
 transform = Transform3D(1, 0, 0, 0, 0.9993927, 0.034847166, 0, -0.034847166, 0.9993927, 0, 0, 0)

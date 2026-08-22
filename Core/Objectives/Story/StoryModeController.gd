@@ -360,11 +360,19 @@ func _on_player_died(_attacker):
 # ====================================================================
 func _configurar_bots_da_missao():
 	if is_instance_valid(bot_spawnerV2) and current_mission != null:
-		# Pega as variáveis que você configurou no Inspetor do Godot
+		# Comportamento
 		bot_spawnerV2.current_focus_base = current_mission.player_focus_base
 		bot_spawnerV2.current_focus_variance = current_mission.player_focus_variance
 		bot_spawnerV2.current_bot_hostility_base = current_mission.bot_hostility_base
 		bot_spawnerV2.current_bot_hostility_variance = current_mission.bot_hostility_variance
+		
+		# ====================================================================
+		# AS NOVAS VARIÁVEIS DO DIRETOR DE DIFICULDADE
+		# ====================================================================
+		bot_spawnerV2.current_bot_initial_ammo = current_mission.bot_initial_ammo
+		bot_spawnerV2.current_bot_ammo_regen_rate = current_mission.bot_ammo_regen_rate
+		bot_spawnerV2.current_bot_max_damage_per_target = current_mission.bot_max_damage_per_target
+		
 		print("[StoryController] Bots configurados com Player Focus: ", bot_spawnerV2.current_focus_base, "% e Hostilidade: ", bot_spawnerV2.current_bot_hostility_base, "%")
 
 

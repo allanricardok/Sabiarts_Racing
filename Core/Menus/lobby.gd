@@ -1,4 +1,3 @@
-# StartMenu.gd
 extends Control
 
 # --- MÁQUINA DE ESTADOS ---
@@ -7,7 +6,7 @@ var current_state = State.ROOT
 var is_multiplayer_session : bool = false
 var menu_index = 0
 
-# --- REFERÊNCIAS DE TELAS (Esconde/Mostra os painéis inteiros) ---
+# --- REFERÊNCIAS DE TELAS ---
 @onready var screens = {
 	State.ROOT: $Screen_Root,
 	State.QUICK_PLAY: $Screen_QuickPlay,
@@ -18,19 +17,16 @@ var menu_index = 0
 	State.MAP_SELECT: $Screen_MapSelect
 }
 
-# --- SISTEMA DE UI ORGANIZADO (Foco Visual) ---
+# --- SISTEMA DE UI ORGANIZADO ---
 @onready var menu_options = {
 	State.ROOT: [find_child("QuickPlay", true, false), find_child("Settings", true, false)],
 	State.QUICK_PLAY: [find_child("SinglePlayer", true, false), find_child("Multiplayer", true, false)],
-	
-	# CORRIGIDO: A ordem aqui define o menu_index 0, 1, 2 e 3!
 	State.SINGLE_PLAYER: [
 		find_child("Tutorial", true, false),   # Index 0
 		find_child("Story", true, false),      # Index 1
-		find_child("FreeRoam", true, false),   # Index 2 (Exploration)
-		find_child("Combat", true, false)      # Index 3 (Battle)
+		find_child("FreeRoam", true, false),   # Index 2
+		find_child("Combat", true, false)      # Index 3
 	], 
-	
 	State.MULTIPLAYER: [find_child("Coop", true, false), find_child("PvP", true, false)],
 	State.SETTINGS: [find_child("ClearDataButton", true, false), find_child("ClearScoresButton", true, false)],
 	State.MAP_SELECT: $Screen_MapSelect/VBoxContainer.get_children() if has_node("Screen_MapSelect/VBoxContainer") else []
@@ -66,7 +62,6 @@ func _mudar_estado(novo_estado: int):
 	menu_index = 0
 	
 	if current_state == State.VEHICLE_SELECT:
-		# Agora ele decide os slots baseado na porta que você entrou, e não no modo de jogo!
 		max_players = 4 if is_multiplayer_session else 1
 		for i in range(slots_ui.size()):
 			slots_ui[i].visible = (i < max_players)
@@ -77,49 +72,44 @@ func _mudar_estado(novo_estado: int):
 			
 	_atualizar_visual_menus()
 
-func _input(_event):
-	# 1. LÓGICA DE NAVEGAÇÃO DOS MENUS SIMPLES
-	if current_state in [State.ROOT, State.QUICK_PLAY, State.SINGLE_PLAYER, State.MULTIPLAYER, State.SETTINGS, State.MAP_SELECT]:
-		if Input.is_action_just_pressed("ui_up"):
-			menu_index -= 1
-			_atualizar_visual_menus()
-		elif Input.is_action_just_pressed("ui_down"):
-			menu_index += 1
-			_atualizar_visual_menus()
-			
+# ==============================================================================
+# NOVA LÓGICA DE NAVEGAÇÃO BLINDADA E HÍBRIDA (Joysticks + UI Nativa)
+# ==============================================================================
+func _process(_delta):
+	# 1. LÓGICA DE ESCOLHA DE CARRO (Lobby)
+	if current_state == State.VEHICLE_SELECT:
 		for esquema in esquemas_disponiveis:
-			if Input.is_action_just_pressed("Action_" + esquema):
-				if current_state == State.MAP_SELECT: 
-					# Pula o mapa 0 (Tutorial)
-					_iniciar_corrida(menu_index + 1)
-				else: 
-					_confirmar_menu_simples()
-				break
-			if Input.is_action_just_pressed("Stunt_" + esquema):
-				_voltar_menu_anterior()
-				break
-
-	# 2. LÓGICA DE ESCOLHA DE CARRO
-	elif current_state == State.VEHICLE_SELECT:
-		if Input.is_action_just_pressed("Pause"): 
-			if _todos_estao_prontos():
-				if Global.current_run_mode == Global.RunMode.FREE_ROAM:
-					_iniciar_corrida(0) 
-				else:
-					_mudar_estado(State.MAP_SELECT)
-			return 
 			
-		for esquema in esquemas_disponiveis:
+			# Variáveis locais para unificar a intenção de "Aceitar" e "Voltar"
+			var accept_pressed = Input.is_action_just_pressed("Action_" + esquema) or Input.is_action_just_pressed("Fire_" + esquema)
+			var cancel_pressed = Input.is_action_just_pressed("Stunt_" + esquema)
+			
+			# O Pulo do Gato: Se for o teclado (K1), aceita Enter, Espaço, Esc e Backspace nativos do Godot!
+			if esquema == "K1":
+				accept_pressed = accept_pressed or Input.is_action_just_pressed("ui_accept")
+				cancel_pressed = cancel_pressed or Input.is_action_just_pressed("ui_cancel")
+			
+			# Start Partida
+			if Input.is_action_just_pressed("Pause_" + esquema): 
+				if _todos_estao_prontos():
+					if Global.current_run_mode == Global.RunMode.FREE_ROAM:
+						_iniciar_corrida(0) 
+					else:
+						_mudar_estado(State.MAP_SELECT)
+				return 
+				
 			var idx_jogador = _get_indice_jogador(esquema)
 			
+			# Entrar no Lobby
 			if idx_jogador == -1:
-				if Input.is_action_just_pressed("Action_" + esquema) or Input.is_action_just_pressed("Fire_" + esquema):
+				if accept_pressed:
 					_adicionar_jogador(esquema)
 				continue
 				
 			var p_data = jogadores_ativos[idx_jogador]
 			
-			if Input.is_action_just_pressed("Stunt_" + esquema):
+			# Sair ou Desmarcar Pronto
+			if cancel_pressed:
 				if p_data.pronto:
 					p_data.pronto = false 
 					_atualizar_ui_slot(idx_jogador)
@@ -128,7 +118,7 @@ func _input(_event):
 					if _get_contagem_jogadores() == 0: 
 						_voltar_menu_anterior()
 			
-			# Movimentação Horizontal e Confirmação (Apenas se não estiver Pronto)
+			# Trocar de Carro e Confirmar
 			if not p_data.pronto:
 				if Input.is_action_just_pressed("Left_" + esquema) or Input.is_action_just_pressed("cat_left_" + esquema):
 					p_data.carro_idx -= 1
@@ -140,11 +130,59 @@ func _input(_event):
 					if p_data.carro_idx >= carros_disponiveis.size(): p_data.carro_idx = 0
 					_atualizar_ui_slot(idx_jogador)
 					
-				elif Input.is_action_just_pressed("Action_" + esquema) or Input.is_action_just_pressed("Fire_" + esquema):
+				elif accept_pressed:
 					p_data.pronto = true
 					_atualizar_ui_slot(idx_jogador)
 
-# --- A MÁGICA VISUAL DOS MENUS ---
+	# 2. LÓGICA DE NAVEGAÇÃO DOS MENUS SIMPLES
+	else:
+		var moved_this_frame = false
+		
+		for esquema in esquemas_disponiveis:
+			var accept_pressed = Input.is_action_just_pressed("Action_" + esquema) or Input.is_action_just_pressed("Fire_" + esquema)
+			var cancel_pressed = Input.is_action_just_pressed("Stunt_" + esquema)
+			
+			if esquema == "K1":
+				accept_pressed = accept_pressed or Input.is_action_just_pressed("ui_accept")
+				cancel_pressed = cancel_pressed or Input.is_action_just_pressed("ui_cancel")
+			
+			# Confirmar
+			if accept_pressed:
+				if current_state == State.MAP_SELECT: 
+					_iniciar_corrida(menu_index + 1)
+				else: 
+					_confirmar_menu_simples()
+				break
+				
+# Voltar
+			elif cancel_pressed:
+				_voltar_menu_anterior()
+				break
+				
+			# Navegação Direcional (BLINDADA CONTRA INPUTS INEXISTENTES)
+			if not moved_this_frame:
+				var btn_up = Input.is_action_just_pressed("ui_up")
+				if InputMap.has_action("Pitch_Down_" + esquema) and Input.is_action_just_pressed("Pitch_Down_" + esquema): btn_up = true
+				if InputMap.has_action("target_up_" + esquema) and Input.is_action_just_pressed("target_up_" + esquema): btn_up = true
+				
+				var btn_down = Input.is_action_just_pressed("ui_down")
+				if InputMap.has_action("Pitch_Up_" + esquema) and Input.is_action_just_pressed("Pitch_Up_" + esquema): btn_down = true
+				if InputMap.has_action("target_down_" + esquema) and Input.is_action_just_pressed("target_down_" + esquema): btn_down = true
+				
+				if btn_up:
+					menu_index -= 1
+					_atualizar_visual_menus()
+					moved_this_frame = true
+					
+				elif btn_down:
+					menu_index += 1
+					_atualizar_visual_menus()
+					moved_this_frame = true
+
+# ==============================================================================
+# RESTANTE DO CÓDIGO (Visual, Fluxo e Lobby) MANTIDO INTACTO
+# ==============================================================================
+
 func _atualizar_visual_menus():
 	if not menu_options.has(current_state): return
 	
@@ -167,7 +205,6 @@ func _atualizar_visual_menus():
 			node.modulate = Color(0.4, 0.4, 0.4) 
 			node.scale = Vector2(1.0, 1.0)
 
-# --- FLUXO DE NAVEGAÇÃO ---
 func _confirmar_menu_simples():
 	match current_state:
 		State.ROOT:
@@ -181,29 +218,20 @@ func _confirmar_menu_simples():
 				is_multiplayer_session = true
 				_mudar_estado(State.MULTIPLAYER)
 		State.SINGLE_PLAYER:
-			# A numeração (0, 1, 2, 3) deve refletir a exata ordem de cima para baixo do seu Menu!
 			if menu_index == 0: 
-				# 1ª Opção visual: Tutorial / Free Roam
 				Global.current_run_mode = Global.RunMode.FREE_ROAM
 				Global.spawn_bots = false
-				
 			elif menu_index == 1: 
-				# 2ª Opção visual: Story
 				Global.current_run_mode = Global.RunMode.STORY
 				Global.spawn_bots = false 
-				
 			elif menu_index == 2: 
-				# 3ª Opção visual: Exploration
 				Global.current_run_mode = Global.RunMode.EXPLORATION
 				Global.spawn_bots = false
-				
 			elif menu_index == 3: 
-				# 4ª Opção visual: Battle
 				Global.current_run_mode = Global.RunMode.BATTLE
 				Global.spawn_bots = true
 			_mudar_estado(State.VEHICLE_SELECT)
 		State.MULTIPLAYER:
-			# Multiplayer: Coop (0) tem bots. PvP (1) não tem bots.
 			Global.current_run_mode = Global.RunMode.BATTLE
 			if menu_index == 0: 
 				Global.spawn_bots = true # COOP
@@ -349,14 +377,11 @@ func _iniciar_corrida(mapa_id: int = 0):
 		get_tree().change_scene_to_packed(cenas_dos_mapas[mapa_id])
 
 func _on_clear_data_pressed():
-	# 1. Limpa dados gerais do SaveManager
 	SaveManager.clear_data()
 	
-	# 2. Limpa dados físicos das Missões
 	if SaveManager.has_method("clear_story_data"):
 		SaveManager.clear_story_data()
 	
-	# 3. Limpeza de Memória Global (CRÍTICO)
 	if is_instance_valid(Global):
 		if "completed_story_missions" in Global:
 			Global.completed_story_missions.clear()
@@ -365,17 +390,14 @@ func _on_clear_data_pressed():
 		if "collected_items_ids" in Global:
 			Global.collected_items_ids.clear()
 			
-		# --- NOVO: Limpando os arrays responsáveis pelos Tiers e Repetições ---
 		if "completed_mission_tiers" in Global:
 			Global.completed_mission_tiers.clear()
 		if "missions_repeated_this_run" in Global:
 			Global.missions_repeated_this_run.clear()
 			
-		# Salva o estado "zerado" no disco
 		if Global.has_method("save_story_progress"):
 			Global.save_story_progress()
 		
-	# Feedback visual do botão
 	var btn = find_child("ClearDataButton", true, false)
 	if btn: btn.modulate = Color(1, 0, 0)
 	
