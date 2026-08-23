@@ -29,6 +29,12 @@ enum MissionType { COMBAT_DESTROY, SCORE, SPEED, COLLECT, GAP, EXPLORE, ROADKILL
 @export var enemy_damage_dealt_mult: float = 1.0
 @export var enemy_damage_received_mult: float = 1.0
 
+# =========================================================
+# NOVO: Carros Específicos para a Missão (Ex: Boss)
+# Se estiver vazio, usa os carros aleatórios do Spawner.
+# =========================================================
+@export var specific_bot_prefabs: Array[PackedScene] = []
+
 # ====================================================================
 # VARIÁVEIS DO DIRETOR DE DIFICULDADE DE COMBATE
 # ====================================================================

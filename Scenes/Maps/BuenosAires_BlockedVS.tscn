@@ -1,4 +1,4 @@
-[gd_scene load_steps=358 format=3 uid="uid://d1rl8sskrmddj"]
+[gd_scene load_steps=359 format=3 uid="uid://d1rl8sskrmddj"]
 
 [ext_resource type="Script" uid="uid://bxx7cys03d3dk" path="res://Core/Managers-support/Mapa_Teste_Inicio.gd" id="1_u8o8m"]
 [ext_resource type="Material" uid="uid://dp6d1xqyv31yr" path="res://Resources/mat_explosao.tres" id="3_is8dr"]
@@ -64,6 +64,7 @@
 [ext_resource type="PackedScene" uid="uid://b5uq5cu7yermy" path="res://Scenes/UI/StoryMissionResultUI.tscn" id="46_neuqn"]
 [ext_resource type="Resource" uid="uid://r2sx4x2tp7ij" path="res://Resources/MapMissions/Missions/Missao_Teste_EXPLORATION.tres" id="46_tqs36"]
 [ext_resource type="Script" uid="uid://dpmbgmu3rpmqp" path="res://Core/Objectives/Story/StoryNextMapPortal.gd" id="46_yp3g3"]
+[ext_resource type="PackedScene" uid="uid://dlrkn6a1xoie" path="res://Scenes/Prefabs/Vehicles/RubberDuck.tscn" id="47_hekgo"]
 [ext_resource type="Resource" uid="uid://bi8k3texgwi2q" path="res://Resources/MapMissions/Missions/Missao_Teste_SCORE2.tres" id="47_keab0"]
 [ext_resource type="Resource" uid="uid://ccljh7uviotyc" path="res://Resources/MapMissions/Missions/Missao_Teste_Multitask_Test.tres" id="47_ornq2"]
 [ext_resource type="PackedScene" uid="uid://c7djmj41vlc02" path="res://Scenes/Prefabs/Items/StoryCollectable.tscn" id="48_i3s4m"]
@@ -7082,7 +7083,7 @@ shape = SubResource("ConcavePolygonShape3D_yrhsj")
 
 [node name="BotSpawner" type="Node3D" parent="GridContainer/Cont_P1/View_P1/Map" node_paths=PackedStringArray("spawn_points")]
 script = ExtResource("39_d03gb")
-car_prefabs = Array[PackedScene]([ExtResource("35_6fv6f"), ExtResource("36_4e1cd"), ExtResource("37_44s4c"), ExtResource("38_jtjsh")])
+car_prefabs = Array[PackedScene]([ExtResource("35_6fv6f"), ExtResource("36_4e1cd"), ExtResource("37_44s4c"), ExtResource("38_jtjsh"), ExtResource("47_hekgo")])
 spawn_points = [NodePath("Marker3D"), NodePath("Marker3D2"), NodePath("Marker3D3"), NodePath("Marker3D4"), NodePath("Marker3D5"), NodePath("Marker3D6"), NodePath("Marker3D7"), NodePath("Marker3D8")]
 
 [node name="Marker3D" type="Marker3D" parent="GridContainer/Cont_P1/View_P1/Map/BotSpawner" groups=["quadrantes_mapa"]]

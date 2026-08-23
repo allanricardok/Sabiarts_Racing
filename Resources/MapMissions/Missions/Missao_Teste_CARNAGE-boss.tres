@@ -1,9 +1,10 @@
-[gd_resource type="Resource" script_class="StoryMissionData" load_steps=5 format=3 uid="uid://dkx6wotxnp62y"]
+[gd_resource type="Resource" script_class="StoryMissionData" load_steps=6 format=3 uid="uid://dkx6wotxnp62y"]
 
 [ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="1_2j2kp"]
 [ext_resource type="Script" uid="uid://dcan8ccd3nmwc" path="res://Core/Objectives/Story/StoryMissionTier.gd" id="2_d6l0a"]
 [ext_resource type="Resource" uid="uid://ddjl0y23gachb" path="res://Resources/MapMissions/Tiers/Tier_Teste_CARNAGEBOSS.tres" id="3_d6l0a"]
 [ext_resource type="Script" uid="uid://o1ox0n7mmqv" path="res://Core/Objectives/Story/StoryMissionData.gd" id="3_ona7p"]
+[ext_resource type="PackedScene" uid="uid://oqlfy56yme5y" path="res://Scenes/Prefabs/Vehicles/FireTruckTest.tscn" id="5_ona7p"]
 
 [resource]
 script = ExtResource("3_ona7p")
@@ -19,6 +20,7 @@ mission_sun_energy = 0.6
 enemy_count = 1
 enemy_damage_dealt_mult = 1.6
 enemy_damage_received_mult = 0.5
+specific_bot_prefabs = Array[PackedScene]([ExtResource("5_ona7p")])
 bot_initial_ammo = 12
 bot_ammo_regen_rate = 4.0
 player_focus_base = 100.0

@@ -92,9 +92,6 @@ func _physics_process(delta):
 	is_accelerating = Input.is_action_pressed("Forward" + suffix)
 	is_braking = Input.is_action_pressed("Backward" + suffix)
 	
-	is_accelerating = Input.is_action_pressed("Forward" + suffix)
-	is_braking = Input.is_action_pressed("Backward" + suffix)
-
 	# ====================================================================
 	# HACK ANTI-GHOSTING PARA O BURNOUT (Ideal para Teclado)
 	# ====================================================================
@@ -136,6 +133,9 @@ func _physics_process(delta):
 		var joy_y = Input.get_axis("LookUp" + suffix, "LookDown" + suffix)
 		look_vector = Vector2(joy_x, joy_y) 
 
+	# ====================================================================
+	# D-PAD COMBOS E TARGETING
+	# ====================================================================
 	var dpad_up = false
 	var dpad_down = false
 	var dpad_left = false
@@ -146,40 +146,59 @@ func _physics_process(delta):
 	if InputMap.has_action("cat_left" + suffix): dpad_left = Input.is_action_just_pressed("cat_left" + suffix)
 	if InputMap.has_action("cat_right" + suffix): dpad_right = Input.is_action_just_pressed("cat_right" + suffix)
 
-	target_next_pressed = dpad_up and is_attribute_pressed
-	target_prev_pressed = dpad_down and is_attribute_pressed
-	radar_prev_pressed = dpad_left and is_attribute_pressed
-	radar_next_pressed = dpad_right and is_attribute_pressed
+	if suffix.begins_with("_J"):
+		target_next_pressed = dpad_up and is_attribute_pressed
+		target_prev_pressed = dpad_down and is_attribute_pressed
+		radar_prev_pressed = dpad_left and is_attribute_pressed
+		radar_next_pressed = dpad_right and is_attribute_pressed
+	else:
+		# Teclado lê o alvo e o radar diretamente (Ex: teclas 1, 2, 3 e 4)
+		target_next_pressed = dpad_up
+		target_prev_pressed = dpad_down
+		radar_prev_pressed = dpad_left
+		radar_next_pressed = dpad_right
 
 	# ====================================================================
-	# O NÚCLEO TÁTICO: Círculo (Attribute) + L-Joy
+	# O NÚCLEO TÁTICO: Círculo (Attribute) + L-Joy vs Botões Diretos (K1)
 	# ====================================================================
-	if is_attribute_pressed:
-		var normal_threshold = 0.5 
-		
-		if suffix.begins_with("_J"):
+	is_fire_backwards_pressed = false
+	
+	if suffix.begins_with("_J"):
+		# CONTROLE: Exige segurar Círculo e mexer no analógico esquerdo
+		if is_attribute_pressed:
+			var normal_threshold = 0.5 
 			ability_left = Input.get_action_strength("Left" + suffix) > normal_threshold
 			ability_right = Input.get_action_strength("Right" + suffix) > normal_threshold
 			ability_up = Input.get_action_strength("Pitch_Down" + suffix) > normal_threshold
 			ability_down = Input.get_action_strength("Pitch_Up" + suffix) > normal_threshold
 		else:
-			ability_left = Input.get_action_strength("AbilityLeft" + suffix) > normal_threshold
-			ability_right = Input.get_action_strength("AbilityRight" + suffix) > normal_threshold
-			ability_up = Input.get_action_strength("AbilityUp" + suffix) > normal_threshold
-			ability_down = Input.get_action_strength("AbilityDown" + suffix) > normal_threshold
+			ability_up = false
+			ability_down = false
+			ability_left = false
+			ability_right = false
+			
+		var attr_just_pressed = Input.is_action_just_pressed("Attribute" + suffix)
+		var joy_down_just_pressed = Input.is_action_just_pressed("Pitch_Down" + suffix)
+		
+		# Combo atirar pra trás no controle: Círculo + Analógico pra Baixo
+		if ability_down and (attr_just_pressed or joy_down_just_pressed):
+			is_fire_backwards_pressed = true
+			
 	else:
-		ability_up = false
-		ability_down = false
-		ability_left = false
-		ability_right = false
-
-	is_fire_backwards_pressed = false
-	
-	var attr_just_pressed = Input.is_action_just_pressed("Attribute" + suffix)
-	var joy_down_just_pressed = Input.is_action_just_pressed("Pitch_Down" + suffix) or Input.is_action_just_pressed("AbilityDown" + suffix)
-	
-	if ability_down and (attr_just_pressed or joy_down_just_pressed):
-		is_fire_backwards_pressed = true
+		# TECLADO: Lê as teclas mapeadas diretamente (Q, R, E) sem segurar modificador
+		ability_left = Input.is_action_pressed("AbilityLeft" + suffix) if InputMap.has_action("AbilityLeft" + suffix) else false
+		ability_right = Input.is_action_pressed("AbilityRight" + suffix) if InputMap.has_action("AbilityRight" + suffix) else false
+		ability_up = Input.is_action_pressed("AbilityUp" + suffix) if InputMap.has_action("AbilityUp" + suffix) else false
+		ability_down = Input.is_action_pressed("AbilityDown" + suffix) if InputMap.has_action("AbilityDown" + suffix) else false
+		
+		# O SEGREDO ESTÁ AQUI: Enganamos o resto do sistema de habilidades dizendo que
+		# o botão "modificador" (Círculo) está pressionado simultaneamente!
+		if ability_left or ability_right or ability_up or ability_down:
+			is_attribute_pressed = true
+		
+		# Clica com o scroll (Mouse Button 3) para atirar pra trás.
+		if InputMap.has_action("FireBack" + suffix):
+			is_fire_backwards_pressed = Input.is_action_just_pressed("FireBack" + suffix)
 
 func _handle_global_mouse(delta):
 	if get_tree().paused:

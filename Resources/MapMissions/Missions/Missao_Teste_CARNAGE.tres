@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="StoryMissionData" load_steps=7 format=3 uid="uid://drit30f7ro0oc"]
+[gd_resource type="Resource" script_class="StoryMissionData" load_steps=11 format=3 uid="uid://drit30f7ro0oc"]
 
 [ext_resource type="Environment" uid="uid://duhvafyvkgv7o" path="res://Resources/MapThings/world_environment_test.tres" id="1_v7l57"]
 [ext_resource type="Script" uid="uid://dcan8ccd3nmwc" path="res://Core/Objectives/Story/StoryMissionTier.gd" id="2_nl5ra"]
@@ -6,6 +6,10 @@
 [ext_resource type="Resource" uid="uid://xhy1kmbjv1tl" path="res://Resources/MapMissions/Tiers/Tier_Teste_CARNAGE1.tres" id="3_l0nnu"]
 [ext_resource type="Resource" uid="uid://de314rd7i6c4p" path="res://Resources/MapMissions/Tiers/Tier_Teste_CARNAGE2.tres" id="4_x1ybu"]
 [ext_resource type="Resource" uid="uid://bb716hl6fckt0" path="res://Resources/MapMissions/Tiers/Tier_Teste_CARNAGE3.tres" id="5_wel65"]
+[ext_resource type="PackedScene" uid="uid://dlrkn6a1xoie" path="res://Scenes/Prefabs/Vehicles/RubberDuck.tscn" id="7_lsrpk"]
+[ext_resource type="PackedScene" uid="uid://dimtbsdivv4ay" path="res://Scenes/Prefabs/Vehicles/Malaquias.tscn" id="8_gua54"]
+[ext_resource type="PackedScene" uid="uid://cxnfwc3ovajua" path="res://Scenes/Prefabs/Vehicles/LakesterTest.tscn" id="9_5tahy"]
+[ext_resource type="PackedScene" uid="uid://d1q613pnimt40" path="res://Scenes/Prefabs/Vehicles/BrasiliaTest.tscn" id="10_2negf"]
 
 [resource]
 script = ExtResource("3_dkcsm")
@@ -19,5 +23,6 @@ mission_environment = ExtResource("1_v7l57")
 mission_sun_color = Color(1.5003835, 0, 0, 0.33100003)
 mission_sun_energy = 0.6
 enemy_damage_received_mult = 1.5
+specific_bot_prefabs = Array[PackedScene]([ExtResource("7_lsrpk"), ExtResource("8_gua54"), ExtResource("9_5tahy"), ExtResource("10_2negf")])
 required_unlock_points = 3000
 metadata/_custom_type_script = "uid://o1ox0n7mmqv"

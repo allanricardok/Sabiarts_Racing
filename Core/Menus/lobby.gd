@@ -72,15 +72,6 @@ func _mudar_estado(novo_estado: int):
 			
 	_atualizar_visual_menus()
 
-# ==============================================================================
-# NOVA LÓGICA DE NAVEGAÇÃO BLINDADA (Isolamento total de Gameplay e UI)
-# ==============================================================================
-# ==============================================================================
-# NOVA LÓGICA DE NAVEGAÇÃO BLINDADA (Isolamento total de Gameplay e UI)
-# ==============================================================================
-# ==============================================================================
-# NOVA LÓGICA DE NAVEGAÇÃO BLINDADA (Isolamento total de Gameplay e UI)
-# ==============================================================================
 func _process(_delta):
 	# 1. LÓGICA DE ESCOLHA DE CARRO (Lobby)
 	if current_state == State.VEHICLE_SELECT:
@@ -89,10 +80,11 @@ func _process(_delta):
 			var accept_pressed = false
 			var cancel_pressed = false
 			
-			# ISOLAMENTO DE TECLADO: Ignora "Action_K1" (Mouse) para evitar que
-			# o clique fantasma da Steam roube a vaga do seu Joystick.
+			# ISOLAMENTO DE TECLADO: Mouse devolvido para testes
 			if esquema == "K1":
 				if InputMap.has_action("Menu_Accept_K1") and Input.is_action_just_pressed("Menu_Accept_K1"): accept_pressed = true
+				if InputMap.has_action("Action_K1") and Input.is_action_just_pressed("Action_K1"): accept_pressed = true
+				if InputMap.has_action("Fire_K1") and Input.is_action_just_pressed("Fire_K1"): accept_pressed = true
 				if InputMap.has_action("Menu_Cancel_K1") and Input.is_action_just_pressed("Menu_Cancel_K1"): cancel_pressed = true
 			else:
 				if InputMap.has_action("Action_" + esquema) and Input.is_action_just_pressed("Action_" + esquema): accept_pressed = true
@@ -163,9 +155,11 @@ func _process(_delta):
 			var btn_up = false
 			var btn_down = false
 			
-			# ISOLAMENTO DE TECLADO
+			# ISOLAMENTO DE TECLADO: Mouse devolvido para testes
 			if esquema == "K1":
 				if InputMap.has_action("Menu_Accept_K1") and Input.is_action_just_pressed("Menu_Accept_K1"): accept_pressed = true
+				if InputMap.has_action("Action_K1") and Input.is_action_just_pressed("Action_K1"): accept_pressed = true
+				if InputMap.has_action("Fire_K1") and Input.is_action_just_pressed("Fire_K1"): accept_pressed = true
 				if InputMap.has_action("Menu_Cancel_K1") and Input.is_action_just_pressed("Menu_Cancel_K1"): cancel_pressed = true
 				if InputMap.has_action("Menu_Up_K1") and Input.is_action_just_pressed("Menu_Up_K1"): btn_up = true
 				if InputMap.has_action("Menu_Down_K1") and Input.is_action_just_pressed("Menu_Down_K1"): btn_down = true
@@ -204,7 +198,6 @@ func _process(_delta):
 					menu_index += 1
 					_atualizar_visual_menus()
 					moved_this_frame = true
-
 # ==============================================================================
 # RESTANTE DO CÓDIGO (Visual, Fluxo e Lobby) MANTIDO INTACTO
 # ==============================================================================

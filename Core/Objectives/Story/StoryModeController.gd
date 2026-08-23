@@ -375,18 +375,17 @@ func _configurar_bots_da_missao():
 		bot_spawnerV2.current_bot_max_damage_per_target = current_mission.bot_max_damage_per_target
 		
 		# ====================================================================
-		# NOVO: ACHA O VIP NA CENA E ENTREGA PARA O SPAWNER ANTES DO NASCIMENTO
+		# NOVO: PASSA OS CARROS ESPECÍFICOS PARA O SPAWNER (BOSS)
 		# ====================================================================
-		bot_spawnerV2.current_vip_node = null # Limpa a memória por precaução
+		bot_spawnerV2.current_specific_prefabs = current_mission.specific_bot_prefabs
+		
+		bot_spawnerV2.current_vip_node = null
 		
 		if current_mission.bot_target_destroy_id != "":
-			# Procura o VIP pelo nome mapeado no Inspetor
 			var vip = get_tree().current_scene.find_child(current_mission.bot_target_destroy_id, true, false)
 			if vip:
 				bot_spawnerV2.current_vip_node = vip
 				print("[StoryController] VIP encontrado e enviado ao Spawner: ", vip.name)
-		
-		print("[StoryController] Bots configurados com Player Focus: ", bot_spawnerV2.current_focus_base, "% e Hostilidade: ", bot_spawnerV2.current_bot_hostility_base, "%")
 func accept_mission():
 	# PREPARA A FASE DE BOTS COM OS DADOS DA MISSÃO ATUAL
 	_configurar_bots_da_missao()

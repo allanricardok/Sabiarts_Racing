@@ -14,6 +14,8 @@ var current_bot_hostility_variance: float = 0.0
 var current_bot_initial_ammo: int = 8
 var current_bot_ammo_regen_rate: float = 3.0
 var current_bot_max_damage_per_target: float = 50.0
+# NOVO: Lista injetada pela missão
+var current_specific_prefabs: Array[PackedScene] = []
 
 # ====================================================================
 # NOVO: Contador infalível de Spawns para rodízio de vagas
@@ -71,7 +73,20 @@ func spawn_single_bot(index_fallback: int = -1) -> Node:
 	return _create_bot_at_position(spawn_pos, bot_id) #[cite: 2]
 
 func _create_bot_at_position(spawn_pos: Node3D, bot_id: int) -> Node:
-	var random_car = car_prefabs.pick_random()
+	var random_car: PackedScene = null
+	
+	# 1. Verifica se a Missão exigiu carros específicos
+	if current_specific_prefabs.size() > 0:
+		# Usa o bot_id para pegar o carro na ordem. 
+		# O % garante que se pedir 3 inimigos e tiver só 1 Boss na lista, ele repete o Boss.
+		var index = bot_id % current_specific_prefabs.size()
+		random_car = current_specific_prefabs[index]
+	else:
+		# 2. Se a missão não exigiu nada, usa a roleta aleatória padrão do mapa
+		random_car = car_prefabs.pick_random()
+		
+	if not random_car: return null # Prevenção de crash
+		
 	var bot = random_car.instantiate()
 	
 	var cameras = bot.find_children("*", "Camera3D", true)
