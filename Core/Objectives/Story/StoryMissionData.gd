@@ -44,6 +44,7 @@ enum MissionType { COMBAT_DESTROY, SCORE, SPEED, COLLECT, GAP, EXPLORE, ROADKILL
 @export var bot_target_collect_id: String = ""
 ## Faz os bots tentarem destruir o objeto VIP com este ID (Ex: "barril_vip"):
 @export var bot_target_destroy_id: String = ""
+@export_range(0.0, 100.0) var vip_focus_base: float = 30.0
 ## Agressividade: Probabilidade base (0 a 100) do bot focar no Player em modo Batalha:
 @export_range(0.0, 100.0) var player_focus_base: float = 10.0
 ## Variação de agressividade (0 a 33) que cada bot individual terá na partida:

@@ -457,13 +457,14 @@ func play_shield_flash():
 	tween.tween_callback(func(): flash.visible = false)
 
 # Adicione esta função em qualquer lugar do script da HUD:
-func update_delivery_ui(held_count: int):
+func update_delivery_ui(held_count: int, force_hide: bool = false):
 	# Varre os ícones da HUD
 	for i in range(delivery_icons.size()):
 		if is_instance_valid(delivery_icons[i]):
-			# A mágica: Se o índice do ícone for menor que o número de itens na mão, ele fica visível!
-			# Ex: Pegou 1 item. held_count = 1. O Item 1 (índice 0) fica true. O resto fica false.
-			delivery_icons[i].visible = i < held_count
+			if force_hide:
+				delivery_icons[i].visible = false
+			else:
+				delivery_icons[i].visible = i < held_count
 
 # ====================================================================
 # PROGRESS BAR DO SLOW-MO E TIMER

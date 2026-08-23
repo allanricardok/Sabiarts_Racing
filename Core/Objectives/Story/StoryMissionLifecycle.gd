@@ -44,9 +44,6 @@ func accept_mission():
 	# Gera Bots de Combate para QUALQUER missão que peça inimigos
 	# =========================================================
 	if ctrl.current_mission.enemy_count > 0:
-		# ====================================================================
-		# CORREÇÃO: Acessando a variável atualizada 'bot_spawnerV2' do Controller
-		# ====================================================================
 		if ctrl.bot_spawnerV2 and ctrl.bot_spawnerV2.has_method("spawn_single_bot"):
 			for i in range(ctrl.current_mission.enemy_count):
 				var enemy = ctrl.bot_spawnerV2.spawn_single_bot(i)
@@ -84,8 +81,35 @@ func accept_mission():
 			node.visible = true
 			node.process_mode = Node.PROCESS_MODE_INHERIT
 			
+			# =========================================================
+			# RESET DE FÍSICA E VIDA DO OBJETO/VIP
+			# =========================================================
+			if node is RigidBody3D or node is VehicleBody3D:
+				node.linear_velocity = Vector3.ZERO
+				node.angular_velocity = Vector3.ZERO
+				node.sleeping = false
+				
+			# Cobre tanto o "current_health" dos Carros quanto o "health" do Barril
+			if "current_health" in node and "max_health" in node:
+				node.current_health = node.max_health
+			elif "health" in node and "max_health" in node:
+				node.health = node.max_health
+				
+			if "is_dead" in node:
+				node.is_dead = false
+				
+			var stats = node.find_child("Stats*", true, false)
+			if stats:
+				if "current_health" in stats and "max_health" in stats:
+					stats.current_health = stats.max_health
+				if "is_dead" in stats:
+					stats.is_dead = false
+					
 			if node.has_method("reset"):
 				node.reset()
+			if node.has_method("revive"):
+				node.revive()
+			# =========================================================
 				
 			if ctrl.current_mission.mission_type == StoryMissionData.MissionType.COMBAT_DESTROY and not ctrl.combat_targets.has(node):
 				ctrl.combat_targets.append(node)
@@ -281,13 +305,19 @@ func end_mission(success: bool):
 			StoryMissionData.MissionType.DESTROY
 		])
 		
-		if deve_esconder:
-			for path in ctrl.current_mission.nodes_to_enable:
-				var node = ctrl.get_node_or_null(path)
-				if not node:
-					var node_name = String(path).split("/")[-1]
-					node = get_tree().current_scene.find_child(node_name, true, false)
-				if node:
+		# =========================================================
+		# NOVO: ESCONDER A SETA FORÇADAMENTE (Ignora o deve_esconder)
+		# =========================================================
+		for path in ctrl.current_mission.nodes_to_enable:
+			var node = ctrl.get_node_or_null(path)
+			if not node:
+				var node_name = String(path).split("/")[-1]
+				node = get_tree().current_scene.find_child(node_name, true, false)
+			if node:
+				if node.name.begins_with("MissionPoint") or node.get_class() == "MissionPointer":
+					node.visible = false
+					node.process_mode = Node.PROCESS_MODE_DISABLED
+				elif deve_esconder:
 					node.visible = false
 					node.process_mode = Node.PROCESS_MODE_DISABLED
 	

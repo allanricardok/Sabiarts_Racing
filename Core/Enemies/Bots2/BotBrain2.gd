@@ -4,6 +4,7 @@ class_name BotBrainV2
 @export_group("IA Core & Missões")
 @export var mission_target_collect_id : String = ""
 @export var mission_target_destroy_id : String = ""
+@export_range(0.0, 100.0) var vip_focus_base: float = 30.0
 @export_range(0.0, 2.0) var global_aggression: float = 1.0 
 
 @export_group("Foco no Player (Agressividade)")
@@ -517,24 +518,48 @@ func notificar_alvo_esgotado(alvo: Node3D):
 func _decide_battle_target():
 	var final_target: Node3D = null
 	
-	# IGNORA alvo esgotado
-	if _is_hunting_player and is_instance_valid(_cached_player_target) and not combat.targets_exhausted.has(_cached_player_target):
-		final_target = _cached_player_target
-	else:
-		if is_instance_valid(_cached_player_target) and not combat.targets_exhausted.has(_cached_player_target):
-			var dice_roll = randf() * 100.0
-			if dice_roll <= _my_player_focus_chance:
-				final_target = _cached_player_target
+	# 1. Encontrar o Node do VIP no mapa usando o ID do Inspetor
+	var vip_node: Node3D = null
+	if mission_target_destroy_id != "":
+		# Assumindo que você usa grupos ou busca por nome para achar o VIP atual
+		var vips = get_tree().get_nodes_in_group("destructible_vips")
+		for v in vips:
+			if v.name == mission_target_destroy_id: # ou cheque algum parâmetro de ID
+				vip_node = v
+				break
 
-		if final_target == null and radar.inimigos_proximos.size() > 0:
-			var bot_dice = randf() * 100.0
-			if bot_dice <= _my_bot_hostility_chance:
-				var target_is_weakest = (randf() <= 0.25)
-				final_target = _find_best_bot_target(target_is_weakest)
+	# 2. Construir os participantes válidos da Roleta (ignorando alvos esgotados)
+	var roleta = []
+	var peso_total = 0.0
+	
+	if is_instance_valid(vip_node) and not combat.targets_exhausted.has(vip_node):
+		roleta.append({"alvo": vip_node, "peso": vip_focus_base}) # Pode usar _my_vip_focus_chance se quiser variance
+		peso_total += vip_focus_base
+		
+	if is_instance_valid(_cached_player_target) and not combat.targets_exhausted.has(_cached_player_target):
+		roleta.append({"alvo": _cached_player_target, "peso": _my_player_focus_chance})
+		peso_total += _my_player_focus_chance
+		
+	var melhor_bot = _find_best_bot_target(randf() <= 0.25)
+	if is_instance_valid(melhor_bot):
+		roleta.append({"alvo": melhor_bot, "peso": _my_bot_hostility_chance})
+		peso_total += _my_bot_hostility_chance
 
+	# 3. Girar a Roleta Pura
+	if peso_total > 0:
+		var ponteiro_sorteio = randf_range(0.0, peso_total)
+		var soma_atual = 0.0
+		
+		for fatia in roleta:
+			soma_atual += fatia["peso"]
+			if ponteiro_sorteio <= soma_atual:
+				final_target = fatia["alvo"]
+				break
+				
+	# --- RESTO DA SUA FUNÇÃO ---
 	if final_target == null:
 		if _current_brain_target != null:
-			print("[BotBrainV2] ", car.name, " perdeu os alvos visíveis ou esgotou as cotas. Voltando para WANDER!")
+			print("[BotBrainV2] ", car.name, " perdeu os alvos visíveis ou esgotou as cotas.")
 			_current_brain_target = null
 			
 		current_macro_state = MacroState.WANDER

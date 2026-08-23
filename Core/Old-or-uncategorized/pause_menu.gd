@@ -3,9 +3,13 @@ extends CanvasLayer
 var pode_pausar: bool = true
 
 # ==============================================================================
-# NOVO: Variável que guarda o "crachá" de quem pausou o jogo (Ex: "K1", "J1")
+# Variável que guarda o "crachá" de quem pausou o jogo (Ex: "K1", "J1")
 # ==============================================================================
 var pauser_scheme: String = "" 
+
+# --- O CADEADO ANTI-SPAM (Impede o jogador de quebrar os Spawns da Missão) ---
+var _cooldown_pausa: float = 0.0
+var _is_processing_button: bool = false
 
 @export var start_menu: CanvasLayer
 @onready var mission_container = %MissionList
@@ -44,30 +48,56 @@ func _ready():
 		camera_select_btn.add_item("Câmera: Longe", 2)
 
 
+func _process(delta):
+	# Libera gradativamente a trava anti-spam
+	if _cooldown_pausa > 0:
+		_cooldown_pausa -= delta
+
+	# BLINDAGEM DE INPUT: Apenas o dono da pausa pode apertar (Action) os botões
+	if visible and pauser_scheme != "" and not _is_processing_button:
+		if Input.is_action_just_pressed("Action_" + pauser_scheme):
+			var focused_node = get_viewport().gui_get_focus_owner()
+			if focused_node is OptionButton:
+				focused_node.show_popup()
+			elif focused_node is Button:
+				focused_node.pressed.emit()
+
+
 func _input(event):
 	if start_menu and start_menu.visible:
 		return
 
 	if not pode_pausar: return
 	
+	# Se a animação de pausa/transição ainda estiver no cooldown, ignora.
+	if _cooldown_pausa > 0: return
+	
 	var esquemas = ["K1", "J1", "J2", "J3", "J4"]
 	
 	if not get_tree().paused:
 		# JOGO RODANDO: Qualquer um pode apertar o seu próprio botão de pausa
 		for esquema in esquemas:
-			# ATENÇÃO: No Input Map do Godot, você precisará criar as ações "Pause_K1", "Pause_J1", etc.
-			if event.is_action_pressed("Pause_" + esquema):
+			# TRAVA ANTI-CRASH: Primeiro checa se a ação do inputmap existe.
+			var acao_pausa = "Pause_" + esquema
+			if InputMap.has_action(acao_pausa) and event.is_action_pressed(acao_pausa):
 				_toggle_pause(esquema)
 				return
 	else:
 		# JOGO PAUSADO: Apenas quem pausou pode despausar!
-		if event.is_action_pressed("Pause_" + pauser_scheme):
-			_toggle_pause("")
-			return
+		# TRAVA DO VIP: Ignora o cheque se a string do player for vazia ("")
+		if pauser_scheme != "":
+			var acao_pausa = "Pause_" + pauser_scheme
+			if InputMap.has_action(acao_pausa) and event.is_action_pressed(acao_pausa):
+				_toggle_pause("")
+				return
 
 
 func _toggle_pause(quem_pausou: String = ""):
 	if not pode_pausar: return
+	
+	# Tranca o menu por meio segundo para as missões resetarem em paz
+	_cooldown_pausa = 0.5 
+	_is_processing_button = false 
 	
 	# Salva a identificação de quem abriu o menu
 	pauser_scheme = quem_pausou
@@ -110,16 +140,6 @@ func _toggle_pause(quem_pausou: String = ""):
 	else:
 		get_viewport().gui_release_focus()
 
-func _process(delta):
-	# BLINDAGEM DE INPUT: Apenas o dono da pausa pode apertar (Action) os botões
-	if visible and pauser_scheme != "":
-		if Input.is_action_just_pressed("Action_" + pauser_scheme):
-			var focused_node = get_viewport().gui_get_focus_owner()
-			if focused_node is OptionButton:
-				focused_node.show_popup()
-			elif focused_node is Button:
-				focused_node.pressed.emit()
-
 # =================================================================
 # --- SISTEMA DE CÂMERA INDIVIDUAL ---
 # =================================================================
@@ -127,7 +147,6 @@ func _on_camera_selected(index: int):
 	if camera_select_btn.get_item_id(index) == 999: return
 	var mode = camera_select_btn.get_item_id(index)
 	
-	# Em vez de chamar o grupo, busca exatamente o carro de quem pausou
 	var jogador = _get_jogador_que_pausou()
 	if jogador and jogador.has_method("set_camera_mode"):
 		jogador.set_camera_mode(mode)
@@ -135,16 +154,11 @@ func _on_camera_selected(index: int):
 func _get_jogador_que_pausou() -> Node:
 	for p in get_tree().get_nodes_in_group("jogadores"):
 		var inp = p.get_node_or_null("%InputComponent")
-		
-		# O seu InputComponent salva a identificação com um underline na frente (ex: "_K1")
-		# Então nós juntamos "_" + pauser_scheme ("K1") para dar o match perfeito!
 		if inp and inp.get("suffix") == "_" + pauser_scheme:
 			return p
-			
 	return null
 
 func _on_toggle_ps1_toggled(toggled_on: bool):
-	# Pega todos os shaders (caso você adicione suporte a split-screen no futuro) e altera a visibilidade
 	var shaders = get_tree().get_nodes_in_group("ps1_shaders")
 	for shader in shaders:
 		shader.visible = toggled_on
@@ -246,12 +260,10 @@ func _atualizar_lista_historia():
 	mission_container.add_child(meta_lbl)
 
 func _atualizar_lista_classica():
-	# O sistema clássico foi removido. Apenas exibimos um aviso no menu.
 	var lbl = Label.new()
 	lbl.text = "Modo Livre / Combate\n(Nenhuma missão ativa)"
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lbl.add_theme_color_override("font_color", Color.GRAY)
-	
 	mission_container.add_child(lbl)
 
 func desativar_pausa():
@@ -260,37 +272,46 @@ func desativar_pausa():
 		_toggle_pause()
 
 # =================================================================
-# --- FUNÇÕES DOS BOTÕES ---
+# --- FUNÇÕES DOS BOTÕES (COM TRAVA ANTI-SPAM DE CLONAGEM) ---
 # =================================================================
 
 func _on_retry_last_btn_pressed():
+	if _is_processing_button: return
+	_is_processing_button = true
 	_toggle_pause()
+	
 	var story_controller = get_tree().get_first_node_in_group("StoryController")
 	if story_controller and story_controller.has_method("start_last_played_mission"):
 		story_controller.start_last_played_mission()
 
 func _on_abort_mission_btn_pressed():
+	if _is_processing_button: return
+	_is_processing_button = true
 	_toggle_pause()
+	
 	var story_controller = get_tree().get_first_node_in_group("StoryController")
 	if story_controller:
-		# Verifica se o jogador já alcançou algum tier parcial
 		var has_achieved_tiers = false
 		if "completed_tiers_this_run" in story_controller:
 			has_achieved_tiers = story_controller.completed_tiers_this_run.size() > 0
 			
-		# Se ele alcançou um Tier, encerramos a missão com "true" para forçar o recebimento dos bônus!
 		if story_controller.has_method("end_mission"):
 			story_controller.end_mission(has_achieved_tiers)
 		elif story_controller.has_method("abort_current_mission"):
 			story_controller.abort_current_mission()
 
 func _on_reset_mission_btn_pressed():
+	if _is_processing_button: return
+	_is_processing_button = true
 	_toggle_pause()
+	
 	var story_controller = get_tree().get_first_node_in_group("StoryController")
 	if story_controller and story_controller.has_method("restart_current_mission"):
 		story_controller.restart_current_mission()
 
 func _on_resume_btn_pressed():
+	if _is_processing_button: return
+	_is_processing_button = true
 	_toggle_pause()
 
 func _on_menu_btn_pressed():
@@ -298,7 +319,10 @@ func _on_menu_btn_pressed():
 	get_tree().change_scene_to_file("res://Scenes/UI/Menu.tscn")
 
 func _on_end_match_btn_pressed():
+	if _is_processing_button: return
+	_is_processing_button = true
 	_toggle_pause() 
+	
 	var controller = get_tree().get_first_node_in_group("LevelController")
 	if controller and controller.has_method("encerrar_partida"):
 		controller.encerrar_partida()

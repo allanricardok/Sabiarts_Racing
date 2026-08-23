@@ -42,6 +42,7 @@ var lifecycle: StoryMissionLifecycle
 var physics: StoryMissionPhysics
 var markers: StoryMissionMarkers 
 
+
 func _ready():
 	process_mode = Node.PROCESS_MODE_ALWAYS 
 	add_to_group("StoryController")
@@ -210,7 +211,10 @@ func force_cancel_all_missions():
 	delivery_items_delivered = 0
 	multitask_progress.clear()
 	
+	# Força limpeza da UI
 	get_tree().call_group("HUD", "update_delivery_ui", 0)
+	if is_instance_valid(markers) and markers.has_method("force_clear_all_markers"):
+		markers.force_clear_all_markers()
 		
 func _get_current_mission_progress() -> float:
 	if not current_mission: return 0.0
@@ -366,16 +370,23 @@ func _configurar_bots_da_missao():
 		bot_spawnerV2.current_bot_hostility_base = current_mission.bot_hostility_base
 		bot_spawnerV2.current_bot_hostility_variance = current_mission.bot_hostility_variance
 		
-		# ====================================================================
-		# AS NOVAS VARIÁVEIS DO DIRETOR DE DIFICULDADE
-		# ====================================================================
 		bot_spawnerV2.current_bot_initial_ammo = current_mission.bot_initial_ammo
 		bot_spawnerV2.current_bot_ammo_regen_rate = current_mission.bot_ammo_regen_rate
 		bot_spawnerV2.current_bot_max_damage_per_target = current_mission.bot_max_damage_per_target
 		
+		# ====================================================================
+		# NOVO: ACHA O VIP NA CENA E ENTREGA PARA O SPAWNER ANTES DO NASCIMENTO
+		# ====================================================================
+		bot_spawnerV2.current_vip_node = null # Limpa a memória por precaução
+		
+		if current_mission.bot_target_destroy_id != "":
+			# Procura o VIP pelo nome mapeado no Inspetor
+			var vip = get_tree().current_scene.find_child(current_mission.bot_target_destroy_id, true, false)
+			if vip:
+				bot_spawnerV2.current_vip_node = vip
+				print("[StoryController] VIP encontrado e enviado ao Spawner: ", vip.name)
+		
 		print("[StoryController] Bots configurados com Player Focus: ", bot_spawnerV2.current_focus_base, "% e Hostilidade: ", bot_spawnerV2.current_bot_hostility_base, "%")
-
-
 func accept_mission():
 	# PREPARA A FASE DE BOTS COM OS DADOS DA MISSÃO ATUAL
 	_configurar_bots_da_missao()
@@ -388,6 +399,14 @@ func decline_mission():
 
 func end_mission(success: bool):
 	lifecycle.end_mission(success)
+	
+	# CORREÇÃO 1: Desliga os ícones de UI (Solve o problema de Collect e Delivery)
+	get_tree().call_group("HUD", "update_delivery_ui", 0)
+	
+	# CORREÇÃO 2: Força o expurgo de TODAS as setas da tela (incluindo Defend)
+	if is_instance_valid(markers) and markers.has_method("force_clear_all_markers"):
+		markers.force_clear_all_markers()
+	
 	_update_markers_safe()
 
 func restart_current_mission():
@@ -407,6 +426,13 @@ func resume_open_world():
 	is_mission_running = false
 	current_mission = null
 	active_portal = null
+	
+	# CORREÇÃO 3: Reset de variáveis de progressão cruzada para garantir a limpeza do UI
+	current_tracked_progress = 0.0
+	delivery_items_held = 0
+	delivery_items_delivered = 0
+	get_tree().call_group("HUD", "update_delivery_ui", 0)
+	
 	get_tree().paused = false
 	_update_markers_safe()
 

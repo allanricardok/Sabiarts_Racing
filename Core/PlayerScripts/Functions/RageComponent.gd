@@ -8,34 +8,45 @@ var current_rage : float = 0.0
 var current_tier : int = 0
 var tier3_timer : float = 0.0
 
-const DRAIN_RATE : float = 1.0
+@export_group("Configuração Geral")
+@export var DRAIN_RATE : float = 1.0
+@export var TIER3_DURATION : float = 8.0
+
+@export_group("Ganhos Base (Rage)")
+@export var base_hit_object_rage : float = 1.0
+@export var base_hit_character_rage : float = 3.0
+@export var collision_damage_multiplier : float = 0.6
+@export var trick_count_multiplier : float = 4.0
+@export var special_weapon_damage_multiplier : float = 0.8
+
+@export_group("Multiplicadores de Catch-up")
+@export var catchup_mult_tier0 : float = 2.0
+@export var catchup_mult_tier1 : float = 1.5
+@export var catchup_mult_tier2 : float = 1.0
 
 # --- SISTEMA DE ANTI-SPAM (DIMINISHING RETURNS) ---
 var _last_hit_target: Node = null
 var _consecutive_hits: int = 0
-
-# OTIMIZAÇÃO: Timer para não espamar o sinal da UI 60 vezes por segundo
 var _ui_update_timer : float = 0.0
 
 func _process(delta):
-	var rage_mudou = false
+	var needs_ui_update = false
 	
 	if current_tier == 3:
 		tier3_timer -= delta
+		needs_ui_update = true 
+		
 		if tier3_timer <= 0:
 			current_rage = 285.0 
-			rage_mudou = true
+			_update_tier()
 	else:
 		if current_rage > 0:
 			current_rage -= DRAIN_RATE * delta
 			if current_rage < 0: current_rage = 0
-			rage_mudou = true
+			needs_ui_update = true 
+			_update_tier()
 			
-	if rage_mudou:
-		_update_tier()
-		
-		# OTIMIZAÇÃO: Só emite o sinal para atualizar a interface a cada 0.05s (20 FPS).
-		# Corta o custo de processamento de sinais em 70% sem perder a fluidez visual!
+	if needs_ui_update:
 		_ui_update_timer -= delta
 		if _ui_update_timer <= 0:
 			_ui_update_timer = 0.05
@@ -44,16 +55,14 @@ func _process(delta):
 # --- FUNÇÕES DE GANHO DE RAGE ---
 
 func add_hit(target: Node = null, damage_dealt: float = 0.0, is_special: bool = false):
-	# Se a arma bateu na parede neon (ou em qualquer cenário com essa tag), 
-	# cancela a função inteira e não dá Rage nenhum!
 	if is_instance_valid(target) and target.is_in_group("ignorar_rage"):
 		return
 		
-	var hit_value = 1.0
+	var hit_value = base_hit_object_rage
 	
 	if is_instance_valid(target):
 		if target.is_in_group("jogadores") or target.is_in_group("inimigos"):
-			hit_value = 3.0
+			hit_value = base_hit_character_rage
 			
 		if target == _last_hit_target:
 			_consecutive_hits += 1
@@ -65,7 +74,7 @@ func add_hit(target: Node = null, damage_dealt: float = 0.0, is_special: bool = 
 		hit_value *= decay_multiplier
 		
 		if is_special:
-			hit_value += (damage_dealt * 0.8)
+			hit_value += (damage_dealt * special_weapon_damage_multiplier)
 			
 	else:
 		_last_hit_target = null
@@ -74,29 +83,28 @@ func add_hit(target: Node = null, damage_dealt: float = 0.0, is_special: bool = 
 	_add_rage(hit_value)
 
 func add_collision_damage(amount: float):
-	_add_rage(amount * 0.6)
+	_add_rage(amount * collision_damage_multiplier)
 
 func add_trick(count: int):
-	_add_rage(float(count)*4)
+	_add_rage(float(count) * trick_count_multiplier)
 
 func _add_rage(base_amount: float):
 	if current_tier == 3:
-		tier3_timer = 8.0 
+		tier3_timer = TIER3_DURATION 
 		return
 		
-	var multiplier = 1.0
-	if current_rage < 100: multiplier = 2.0
-	elif current_rage < 200: multiplier = 1.5
+	var multiplier = catchup_mult_tier2
+	if current_rage < 100: multiplier = catchup_mult_tier0
+	elif current_rage < 200: multiplier = catchup_mult_tier1
 		
 	current_rage += (base_amount * multiplier)
 	
 	if current_rage >= 300:
 		current_rage = 300
-		tier3_timer = 8.0 
+		tier3_timer = TIER3_DURATION 
 		
 	_update_tier()
 	
-	# Força atualização visual imediata no momento do ganho para dar impacto ao jogador
 	rage_updated.emit(current_rage, current_tier, tier3_timer)
 	_ui_update_timer = 0.05
 

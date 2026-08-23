@@ -51,10 +51,10 @@ bounce = 0.21
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_og6km"]
 custom_solver_bias = 0.045
-size = Vector3(1.1523438, 0.38419932, 1.934)
+size = Vector3(1.1523438, 0.5097656, 1.373291)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_bjxsa"]
-size = Vector3(3, 2.4401855, 5)
+size = Vector3(1.4072266, 0.7705078, 1.9033203)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mb2us"]
 content_margin_left = 2.0
@@ -240,6 +240,7 @@ script = ExtResource("2_37r4d")
 follow_speed_lateral = 6.0
 follow_speed_depth = 30.0
 follow_speed_vertical = 35.0
+min_local_y = 0.0
 speed_pullback_max = 1.8
 turbo_kickback_force = 0.8
 turbo_fov_increase = 12.0

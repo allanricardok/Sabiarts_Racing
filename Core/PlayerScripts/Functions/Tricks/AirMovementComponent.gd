@@ -178,7 +178,7 @@ func _handle_air_control(delta, grounded_wheels: int, multiplier: float):
 	# ====================================================================
 	# NERF DE VELOCIDADE AÉREA: Corta a aceleração frontal pela metade (50%)
 	# ====================================================================
-	var forward_in_air = max(input.throttle, 0.0) * 0.5
+	var forward_in_air = max(input.throttle, 0.0) * 0.7
 	
 	if grounded_wheels > 0:
 		forward_in_air = 0.0

@@ -73,24 +73,34 @@ func _mudar_estado(novo_estado: int):
 	_atualizar_visual_menus()
 
 # ==============================================================================
-# NOVA LÓGICA DE NAVEGAÇÃO BLINDADA E HÍBRIDA (Joysticks + UI Nativa)
+# NOVA LÓGICA DE NAVEGAÇÃO BLINDADA (Isolamento total de Gameplay e UI)
+# ==============================================================================
+# ==============================================================================
+# NOVA LÓGICA DE NAVEGAÇÃO BLINDADA (Isolamento total de Gameplay e UI)
+# ==============================================================================
+# ==============================================================================
+# NOVA LÓGICA DE NAVEGAÇÃO BLINDADA (Isolamento total de Gameplay e UI)
 # ==============================================================================
 func _process(_delta):
 	# 1. LÓGICA DE ESCOLHA DE CARRO (Lobby)
 	if current_state == State.VEHICLE_SELECT:
 		for esquema in esquemas_disponiveis:
 			
-			# Variáveis locais para unificar a intenção de "Aceitar" e "Voltar"
-			var accept_pressed = Input.is_action_just_pressed("Action_" + esquema) or Input.is_action_just_pressed("Fire_" + esquema)
-			var cancel_pressed = Input.is_action_just_pressed("Stunt_" + esquema)
+			var accept_pressed = false
+			var cancel_pressed = false
 			
-			# O Pulo do Gato: Se for o teclado (K1), aceita Enter, Espaço, Esc e Backspace nativos do Godot!
+			# ISOLAMENTO DE TECLADO: Ignora "Action_K1" (Mouse) para evitar que
+			# o clique fantasma da Steam roube a vaga do seu Joystick.
 			if esquema == "K1":
-				accept_pressed = accept_pressed or Input.is_action_just_pressed("ui_accept")
-				cancel_pressed = cancel_pressed or Input.is_action_just_pressed("ui_cancel")
+				if InputMap.has_action("Menu_Accept_K1") and Input.is_action_just_pressed("Menu_Accept_K1"): accept_pressed = true
+				if InputMap.has_action("Menu_Cancel_K1") and Input.is_action_just_pressed("Menu_Cancel_K1"): cancel_pressed = true
+			else:
+				if InputMap.has_action("Action_" + esquema) and Input.is_action_just_pressed("Action_" + esquema): accept_pressed = true
+				if InputMap.has_action("Fire_" + esquema) and Input.is_action_just_pressed("Fire_" + esquema): accept_pressed = true
+				if InputMap.has_action("Stunt_" + esquema) and Input.is_action_just_pressed("Stunt_" + esquema): cancel_pressed = true
 			
 			# Start Partida
-			if Input.is_action_just_pressed("Pause_" + esquema): 
+			if InputMap.has_action("Pause_" + esquema) and Input.is_action_just_pressed("Pause_" + esquema): 
 				if _todos_estao_prontos():
 					if Global.current_run_mode == Global.RunMode.FREE_ROAM:
 						_iniciar_corrida(0) 
@@ -120,12 +130,21 @@ func _process(_delta):
 			
 			# Trocar de Carro e Confirmar
 			if not p_data.pronto:
-				if Input.is_action_just_pressed("Left_" + esquema) or Input.is_action_just_pressed("cat_left_" + esquema):
+				var btn_left = false
+				var btn_right = false
+				
+				if InputMap.has_action("Left_" + esquema) and Input.is_action_just_pressed("Left_" + esquema): btn_left = true
+				if InputMap.has_action("cat_left_" + esquema) and Input.is_action_just_pressed("cat_left_" + esquema): btn_left = true
+				
+				if InputMap.has_action("Right_" + esquema) and Input.is_action_just_pressed("Right_" + esquema): btn_right = true
+				if InputMap.has_action("cat_right_" + esquema) and Input.is_action_just_pressed("cat_right_" + esquema): btn_right = true
+				
+				if btn_left:
 					p_data.carro_idx -= 1
 					if p_data.carro_idx < 0: p_data.carro_idx = carros_disponiveis.size() - 1
 					_atualizar_ui_slot(idx_jogador)
 					
-				elif Input.is_action_just_pressed("Right_" + esquema) or Input.is_action_just_pressed("cat_right_" + esquema):
+				elif btn_right:
 					p_data.carro_idx += 1
 					if p_data.carro_idx >= carros_disponiveis.size(): p_data.carro_idx = 0
 					_atualizar_ui_slot(idx_jogador)
@@ -139,12 +158,27 @@ func _process(_delta):
 		var moved_this_frame = false
 		
 		for esquema in esquemas_disponiveis:
-			var accept_pressed = Input.is_action_just_pressed("Action_" + esquema) or Input.is_action_just_pressed("Fire_" + esquema)
-			var cancel_pressed = Input.is_action_just_pressed("Stunt_" + esquema)
+			var accept_pressed = false
+			var cancel_pressed = false
+			var btn_up = false
+			var btn_down = false
 			
+			# ISOLAMENTO DE TECLADO
 			if esquema == "K1":
-				accept_pressed = accept_pressed or Input.is_action_just_pressed("ui_accept")
-				cancel_pressed = cancel_pressed or Input.is_action_just_pressed("ui_cancel")
+				if InputMap.has_action("Menu_Accept_K1") and Input.is_action_just_pressed("Menu_Accept_K1"): accept_pressed = true
+				if InputMap.has_action("Menu_Cancel_K1") and Input.is_action_just_pressed("Menu_Cancel_K1"): cancel_pressed = true
+				if InputMap.has_action("Menu_Up_K1") and Input.is_action_just_pressed("Menu_Up_K1"): btn_up = true
+				if InputMap.has_action("Menu_Down_K1") and Input.is_action_just_pressed("Menu_Down_K1"): btn_down = true
+			else:
+				if InputMap.has_action("Action_" + esquema) and Input.is_action_just_pressed("Action_" + esquema): accept_pressed = true
+				if InputMap.has_action("Fire_" + esquema) and Input.is_action_just_pressed("Fire_" + esquema): accept_pressed = true
+				if InputMap.has_action("Stunt_" + esquema) and Input.is_action_just_pressed("Stunt_" + esquema): cancel_pressed = true
+				
+				# CORREÇÃO DA INVERSÃO (CIMA NO MENU) -> Pitch_Down = Analógico para Cima!
+				if InputMap.has_action("target_up_" + esquema) and Input.is_action_just_pressed("target_up_" + esquema): btn_up = true
+				
+				# CORREÇÃO DA INVERSÃO (BAIXO NO MENU) -> Pitch_Up = Analógico para Baixo!
+				if InputMap.has_action("target_down_" + esquema) and Input.is_action_just_pressed("target_down_" + esquema): btn_down = true
 			
 			# Confirmar
 			if accept_pressed:
@@ -154,21 +188,13 @@ func _process(_delta):
 					_confirmar_menu_simples()
 				break
 				
-# Voltar
+			# Voltar
 			elif cancel_pressed:
 				_voltar_menu_anterior()
 				break
 				
-			# Navegação Direcional (BLINDADA CONTRA INPUTS INEXISTENTES)
+			# Executa Navegação
 			if not moved_this_frame:
-				var btn_up = Input.is_action_just_pressed("ui_up")
-				if InputMap.has_action("Pitch_Down_" + esquema) and Input.is_action_just_pressed("Pitch_Down_" + esquema): btn_up = true
-				if InputMap.has_action("target_up_" + esquema) and Input.is_action_just_pressed("target_up_" + esquema): btn_up = true
-				
-				var btn_down = Input.is_action_just_pressed("ui_down")
-				if InputMap.has_action("Pitch_Up_" + esquema) and Input.is_action_just_pressed("Pitch_Up_" + esquema): btn_down = true
-				if InputMap.has_action("target_down_" + esquema) and Input.is_action_just_pressed("target_down_" + esquema): btn_down = true
-				
 				if btn_up:
 					menu_index -= 1
 					_atualizar_visual_menus()

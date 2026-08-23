@@ -26,6 +26,7 @@ var display_version : int = 0
 
 var _trick_manager: Node
 var _stats_component: Node
+var _rage_component: Node # <--- REFERÊNCIA DO RAGE AQUI
 var _is_bot: bool = false
 var _cached_hud: Node
 var _combo_timer: float = 0.0
@@ -33,6 +34,7 @@ var _combo_timer: float = 0.0
 func _ready():
 	_trick_manager = car.get_node_or_null("%TrickManager")
 	_stats_component = car.get_node_or_null("%StatsComponent")
+	_rage_component = car.get_node_or_null("%RageComponent") # <--- BUSCANDO O CÉREBRO DO RAGE
 	call_deferred("_setup_cache")
 
 # CORREÇÃO: O Cache volta a ser feito preventivamente no _ready()
@@ -77,6 +79,12 @@ func add_custom_action(custom_name: String, points: int):
 	
 	_update_live_display()
 	_restart_inactivity_timer()
+	
+	# ====================================================================
+	# CONECTOR CORRIGIDO: Não finge mais que é acrobacia
+	# ====================================================================
+	if is_instance_valid(_rage_component):
+		_rage_component._add_rage(1.0) # Manda apenas 1.0 de Rage cru (será afetado pelos Tiers)
 
 func _start_combo():
 	tracking_combo = true
@@ -89,6 +97,15 @@ func _register_action_logic(id: String):
 	actions_done.append(data.name)
 	points_per_action.append(data.points)
 	_update_live_display()
+	
+	# ====================================================================
+	# CONECTOR CORRIGIDO: Acionar Rage baseado no tipo de pancada
+	# ====================================================================
+	if is_instance_valid(_rage_component):
+		if id == "COMBAT_HIT":
+			_rage_component.add_hit() # Usa o "Base Hit Character Rage" (3.0) do Inspetor
+		else:
+			_rage_component._add_rage(0.5) # Bater/Quebrar objetos agora dá muito menos Rage bruto
 
 func _get_dynamic_multiplier() -> float:
 	if actions_done.size() == 0: return 1.0

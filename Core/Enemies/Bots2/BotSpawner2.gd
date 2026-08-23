@@ -3,6 +3,7 @@ class_name BotSpawnerV2
 
 @export var car_prefabs: Array[PackedScene] # Coloque os carros aqui no Inspector
 @export var spawn_points: Array[Marker3D] # Agora isso é apenas um backup!
+var current_vip_node: Node3D = null
 
 # --- VARIÁVEIS INJETADAS PELO CONTROLADOR DE MISSÃO ---
 var current_focus_base: float = 10.0
@@ -49,24 +50,25 @@ func _spawn_all_bots():
 		_spawn_counter += 1
 
 func spawn_single_bot(index_fallback: int = -1) -> Node:
-	var active_points = _get_active_spawn_points()
+	# AGORA USAMOS A LISTA FILTRADA EM VEZ DE TODOS OS PONTOS
+	var active_points = _get_spawn_points_near_vip(4) # Pega os 4 mais próximos
 	
 	if car_prefabs.is_empty() or active_points.is_empty():
 		print("[BotSpawnerV2] Falha no spawn individual: car_prefabs ou spawn_points vazios!")
 		return null
 		
-	# Usa o contador interno do Spawner. Assim, mesmo que o Lifecycle chame a 
-	# função igual 4 vezes, ele fará um rodízio perfeito nos pontos!
-	var point_index = _spawn_counter % active_points.size()
-	var spawn_pos = active_points[point_index]
+	# Usa o contador interno do Spawner para fazer um rodízio APENAS
+	# entre os pontos próximos selecionados.
+	var point_index = _spawn_counter % active_points.size() #[cite: 2]
+	var spawn_pos = active_points[point_index] #[cite: 2]
 	
 	var bot_id = _spawn_counter
 	if index_fallback >= 0:
 		bot_id = index_fallback
 		
-	_spawn_counter += 1 # Avança o carrinho para o próximo que for nascer
+	_spawn_counter += 1
 	
-	return _create_bot_at_position(spawn_pos, bot_id)
+	return _create_bot_at_position(spawn_pos, bot_id) #[cite: 2]
 
 func _create_bot_at_position(spawn_pos: Node3D, bot_id: int) -> Node:
 	var random_car = car_prefabs.pick_random()
@@ -114,3 +116,29 @@ func _create_bot_at_position(spawn_pos: Node3D, bot_id: int) -> Node:
 	bot.global_rotation = spawn_pos.global_rotation
 	
 	return bot
+
+func _get_spawn_points_near_vip(max_vagas: int = 4) -> Array:
+	var todos_pontos = _get_active_spawn_points() #[cite: 2]
+	
+	# Se não tiver VIP definido ou se o VIP foi destruído, usa a lógica antiga (todos os pontos)
+	if not is_instance_valid(current_vip_node):
+		return todos_pontos
+		
+	var dist_array = []
+	var vip_pos = current_vip_node.global_position
+	
+	# Calcula a distância de todos os Spawn Points até o VIP
+	for p in todos_pontos:
+		if is_instance_valid(p):
+			var d_sq = p.global_position.distance_squared_to(vip_pos)
+			dist_array.append({"ponto": p, "distancia": d_sq})
+			
+	# Ordena do mais perto pro mais longe (ordem crescente de distância)
+	dist_array.sort_custom(func(a, b): return a["distancia"] < b["distancia"])
+	
+	# Retorna apenas os 'max_vagas' mais próximos (ex: os 4 pontos mais perto do VIP)
+	var pontos_proximos = []
+	for i in range(min(max_vagas, dist_array.size())):
+		pontos_proximos.append(dist_array[i]["ponto"])
+		
+	return pontos_proximos

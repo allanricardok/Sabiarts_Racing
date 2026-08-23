@@ -17,11 +17,11 @@ mission_id = "secret_BA"
 mission_name = "Second Floor"
 mission_description = "Go to the mall's second floor.
 
-It's the green transparent thing right there"
+Follow the yellow arrow"
 mission_tiers = Array[ExtResource("2_a7v33")]([SubResource("Resource_0y6ep")])
 mission_environment = ExtResource("1_blsln")
 mission_sun_color = Color(0.20019999, 0.5515766, 0.77, 0.43137255)
 mission_sun_energy = 0.2
-nodes_to_enable = Array[NodePath]([NodePath("../../BAMap/ExplorationArea")])
+nodes_to_enable = Array[NodePath]([NodePath("../../BAMap/ExplorationArea"), NodePath("../MissionPointerExplore")])
 enemy_count = 0
 metadata/_custom_type_script = "uid://o1ox0n7mmqv"

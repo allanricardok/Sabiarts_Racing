@@ -27,6 +27,14 @@ func _ready():
 		
 	# OTIMIZAÇÃO: Guarda a distância ao quadrado para não calcular raiz na física
 	_min_dist_sq = min_respawn_distance * min_respawn_distance
+	
+	# =================================================================
+	# SPAWN SEGURO NO LOADING: call_deferred garante que a engine 
+	# só vai rodar isso quando a cena principal estiver 100% pronta!
+	# =================================================================
+	if not is_instance_valid(current_object):
+		call_deferred("_spawn_object")
+		
 	timer = respawn_time
 
 func _process(delta):

@@ -45,7 +45,7 @@ var _wall_ride_orchestrator: Node = null
 var _ground_trick_manager: Node = null
 var _ability_component: Node = null
 var _rage_component: Node = null
-var _manual_component: Node = null # <--- NOVA REFERÊNCIA PARA O MANUAL
+var _manual_component: Node = null
 
 func _ready():
 	_trick_builder = car.get_node_or_null("%TrickBuilder")
@@ -54,7 +54,6 @@ func _ready():
 	_ability_component = car.find_child("AbilityComponent", true, false)
 	_rage_component = car.get_node_or_null("%RageComponent")
 	
-	# Busca o script do manual com segurança
 	_manual_component = car.get_node_or_null("%ManualTrickComponent")
 	if not _manual_component:
 		_manual_component = car.find_child("ManualTrick*", true, false)
@@ -90,6 +89,12 @@ func add_external_action(action_name: String, points: int, color_hex: String = "
 	points_per_trick.append(points)
 	tricks_colors.append(color_hex)
 	_update_live_display()
+	
+	# ====================================================================
+	# CONECTOR DO RAGE RESTAURADO (Garante Rage em Drift, Manual e Gaps)
+	# ====================================================================
+	if is_instance_valid(_rage_component):
+		_rage_component.add_trick(1)
 
 func add_trick_manually(id: String):
 	if is_instance_valid(_trick_builder) and _trick_builder.TRICK_DATA.has(id):
@@ -140,6 +145,13 @@ func _start_new_jump():
 			tricks_done.append(_ground_trick_manager.actions_done[i])
 			points_per_trick.append(_ground_trick_manager.points_per_action[i])
 			tricks_colors.append(COLOR_GROUND)
+			
+			# ====================================================================
+			# CONECTOR DO RAGE RESTAURADO (Paga o Rage de combos puxados do chão)
+			# ====================================================================
+			if is_instance_valid(_rage_component):
+				_rage_component.add_trick(1)
+				
 		_ground_trick_manager.tracking_combo = false
 	
 	current_jump_uses.clear()
@@ -304,9 +316,6 @@ func process_air_time(_delta: float, _is_near_ground: bool):
 		if not _is_near_ground: _start_new_jump()
 		else: return
 	
-	# ==============================================================================
-	# CORREÇÃO 1: Congela o contador de AirTime se o carro estiver no chão em manual
-	# ==============================================================================
 	if not _is_near_ground:
 		air_time += _delta
 	
@@ -322,15 +331,11 @@ func check_landing(is_clean: bool):
 			if _wall_ride_orchestrator.has_combo_shield():
 				return 
 				
-		# ==============================================================================
-		# CORREÇÃO 2: Escudo do Combo (Respeita a flag is_manual_armed e o Estado)
-		# ==============================================================================
 		if is_instance_valid(_manual_component):
 			var is_armed = _manual_component.get("is_manual_armed")
 			var state = _manual_component.get("current_state")
-			# Se estiver engatilhado aguardando o chão, OU já estiver fazendo o manual (estado diferente de IDLE que é 0)
 			if is_armed == true or (state != null and state != 0):
-				return # Ignora o check de pouso e mantém o combo vivo!
+				return
 
 		if is_clean:
 			if air_time >= AIR_TIME_THRESHOLD or tricks_done.size() > 0: 
@@ -342,9 +347,6 @@ func check_landing(is_clean: bool):
 			
 	tracking_jump = false
 
-# ==============================================================================
-# CORREÇÃO 3: Nova função que o Manual chama para "sacar" o dinheiro do combo
-# ==============================================================================
 func cash_out_combo():
 	if tracking_jump and not is_showing_final_score:
 		if air_time >= AIR_TIME_THRESHOLD or tricks_done.size() > 0:

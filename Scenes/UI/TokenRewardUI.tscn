@@ -60,7 +60,7 @@ theme_override_constants/separation = 15
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 42
-text = "Highscores:"
+text = "Tokens (for the store in the future)"
 
 [node name="StatusLabel" type="Label" parent="Control/VBoxContainer"]
 unique_name_in_owner = true

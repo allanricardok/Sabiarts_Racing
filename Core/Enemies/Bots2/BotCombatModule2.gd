@@ -37,7 +37,7 @@ func setup(_car: BaseVehicle, _input: Node, _stats: Node, _radar: BotRadarV2):
 	ammo_regen_timer = ammo_regen_rate
 
 	# PRINTA O REGEN RATE INICIAL
-	print("[%s COMBATE] Iniciado! Regen Rate: %.1fs | Initial Ammo Esperado: %d" % [car.name, ammo_regen_rate, initial_ammo])
+	print("[%s COMBATE] Iniciado! Regen Rate: %.1fs | Initial Ammo Base: %d" % [car.name, ammo_regen_rate, initial_ammo])
 
 func _log_ammo(motivo: String = ""):
 	var wm = car.get_node_or_null("%WeaponManager")
@@ -71,8 +71,13 @@ func processar_combate(delta: float):
 	if not _arma_inicializada:
 		var wm = car.get_node_or_null("%WeaponManager")
 		if wm and wm.weapon_pool.size() > 0:
+			
+			# DIVERSIDADE: Sorteia um valor entre -2 e +2 e soma na munição base.
+			# O max() garante que a munição nunca será menor que 1.
+			var random_start_ammo = max(1, initial_ammo + randi_range(-2, 2))
+			
 			for w in wm.weapon_pool:
-				w.ammo = initial_ammo
+				w.ammo = random_start_ammo
 				
 			# Se estiver desarmado, sorteia uma arma aleatória do arsenal para sacar!
 			if not wm.get_active_special() and wm.has_method("_switch_weapon"):
@@ -80,7 +85,7 @@ func processar_combate(delta: float):
 				wm._switch_weapon(random_index)
 				
 			_arma_inicializada = true
-			_log_ammo("Setup Concluído com Sucesso")
+			_log_ammo("Setup Concluído. Ammo Sorteada: " + str(random_start_ammo))
 
 	disparou_no_vip = false 
 	
